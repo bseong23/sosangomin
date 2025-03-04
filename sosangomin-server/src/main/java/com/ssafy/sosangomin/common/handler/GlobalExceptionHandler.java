@@ -1,9 +1,9 @@
 package com.ssafy.sosangomin.common.handler;
 
-import com.ssafy.sosangomin.common.exception.DataLensException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.FailResponse;
 import com.ssafy.sosangomin.common.exception.FailResponse.ValidationError;
+import com.ssafy.sosangomin.common.exception.SosangominException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +24,8 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(DataLensException.class)
-    public ResponseEntity<FailResponse> handleGlobalException(DataLensException exception) {
+    @ExceptionHandler(SosangominException.class)
+    public ResponseEntity<FailResponse> handleGlobalException(SosangominException exception) {
         log.warn("[ChocoLetterException] {}: {}", exception.getClass().getName(), exception.getErrorMessage());
 
         return ResponseEntity.status(exception.getStatus())
