@@ -26,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(SosangominException.class)
     public ResponseEntity<FailResponse> handleGlobalException(SosangominException exception) {
-        log.warn("[ChocoLetterException] {}: {}", exception.getClass().getName(), exception.getErrorMessage());
+        log.warn("[SosangominException] {}: {}", exception.getClass().getName(), exception.getErrorMessage());
 
         return ResponseEntity.status(exception.getStatus())
                 .body(FailResponse.fail(exception.getStatus().value(), exception.getErrorMessage()));
