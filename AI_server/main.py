@@ -6,6 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import logging
 
+# DB
+from database.connector import database_instance as mariadb
+from database.mongo_connector import mongo_instance as mongodb
+
 # 환경 변수 로드
 load_dotenv()
 
@@ -30,5 +34,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# DB 연결 설정
