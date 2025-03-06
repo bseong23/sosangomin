@@ -47,14 +47,11 @@ const Header = () => {
           </>
         ) : (
           <>
-            <Link to="/login" className="flex items-center text-gray-600 text-[16px] pr-[20px] hover:text-blue-500">
-              로그인
-            </Link>
             <Link
               to="/signup"
               className="flex items-center justify-center bg-[#16125D] text-white px-[25px] py-[12px] rounded-md hover:bg-blue-800 w-[116px] h-[40px]"
             >
-              무료 체험
+              로그인
             </Link>
           </>
         )}
