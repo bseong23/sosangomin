@@ -19,3 +19,5 @@ class News(Base):
     image_url = Column(Text)
     category = Column(String(50), nullable=False)
     created_at = Column(DateTime(timezone=True))
+    likes_count = Column(Integer, default=0)
+    comments_count = Column(Integer, default=0)

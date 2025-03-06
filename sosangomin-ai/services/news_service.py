@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from models import News
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from bs4 import BeautifulSoup
 import re
 from dotenv import load_dotenv
@@ -56,6 +56,34 @@ class NewsService:
             "경영관리": ["경영", "관리", "마케팅", "회계", "세무", "인사"],
             "시장동향": ["트렌드", "동향", "소비", "매출", "시장"],
             "플랫폼": ["배달", "온라인", "플랫폼", "앱", "디지털"]
+        }
+        
+        self.news_site_patterns = {
+            "naver.com": {
+                "type": "naver",
+                "likes_selector": ".u_likeit_list .u_likeit_list_count",
+                "comments_selector": ".u_cbox_count"
+            },
+            "daum.net": {
+                "type": "daum",
+                "likes_selector": ".emotion_wrap .emotion_count",
+                "comments_selector": ".comment_count .num_count"
+            },
+            "chosun.com": {
+                "type": "chosun",
+                "likes_selector": ".count-good",
+                "comments_selector": ".comment-count"
+            },
+            "donga.com": {
+                "type": "donga",
+                "likes_selector": ".article_like .count",
+                "comments_selector": ".commentCount"
+            },
+            "hani.co.kr": {
+                "type": "hani",
+                "likes_selector": ".article-bottom__count",
+                "comments_selector": ".reply-count"
+            }
         }
     
     async def fetch_news(self, session, keyword: str, display: int = 10, start: int = 1) -> Dict[str, Any]:
@@ -113,6 +141,57 @@ class NewsService:
             logger.warning(f"날짜 파싱 실패: {date_str}, 오늘 날짜 사용")
             return datetime.now().date()
     
+    async def extract_engagement_metrics(self, session, news_url: str) -> Tuple[int, int]:
+        """뉴스 URL에서 좋아요 수와 댓글 수 추출 (비동기)"""
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml",
+                "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7"
+            }
+            
+            site_pattern = None
+            for site_domain, pattern in self.news_site_patterns.items():
+                if site_domain in news_url:
+                    site_pattern = pattern
+                    break
+            
+            if not site_pattern:
+                return 0, 0
+                
+            async with session.get(
+                news_url, 
+                headers=headers, 
+                timeout=aiohttp.ClientTimeout(total=3)
+            ) as response:
+                if response.status != 200:
+                    return 0, 0
+                
+                html = await response.text()
+                soup = BeautifulSoup(html, 'html.parser')
+                
+                likes = 0
+                likes_elem = soup.select_one(site_pattern["likes_selector"])
+                if likes_elem:
+                    likes_text = likes_elem.get_text().strip()
+                    likes_match = re.search(r'\d+', likes_text)
+                    if likes_match:
+                        likes = int(likes_match.group())
+                
+                comments = 0
+                comments_elem = soup.select_one(site_pattern["comments_selector"])
+                if comments_elem:
+                    comments_text = comments_elem.get_text().strip()
+                    comments_match = re.search(r'\d+', comments_text)
+                    if comments_match:
+                        comments = int(comments_match.group())
+                
+                return likes, comments
+                
+        except Exception as e:
+            logger.warning(f"좋아요/댓글 수 추출 실패: {e}")
+            return 0, 0
+    
     async def update_news(self):
         """최신 뉴스를 수집하고 데이터베이스에 저장 (비동기)"""
         # DB 세션 생성
@@ -128,7 +207,6 @@ class NewsService:
             current_time = datetime.now(datetime.now().astimezone().tzinfo)
             
             async with aiohttp.ClientSession() as session:
-                # 각 키워드별로 검색 수행
                 for keyword in self.keywords:
                     logger.info(f"키워드 '{keyword}'로 뉴스 검색 중...")
                     news_data = await self.fetch_news(session, keyword, display=20) 
@@ -140,30 +218,30 @@ class NewsService:
                             link = item.get("originallink") or item.get("link", "")
                             pub_date = self.parse_pub_date(item.get("pubDate", ""))
                             
-                            # 중복 검사
                             existing_news = db.query(News).filter(News.link == link).first()
                             if existing_news:
                                 continue
                             
-                            # 카테고리 결정
                             category = self.determine_category(title, description)
                             
                             try:
                                 image_url = await self.extract_image_url(session, link)
                                 
                                 if image_url is None:
-                                    logger.info(f"이미지 URL 추출 실패로 항목 건너뜀: {title}")
                                     skipped_count += 1
                                     continue
+                                
+                                likes_count, comments_count = await self.extract_engagement_metrics(session, link)
                                     
-                                # 뉴스 객체 생성
                                 news = News(
                                     title=title,
                                     link=link,
                                     pub_date=pub_date,
                                     image_url=image_url,
                                     category=category,
-                                    created_at=current_time
+                                    created_at=current_time,
+                                    likes_count=likes_count,
+                                    comments_count=comments_count
                                 )
                                 
                                 db.add(news)
@@ -175,7 +253,7 @@ class NewsService:
                                 skipped_count += 1
                                 continue
                             except Exception as e:
-                                logger.warning(f"이미지 추출 중 오류로 항목 건너뜀: {e}")
+                                logger.warning(f"데이터 추출 중 오류로 항목 건너뜀: {e}")
                                 skipped_count += 1
                                 continue
                                 
@@ -227,7 +305,6 @@ class NewsService:
                 return None
                 
         except Exception as e:
-            logger.warning(f"이미지 URL 추출 실패: {e}")
             return None
     
     def get_recent_news(self, db: Session, category: Optional[str] = None, limit: int = 20) -> List[News]:
@@ -246,5 +323,38 @@ class NewsService:
     def get_news_by_id(self, db: Session, news_id: int) -> Optional[News]:
         """ID로 뉴스 조회"""
         return db.query(News).filter(News.news_id == news_id).first()
+    
+    async def update_engagement_metrics(self, db: Session, limit: int = 50):
+        """기존 뉴스 기사의 좋아요 수와 댓글 수 업데이트"""
+        try:
+            news_list = db.query(News).order_by(News.pub_date.desc()).limit(limit).all()
+            
+            update_count = 0
+            async with aiohttp.ClientSession() as session:
+                for news in news_list:
+                    try:
+                        likes, comments = await self.extract_engagement_metrics(session, news.link)
+                        
+                        if news.likes_count != likes or news.comments_count != comments:
+                            news.likes_count = likes
+                            news.comments_count = comments
+                            update_count += 1
+                            
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        logger.warning(f"지표 업데이트 중 오류 발생: {e}, 뉴스 ID: {news.news_id}")
+                        continue
+            
+            if update_count > 0:
+                db.commit()
+                logger.info(f"{update_count}개 뉴스 기사의 지표가 업데이트되었습니다.")
+            else:
+                logger.info("업데이트할 지표가 없습니다.")
+                
+            return update_count
+        except Exception as e:
+            db.rollback()
+            logger.error(f"지표 업데이트 작업 중 오류 발생: {e}")
+            return 0
 
 news_service = NewsService()
