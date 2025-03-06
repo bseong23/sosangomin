@@ -21,3 +21,5 @@ class News(Base):
     created_at = Column(DateTime(timezone=True))
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
+
+
