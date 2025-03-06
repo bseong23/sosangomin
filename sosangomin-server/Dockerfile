@@ -25,7 +25,7 @@ FROM openjdk:17-slim
 WORKDIR /app  
   
 # 빌드된 JAR 파일 복사  
-COPY --from=build /app/build/libs/chocoletter-0.0.1-SNAPSHOT.jar app.jar  
+COPY --from=build /app/build/libs/sosangomin-0.0.1-SNAPSHOT.jar app.jar  
   
 # 애플리케이션 실행
 # active 부분 prod, dev, local 등 수정 필요
