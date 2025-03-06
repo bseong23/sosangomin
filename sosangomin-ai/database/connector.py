@@ -1,3 +1,5 @@
+# database/connector.py
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
@@ -8,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self):
-        load_dotenv()  
+        load_dotenv("./config/.env")
 
-        self.host = os.getenv("DB_HOST")
-        self.port = int(os.getenv("DB_PORT", 3306))
-        self.user = os.getenv("DB_USER")
-        self.password = os.getenv("DB_PASSWORD")
-        self.schema = os.getenv("DB_SCHEMA")
-        self.charset = os.getenv("DB_CHARSET", "utf8")
+        self.host = os.getenv("MARIA_DB_HOST")
+        self.port = int(os.getenv("MARIA_DB_PORT", 3306))
+        self.user = os.getenv("MARIA_DB_USER")
+        self.password = os.getenv("MARIA_DB_PASSWORD")
+        self.schema = os.getenv("MARIA_DB_SCHEMA")
+        self.charset = os.getenv("MARIA_DB_CHARSET", "utf8")
         
         self.engine = create_engine(
             f"mysql+pymysql://{self.user}:"+
