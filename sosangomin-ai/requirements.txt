@@ -82,7 +82,6 @@ kiwisolver==1.4.8
 libclang==18.1.1
 lightgbm==4.6.0
 llvmlite==0.44.0
-mariadb==1.1.11
 Markdown==3.7
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
