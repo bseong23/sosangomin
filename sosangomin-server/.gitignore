@@ -37,3 +37,6 @@ out/
 .vscode/
 
 **/application-local.yml
+
+# 환경 변수
+env
