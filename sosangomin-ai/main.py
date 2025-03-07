@@ -42,7 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# news 업데이트트
+# news 업데이트
 async def schedule_news_updates():
     while True:
         try:

@@ -80,7 +80,7 @@ async def download_file_from_s3(s3_key: str, local_path: str) -> str:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"S3 download error: {str(e)}")
 
-# 파일 삭제제
+# 파일 삭제
 def delete_file_from_s3(s3_key: str) -> bool:
     try:
         s3_client.delete_object(
@@ -91,7 +91,7 @@ def delete_file_from_s3(s3_key: str) -> bool:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"S3 delete error: {str(e)}")
 
-# 테스트트
+# 테스트
 def test_s3_connection():
     try:
         response = s3_client.list_buckets()
