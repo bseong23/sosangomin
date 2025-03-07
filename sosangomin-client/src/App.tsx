@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "@/components/header/Header";
-import Footer from "@/components/footer/Footer";
+// import Header from "@/components/header/Header";
+// import Footer from "@/components/footer/Footer";
 
 const App: React.FC = () => {
   return (
     <Router>
-      <Header />
+      {/* <Header /> */}
       <Routes>
         <Route path="/" element={<p className="text-4xl font-bold text-blue-500 mt-4 h-100%">메인페이지</p>} />
         <Route path="/login" element={<div>로그인 페이지</div>} />
@@ -25,7 +25,7 @@ const App: React.FC = () => {
         <Route path="/data-analysis/advise" element={<div>데이터 분석 조언</div>} />
         <Route path="/map" element={<div>지도 페이지</div>} />
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </Router>
   );
 };
