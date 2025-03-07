@@ -31,8 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("Jwt 필터!");
-
         String token = getJwtFromRequest(request);
 
         if (token != null) {
@@ -75,9 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         return path.startsWith("/swagger-ui/") ||
-                path.startsWith("/h2-console") ||
-                path.startsWith("/login/oauth2/code/kakao") ||
-                path.startsWith("/oauth2/authorization/kakao");
+                path.startsWith("/h2-console");
     }
 
     private String detachBearer(String token) {

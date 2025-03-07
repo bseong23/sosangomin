@@ -40,9 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**",
-                                "/h2-console/**",
-                                "/login/oauth2/code/kakao",
-                                "/oauth2/authorization/kakao"
+                                "/h2-console/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

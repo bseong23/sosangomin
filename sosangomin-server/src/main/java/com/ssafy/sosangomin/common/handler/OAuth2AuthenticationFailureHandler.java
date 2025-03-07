@@ -26,8 +26,6 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
 
-        log.info("실패 핸들러!");
-
         setDefaultFailureUrl(frontendUrl);  // 메인 페이지 URL
         super.onAuthenticationFailure(request, response, exception);
     }

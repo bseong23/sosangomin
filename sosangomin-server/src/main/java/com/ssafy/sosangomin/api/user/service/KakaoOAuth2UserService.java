@@ -70,14 +70,7 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
             String name = (String) profile.get("nickname");
             String profileImgUrl = (String) profile.get("profile_image_url");
 
-            // 멤버 생성 및 저장
-            User newUser = User.builder()
-                    .socialId(socialId)
-                    .name(name)
-                    .profileImgUrl(profileImgUrl)
-                    .build();
             userMapper.insertKakaoUser(socialId, name, profileImgUrl);
-            log.info("유저 인서트문!!");
 
             // 사용자 권한 설정 (특별한 권한 없을때 설정하는 기본 권한)
             Collection<GrantedAuthority> authorities = Collections.singletonList(

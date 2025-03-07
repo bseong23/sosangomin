@@ -31,8 +31,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             HttpServletResponse response,
             Authentication authentication) throws IOException {
 
-        log.info("성공핸들러!");
-
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         // 사용자 정보
