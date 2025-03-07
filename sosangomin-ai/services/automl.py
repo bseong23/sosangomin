@@ -1,16 +1,76 @@
 from fastapi import UploadFile, File
 import pandas as pd
 import numpy as np
+import re
+import datetime
+import holidays
 import pickle
 import shutil
 import os
 from pycaret.regression import *
 # from pycaret.clustering import *
 # from pycaret.time_series import *
-from datetime import datetime, timedelta
 
-SALES_MODEL_PATH = "sales_forecast.pkl"
 CLUSTER_MODEL_PATH = "store_clustering.pkl"
+
+# 우선 키움 페이 포스기 데이터를 기준으로 작성
+
+# 공통 데이터 전처리 함수
+def preprocess_data(df) :
+    """데이터 전처리 및 시간 변수 생성"""
+
+    # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
+    header_values = set(df.columns.tolist())  # 리스트 대신 set 사용으로 검색 속도 향상
+    columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
+    df = df.drop(columns=columns_to_drop)
+
+    df = df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+    df = df.dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+    df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
+    df = df.T.drop_duplicates().T      # 중복된 열 제거  
+
+    # 'Unnamed'가 포함되지 않은 열 중복
+    cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
+    df[cols_to_fill] = df[cols_to_fill].fillna(method='ffill') # 해당 열에서 결측값을 이전 행 값으로 채우기
+
+    # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
+    dup_val = ['단가', '수량', '원가']
+    for val in dup_val :
+        columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
+        # print(val, columns)
+        df[val] = df[columns].bfill(axis=1).iloc[:, 0]
+        df = df.drop(columns=columns)
+
+    # 결제 수단 이용할건지?
+
+    df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
+
+    # 컬럼명 수정
+    new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
+    df.columns = new_columns  # 새로운 열 이름 설정
+    df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
+
+    df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
+
+    # 파생변수 생성성
+    kr_holidays = holidays.KR()
+
+    df['매출 일시'] = pd.to_datetime(df['매출 일시'])
+    df['년'] = df['매출 일시'].dt.year
+    df['월'] = df['매출 일시'].dt.month
+    df['일'] = df['매출 일시'].dt.day
+    df['시'] = df['매출 일시'].dt.hour
+    df['분'] = df['매출 일시'].dt.minute
+    df['요일'] = df['매출 일시'].dt.day_name()  
+    df['시간대'] = df['시'].apply(lambda x: '점심' if 11 <= x <= 15 else ('저녁' if 17 <= x <= 21 else '기타')) # 시간대 (점심, 저녁, 기타)
+    df['계절'] = df['월'].apply(lambda x: '봄' if 3 <= x <= 5 else
+                                        '여름' if 6 <= x <= 8 else
+                                        '가을' if 9 <= x <= 11 else '겨울')
+    df['공휴일'] = df['매출 일시'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
+
+    df.drop('매출 일시', axis=1, inplace=True)
+
+    return df
 
 async def predict_next_month_sales(): #file: UploadFile = File(...)
     try:
@@ -37,6 +97,7 @@ async def predict_next_month_sales(): #file: UploadFile = File(...)
         # df = pd.read_excel(file_path, header=2)  # 세 번째 행을 컬럼명으로 설정
 
         # 데이터 전처리
+        # df = preprocess_data(df)
         df = df.dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
         df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
         df = df.T.drop_duplicates().T      # 중복된 열 제거
