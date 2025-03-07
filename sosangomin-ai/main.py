@@ -1,8 +1,10 @@
 # main.py
 
 # FastAPI
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
 
 # System
 from dotenv import load_dotenv
@@ -15,7 +17,7 @@ from database.connector import database_instance as mariadb
 
 # Services
 from services.news_service import news_service
-
+from services.chat_service import chat_service
 
 # 환경 변수 로드
 load_dotenv("./config/.env")
@@ -41,6 +43,31 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 요청 모델
+class ChatRequest(BaseModel):
+    user_id: int
+    message: str
+    session_id: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    session_id: str
+    bot_message: str
+
+# ChatBot 엔드포인트트
+@app.post("/api/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
+    """채팅 API 엔드포인트"""
+    try:
+        result = await chat_service.process_chat(
+            user_id=request.user_id,
+            user_message=request.message,
+            session_id=request.session_id
+        )
+        return result
+    except Exception as e:
+        logger.error(f"채팅 처리 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # news 업데이트
 async def schedule_news_updates():
