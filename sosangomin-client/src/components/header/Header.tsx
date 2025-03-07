@@ -1,14 +1,25 @@
-// src/components/Header.tsx
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavItem, UserInfo } from "@/types/header";
 import Logo from "@/assets/Logo.svg";
 import Profile from "@/assets/profile.svg";
 import { isPathActive } from "@/utils/curlocation";
+
 const Header: React.FC = () => {
   const location = useLocation();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
+
+  // userInfo를 JSON으로 파싱
+  const userInfoString = localStorage.getItem("userInfo");
+  let userInfo: UserInfo | null = null;
+
+  try {
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString) as UserInfo;
+    }
+  } catch (error) {
+    console.error("Failed to parse user info:", error);
+  }
 
   const navItems: NavItem[] = [
     { name: "서비스 소개", path: "/service" },
@@ -16,10 +27,6 @@ const Header: React.FC = () => {
     { name: "상권분석", path: "/map" },
     { name: "커뮤니티", path: "/community/notice" }
   ];
-
-  const userInfo: UserInfo = {
-    name: "박보성"
-  };
 
   return (
     <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter bg-white">
@@ -47,17 +54,21 @@ const Header: React.FC = () => {
         ))}
       </div>
       <div className="flex pr-[40px]">
-        {token ? (
+        {token && userInfo ? (
           <>
             <img
-              src={Profile}
+              src={
+                userInfo.userProfileUrl && userInfo.userProfileUrl !== "null"
+                  ? userInfo.userProfileUrl
+                  : Profile
+              }
               alt="프로필"
               className="flex h-[41px] w-[41px] rounded-full"
             />
             <div className="flex flex-col items-center pl-[12px]">
               <p className="flex text-gray-600 text-[16px]">환영합니다</p>
               <p className="flex text-gray-600 text-[16px]">
-                {userInfo.name}님
+                {userInfo.userName}님
               </p>
             </div>
           </>
