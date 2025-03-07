@@ -2,20 +2,17 @@ from fastapi import UploadFile, File
 import pandas as pd
 import numpy as np
 import re
-import datetime
+from datetime import datetime, timedelta
 import holidays
 import pickle
 import shutil
 import os
 from pycaret.regression import *
-# from pycaret.clustering import *
-# from pycaret.time_series import *
+from pycaret.clustering import *
 
-CLUSTER_MODEL_PATH = "store_clustering.pkl"
 
-# 우선 키움 페이 포스기 데이터를 기준으로 작성
+# 우선 키움 페이 포스기 데이터를 기준으로 작성하였음.
 
-# 공통 데이터 전처리 함수
 def preprocess_data(df) :
     """데이터 전처리 및 시간 변수 생성"""
 
@@ -41,7 +38,7 @@ def preprocess_data(df) :
         df[val] = df[columns].bfill(axis=1).iloc[:, 0]
         df = df.drop(columns=columns)
 
-    # 결제 수단 이용할건지?
+    # TODO: 결제 수단 이용할건지?
 
     df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
 
@@ -72,23 +69,22 @@ def preprocess_data(df) :
 
     return df
 
-async def predict_next_month_sales(): #file: UploadFile = File(...)
+async def predict_next_month_sales(file: UploadFile = File(...)):
     try:
-        # # 확장자 구분 및 파일 저장
-        # filename = file.filename
-        # ext = os.path.splitext(filename)[1].lower()
+        # 확장자 구분 및 파일 저장
+        filename = file.filename
+        ext = os.path.splitext(filename)[1].lower()
+        temp_file = f"uploaded_data{ext}"
+        with open(temp_file, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)        
 
-        # temp_file = f"uploaded_data{ext}"
-        # with open(temp_file, "wb") as buffer:
-        #     shutil.copyfileobj(file.file, buffer)        
-
-        # # 파일 읽기
-        # if ext == ".csv":
-        #     df = pd.read_csv(temp_file, header=None)
-        # elif ext in [".xls", ".xlsx"]:
-        #     df = pd.read_excel(temp_file, header=None)
-        # else:
-        #     return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
+        # 파일 읽기
+        if ext == ".csv":
+            df = pd.read_csv(temp_file, header=None)
+        elif ext in [".xls", ".xlsx"]:
+            df = pd.read_excel(temp_file, header=None)
+        else:
+            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
 
 
         # 파일 경로 설정 및 데이터 로드
@@ -96,7 +92,8 @@ async def predict_next_month_sales(): #file: UploadFile = File(...)
         # file_path = os.path.join(script_dir, "영수증 내역.xlsx") 
         # df = pd.read_excel(file_path, header=2)  # 세 번째 행을 컬럼명으로 설정
 
-        # 데이터 전처리
+        # TODO: 공통 데이터 전처리로 수정해야함.
+        # 데이터 전처리 
         # df = preprocess_data(df)
         df = df.dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
         df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
@@ -202,7 +199,6 @@ async def predict_next_month_sales(): #file: UploadFile = File(...)
         predictions = predict_model(tuned_model, data=future_data)
         future_data["predicted_sales"] = predictions["prediction_label"]
 
-        # 예측 결과 JSON 반환
         return {
             "message": "다음 달 일별 매출 예측 완료",
             "target_variable": target_column,
@@ -213,44 +209,64 @@ async def predict_next_month_sales(): #file: UploadFile = File(...)
         return {"error": str(e)}
 
 
-# async def perform_clustering(file: UploadFile = File(...)):
-#     try:
-#         # 확장자 구분
-#         filename = file.filename
-#         ext = os.path.splitext(filename)[1].lower()
+async def perform_clustering(file: UploadFile = File(...)):
+    try:
+        # 확장자 구분
+        filename = file.filename
+        ext = os.path.splitext(filename)[1].lower()
 
-#         # 파일 저장
-#         temp_file = f"uploaded_store_data{ext}"
-#         with open(temp_file, "wb") as buffer:
-#             shutil.copyfileobj(file.file, buffer)
+        # 파일 저장
+        temp_file = f"uploaded_store_data{ext}"
+        with open(temp_file, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-#         # 파일 읽기
-#         if ext == ".csv":
-#             df = pd.read_csv(temp_file)
-#         elif ext in [".xls", ".xlsx"]:
-#             df = pd.read_excel(temp_file)
-#         else:
-#             return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
+        # 파일 읽기
+        if ext == ".csv":
+            df = pd.read_csv(temp_file)
+        elif ext in [".xls", ".xlsx"]:
+            df = pd.read_excel(temp_file)
+        else:
+            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
 
-#         df.drop(columns=["date"], errors="ignore", inplace=True)  # 날짜 컬럼 제거
+        # 데이터 전처리
+        df = preprocess_data(df)
 
-#         # PyCaret 클러스터링 설정
-#         exp = setup(data=df, silent=True)
+        # 클러스터링 전처리
+        cluster_df = df[['상품 명칭', '총매출', '단가', '수량', '월', '요일', '시간대', '계절', '공휴일']] 
 
-#         # 최적의 클러스터링 모델 선택
-#         best_model = create_model('kmeans')
+        # 범주형 변수별 수량 합계 피벗 테이블 생성
+        category_vars = ['월', '요일', '시간대', '계절', '공휴일']
+        pivot_tables = [cluster_df.pivot_table(index='상품 명칭', columns=col, values='수량', aggfunc='sum', fill_value=0) for col in category_vars]
 
-#         # 클러스터 할당
-#         df_clustered = assign_model(best_model)
-#         df_clustered["Cluster"] = df_clustered["Cluster"].astype(str)
+        # 총매출과 수량은 sum(), 단가는 mean()으로 집계
+        agg_df = cluster_df.groupby('상품 명칭').agg({'총매출': 'sum', '수량': 'sum', '단가': 'mean'})
 
-#         # 클러스터별 통계 요약
-#         cluster_summary = df_clustered.groupby("Cluster").mean().reset_index().to_dict(orient="records")
+        # 모든 피벗 테이블을 상품명 기준으로 병합
+        final_df = agg_df.copy()
+        for pivot in pivot_tables:
+            final_df = final_df.merge(pivot, on='상품 명칭', how='left')
 
-#         # 모델 저장
-#         with open(CLUSTER_MODEL_PATH, "wb") as model_file:
-#             pickle.dump(best_model, model_file)
+        # PyCaret 클러스터링 설정
+        exp = setup(data=df)
 
-#         return {"clusters": cluster_summary}
-#     except Exception as e:
-#         return {"error": str(e)}
+        # 최적의 클러스터링 모델 선택
+        best_model = compare_models()
+        tune_model = tune_model(best_model)
+
+        # 클러스터 할당
+        df_clustered = assign_model(tune_model)
+        # df_clustered["Cluster"] = df_clustered["Cluster"].astype(str)
+        cluster_data = df_clustered.to_dict(orient="records")
+
+        # 클러스터별 통계 요약 # TODO: 범주형 변수때문에 통계 요약을 보낼지 고민해보기
+        # cluster_summary = df_clustered.groupby("Cluster").mean().reset_index().to_dict(orient="records")
+
+        # OpenAI API를 활용하여 클러스터링 분석 요청
+        # openai_analysis = analyze_clusters_json(cluster_data)
+
+        return {
+            "clusters": cluster_data,
+            # "openai_analysis": openai_analysis
+        }
+    except Exception as e:
+        return {"error": str(e)}
