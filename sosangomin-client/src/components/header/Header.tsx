@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { NavItem, UserInfo } from "@/types/header";
 import Logo from "@/assets/Logo.svg";
 import Profile from "@/assets/profile.svg";
-
+import { isPathActive } from "@/utils/curlocation";
 const Header: React.FC = () => {
   const location = useLocation();
   const token = localStorage.getItem("token");
@@ -22,7 +22,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter">
+    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter bg-white">
       <div className="pl-[28px]">
         <Link to="/">
           <img
@@ -39,7 +39,7 @@ const Header: React.FC = () => {
             key={item.path}
             to={item.path}
             className={`cursor-pointer hover:text-blue-500 text-gray-600 text-[16px] ${
-              location.pathname === item.path ? "font-extrabold" : ""
+              isPathActive(location.pathname, item.path) ? "font-extrabold" : ""
             }`}
           >
             {item.name}
