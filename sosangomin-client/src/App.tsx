@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
+import WritePost from "./pages/BoardWritePage";
 
 const App: React.FC = () => {
   return (
@@ -33,10 +34,7 @@ const App: React.FC = () => {
             />
             <Route path="/community/news" element={<div>뉴스 페이지</div>} />
             <Route path="/community/board" element={<div>게시판</div>} />
-            <Route
-              path="/community/board/write"
-              element={<div>게시글 작성</div>}
-            />
+            <Route path="/community/board/write" element={<WritePost />} />
             <Route
               path="/community/board/edit"
               element={<div>게시글 수정</div>}
