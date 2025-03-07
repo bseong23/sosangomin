@@ -1,28 +1,34 @@
-import { Link, useLocation } from 'react-router-dom'; // React Router 사용
+// src/components/Header.tsx
+
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { NavItem, UserInfo } from '@/types/header';
 import Logo from '@/assets/Logo.svg';
 import Profile from '@/assets/profile.svg';
 
-const Header = () => {
-  const location = useLocation(); // 현재 URL 경로 가져오기
-  const token = localStorage.getItem('token'); // localStorage에서 token 값 가져오기
+const Header: React.FC = () => {
+  const location = useLocation();
+  const token = localStorage.getItem('token');
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: '서비스 소개', path: '/service' },
-    { name: '데이터 분석', path: '/analytics' },
-    { name: '상권분석', path: '/community' },
-    { name: '커뮤니티', path: '/resources' },
+    { name: '데이터 분석', path: '/data-analysis/upload' },
+    { name: '상권분석', path: '/map' },
+    { name: '커뮤니티', path: '/community/notice' },
   ];
+
+  const userInfo: UserInfo = {
+    name: '박보성'
+  };
 
   return (
     <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter">
-      {/* 로고 */}
       <div className="pl-[28px]">
         <Link to="/">
           <img src={Logo} alt="로고" className="w-[116px] h-[38px] cursor-pointer" />
         </Link>
       </div>
 
-      {/* 네비게이션 메뉴 */}
       <div className="flex gap-[100px]">
         {navItems.map((item) => (
           <Link
@@ -42,18 +48,16 @@ const Header = () => {
             <img src={Profile} alt="프로필" className="flex h-[41px] w-[41px] rounded-full" />
             <div className="flex flex-col items-center pl-[12px]">
               <p className="flex text-gray-600 text-[16px]">환영합니다</p>
-              <p className="flex text-gray-600 text-[16px]">박보성님</p>
+              <p className="flex text-gray-600 text-[16px]">{userInfo.name}님</p>
             </div>
           </>
         ) : (
-          <>
-            <Link
-              to="/signup"
-              className="flex items-center justify-center bg-[#16125D] text-white px-[25px] py-[12px] rounded-md hover:bg-blue-800 w-[116px] h-[40px]"
-            >
-              로그인
-            </Link>
-          </>
+          <Link
+            to="/signup"
+            className="flex items-center justify-center bg-[#16125D] text-white px-[25px] py-[12px] rounded-md hover:bg-blue-800 w-[116px] h-[40px]"
+          >
+            로그인
+          </Link>
         )}
       </div>
     </div>
