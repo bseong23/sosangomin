@@ -12,6 +12,11 @@ public enum ErrorMessage {
     ERR_INVALID_QUERY_PARAMETER,
 
     /**
+     * 401 UNAUTHORIZED
+     */
+    ERR_INVALID_TOKEN,
+
+    /**
      * /** 404 NOT_FOUND
      */
     ERR_NOT_RESOURCE,
