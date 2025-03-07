@@ -41,7 +41,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/h2-console/**",
-                                "/login/oauth2/code/kakao"
+                                "/login/oauth2/code/kakao",
+                                "/oauth2/authorization/kakao"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
