@@ -38,7 +38,11 @@ public class SecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.sameOrigin()) // X-Frame-Options 설정
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/h2-console/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/h2-console/**",
+                                "/login/oauth2/code/kakao"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
