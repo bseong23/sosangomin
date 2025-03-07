@@ -1,5 +1,9 @@
 package com.ssafy.sosangomin.common.config;
 
+import com.ssafy.sosangomin.api.user.service.KakaoOAuth2UserService;
+import com.ssafy.sosangomin.common.filter.JwtAuthenticationFilter;
+import com.ssafy.sosangomin.common.handler.OAuth2AuthenticationFailureHandler;
+import com.ssafy.sosangomin.common.handler.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,6 +23,11 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final KakaoOAuth2UserService kakaoOAuth2UserService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -28,22 +38,15 @@ public class SecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.sameOrigin()) // X-Frame-Options 설정
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()); // 개발용 - 모든 경로 허용
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/swagger-ui/**",
-//                                "/swagger-resources/**",
-//                                "/v3/api-docs/**",
-//                                "/webjars/**",
-//                                "/test/**",
-//                                "/h2-console/**").permitAll()
-//                        .anyRequest().authenticated()
-//                );
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
-//                        .successHandler(oAuth2AuthenticationSuccessHandler)
-//                        .failureHandler(oAuth2AuthenticationFailureHandler)
-//                )
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers("/swagger-ui/**", "/h2-console/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -52,12 +55,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-//                "https://www.chocolate-letter.com",
-//                "https://chocolate-letter.com",
-//                "https://api.chocolate-letter.com",
-//                "http://localhost:5173",
-//                "https://www.chocoletter.store",
-//                "https://chocoletter.store"
+                "http://localhost:5173.com",
+                "https://www.sosangomin.com",
+                "https://sosangomin.com",
+                "https://dev.sosangomin.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
