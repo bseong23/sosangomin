@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layouts/Layout";
+import LoginPage from "./pages/LoginPage";
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import WritePost from "./pages/BoardWritePage";
 
 const App: React.FC = () => {
@@ -8,7 +10,11 @@ const App: React.FC = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<p className="h-screen">메인페이지</p>} />
-          <Route path="/login" element={<div>로그인 페이지</div>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/auth/kakao/callback/*"
+            element={<KakaoCallbackPage />}
+          />
           <Route path="/signup" element={<div>회원가입 페이지</div>} />
           <Route
             path="/reset-password"
