@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
+import LoginPage from "./pages/LoginPage";
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 
 const App: React.FC = () => {
   return (
@@ -19,7 +21,11 @@ const App: React.FC = () => {
                 </p>
               }
             />
-            <Route path="/login" element={<div>로그인 페이지</div>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/auth/kakao/callback/*"
+              element={<KakaoCallbackPage />}
+            />
             <Route path="/signup" element={<div>회원가입 페이지</div>} />
             <Route
               path="/reset-password"
