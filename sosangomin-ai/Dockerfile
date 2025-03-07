@@ -8,7 +8,7 @@ WORKDIR /app
 
 # 의존성 파일 복사 및 설치 (캐시 활용을 위해 분리)
 COPY requirements.txt .
-RUN RUN apt-get update && apt-get install -y gcc portaudio19-dev python3-dev
+RUN RUN apt-get update
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
