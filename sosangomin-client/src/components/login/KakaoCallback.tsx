@@ -62,12 +62,6 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
           onSuccess({ ...userData, accessToken });
         }
 
-        // 첫 로그인인 경우 온보딩 페이지로 리다이렉트 (선택적)
-        if (isFirstLogin) {
-          navigate("/onboarding", { replace: true });
-          return;
-        }
-
         // 그 외 경우 기본 페이지로 리다이렉트
         navigate(redirectOnSuccess, { replace: true });
       } catch (err: any) {
