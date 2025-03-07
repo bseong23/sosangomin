@@ -1,7 +1,7 @@
 # main.py
 
 # FastAPI
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -18,6 +18,7 @@ from database.connector import database_instance as mariadb
 # Services
 from services.news_service import news_service
 from services.chat_service import chat_service
+from services.automl import predict_next_month_sales, perform_clustering
 
 # 환경 변수 로드
 load_dotenv("./config/.env")
@@ -99,3 +100,23 @@ async def trigger_news_update():
     except Exception as e:
         logger.error(f"수동 뉴스 업데이트 중 오류: {e}")
         return {"status": "error", "message": str(e)}
+    
+@app.post("/predict_sales/")
+async def sales_forecast(file: UploadFile = File(...)):
+    """ 다음달 매출 예측 API """
+    result = await predict_next_month_sales(file) 
+    return result
+
+@app.post("/cluster/")
+async def cluster_analysis(file: UploadFile = File(...)):
+    """ 클러스터링 실행 후 OpenAI를 활용하여 인사이트 분석 """
+    result = await perform_clustering(file)
+
+    # OpenAI API를 통해 클러스터링 분석 요청
+    # if "clusters" in result:
+    #     openai_response = analyze_clusters(result["clusters"])
+    #     result["openai_analysis"] = openai_response
+
+    return result
+
+
