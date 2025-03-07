@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class MongoDatabase:
     def __init__(self):
-        load_dotenv()  
+        load_dotenv("./config/.env")  
         
         self.username = os.getenv("MONGO_USER")
         self.password = os.getenv("MONGO_PASSWORD")
