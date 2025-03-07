@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.ssafy.sosangomin.api.user.entity.User;
+import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import lombok.RequiredArgsConstructor;

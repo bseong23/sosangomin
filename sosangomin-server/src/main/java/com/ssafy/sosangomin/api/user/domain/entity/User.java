@@ -1,4 +1,4 @@
-package com.ssafy.sosangomin.api.user.entity;
+package com.ssafy.sosangomin.api.user.domain.entity;
 
 import com.ssafy.sosangomin.common.entity.BaseTimeEntity;
 import lombok.AccessLevel;

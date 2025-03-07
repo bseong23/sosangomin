@@ -1,6 +1,6 @@
 package com.ssafy.sosangomin.api.user.mapper;
 
-import com.ssafy.sosangomin.api.user.entity.User;
+import com.ssafy.sosangomin.api.user.domain.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -14,13 +14,13 @@ public interface UserMapper {
     @Select("SELECT * FROM users WHERE id = #{id}")
     Optional<User> findUserById(@Param("id") Long id);
 
-    @Select("SELECT * FROM users WHERE socail_id = #{socailId}")
+    @Select("SELECT * FROM users WHERE social_id = #{socialId}")
     Optional<User> findUserBySocialId(@Param("socialId") String socialId);
 
     @Insert("INSERT INTO users (social_id, name, profile_img_url) " +
-             "VALUES (#{socailId}, #{name}, #{profileImgUrl})")
+             "VALUES (#{socialId}, #{name}, #{profileImgUrl})")
     void insertKakaoUser(
-            @Param("socailId") String socialId,
+            @Param("socialId") String socialId,
             @Param("name") String name,
             @Param("profileImgUrl") String profileImgUrl
     );

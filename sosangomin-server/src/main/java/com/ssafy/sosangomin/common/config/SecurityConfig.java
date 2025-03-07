@@ -59,7 +59,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173.com",
+                "http://localhost:5173",
                 "https://www.sosangomin.com",
                 "https://sosangomin.com",
                 "https://dev.sosangomin.com"
