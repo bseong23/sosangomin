@@ -1,0 +1,47 @@
+import { Outlet, useLocation } from "react-router-dom";
+import Header from "@/components/header/Header";
+import Footer from "@/components/footer/Footer";
+import Sidebar from "@/components/sidebar/Sidebar";
+
+const Layout: React.FC = () => {
+  const location = useLocation();
+
+  // 메인 페이지 여부 확인
+  const isMainPage = location.pathname === "/";
+
+  const showSidebar =
+    location.pathname.startsWith("/community") ||
+    location.pathname.startsWith("/data-analysis");
+
+  const showHeader =
+    isMainPage ||
+    location.pathname.startsWith("/community") ||
+    location.pathname.startsWith("/data-analysis") ||
+    location.pathname.startsWith("/map");
+
+  const showFooter =
+    isMainPage ||
+    location.pathname.startsWith("/community") ||
+    location.pathname.startsWith("/data-analysis");
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      {showHeader && (
+        <div className="fixed top-0 left-0 w-full z-50">
+          <Header />
+        </div>
+      )}
+      <div className="flex flex-grow pt-[73px]">
+        {showSidebar && <Sidebar />} {/* 사이드바 표시 여부 결정 */}
+        <main className="flex flex-grow justify-center mx-auto">
+          <div className="container">
+            <Outlet /> {/* 중첩된 라우트가 여기에 렌더링됨 */}
+          </div>
+        </main>
+      </div>
+      {showFooter && <Footer />}
+    </div>
+  );
+};
+
+export default Layout;

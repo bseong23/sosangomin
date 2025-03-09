@@ -1,4 +1,9 @@
 export interface MenuItem {
-    name: string;
-    path: string;
-  }
+  label: string;
+  path: string;
+}
+
+export interface MenuGroup {
+  label: string;
+  items: MenuItem[];
+}

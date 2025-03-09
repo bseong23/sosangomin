@@ -1,31 +1,42 @@
-// src/components/Header.tsx
-
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { NavItem, UserInfo } from '@/types/header';
-import Logo from '@/assets/Logo.svg';
-import Profile from '@/assets/profile.svg';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { NavItem, UserInfo } from "@/types/header";
+import Logo from "@/assets/Logo.svg";
+import Profile from "@/assets/profile.svg";
+import { isPathActive } from "@/utils/curlocation";
 
 const Header: React.FC = () => {
   const location = useLocation();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("accessToken");
+
+  // userInfo를 JSON으로 파싱
+  const userInfoString = localStorage.getItem("userInfo");
+  let userInfo: UserInfo | null = null;
+
+  try {
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString) as UserInfo;
+    }
+  } catch (error) {
+    console.error("Failed to parse user info:", error);
+  }
 
   const navItems: NavItem[] = [
-    { name: '서비스 소개', path: '/service' },
-    { name: '데이터 분석', path: '/data-analysis/upload' },
-    { name: '상권분석', path: '/map' },
-    { name: '커뮤니티', path: '/community/notice' },
+    { name: "서비스 소개", path: "/service" },
+    { name: "데이터 분석", path: "/data-analysis/upload" },
+    { name: "상권분석", path: "/map" },
+    { name: "커뮤니티", path: "/community/notice" }
   ];
 
-  const userInfo: UserInfo = {
-    name: '박보성'
-  };
-
   return (
-    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter">
+    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter bg-white">
       <div className="pl-[28px]">
         <Link to="/">
-          <img src={Logo} alt="로고" className="w-[116px] h-[38px] cursor-pointer" />
+          <img
+            src={Logo}
+            alt="로고"
+            className="w-[116px] h-[38px] cursor-pointer"
+          />
         </Link>
       </div>
 
@@ -35,7 +46,7 @@ const Header: React.FC = () => {
             key={item.path}
             to={item.path}
             className={`cursor-pointer hover:text-blue-500 text-gray-600 text-[16px] ${
-              location.pathname === item.path ? 'font-extrabold' : ''
+              isPathActive(location.pathname, item.path) ? "font-extrabold" : ""
             }`}
           >
             {item.name}
@@ -43,17 +54,27 @@ const Header: React.FC = () => {
         ))}
       </div>
       <div className="flex pr-[40px]">
-        {token ? (
+        {token && userInfo ? (
           <>
-            <img src={Profile} alt="프로필" className="flex h-[41px] w-[41px] rounded-full" />
+            <img
+              src={
+                userInfo.userProfileUrl && userInfo.userProfileUrl !== "null"
+                  ? userInfo.userProfileUrl
+                  : Profile
+              }
+              alt="프로필"
+              className="flex h-[41px] w-[41px] rounded-full"
+            />
             <div className="flex flex-col items-center pl-[12px]">
               <p className="flex text-gray-600 text-[16px]">환영합니다</p>
-              <p className="flex text-gray-600 text-[16px]">{userInfo.name}님</p>
+              <p className="flex text-gray-600 text-[16px]">
+                {userInfo.userName}님
+              </p>
             </div>
           </>
         ) : (
           <Link
-            to="/signup"
+            to="/login"
             className="flex items-center justify-center bg-[#16125D] text-white px-[25px] py-[12px] rounded-md hover:bg-blue-800 w-[116px] h-[40px]"
           >
             로그인
