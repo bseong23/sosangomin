@@ -39,7 +39,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/community/board/post/:postId"
-            element={<div>게시글 상세</div>}
+            element={<BoardPostDetailPage />}
           />
           <Route
             path="/data-analysis/upload"
