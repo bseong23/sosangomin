@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
-import WritePost from "./pages/BoardWritePage";
+import WritePost from "@/pages/BoardWritePage";
+import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
 
 const App: React.FC = () => {
   return (
@@ -41,7 +42,7 @@ const App: React.FC = () => {
             />
             <Route
               path="/community/board/post/:postId"
-              element={<div>게시글 상세</div>}
+              element={<BoardPostDetailPage />}
             />
             <Route
               path="/data-analysis/upload"
