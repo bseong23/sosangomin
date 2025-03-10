@@ -26,6 +26,7 @@ dash-table==5.0.0
 decorator==5.2.1
 deprecation==2.1.0
 distro==1.9.0
+dnspython==2.7.0
 executing==2.2.0
 fastapi==0.115.11
 fastjsonschema==2.21.1
@@ -83,6 +84,7 @@ pycaret==3.3.2
 pydantic==2.10.6
 pydantic_core==2.27.2
 Pygments==2.19.1
+pymongo==4.11.2
 PyMySQL==1.1.1
 pyod==2.0.3
 pyparsing==3.2.1
