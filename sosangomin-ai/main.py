@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 # 라우터 임포트
-from routers import chat_router, news_router, data_analysis_router
+from routers import chat_router, news_router, data_analysis_router, s3_router
 
 # 스케줄러 임포트
 from schedulers.news_scheduler import start_news_scheduler
@@ -43,6 +43,7 @@ app.add_middleware(
 app.include_router(chat_router.router)
 app.include_router(news_router.router)
 app.include_router(data_analysis_router.router)
+app.include_router(s3_router.router)
 
 @app.get("/")
 def read_root():

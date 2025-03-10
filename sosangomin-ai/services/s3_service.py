@@ -1,3 +1,5 @@
+# services/s3_service.py
+
 import boto3
 from botocore.exceptions import ClientError
 import uuid
@@ -23,21 +25,16 @@ s3_client = boto3.client(
     region_name=AWS_REGION
 )
 
-# 데이터 유형
-DATA_TYPE_RECEIPT = 'receipt'
-DATA_TYPE_PRODUCT = 'product'
 
 
 # 파일 업로드
-async def upload_file_to_s3(file: UploadFile, store_id: int, data_type: str) -> str:
+async def upload_file_to_s3(file: UploadFile, store_id: int) -> str:
     try:
-        if data_type not in [DATA_TYPE_RECEIPT, DATA_TYPE_PRODUCT]:
-            raise HTTPException(status_code=400, detail=f"유효한 Data Type이 아닙니다. 영수증 또는 상품 데이터를 업로드 해주세요.")
         
         unique_id = str(uuid.uuid4())
         safe_filename = file.filename.replace(" ","_")
 
-        s3_key = f"store_{store_id}/{data_type}/{unique_id}_{safe_filename}"
+        s3_key = f"store_{store_id}/{unique_id}_{safe_filename}"
 
         s3_client.upload_fileobj(
             file.file,
