@@ -11,8 +11,6 @@ from services.s3_service import (
     upload_file_to_s3, 
     download_file_from_s3, 
     get_s3_presigned_url,
-    DATA_TYPE_RECEIPT, 
-    DATA_TYPE_PRODUCT
 )
 from services.automl import predict_next_month_sales, perform_clustering, preprocess_data
 import pandas as pd
@@ -41,8 +39,7 @@ async def upload_and_analyze_data(
         if ext not in [".csv", ".xls", ".xlsx"]:
             raise HTTPException(status_code=400, detail="지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요.")
         
-        data_type = DATA_TYPE_RECEIPT  
-        s3_key = await upload_file_to_s3(file, store_id, data_type)
+        s3_key = await upload_file_to_s3(file, store_id)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         temp_filename = f"{TEMP_DIR}/{timestamp}_{filename}"
