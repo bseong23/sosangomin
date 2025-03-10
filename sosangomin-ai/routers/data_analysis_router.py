@@ -126,7 +126,6 @@ async def analyze_from_s3(
         if os.path.exists(local_file_path):
             os.remove(local_file_path)
         
-        # 5. 분석 결과 및 S3 정보 반환
         return {
             "message": "S3 파일 분석이 완료되었습니다.",
             "store_id": store_id,
