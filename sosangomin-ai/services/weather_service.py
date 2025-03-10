@@ -1,8 +1,9 @@
 import os
 import logging
 import requests
+import json 
 from dotenv import load_dotenv
-# from config.redis_config import redis_client
+from config.redis_config import redis_client
 from typing import Dict, Optional, Union
 
 logger = logging.getLogger(__name__)
@@ -11,8 +12,8 @@ class WeatherService:
     def __init__(self):
         load_dotenv("./config/.env")
 
-        self.service_key = os.getenv("KMA_SERVICE_KEY")  # 기상청 서비스 키
-        self.base_url = "http://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList"  # 과거관측정보 조회서비스
+        self.service_key = os.getenv("KMA_SERVICE_KEY")  
+        self.base_url = "http://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList" 
 
         if not self.service_key:
             logger.error("기상청 API 키가 설정되지 않았습니다. 환경 변수를 확인하세요.")
@@ -46,11 +47,12 @@ class WeatherService:
         """
         stn_id = self.get_stn_id(location)
 
-        cache_key = f"weather:past:{location}:{date}"
-        cached_data = False # redis_client.get(cache_key)
+        cache_key = f"weather:past:{location}:{date}:{hh}" 
+        cached_data = redis_client.get(cache_key)
         if cached_data:
             logger.info(f"[CACHE HIT] {cache_key}")
-            return eval(cached_data)
+            logger.info(f"[CACHE DATA] {cached_data}") 
+            return json.loads(cached_data)
 
         logger.info(f"[CACHE MISS] {cache_key}, API 호출 진행...")
 
@@ -70,9 +72,7 @@ class WeatherService:
 
         try:
             response = requests.get(self.base_url, params=params, timeout=10)
-            print("[DEBUG] 호출된 URL:", response.url)  # URL 확인
             print("[DEBUG] 응답 코드:", response.status_code)  # 상태코드 확인
-            print("[DEBUG] 원본 응답:", response.text)  # 원본 응답 보기
 
             response.raise_for_status()
             result = response.json()
@@ -83,7 +83,12 @@ class WeatherService:
                 return {"error": "데이터가 없습니다."}
 
             parsed_data = self.parse_weather_data(items[0])  # 하루 데이터
-            # redis_client.setex(cache_key, 86400, str(parsed_data))  # 24시간 캐시
+            try:
+                redis_client.setex(cache_key, 86400, json.dumps(parsed_data))  # 24시간 캐시
+                logger.info(f"[CACHE SET] {cache_key} -> {parsed_data}")
+            except Exception as e:
+                logger.warning(f"[WARNING] 캐시 저장 실패: {e}")
+
 
             return parsed_data
 
