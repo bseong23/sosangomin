@@ -249,16 +249,13 @@ class NewsService:
                                 saved_count += 1
                                 
                             except UnicodeDecodeError:
-                                logger.warning(f"인코딩 오류로 항목 건너뜀: {title}")
                                 skipped_count += 1
                                 continue
                             except Exception as e:
-                                logger.warning(f"데이터 추출 중 오류로 항목 건너뜀: {e}")
                                 skipped_count += 1
                                 continue
                                 
                         except Exception as e:
-                            logger.warning(f"뉴스 항목 처리 중 오류 발생 (건너뜀): {e}")
                             skipped_count += 1
                             continue
                     
