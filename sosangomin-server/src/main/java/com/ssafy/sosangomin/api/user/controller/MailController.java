@@ -3,10 +3,6 @@ package com.ssafy.sosangomin.api.user.controller;
 import com.ssafy.sosangomin.api.user.dto.request.MailCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.MailSendRequestDto;
 import com.ssafy.sosangomin.api.user.service.MailService;
-import com.ssafy.sosangomin.common.exception.BadRequestException;
-import com.ssafy.sosangomin.common.exception.ErrorMessage;
-import com.ssafy.sosangomin.common.exception.InternalServerException;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +16,13 @@ public class MailController {
 
     @PostMapping()
     public ResponseEntity<?> mailSend(@ModelAttribute MailSendRequestDto mailSendRequestDto) {
-        mailService.createAndSendMail(mailSendRequestDto.email());
+        mailService.createAndSendMail(mailSendRequestDto.mail());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/check")
     public ResponseEntity<?> mailCheck(@ModelAttribute MailCheckRequestDto mailCheckRequestDto) {
-        mailService.checkVerification(mailCheckRequestDto.email(), mailCheckRequestDto.userNumber());
+        mailService.checkVerification(mailCheckRequestDto.mail(), mailCheckRequestDto.userNumber());
         return ResponseEntity.ok().build();
     }
 }
