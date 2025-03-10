@@ -14,7 +14,7 @@ public class MailController {
     private final MailService mailService;
 
     @PostMapping("/mailSend")
-    public ResponseEntity<?> mailSend(String mail) {
+    public ResponseEntity<?> mailSend(@RequestParam("mail") String mail) {
 
         try {
             mailService.createAndSendMail(mail);
