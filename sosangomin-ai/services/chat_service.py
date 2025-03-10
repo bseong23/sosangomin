@@ -8,7 +8,7 @@ from anthropic import Anthropic
 import uuid
 from dotenv import load_dotenv
 
-from models import ChatHistory, ChatSession
+from db_models import ChatHistory, ChatSession
 from database.connector import database_instance
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class ChatService:
         self.system_prompt = """
         당신은 자영업자를 위한 비즈니스 도우미 '소상고민'입니다.
         반드시 다음 규칙을 지키세요:
-        - 항상 2-3문장으로만 답변할 것. 절대 3문장을 초과하지 말 것.
+        - 항상 2-3문장으로만 답변할 것.
         - 줄바꿈을 사용하지 말고 연속된 텍스트로 응답할 것.
         - 번호 매기기나 글머리 기호를 사용하지 말 것.
         - 쉬운 말로 친근하게 대화할 것.
@@ -127,12 +127,17 @@ class ChatService:
             
             response = self.client.messages.create(
                 model="claude-3-haiku-20240307",
-                max_tokens=150,
-                temperature=0.8,
+                max_tokens=400,
+                temperature=0.1,
                 system=system_message,  
                 messages=user_assistant_messages  
             )
-            return response.content[0].text
+              
+            text = response.content[0].text
+            text = text.replace("\\n", " ").replace("\\t", " ")
+            text = text.replace("\n", " ").replace("\t", " ")
+            text = text.replace("\n\n", "")
+            return text
         except Exception as e:
             logger.error(f"Claude API 오류: {str(e)}")
             return "죄송합니다, 현재 응답을 생성하는 데 문제가 발생했습니다. 잠시 후 다시 시도해 주세요."

@@ -5,7 +5,7 @@ import aiohttp
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from models import News
+from db_models import News
 from typing import List, Dict, Any, Optional, Tuple
 from bs4 import BeautifulSoup
 import re
