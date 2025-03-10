@@ -2,8 +2,8 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavItem, UserInfo } from "@/types/header";
 import Logo from "@/assets/Logo.svg";
-import Profile from "@/assets/profile.svg";
 import { isPathActive } from "@/utils/curlocation";
+import ProfileDropdown from "@/components/header/ProfileDropdown";
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -29,7 +29,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] font-inter bg-white">
+    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] w-screen font-inter bg-white">
       <div className="pl-[28px]">
         <Link to="/">
           <img
@@ -53,25 +53,12 @@ const Header: React.FC = () => {
           </Link>
         ))}
       </div>
-      <div className="flex pr-[40px]">
+      <div className="flex pr-[60px]">
         {token && userInfo ? (
-          <>
-            <img
-              src={
-                userInfo.userProfileUrl && userInfo.userProfileUrl !== "null"
-                  ? userInfo.userProfileUrl
-                  : Profile
-              }
-              alt="프로필"
-              className="flex h-[41px] w-[41px] rounded-full"
-            />
-            <div className="flex flex-col items-center pl-[12px]">
-              <p className="flex text-gray-600 text-[16px]">환영합니다</p>
-              <p className="flex text-gray-600 text-[16px]">
-                {userInfo.userName}님
-              </p>
-            </div>
-          </>
+          <ProfileDropdown
+            userName={userInfo.userName}
+            userProfileUrl={userInfo.userProfileUrl}
+          />
         ) : (
           <Link
             to="/login"

@@ -9,3 +9,8 @@ export interface UserInfo {
   userProfileUrl: string | null;
   isFirstLogin: boolean;
 }
+
+export interface ProfileDropdownProps {
+  userName: string;
+  userProfileUrl: string | null;
+}

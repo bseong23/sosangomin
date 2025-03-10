@@ -4,6 +4,9 @@ import LoginPage from "./pages/LoginPage";
 import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import WritePost from "@/pages/BoardWritePage";
 import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
+import Board from "@/pages/Board";
+import Notice from "@/pages/Notice";
+import News from "./pages/News";
 
 const App: React.FC = () => {
   return (
@@ -22,16 +25,13 @@ const App: React.FC = () => {
             element={<div>비밀번호 재설정 페이지</div>}
           />
           <Route path="/mypage" element={<div>마이페이지</div>} />
-          <Route path="/community/notice" element={<div>공지사항</div>} />
+          <Route path="/community/notice" element={<Notice />} />
           <Route
             path="/community/notice/post/:postId"
             element={<div>공지사항 상세</div>}
           />
-          <Route
-            path="/community/news"
-            element={<div className="h-screen">뉴스 페이지</div>}
-          />
-          <Route path="/community/board" element={<div>게시판</div>} />
+          <Route path="/community/news" element={<News />} />
+          <Route path="/community/board" element={<Board />} />
           <Route path="/community/board/write" element={<WritePost />} />
           <Route
             path="/community/board/edit"

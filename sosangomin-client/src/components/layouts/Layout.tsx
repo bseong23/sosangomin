@@ -17,7 +17,8 @@ const Layout: React.FC = () => {
     isMainPage ||
     location.pathname.startsWith("/community") ||
     location.pathname.startsWith("/data-analysis") ||
-    location.pathname.startsWith("/map");
+    location.pathname.startsWith("/map") ||
+    location.pathname.startsWith("/mypage");
 
   const showFooter =
     isMainPage ||
