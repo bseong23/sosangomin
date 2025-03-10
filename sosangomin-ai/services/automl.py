@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import re
 from datetime import datetime, timedelta
-import holidays
+import holidays  # type: ignore
 import pickle
 import shutil
 import os
