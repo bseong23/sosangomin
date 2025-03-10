@@ -73,7 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         return path.startsWith("/swagger-ui/") ||
-                path.startsWith("/h2-console");
+                path.startsWith("/h2-console") ||
+                path.startsWith("/api/mail");
     }
 
     private String detachBearer(String token) {
