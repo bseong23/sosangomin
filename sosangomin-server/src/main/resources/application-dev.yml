@@ -28,6 +28,16 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id # 사용자 정보에서 ID 추출 필드
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GOOGLE_EMAIL}
+    password: ${GOOGLE_PASSWORD}
+    smtp:
+      timeout: 5000
+    verification:
+      expiry-minutes: 5
+
 encrypt:
   secret-key: ${ENCRYPT_SECRET_KEY}
 
