@@ -75,7 +75,9 @@ const PostDetail: React.FC = () => {
   };
 
   const handleEditPost = () => {
-    navigate(`/community/board/edit`, { state: { postId, postData: post } });
+    navigate(`/community/board/edit/${postId}`, {
+      state: { postId, postData: post }
+    });
     setShowMenu(false);
   };
 

@@ -7,6 +7,7 @@ import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
 import Board from "@/pages/Board";
 import Notice from "@/pages/Notice";
 import News from "./pages/News";
+import BoardPostEditPage from "@/pages/BoardPostEditPage";
 
 const App: React.FC = () => {
   return (
@@ -34,8 +35,8 @@ const App: React.FC = () => {
           <Route path="/community/board" element={<Board />} />
           <Route path="/community/board/write" element={<WritePost />} />
           <Route
-            path="/community/board/edit"
-            element={<div>게시글 수정</div>}
+            path="/community/board/edit/:postId"
+            element={<BoardPostEditPage />}
           />
           <Route
             path="/community/board/post/:postId"
