@@ -26,7 +26,7 @@ public class MailController {
     }
 
     @PostMapping("/mailCheck")
-    public ResponseEntity<?> mailCheck(@RequestParam String mail, @RequestParam int userNumber) {
+    public ResponseEntity<?> mailCheck(@RequestParam("mail") String mail, @RequestParam("userNumber") int userNumber) {
 
         boolean isMatch = mailService.checkVerification(mail, userNumber);
 
