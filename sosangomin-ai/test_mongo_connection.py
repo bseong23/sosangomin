@@ -4,8 +4,8 @@ import logging
 import sys
 from datetime import datetime
 
-# 로깅 설정
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# # 로깅 설정
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 try:
     from database.mongo_connector import mongo_instance

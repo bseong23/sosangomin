@@ -6,10 +6,10 @@ import logging
 from dotenv import load_dotenv
 import os
 
-# 라우터 임포트
+# 라우터 
 from routers import chat_router, news_router, data_analysis_router, s3_router
 
-# 스케줄러 임포트
+# 스케줄러 
 from schedulers.news_scheduler import start_news_scheduler
 
 # 환경 변수 로드
@@ -20,8 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('app.log')
+        logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)

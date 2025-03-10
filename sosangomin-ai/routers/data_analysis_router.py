@@ -31,7 +31,7 @@ async def upload_and_analyze_data(
     analysis_type: str = Form(...),  # "sales_prediction" 또는 "clustering"
 ):
     """
-    파일을 업로드하고 S3에 저장한 후 데이터 분석을 수행합니다.
+    파일을 업로드하고 S3에 저장한 후 데이터 분석을 수행.
     """
     try:
         filename = file.filename
@@ -92,7 +92,7 @@ async def analyze_from_s3(
     analysis_type: str = Form(...),  # "sales_prediction" 또는 "clustering"
 ):
     """
-    이미 S3에 저장된 파일을 불러와 데이터 분석을 수행합니다.
+    이미 S3에 저장된 파일을 불러와 데이터 분석을 수행.
     """
     try:
         filename = s3_key.split("/")[-1]
