@@ -1,19 +1,8 @@
-// src/components/comments/Reply.tsx
+// src/components/boards/Reply.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiMoreVertical } from "react-icons/fi";
-
-interface ReplyProps {
-  reply: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-  };
-  commentId: number; // 부모 댓글 ID
-  onEdit: (commentId: number, replyId: number) => void;
-  onDelete: (commentId: number, replyId: number) => void;
-}
+import { ReplyProps } from "@/types/board";
 
 const Reply: React.FC<ReplyProps> = ({
   reply,
@@ -25,7 +14,44 @@ const Reply: React.FC<ReplyProps> = ({
 
   const toggleReplyMenu = () => {
     setShowMenu(!showMenu);
+
+    // 전역 이벤트를 통해 다른 메뉴들에게 닫히라는 신호 보내기
+    if (!showMenu) {
+      document.dispatchEvent(
+        new CustomEvent("menu:toggle", {
+          detail: { id: `reply-${commentId}-${reply.id}` }
+        })
+      );
+    }
   };
+
+  // 다른 메뉴가 열릴 때 현재 메뉴 닫기
+  useEffect(() => {
+    const handleToggleMenu = (e: CustomEvent<{ id: string }>) => {
+      if (e.detail.id !== `reply-${commentId}-${reply.id}` && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    // 외부 클릭 감지
+    const handleClickOutside = (event: MouseEvent) => {
+      const element = event.target as Element;
+      if (!element.closest(".menu-container") && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("menu:toggle", handleToggleMenu as EventListener);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "menu:toggle",
+        handleToggleMenu as EventListener
+      );
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [commentId, reply.id, showMenu]);
 
   const handleEditReply = () => {
     onEdit(commentId, reply.id);
@@ -38,14 +64,17 @@ const Reply: React.FC<ReplyProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 p-3 rounded-md">
-      <div className="flex justify-between mb-1">
-        <span className="font-medium text-sm">{reply.author}</span>
+    <div className="p-3 rounded-md">
+      <div className="flex justify-between mb-2">
+        <span className="font-medium">{reply.author}</span>
         <div className="flex items-center">
-          <span className="text-xs text-gray-500 mr-2">{reply.createdAt}</span>
-          <div className="relative">
-            <button onClick={toggleReplyMenu} className="text-gray-500">
-              <FiMoreVertical className="h-4 w-4" />
+          <span className="text-gray-500 mr-3">{reply.createdAt}</span>
+          <div className="relative menu-container">
+            <button
+              onClick={toggleReplyMenu}
+              className="text-gray-500 cursor-pointer"
+            >
+              <FiMoreVertical className="h-5 w-5" />
             </button>
 
             {showMenu && (
@@ -67,7 +96,7 @@ const Reply: React.FC<ReplyProps> = ({
           </div>
         </div>
       </div>
-      <p className="text-gray-800 text-sm">{reply.content}</p>
+      <p className="text-gray-800">{reply.content}</p>
     </div>
   );
 };

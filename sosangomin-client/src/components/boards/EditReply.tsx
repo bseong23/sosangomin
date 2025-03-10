@@ -1,18 +1,7 @@
 // src/components/comments/EditReply.tsx
 
 import React, { useState } from "react";
-
-interface EditReplyProps {
-  reply: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-  };
-  commentId: number; // 부모 댓글 ID
-  onUpdate: (commentId: number, replyId: number, content: string) => void;
-  onCancel: () => void;
-}
+import { EditReplyProps } from "@/types/board";
 
 const EditReply: React.FC<EditReplyProps> = ({
   reply,
