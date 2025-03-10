@@ -29,7 +29,7 @@ class MongoDatabase:
             
             self.db = self.client[self.database_name]
             
-            logger.info("MongoDB 연결이 성공적으로 설정.")
+            logger.info("MongoDB 연결이 성공적으로 설정되었습니다.")
             
         except Exception as e:
             logger.error(f"MongoDB 연결 오류: {str(e)}")
