@@ -11,6 +11,9 @@ public interface UserMapper {
     @Select("SELECT * FROM users WHERE id = #{id}")
     Optional<User> findUserById(@Param("id") Long id);
 
+    @Select("SELECT * FROM users WHERE name = #{name}")
+    Optional<User> findUserByName(@Param("name") String name);
+
     @Results({
             @Result(property = "socialId", column = "social_id"),
             @Result(property = "profileImgUrl", column = "profile_img_url")
