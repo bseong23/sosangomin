@@ -1,5 +1,5 @@
 import React from "react";
-import banner from "@/assets/banner.svg";
+import banner from "@/assets/banner.png";
 const Banner: React.FC = () => {
   return (
     <div>

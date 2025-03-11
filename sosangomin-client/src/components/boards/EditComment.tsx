@@ -1,7 +1,7 @@
-// src/components/comments/EditComment.tsx
+// src/components/boards/EditComment.tsx
 
 import React, { useState } from "react";
-import { ReplyType, EditCommentProps } from "@/types/board";
+import { EditCommentProps } from "@/types/board";
 
 const EditComment: React.FC<EditCommentProps> = ({
   comment,
