@@ -79,7 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/swagger-resources") ||
                 path.startsWith("/h2-console") ||
                 path.startsWith("/api/mail") ||
-                path.equals("/api/user/name/check");
+                path.equals("/api/user/name/check") ||
+                path.equals("/api/user") ;
     }
 
     private String detachBearer(String token) {
