@@ -1,17 +1,18 @@
 // src/components/login/StandardLoginForm.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLogin } from "@/hooks/useLogin";
 
 const StandardLoginForm: React.FC = () => {
+  const { loginState, submitLogin, getSavedEmail } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [saveEmail, setSaveEmail] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // 컴포넌트 마운트 시 저장된 이메일 불러오기
   useEffect(() => {
-    const savedEmail = localStorage.getItem("savedEmail");
+    const savedEmail = getSavedEmail();
     if (savedEmail) {
       setEmail(savedEmail);
       setSaveEmail(true);
@@ -20,57 +21,28 @@ const StandardLoginForm: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
 
     try {
-      // 아이디 저장 처리
-      if (saveEmail) {
-        localStorage.setItem("savedEmail", email);
-      } else {
-        localStorage.removeItem("savedEmail");
-      }
+      // useLogin 훅을 사용하여 로그인 시도
+      const success = await submitLogin({ mail: email, password }, saveEmail);
 
-      // 로그인 API 호출 코드 (예시)
-      // 실제 구현 시 아래 코드 주석 해제 및 수정
-      /*
-      const apiServerUrl = import.meta.env.VITE_API_SERVER_URL;
-      const response = await fetch(`${apiServerUrl}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('로그인에 실패했습니다');
-      }
-      
-      const data = await response.json();
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('userInfo', JSON.stringify({
-        userId: data.userId,
-        userName: data.userName,
-        // 기타 필요한 사용자 정보
-      }));
-      */
-
-      // 로그인 성공 시뮬레이션 (나중에 실제 API 호출로 대체)
-      console.log("일반 로그인 시도:", { email, password, saveEmail });
-      setTimeout(() => {
-        setIsLoading(false);
-        alert("로그인에 성공했습니다.");
+      if (success) {
+        // 로그인 성공 시 홈 페이지로 이동
         navigate("/");
-      }, 1500);
+      }
     } catch (error) {
       console.error("로그인 오류:", error);
-      setIsLoading(false);
-      alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
     }
   };
 
   return (
     <form className="mt-8 space-y-4" onSubmit={handleLogin}>
+      {loginState.error && (
+        <div className="p-2 text-sm text-red-600 bg-red-50 rounded">
+          {loginState.error}
+        </div>
+      )}
+
       <div className="space-y-5">
         {/* 아이디 입력 */}
         <div>
@@ -162,12 +134,14 @@ const StandardLoginForm: React.FC = () => {
       <div>
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={loginState.isLoading}
           className={`w-full flex justify-center py-4 px-4 border cursor-pointer border-transparent rounded-[10px] shadow-sm text-xl font-medium text-white ${
-            isLoading ? "bg-indigo-400" : "bg-[#16125D] hover:bg-indigo-800"
+            loginState.isLoading
+              ? "bg-indigo-400"
+              : "bg-[#16125D] hover:bg-indigo-800"
           } focus:outline-none focus:ring-2 focus:ring-offset-2`}
         >
-          {isLoading ? "로그인 중..." : "로그인"}
+          {loginState.isLoading ? "로그인 중..." : "로그인"}
         </button>
       </div>
     </form>
