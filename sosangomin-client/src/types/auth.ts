@@ -50,11 +50,11 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  success: boolean;
-  user: User;
-  accessToken?: string;
-  refreshToken?: string;
-  message?: string;
+  accessToken: string;
+  userName: string;
+  userProfileUrl: string | null;
+  isFirstLogin: string;
+  userId: string;
 }
 
 // 이메일 인증 관련 타입
@@ -107,7 +107,8 @@ export type ApiResponse<T = {}> = T | ApiErrorResponse;
 export enum ErrorMessages {
   NAME_DUPLICATE = "ERR_NAME_DUPLICATE",
   INVALID_MAIL_NUMBER = "ERR_INVALID_MAIL_NUMBER",
-  MAIL_SEND_FAIL = "ERR_INTERNAL_SERVER_MAIL_SEND_FAIL_ERROR"
+  MAIL_SEND_FAIL = "ERR_INTERNAL_SERVER_MAIL_SEND_FAIL_ERROR",
+  LOGIN_FAILED = "ERR_LOGIN_FAILED"
 }
 
 // useSignup 훅의 상태 타입들
@@ -128,6 +129,14 @@ export interface MailVerificationState {
   error: string | null;
   isSent: boolean;
   isVerified: boolean;
+}
+
+// useLogin 훅의 상태 타입
+export interface LoginState {
+  isLoading: boolean;
+  error: string | null;
+  isSuccess: boolean;
+  userData: LoginResponse | null;
 }
 
 // 타입 가드

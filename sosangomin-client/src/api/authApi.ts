@@ -26,18 +26,25 @@ export const logout = async (): Promise<ApiResponse> => {
 
 /**
  * 일반 로그인 API 호출
+ * @param email 사용자 이메일
+ * @param password 사용자 비밀번호
  */
 export const login = async (
   email: string,
   password: string
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosInstance.post("/api/v1/auth/login", {
-      email,
-      password
+    const response = await axiosInstance.post("/api/user/login", null, {
+      params: {
+        mail: email,
+        password
+      }
     });
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
     console.error("로그인 오류:", error);
     throw error;
   }
