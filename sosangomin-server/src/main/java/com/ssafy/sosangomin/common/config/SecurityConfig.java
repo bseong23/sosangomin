@@ -65,7 +65,8 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "https://www.sosangomin.com",
                 "https://sosangomin.com",
-                "https://dev.sosangomin.com"
+                "https://dev.sosangomin.com",
+                "https://apidev.sosangomin.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
