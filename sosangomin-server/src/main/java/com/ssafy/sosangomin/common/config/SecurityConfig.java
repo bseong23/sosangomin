@@ -49,7 +49,8 @@ public class SecurityConfig {
                                 "/api/mail/**",
                                 "/api/user/name/check",
                                 "/api/user",
-                                "api/user/login"
+                                "api/user/login",
+                                "/api/user/email/check"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

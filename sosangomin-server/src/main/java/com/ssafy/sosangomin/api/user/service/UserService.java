@@ -68,4 +68,12 @@ public class UserService {
                 encryptedUserId
         );
     }
+
+    public void checkEmailDuplication(String mail) {
+        Optional<User> user = userMapper.findUserByEmail(mail);
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
+        }
+    }
 }

@@ -13,6 +13,7 @@ public enum ErrorMessage {
     ERR_INVALID_MAIL_NUMBER,
     ERR_NAME_DUPLICATE,
     ERR_LOGIN_FAILED,
+    ERR_EMAIL_DUPLICATE,
 
     /**
      * 401 UNAUTHORIZED
