@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/webjars/**",
                                 "/h2-console/**",
-                                "/api/mail/**"
+                                "/api/mail/**",
+                                "/api/user/name/check"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -66,7 +67,7 @@ public class SecurityConfig {
                 "https://www.sosangomin.com",
                 "https://sosangomin.com",
                 "https://dev.sosangomin.com",
-                "https://apidev.sosangomin.com"
+                "https://apidev.sosangomin.com" // for swagger cors
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
