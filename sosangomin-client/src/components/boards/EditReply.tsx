@@ -1,4 +1,4 @@
-// src/components/comments/EditReply.tsx
+// src/components/boards/EditReply.tsx
 
 import React, { useState } from "react";
 import { EditReplyProps } from "@/types/board";
@@ -18,14 +18,14 @@ const EditReply: React.FC<EditReplyProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 p-3 rounded-md">
+    <div className="bg-gray-50 p-3 mt-3 rounded-md">
       <form onSubmit={handleSubmit}>
-        <div className="flex justify-between mb-1">
-          <span className="font-medium text-sm">{reply.author}</span>
-          <span className="text-xs text-gray-500">{reply.createdAt}</span>
+        <div className="flex justify-between mb-5">
+          <span className="font-medium">{reply.author}</span>
+          <span className="text-gray-500">{reply.createdAt}</span>
         </div>
         <textarea
-          className="w-full p-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[60px] text-sm"
+          className="w-full p-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[100px]"
           value={editContent}
           onChange={(e) => setEditContent(e.target.value)}
         ></textarea>
@@ -33,13 +33,13 @@ const EditReply: React.FC<EditReplyProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="bg-gray-300 text-gray-700 hover:bg-gray-400 px-3 py-1 rounded-md text-xs"
+            className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md"
           >
             취소
           </button>
           <button
             type="submit"
-            className="bg-[#16125D] text-white hover:bg-blue-900 px-3 py-1 rounded-md text-xs"
+            className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md"
           >
             수정완료
           </button>
