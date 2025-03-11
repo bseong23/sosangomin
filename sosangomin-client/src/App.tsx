@@ -8,6 +8,7 @@ import Board from "@/pages/Board";
 import Notice from "@/pages/Notice";
 import News from "./pages/News";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
+import Map from "@/pages/Map";
 
 const App: React.FC = () => {
   return (
@@ -59,7 +60,7 @@ const App: React.FC = () => {
             element={<div>리뷰 분석하기</div>}
           />
           <Route path="/data-analysis/advise" element={<div>고민해결결</div>} />
-          <Route path="/map" element={<div>지도 페이지</div>} />
+          <Route path="/map" element={<Map />} />
         </Route>
       </Routes>
     </Router>

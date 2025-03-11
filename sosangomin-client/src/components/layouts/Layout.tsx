@@ -8,6 +8,7 @@ const Layout: React.FC = () => {
 
   // 메인 페이지 여부 확인
   const isMainPage = location.pathname === "/";
+  const isMapPage = location.pathname.startsWith("/map");
 
   const showSidebar =
     location.pathname.startsWith("/community") ||
@@ -32,13 +33,25 @@ const Layout: React.FC = () => {
           <Header />
         </div>
       )}
-      <div className="flex flex-grow pt-[73px]">
-        {showSidebar && <Sidebar />} {/* 사이드바 표시 여부 결정 */}
-        <main className="flex flex-grow justify-center mx-auto">
-          <div className="container">
-            <Outlet /> {/* 중첩된 라우트가 여기에 렌더링됨 */}
-          </div>
-        </main>
+      <div className={`flex flex-grow ${showHeader ? "pt-[73px]" : ""}`}>
+        {showSidebar && <Sidebar />}
+        {isMapPage ? (
+          // 지도 페이지일 때 특별한 레이아웃
+          <main className="flex flex-grow w-full">
+            <Outlet />
+          </main>
+        ) : (
+          // 일반 페이지 레이아웃
+          <main
+            className={`flex flex-grow justify-center mx-auto ${
+              !showHeader ? "w-full" : ""
+            }`}
+          >
+            <div className={`${showHeader ? "container" : "w-full"}`}>
+              <Outlet />
+            </div>
+          </main>
+        )}
       </div>
       {showFooter && <Footer />}
     </div>
