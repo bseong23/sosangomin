@@ -1,10 +1,14 @@
 package com.ssafy.sosangomin.api.user.service;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
+import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
+import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
+import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,8 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final IdEncryptionUtil idEncryptionUtil;
 
     public void checkNameDuplication(String name) {
         Optional<User> user = userMapper.findUserByName(name);
@@ -31,5 +37,35 @@ public class UserService {
                 signUpRequestDto.mail(),
                 signUpRequestDto.name(),
                 passwordEncoder.encode(signUpRequestDto.password()));
+    }
+
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+
+        Optional<User> userOptional = userMapper.findUserByEmail(loginRequestDto.mail());
+
+        if (!userOptional.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_LOGIN_FAILED);
+        }
+
+        User user = userOptional.get();
+
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(loginRequestDto.password(), user.getPassword())) {
+            throw new BadRequestException(ErrorMessage.ERR_LOGIN_FAILED);
+        }
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenUtil.createAccessToken(String.valueOf(user.getId()));
+
+        // 암호화된 유저 id (pk)
+        String encryptedUserId = idEncryptionUtil.encrypt(user.getId());
+
+        return new LoginResponseDto(
+                accessToken,
+                user.getName(),
+                user.getProfileImgUrl(),
+                "false",
+                encryptedUserId
+        );
     }
 }

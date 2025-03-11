@@ -72,7 +72,7 @@ public class User extends BaseTimeEntity implements OAuth2User, UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return this.password;
     } // OAuth2는 비밀번호 없음, 근데 일반로그인 때문에, 추후에 만들어야할듯
 
 }

@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/mail/**",
                                 "/api/user/name/check",
-                                "/api/user"
+                                "/api/user",
+                                "api/user/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

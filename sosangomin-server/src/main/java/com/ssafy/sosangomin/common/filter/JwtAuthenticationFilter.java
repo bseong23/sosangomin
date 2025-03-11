@@ -80,7 +80,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/h2-console") ||
                 path.startsWith("/api/mail") ||
                 path.equals("/api/user/name/check") ||
-                path.equals("/api/user") ;
+                path.equals("/api/user") ||
+                path.equals("/api/user/login");
     }
 
     private String detachBearer(String token) {

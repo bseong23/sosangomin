@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.controller;
 
 import com.ssafy.sosangomin.api.user.docs.UserSwagger;
+import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
 import com.ssafy.sosangomin.api.user.service.UserService;
@@ -25,5 +26,10 @@ public class UserController implements UserSwagger {
     public ResponseEntity<?> signUp(@ModelAttribute SignUpRequestDto signUpRequestDto) {
         userService.signUp(signUpRequestDto);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@ModelAttribute LoginRequestDto loginRequestDto) {
+        return ResponseEntity.ok().body(userService.login(loginRequestDto));
     }
 }
