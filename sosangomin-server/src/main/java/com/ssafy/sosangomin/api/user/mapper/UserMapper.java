@@ -36,4 +36,12 @@ public interface UserMapper {
             @Param("name") String name,
             @Param("profileImgUrl") String profileImgUrl
     );
+
+    @Insert("INSERT INTO users (user_type, email, name, password, user_role) " +
+            "VALUES ('NORMAL', #{email}, #{name}, #{password}, 'USER')")
+    void signUpUser(
+            @Param("email") String email,
+            @Param("name") String name,
+            @Param("password") String password
+    );
 }

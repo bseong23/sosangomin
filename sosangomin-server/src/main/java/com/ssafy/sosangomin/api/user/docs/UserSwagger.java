@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.docs;
 
 import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,5 +42,22 @@ public interface UserSwagger {
     ResponseEntity<?> checkName(
             @ParameterObject
             @ModelAttribute NameCheckRequestDto nameCheckRequestDto
+    );
+
+    @Operation(
+            summary = "회원가입",
+            description = "회원가입을 합니다. 인증된 이메일, 중복되지 않은 닉네임, 비밀번호가 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "회원가입 성공"
+                    )
+            }
+    )
+    ResponseEntity<?> signUp(
+            @ParameterObject
+            @ModelAttribute SignUpRequestDto signUpRequestDto
     );
 }
