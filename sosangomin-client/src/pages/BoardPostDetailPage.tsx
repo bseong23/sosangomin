@@ -28,6 +28,12 @@ const PostDetail: React.FC = () => {
             author: "서지윤",
             content: "곧 올릴게요~",
             createdAt: "2024.03.06"
+          },
+          {
+            id: 102,
+            author: "김도형",
+            content: "빨리 주세요",
+            createdAt: "2024.03.06"
           }
         ]
       },
@@ -35,6 +41,13 @@ const PostDetail: React.FC = () => {
         id: 2,
         author: "서지윤",
         content: "우왕 좋아요",
+        createdAt: "2024.03.06",
+        replies: []
+      },
+      {
+        id: 3,
+        author: "권인승",
+        content: "재밌어요",
         createdAt: "2024.03.06",
         replies: []
       }
@@ -159,69 +172,73 @@ const PostDetail: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-[1005px] mx-auto px-4 py-8">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 font-inter">
       {/* 게시판 타이틀 */}
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold">자유게시판</h2>
-      </div>
-
-      {/* 게시글 제목 */}
-      <h1 className="text-2xl font-bold mb-3">{post.title}</h1>
-
-      {/* 게시글 정보 */}
-      <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-3 text-gray-600 text-sm">
-          <span>날짜 : {post.createdAt}</span>
-          <span>|</span>
-          <span>글쓴이 : {post.author}</span>
-          <span>|</span>
-          <span>조회수 : {post.views}</span>
+      <div className="w-full">
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold">자유게시판</h2>
         </div>
-        <div className="relative menu-container">
-          <button
-            onClick={togglePostMenu}
-            className="text-gray-500 cursor-pointer"
-          >
-            <FiMoreVertical className="h-5 w-5" />
-          </button>
 
-          {showMenu && (
-            <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1">
-              <button
-                onClick={handleEditPost}
-                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                수정하기
-              </button>
-              <button
-                onClick={handleDeletePost}
-                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                삭제하기
-              </button>
-            </div>
-          )}
+        {/* 게시글 제목 */}
+        <h1 className="text-2xl font-bold mb-3">{post.title}</h1>
+
+        {/* 게시글 정보 */}
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-3 text-gray-600 text-sm">
+            <span>날짜 : {post.createdAt}</span>
+            <span></span>
+            <span>글쓴이 : {post.author}</span>
+            <span></span>
+            <span>조회수 : {post.views}</span>
+          </div>
+          <div className="relative menu-container">
+            <button
+              onClick={togglePostMenu}
+              className="text-gray-500 cursor-pointer"
+            >
+              <FiMoreVertical className="h-5 w-5" />
+            </button>
+
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 overflow-hidden">
+                <button
+                  onClick={handleEditPost}
+                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  수정하기
+                </button>
+                <button
+                  onClick={handleDeletePost}
+                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white cursor-pointer"
+                >
+                  삭제하기
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* 구분선 */}
+        <hr className="my-4 border-gray-300" />
+
+        {/* 게시글 내용 */}
+        <div className="my-6">
+          <div className="whitespace-pre-wrap min-h-[250px]">
+            {post.content}
+          </div>
+        </div>
+
+        {/* 댓글 컴포넌트 */}
+        <CommentList
+          comments={post.comments}
+          onAddComment={handleAddComment}
+          onUpdateComment={handleUpdateComment}
+          onDeleteComment={handleDeleteComment}
+          onAddReply={handleAddReply}
+          onUpdateReply={handleUpdateReply}
+          onDeleteReply={handleDeleteReply}
+        />
       </div>
-
-      {/* 구분선 */}
-      <hr className="my-4 border-gray-300" />
-
-      {/* 게시글 내용 */}
-      <div className="my-6">
-        <div className="whitespace-pre-wrap">{post.content}</div>
-      </div>
-
-      {/* 댓글 컴포넌트 */}
-      <CommentList
-        comments={post.comments}
-        onAddComment={handleAddComment}
-        onUpdateComment={handleUpdateComment}
-        onDeleteComment={handleDeleteComment}
-        onAddReply={handleAddReply}
-        onUpdateReply={handleUpdateReply}
-        onDeleteReply={handleDeleteReply}
-      />
     </div>
   );
 };
