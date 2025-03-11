@@ -29,9 +29,9 @@ public interface UserMapper {
     @Select("SELECT * FROM users WHERE social_id = #{socialId}")
     Optional<User> findUserBySocialId(@Param("socialId") String socialId);
 
-    @Insert("INSERT INTO users (social_id, name, profile_img_url) " +
-             "VALUES (#{socialId}, #{name}, #{profileImgUrl})")
-    void insertKakaoUser(
+    @Insert("INSERT INTO users (social_id, user_type, name, profile_img_url, user_role) " +
+             "VALUES (#{socialId}, 'KAKAO', #{name}, #{profileImgUrl}, 'USER')")
+    void signUpKakaoUser(
             @Param("socialId") String socialId,
             @Param("name") String name,
             @Param("profileImgUrl") String profileImgUrl
