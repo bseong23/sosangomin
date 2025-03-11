@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layouts/Layout";
-import LoginPage from "@/pages/LoginPage";
-import KakaoCallbackPage from "@/pages/KakaoCallbackPage";
+import LoginPage from "./pages/LoginPage";
+import KakaoCallbackPage from "./pages/KakaoCallbackPage";
 import WritePost from "@/pages/BoardWritePage";
 import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
 import Board from "@/pages/Board";
