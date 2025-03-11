@@ -38,7 +38,7 @@ export const useAuth = (): UseAuthReturn => {
 
     checkLoginStatus();
 
-    // 다른 탭/창에서의 로그인/로그아웃 감지를 위한 이벤트 리스너 (선택 사항)
+    // 다른 탭/창에서의 로그인/로그아웃 감지를 위한 이벤트 리스너
     const handleStorageChange = () => {
       checkLoginStatus();
     };
