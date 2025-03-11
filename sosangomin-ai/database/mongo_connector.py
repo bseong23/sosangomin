@@ -22,8 +22,8 @@ class MongoDatabase:
             self.client = MongoClient(
                 self.connection_string,
                 maxPoolSize=10,    
-                maxIdleTimeMS=160,  
-                serverSelectionTimeoutMS=160
+                maxIdleTimeMS=3000,  
+                serverSelectionTimeoutMS=3000
             )
             self.client.server_info()
             
