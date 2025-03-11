@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import Map from "@/components/maps/Kakaomap";
+import Kakaomap from "@/components/maps/Kakaomap";
 import MapSidebar from "@/components/maps/MapSidebar";
 import { Marker } from "@/types/map";
+import { searchLocation } from "@/api/mapApi";
 
 const MapPage: React.FC = () => {
   const [markers, setMarkers] = useState<Marker[]>([]);
@@ -10,17 +11,14 @@ const MapPage: React.FC = () => {
 
   const handleSearch = async (address: string) => {
     try {
-      // 여기에 주소 검색 및 좌표 변환 로직 추가
-      // 예: const coordinates = await getCoordinatesByAddress(address);
-      // setCenter(coordinates);
-
-      // 임시로 좌표 설정 (실제로는 API 호출 결과 사용)
-      setCenter({ lat: 37.5032, lng: 127.0447 }); // 강남역 좌표로 예시
+      // 주소를 좌표로 변환
+      const coordinates = await searchLocation(address);
+      setCenter(coordinates);
 
       // 검색 위치에 마커 추가
       setMarkers([
         {
-          position: { lat: 37.5032, lng: 127.0447 },
+          position: coordinates,
           content: `<div style="padding:5px;width:150px;text-align:center;">${address}</div>`
         }
       ]);
@@ -34,7 +32,7 @@ const MapPage: React.FC = () => {
     <div className="flex flex-col w-full h-full relative">
       {/* 맵 컴포넌트 */}
       <div className="w-full">
-        <Map
+        <Kakaomap
           width="100%"
           height="calc(100vh - 73px)"
           center={center}

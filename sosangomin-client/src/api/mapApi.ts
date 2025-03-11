@@ -8,7 +8,7 @@ export const loadKakaoMapScript = (appKey: string): Promise<void> => {
 
     const script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&libraries=services&autoload=false`;
     script.onload = () => {
       window.kakao.maps.load(() => {
         resolve();
@@ -39,8 +39,56 @@ export const getCoordinatesByAddress = (
           lng: parseFloat(result[0].x)
         });
       } else {
-        reject(new Error("Failed to get coordinates from address"));
+        // 주소 검색 실패 시 키워드 검색으로 시도
+        searchByKeyword(address).then(resolve).catch(reject);
       }
     });
+  });
+};
+
+// 키워드로 장소 검색
+export const searchByKeyword = (
+  keyword: string
+): Promise<{ lat: number; lng: number }> => {
+  return new Promise((resolve, reject) => {
+    if (!window.kakao || !window.kakao.maps) {
+      reject(new Error("Kakao maps API not loaded"));
+      return;
+    }
+
+    const places = new window.kakao.maps.services.Places();
+
+    places.keywordSearch(keyword, (result: any, status: any) => {
+      if (
+        status === window.kakao.maps.services.Status.OK &&
+        result.length > 0
+      ) {
+        resolve({
+          lat: parseFloat(result[0].y),
+          lng: parseFloat(result[0].x)
+        });
+      } else {
+        reject(new Error(`No results found for keyword: ${keyword}`));
+      }
+    });
+  });
+};
+
+// 통합 검색 함수 - 주소 또는 키워드로 검색
+export const searchLocation = (
+  query: string
+): Promise<{ lat: number; lng: number }> => {
+  return new Promise((resolve, reject) => {
+    // 먼저 주소 검색 시도
+    getCoordinatesByAddress(query)
+      .then(resolve)
+      .catch(() => {
+        // 주소 검색 실패 시 키워드 검색 시도
+        searchByKeyword(query)
+          .then(resolve)
+          .catch((error) => {
+            reject(new Error(`Location not found: ${query}`));
+          });
+      });
   });
 };

@@ -53,57 +53,13 @@ const Analysismap: React.FC<MapSidebarProps> = ({ onSearch }) => {
       </div>
 
       {/* 인구 분포도 섹션 */}
-      <div className="mb-6">
+      <div className="mb-6 h-[200px]">
         <h3 className="text-lg font-semibold mb-2">인구 분포도</h3>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="flex justify-center mb-2">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 via-blue-400 to-pink-500 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-white"></div>
-            </div>
-          </div>
-          <div className="flex justify-center text-sm text-gray-600">
-            <div className="mx-2 flex items-center">
-              <span className="w-3 h-3 inline-block bg-blue-400 mr-1"></span>
-              <span>10대</span>
-            </div>
-            <div className="mx-2 flex items-center">
-              <span className="w-3 h-3 inline-block bg-pink-400 mr-1"></span>
-              <span>20대</span>
-            </div>
-            <div className="mx-2 flex items-center">
-              <span className="w-3 h-3 inline-block bg-purple-400 mr-1"></span>
-              <span>30대</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* 상권 분포도 섹션 */}
-      <div className="mb-6">
+      <div className="mb-6 h-[200px]">
         <h3 className="text-lg font-semibold mb-2">상권 분포도</h3>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="text-sm text-gray-600 mb-2">
-            총 점포 수 <span className="font-bold text-blue-600">41개</span>
-          </div>
-          <div className="h-32">
-            <div className="flex h-full items-end">
-              <div className="bg-blue-400 w-1/6 h-[70%] mx-1"></div>
-              <div className="bg-blue-400 w-1/6 h-[90%] mx-1"></div>
-              <div className="bg-blue-400 w-1/6 h-[80%] mx-1"></div>
-              <div className="bg-blue-400 w-1/6 h-[60%] mx-1"></div>
-              <div className="bg-blue-400 w-1/6 h-[50%] mx-1"></div>
-              <div className="bg-blue-400 w-1/6 h-[70%] mx-1"></div>
-            </div>
-          </div>
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>한식</span>
-            <span>양식</span>
-            <span>중식</span>
-            <span>일식</span>
-            <span>카페</span>
-            <span>주점</span>
-          </div>
-        </div>
       </div>
     </div>
   );
