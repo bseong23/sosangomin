@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.user.controller;
 
+import com.ssafy.sosangomin.api.user.docs.MailSwagger;
 import com.ssafy.sosangomin.api.user.dto.request.MailCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.MailSendRequestDto;
 import com.ssafy.sosangomin.api.user.service.MailService;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
-public class MailController {
+public class MailController implements MailSwagger {
 
     private final MailService mailService;
 
