@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.user.docs;
 
+import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,5 +60,36 @@ public interface UserSwagger {
     ResponseEntity<?> signUp(
             @ParameterObject
             @ModelAttribute SignUpRequestDto signUpRequestDto
+    );
+
+    @Operation(
+            summary = "로그인",
+            description = "로그인을합니다. 이메일과 비밀번호가 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "로그인 성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "로그인 실패 - 존재하지 않는 이메일 이거나, 비밀번호 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"400\",\n" +
+                                                    "  \"errorMessage\": \"ERR_LOGIN_FAILED\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> login(
+            @ParameterObject
+            @ModelAttribute LoginRequestDto loginRequestDto
     );
 }
