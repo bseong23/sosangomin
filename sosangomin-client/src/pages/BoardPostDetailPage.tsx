@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
 import CommentList from "@/components/boards/CommentList";
-import { ReplyType, CommentType, PostType } from "@/types/board";
+import { PostType } from "@/types/board";
 
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
@@ -57,7 +57,24 @@ const PostDetail: React.FC = () => {
   // 게시글 데이터 가져오기
   useEffect(() => {
     // TODO: 게시글 데이터를 가져오는 API 호출
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    const fetchPost = async () => {
+      try {
+        // API 호출 예시 코드:
+        // const response = await fetch(`/api/posts/${postId}`);
+        // const data = await response.json();
+        // setPost(data);
+
+        // 임시 데이터로 setPost 사용 (실제 API 구현 전까지)
+        setPost((prevPost) => ({
+          ...prevPost
+          // 여기서 필요한 데이터 업데이트
+        }));
+      } catch (error) {
+        console.error("게시글을 불러오는데 실패했습니다:", error);
+      }
+    };
+
+    fetchPost();
   }, [postId]);
 
   const togglePostMenu = () => {

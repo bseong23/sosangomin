@@ -86,7 +86,7 @@ export const searchLocation = (
         // 주소 검색 실패 시 키워드 검색 시도
         searchByKeyword(query)
           .then(resolve)
-          .catch((error) => {
+          .catch(() => {
             reject(new Error(`Location not found: ${query}`));
           });
       });

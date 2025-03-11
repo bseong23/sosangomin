@@ -1,11 +1,11 @@
-// src/components/comments/CommentList.tsx
+// src/components/boards/CommentList.tsx
 
 import React, { useState } from "react";
 import { FaRegComment } from "react-icons/fa";
 import Comment from "@/components/boards/Comment";
 import EditComment from "@/components/boards/EditComment";
 import CommentForm from "@/components/boards/CommentForm";
-import { ReplyType, CommentType, CommentListProps } from "@/types/board";
+import { CommentListProps } from "@/types/board";
 
 const CommentList: React.FC<CommentListProps> = ({
   comments,
