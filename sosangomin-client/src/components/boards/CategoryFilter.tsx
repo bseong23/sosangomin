@@ -10,6 +10,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onCategoryChange
 }) => {
   const categories = [
+    { id: "all", name: "전체" },
     { id: "policy", name: "지원정책" },
     { id: "startup", name: "창업정보" },
     { id: "management", name: "경영관리" },

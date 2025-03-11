@@ -1,0 +1,40 @@
+export interface MapProps {
+  width: string;
+  height: string;
+  center?: {
+    lat: number;
+    lng: number;
+  };
+  level?: number;
+  markers?: Marker[];
+}
+
+export interface Marker {
+  position: {
+    lat: number;
+    lng: number;
+  };
+  content?: string;
+  onClick?: () => void;
+}
+
+export interface MapSidebarProps {
+  onSearch?: (address: string) => void;
+  onClose?: () => void;
+}
+
+export interface KakaoMapAPI {
+  maps: any;
+}
+
+declare global {
+  interface Window {
+    kakao: KakaoMapAPI;
+  }
+}
+
+export interface ToggleSwitchProps {
+  options: string[];
+  defaultSelected?: string;
+  onChange?: (selected: string) => void;
+}
