@@ -64,9 +64,9 @@ const Reply: React.FC<ReplyProps> = ({
   };
 
   return (
-    <div className="w-full mt-3">
-      <div className="py-3 px-4">
-        <div className="flex justify-between mb-5">
+    <div className="w-full bg-gray-50 mt-2">
+      <div className="py-5 px-4">
+        <div className="flex justify-between mb-10">
           <span className="font-medium">{reply.author}</span>
           <div className="flex items-center">
             <span className="text-gray-500 mr-3">{reply.createdAt}</span>
@@ -97,7 +97,7 @@ const Reply: React.FC<ReplyProps> = ({
             </div>
           </div>
         </div>
-        <p className="text-gray-800">{reply.content}</p>
+        <p className="text-gray-800 ">{reply.content}</p>
       </div>
     </div>
   );
