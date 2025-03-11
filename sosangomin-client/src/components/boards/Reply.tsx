@@ -64,39 +64,41 @@ const Reply: React.FC<ReplyProps> = ({
   };
 
   return (
-    <div className="p-3 rounded-md">
-      <div className="flex justify-between mb-2">
-        <span className="font-medium">{reply.author}</span>
-        <div className="flex items-center">
-          <span className="text-gray-500 mr-3">{reply.createdAt}</span>
-          <div className="relative menu-container">
-            <button
-              onClick={toggleReplyMenu}
-              className="text-gray-500 cursor-pointer"
-            >
-              <FiMoreVertical className="h-5 w-5" />
-            </button>
+    <div className="w-full mt-3">
+      <div className="py-3 px-4">
+        <div className="flex justify-between mb-5">
+          <span className="font-medium">{reply.author}</span>
+          <div className="flex items-center">
+            <span className="text-gray-500 mr-3">{reply.createdAt}</span>
+            <div className="relative menu-container">
+              <button
+                onClick={toggleReplyMenu}
+                className="text-gray-500 cursor-pointer"
+              >
+                <FiMoreVertical className="h-5 w-5" />
+              </button>
 
-            {showMenu && (
-              <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1">
-                <button
-                  onClick={handleEditReply}
-                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  수정하기
-                </button>
-                <button
-                  onClick={handleDeleteReply}
-                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  삭제하기
-                </button>
-              </div>
-            )}
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1 overflow-hidden">
+                  <button
+                    onClick={handleEditReply}
+                    className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    onClick={handleDeleteReply}
+                    className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white"
+                  >
+                    삭제하기
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        <p className="text-gray-800">{reply.content}</p>
       </div>
-      <p className="text-gray-800">{reply.content}</p>
     </div>
   );
 };
