@@ -30,7 +30,9 @@ router = APIRouter(
 @router.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    store_id: int = Form(...)
+    store_id: int = Form(...),
+    start_month: str = Form(..., description="시작 월 (YYYY-MM 형식)"),
+    end_month: str = Form(..., description="종료 월 (YYYY-MM 형식)")
 ):
     try:
         s3_key = await upload_file_to_s3(file, store_id)
@@ -38,7 +40,9 @@ async def upload_file(
         try:
             file_extension = os.path.splitext(file.filename)[1].lower().lstrip('.')
             
-            source_name = os.path.splitext(file.filename)[0] 
+            base_name = os.path.splitext(file.filename)[0]
+            
+            source_name = f"{base_name} ({start_month}~{end_month})"
             
             data_sources = mongo_instance.get_collection("DataSources")
             
@@ -53,6 +57,10 @@ async def upload_file(
                 "content_type": file.content_type if hasattr(file, "content_type") else None,
                 "upload_date": datetime.now(),
                 "status": "active",
+                "date_range": {
+                    "start_month": start_month,
+                    "end_month": end_month
+                },
                 "last_accessed": datetime.now()
             }
             
@@ -64,6 +72,10 @@ async def upload_file(
                 "message": "파일이 성공적으로 업로드되었습니다.",
                 "source_id": source_id,
                 "source_name": source_name,
+                "date_range": {
+                    "start_month": start_month,
+                    "end_month": end_month
+                },
                 "s3_key": s3_key,
                 "url": get_s3_presigned_url(s3_key)
             }
