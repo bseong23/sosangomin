@@ -9,6 +9,7 @@ import Notice from "@/pages/Notice";
 import News from "./pages/News";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
 import Map from "@/pages/Map";
+import SignupPages from "@/pages/SignupPage";
 
 const App: React.FC = () => {
   return (
@@ -21,7 +22,7 @@ const App: React.FC = () => {
             path="/auth/kakao/callback/*"
             element={<KakaoCallbackPage />}
           />
-          <Route path="/signup" element={<div>회원가입 페이지</div>} />
+          <Route path="/signup" element={<SignupPages />} />
           <Route
             path="/reset-password"
             element={<div>비밀번호 재설정 페이지</div>}
