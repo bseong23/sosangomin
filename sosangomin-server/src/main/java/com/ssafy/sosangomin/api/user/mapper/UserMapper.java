@@ -8,9 +8,17 @@ import java.util.Optional;
 @Mapper
 public interface UserMapper {
 
+    @Results({
+            @Result(property = "socialId", column = "social_id"),
+            @Result(property = "profileImgUrl", column = "profile_img_url")
+    })
     @Select("SELECT * FROM users WHERE id = #{id}")
     Optional<User> findUserById(@Param("id") Long id);
 
+    @Results({
+            @Result(property = "socialId", column = "social_id"),
+            @Result(property = "profileImgUrl", column = "profile_img_url")
+    })
     @Select("SELECT * FROM users WHERE name = #{name}")
     Optional<User> findUserByName(@Param("name") String name);
 
