@@ -5,31 +5,7 @@ import { FaRegComment } from "react-icons/fa";
 import Comment from "@/components/boards/Comment";
 import EditComment from "@/components/boards/EditComment";
 import CommentForm from "@/components/boards/CommentForm";
-
-interface ReplyType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-interface CommentType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-  replies?: ReplyType[];
-}
-
-interface CommentListProps {
-  comments: CommentType[];
-  onAddComment: (content: string) => void;
-  onUpdateComment: (commentId: number, content: string) => void;
-  onDeleteComment: (commentId: number) => void;
-  onAddReply: (commentId: number, content: string) => void;
-  onUpdateReply: (commentId: number, replyId: number, content: string) => void;
-  onDeleteReply: (commentId: number, replyId: number) => void;
-}
+import { ReplyType, CommentType, CommentListProps } from "@/types/board";
 
 const CommentList: React.FC<CommentListProps> = ({
   comments,

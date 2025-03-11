@@ -1,13 +1,7 @@
 // src/components/comments/CommentForm.tsx
 
 import React, { useState } from "react";
-
-interface CommentFormProps {
-  onSubmit: (content: string) => void;
-  placeholder?: string;
-  buttonText?: string;
-  minHeight?: string;
-}
+import { CommentFormProps } from "@/types/board";
 
 const CommentForm: React.FC<CommentFormProps> = ({
   onSubmit,

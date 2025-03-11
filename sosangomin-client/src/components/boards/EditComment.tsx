@@ -1,25 +1,7 @@
 // src/components/comments/EditComment.tsx
 
 import React, { useState } from "react";
-
-interface ReplyType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-interface EditCommentProps {
-  comment: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-    replies?: ReplyType[];
-  };
-  onUpdate: (commentId: number, content: string) => void;
-  onCancel: () => void;
-}
+import { ReplyType, EditCommentProps } from "@/types/board";
 
 const EditComment: React.FC<EditCommentProps> = ({
   comment,

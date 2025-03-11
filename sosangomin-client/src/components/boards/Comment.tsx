@@ -1,33 +1,12 @@
-// src/components/comments/Comment.tsx
+// src/components/boards/Comment.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { FaRegComments } from "react-icons/fa";
 import CommentForm from "@/components/boards/CommentForm";
 import Reply from "@/components/boards/Reply";
 import EditReply from "@/components/boards/EditReply";
-
-interface ReplyType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-interface CommentProps {
-  comment: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-    replies?: ReplyType[];
-  };
-  onEdit: (commentId: number) => void;
-  onDelete: (commentId: number) => void;
-  onAddReply: (commentId: number, content: string) => void;
-  onEditReply: (commentId: number, replyId: number, content: string) => void;
-  onDeleteReply: (commentId: number, replyId: number) => void;
-}
+import { ReplyType, CommentProps } from "@/types/board";
 
 const Comment: React.FC<CommentProps> = ({
   comment,
@@ -43,7 +22,44 @@ const Comment: React.FC<CommentProps> = ({
 
   const toggleCommentMenu = () => {
     setShowMenu(!showMenu);
+
+    // 전역 이벤트를 통해 다른 메뉴들에게 닫히라는 신호 보내기
+    if (!showMenu) {
+      document.dispatchEvent(
+        new CustomEvent("menu:toggle", {
+          detail: { id: `comment-${comment.id}` }
+        })
+      );
+    }
   };
+
+  // 다른 메뉴가 열릴 때 현재 메뉴 닫기
+  useEffect(() => {
+    const handleToggleMenu = (e: CustomEvent<{ id: string }>) => {
+      if (e.detail.id !== `comment-${comment.id}` && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    // 외부 클릭 감지
+    const handleClickOutside = (event: MouseEvent) => {
+      const element = event.target as Element;
+      if (!element.closest(".menu-container") && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("menu:toggle", handleToggleMenu as EventListener);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "menu:toggle",
+        handleToggleMenu as EventListener
+      );
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [comment.id, showMenu]);
 
   const toggleReplyForm = () => {
     setShowReplyForm(!showReplyForm);
@@ -92,11 +108,12 @@ const Comment: React.FC<CommentProps> = ({
       <div className="flex justify-between mb-2">
         <span className="font-medium">{comment.author}</span>
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 mr-3">
-            {comment.createdAt}
-          </span>
-          <div className="relative">
-            <button onClick={toggleCommentMenu} className="text-gray-500">
+          <span className="text-s text-gray-500 mr-3">{comment.createdAt}</span>
+          <div className="relative menu-container">
+            <button
+              onClick={toggleCommentMenu}
+              className="text-gray-500 cursor-pointer"
+            >
               <FiMoreVertical className="h-5 w-5" />
             </button>
 
@@ -145,26 +162,29 @@ const Comment: React.FC<CommentProps> = ({
 
       {/* 대댓글 목록 */}
       {comment.replies && comment.replies.length > 0 && (
-        <div className="mt-3 ml-8 space-y-3">
-          {comment.replies.map((reply) => (
-            <React.Fragment key={reply.id}>
-              {editingReplyId === reply.id ? (
-                <EditReply
-                  reply={reply}
-                  commentId={comment.id}
-                  onUpdate={handleUpdateReply}
-                  onCancel={handleCancelEditReply}
-                />
-              ) : (
-                <Reply
-                  reply={reply}
-                  commentId={comment.id}
-                  onEdit={handleEditReply}
-                  onDelete={handleDeleteReply}
-                />
-              )}
-            </React.Fragment>
-          ))}
+        <div className="mt-3">
+          <div className="ml-8 border-t border-gray-200 mb-2"></div>
+          <div className="mt-3 ml-8 space-y-3">
+            {comment.replies.map((reply) => (
+              <React.Fragment key={reply.id}>
+                {editingReplyId === reply.id ? (
+                  <EditReply
+                    reply={reply}
+                    commentId={comment.id}
+                    onUpdate={handleUpdateReply}
+                    onCancel={handleCancelEditReply}
+                  />
+                ) : (
+                  <Reply
+                    reply={reply}
+                    commentId={comment.id}
+                    onEdit={handleEditReply}
+                    onDelete={handleDeleteReply}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       )}
     </div>

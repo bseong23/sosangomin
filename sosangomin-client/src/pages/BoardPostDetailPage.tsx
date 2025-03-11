@@ -1,32 +1,9 @@
+// src/pages/BoardPostDetailPage.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
 import CommentList from "@/components/boards/CommentList";
-
-interface ReplyType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-interface CommentType {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-  replies?: ReplyType[];
-}
-
-interface PostType {
-  id: string | undefined;
-  title: string;
-  content: string;
-  author: string;
-  createdAt: string;
-  views: number;
-  comments: CommentType[];
-}
+import { ReplyType, CommentType, PostType } from "@/types/board";
 
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
@@ -72,7 +49,44 @@ const PostDetail: React.FC = () => {
 
   const togglePostMenu = () => {
     setShowMenu(!showMenu);
+
+    // 전역 이벤트를 통해 다른 메뉴들에게 닫히라는 신호 보내기
+    if (!showMenu) {
+      document.dispatchEvent(
+        new CustomEvent("menu:toggle", {
+          detail: { id: `post-${postId}` }
+        })
+      );
+    }
   };
+
+  // 다른 메뉴가 열릴 때 현재 메뉴 닫기
+  useEffect(() => {
+    const handleToggleMenu = (e: CustomEvent<{ id: string }>) => {
+      if (e.detail.id !== `post-${postId}` && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    // 외부 클릭 감지
+    const handleClickOutside = (event: MouseEvent) => {
+      const element = event.target as Element;
+      if (!element.closest(".menu-container") && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("menu:toggle", handleToggleMenu as EventListener);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "menu:toggle",
+        handleToggleMenu as EventListener
+      );
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [postId, showMenu]);
 
   const handleEditPost = () => {
     navigate(`/community/board/edit/${postId}`, {
@@ -163,8 +177,11 @@ const PostDetail: React.FC = () => {
           <span>|</span>
           <span>조회수 : {post.views}</span>
         </div>
-        <div className="relative">
-          <button onClick={togglePostMenu} className="text-gray-500">
+        <div className="relative menu-container">
+          <button
+            onClick={togglePostMenu}
+            className="text-gray-500 cursor-pointer"
+          >
             <FiMoreVertical className="h-5 w-5" />
           </button>
 
@@ -172,13 +189,13 @@ const PostDetail: React.FC = () => {
             <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1">
               <button
                 onClick={handleEditPost}
-                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
               >
                 수정하기
               </button>
               <button
                 onClick={handleDeletePost}
-                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
               >
                 삭제하기
               </button>
