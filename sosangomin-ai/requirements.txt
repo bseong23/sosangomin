@@ -132,3 +132,4 @@ xxhash==3.5.0
 yarl==1.18.3
 yellowbrick==1.5
 zipp==3.21.0
+openpyxl==3.1.0

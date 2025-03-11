@@ -222,3 +222,11 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,git,venv
 
 .env
+
+# CSV 파일 무시
+*.csv
+
+# Excel 파일 무시 (모든 확장자)
+*.xls
+*.xlsx
+*.xlsm

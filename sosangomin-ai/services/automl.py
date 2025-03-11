@@ -4,7 +4,7 @@ from fastapi import UploadFile, File
 import pandas as pd
 import numpy as np
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta 
 import holidays  # type: ignore
 import pickle
 import shutil
@@ -71,29 +71,17 @@ def preprocess_data(df) :
 
     return df
 
-async def predict_next_month_sales(file: UploadFile = File(...)):
+async def predict_next_month_sales(temp_file: str):
     try:
-        # 확장자 구분 및 파일 저장
-        filename = file.filename
-        ext = os.path.splitext(filename)[1].lower()
-        temp_file = f"uploaded_data{ext}"
-        with open(temp_file, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)        
+        ext = os.path.splitext(temp_file)[1].lower()
 
-        # 파일 읽기
         if ext == ".csv":
             df = pd.read_csv(temp_file, header=None)
         elif ext in [".xls", ".xlsx"]:
             df = pd.read_excel(temp_file, header=None)
         else:
-            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
-
-
-        # 파일 경로 설정 및 데이터 로드
-        # script_dir = os.path.dirname(os.path.abspath(__file__))  
-        # file_path = os.path.join(script_dir, "영수증 내역.xlsx") 
-        # df = pd.read_excel(file_path, header=2)  # 세 번째 행을 컬럼명으로 설정
-
+            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel만 가능합니다."}
+        
         # TODO: 공통 데이터 전처리로 수정해야함.
         # 데이터 전처리 
         # df = preprocess_data(df)
@@ -211,52 +199,66 @@ async def predict_next_month_sales(file: UploadFile = File(...)):
         return {"error": str(e)}
 
 
-async def perform_clustering(file: UploadFile = File(...)):
+async def perform_clustering(temp_file: str):
     try:
-        # 확장자 구분
-        filename = file.filename
-        ext = os.path.splitext(filename)[1].lower()
+        ext = os.path.splitext(temp_file)[1].lower()
 
-        # 파일 저장
-        temp_file = f"uploaded_store_data{ext}"
-        with open(temp_file, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        # 파일 읽기
         if ext == ".csv":
-            df = pd.read_csv(temp_file)
+            df = pd.read_csv(temp_file, header=2)
         elif ext in [".xls", ".xlsx"]:
-            df = pd.read_excel(temp_file)
+            df = pd.read_excel(temp_file, header=2)
         else:
-            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel 파일을 업로드하세요."}
+            return {"error": "지원되지 않는 파일 형식입니다. CSV 또는 Excel만 가능합니다."}
 
         # 데이터 전처리
         df = preprocess_data(df)
-
-        # 클러스터링 전처리
         cluster_df = df[['상품 명칭', '총매출', '단가', '수량', '월', '요일', '시간대', '계절', '공휴일']] 
 
         # 범주형 변수별 수량 합계 피벗 테이블 생성
         category_vars = ['월', '요일', '시간대', '계절', '공휴일']
         pivot_tables = [cluster_df.pivot_table(index='상품 명칭', columns=col, values='수량', aggfunc='sum', fill_value=0) for col in category_vars]
-
-        # 총매출과 수량은 sum(), 단가는 mean()으로 집계
-        agg_df = cluster_df.groupby('상품 명칭').agg({'총매출': 'sum', '수량': 'sum', '단가': 'mean'})
+        agg_df = cluster_df.groupby('상품 명칭').agg({'총매출': 'sum', '수량': 'sum', '단가': 'mean'}) # 총매출과 수량은 sum(), 단가는 mean()으로 집계
 
         # 모든 피벗 테이블을 상품명 기준으로 병합
         final_df = agg_df.copy()
         for pivot in pivot_tables:
             final_df = final_df.merge(pivot, on='상품 명칭', how='left')
+        final_df.reset_index(inplace=True)
 
         # PyCaret 클러스터링 설정
-        exp = setup(data=df)
+        exp = ClusteringExperiment()
+        exp.setup(data=final_df.drop(columns=['상품 명칭']), session_id=42, normalize=True)
 
-        # 최적의 클러스터링 모델 선택
-        best_model = compare_models()
-        tune_model = tune_model(best_model)
+        # 모델 생성 
+        # models = ['kmeans', 'hierarchical', 'meanshift', 'dbscan', 'optics']
+        # best_model = None
+        # best_score = -1
+        # best_result = None
 
-        # 클러스터 할당
-        df_clustered = assign_model(tune_model)
+        # for model_name in models:
+        #     try:
+        #         model = exp.create_model(model_name)
+        #         clustered = exp.assign_model(model)
+
+        #         # Silhouette Score 측정 (dbscan/optics는 클러스터 1개로 나뉘면 score 안 나올 수 있음)
+        #         labels = clustered['Cluster']
+                # if len(set(labels)) > 1:  # 클러스터가 1개인 경우 예외 처리
+        #           score = silhouette_score(final_df.drop(columns=['상품 명칭']), labels)
+                # else :
+                #     score = -1
+        #         print(f"{model_name}: Silhouette Score = {score}")
+
+        #         if score > best_score:
+        #             best_score = score
+        #             best_model = model
+        #             best_result = clustered
+
+        #     except Exception as e:
+        #         print(f"{model_name} 모델 실행 실패: {e}")
+
+        model = exp.create_model('kmeans')
+        df_clustered = exp.assign_model(model)
+        df_clustered['상품 명칭'] = final_df['상품 명칭'].values
         # df_clustered["Cluster"] = df_clustered["Cluster"].astype(str)
         cluster_data = df_clustered.to_dict(orient="records")
 
@@ -272,3 +274,25 @@ async def perform_clustering(file: UploadFile = File(...)):
         }
     except Exception as e:
         return {"error": str(e)}
+    
+
+
+# 클러스터링 테스트용 함수
+import asyncio
+
+async def test_perform_clustering():
+        
+    # 파일 경로 설정 및 데이터 로드
+    script_dir = os.path.dirname(os.path.abspath(__file__))  
+    temp_file = os.path.join(script_dir, "상품.xlsx") 
+    result = await perform_clustering(temp_file)
+
+    # 결과 출력
+    print("[TEST] 클러스터링 결과:", result)
+
+
+# (python -m services.automl)
+if __name__ == "__main__":
+    # test_perform_clustering()
+    asyncio.run(test_perform_clustering())
+
