@@ -4,6 +4,7 @@ import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
 import { useSignup } from "@/hooks/useSignup";
 import { SignupRequest } from "@/types/auth";
+import { redirect } from "react-router-dom";
 
 const Signup: React.FC = () => {
   // 커스텀 훅 사용
@@ -72,6 +73,7 @@ const Signup: React.FC = () => {
     const success = await submitSignup(signupData);
     if (success) {
       alert("회원가입이 완료되었습니다.");
+      redirect("/login");
       // 여기서 리다이렉트 등 추가 작업 가능
     }
   };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavItem, UserInfo } from "@/types/header";
 import Logo from "@/assets/Logo.svg";
@@ -9,17 +9,55 @@ const Header: React.FC = () => {
   const location = useLocation();
   const token = localStorage.getItem("accessToken");
 
-  // userInfo를 JSON으로 파싱
-  const userInfoString = localStorage.getItem("userInfo");
-  let userInfo: UserInfo | null = null;
+  // 상태로 유저 정보 관리
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-  try {
-    if (userInfoString) {
-      userInfo = JSON.parse(userInfoString) as UserInfo;
-    }
-  } catch (error) {
-    console.error("Failed to parse user info:", error);
-  }
+  // 초기 로딩 시 로컬 스토리지에서 유저 정보 가져오기
+  useEffect(() => {
+    const loadUserInfo = () => {
+      const userInfoString = localStorage.getItem("userInfo");
+      if (userInfoString) {
+        try {
+          const parsedUserInfo = JSON.parse(userInfoString) as UserInfo;
+          setUserInfo(parsedUserInfo);
+        } catch (error) {
+          console.error("Failed to parse user info:", error);
+        }
+      }
+    };
+
+    loadUserInfo();
+  }, []);
+
+  // 프로필 업데이트 이벤트 리스너 등록
+  useEffect(() => {
+    const handleProfileUpdate = (e: CustomEvent<{ nickname: string }>) => {
+      if (userInfo) {
+        // 새 닉네임으로 상태 업데이트
+        setUserInfo((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            userName: e.detail.nickname
+          };
+        });
+      }
+    };
+
+    // 이벤트 리스너 등록
+    document.addEventListener(
+      "profile:update",
+      handleProfileUpdate as EventListener
+    );
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      document.removeEventListener(
+        "profile:update",
+        handleProfileUpdate as EventListener
+      );
+    };
+  }, [userInfo]);
 
   const navItems: NavItem[] = [
     { name: "서비스 소개", path: "/service" },
