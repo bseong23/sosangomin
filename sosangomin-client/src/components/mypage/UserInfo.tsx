@@ -1,13 +1,17 @@
 // src/components/UserInfo.tsx
 import React, { useState, useRef } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import DefaultProfileImage from "@/assets/profileImage.svg"; // 기본 프로필 이미지 import
+import { useNavigate } from "react-router-dom";
+import ProfileSection from "@/components/mypage/ProfileSection";
+import { getUserInfo, saveAuthData } from "@/api/userStorage"; // 헤더 정보 업데이트를 위해 추가
 
 interface UserInfoProps {
   isEditable?: boolean;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
+  const navigate = useNavigate();
+
   // 커스텀 훅 사용
   const { userProfile, isLoading, error, changeNickname } = useUserProfile();
 
@@ -66,6 +70,16 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
       if (success) {
         // 닉네임 변경 성공
         setIsEditingNickname(false);
+
+        // 헤더에 저장된 사용자 정보 업데이트
+        updateStoredUserInfo(newNickname);
+
+        // 커스텀 이벤트를 발생시켜 헤더에 알림
+        document.dispatchEvent(
+          new CustomEvent("profile:update", {
+            detail: { nickname: newNickname }
+          })
+        );
       } else {
         // 닉네임 변경 실패 (에러는 커스텀 훅에서 처리됨)
         setNicknameError("닉네임 변경에 실패했습니다");
@@ -86,162 +100,202 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
     }
   };
 
+  // 로컬 스토리지에 저장된 사용자 정보 업데이트
+  const updateStoredUserInfo = (newNickname: string) => {
+    try {
+      // 현재 저장된 사용자 정보 가져오기
+      const currentUserInfo = getUserInfo();
+
+      if (currentUserInfo && currentUserInfo.accessToken) {
+        // 닉네임 업데이트된 정보 저장
+        const updatedUserInfo = {
+          ...currentUserInfo,
+          userName: newNickname
+        };
+
+        // 업데이트된 정보 저장
+        saveAuthData(currentUserInfo.accessToken, updatedUserInfo);
+
+        console.log(
+          "저장된 사용자 정보가 업데이트되었습니다:",
+          updatedUserInfo
+        );
+      }
+    } catch (error) {
+      console.error("사용자 정보 업데이트 중 오류:", error);
+    }
+  };
+
   // 프로필 이미지 수정 핸들러
   const handleEditProfile = () => {
     // 실제 구현에서는 이미지 업로드 모달 등이 열림
     alert("프로필 이미지 수정");
   };
 
+  // 비밀번호 수정 핸들러
+  const handlePasswordChange = () => {
+    navigate("/reset-password");
+  };
+
+  // 회원탈퇴 핸들러
+  const handleDeleteAccount = () => {
+    console.log("회원탈퇴!");
+    if (
+      window.confirm("정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+    ) {
+      console.log("회원탈퇴 진행");
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex justify-center items-center w-full p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return <div className="text-red-500 p-8 w-full text-center">{error}</div>;
   }
 
   if (!userProfile) {
-    return <div className="text-gray-500 p-4">사용자 정보가 없습니다.</div>;
+    return (
+      <div className="text-gray-500 p-8 w-full text-center">
+        사용자 정보가 없습니다.
+      </div>
+    );
   }
 
   return (
-    <div className="flex gap-5 justify-center">
-      {/* 프로필 이미지 */}
-      <div className="flex flex-col items-center justify-center">
-        {/* 프로필 아이템 타이틀 */}
-        <div className="text-sm font-medium text-gray-500 mb-1">
-          프로필 이미지
-        </div>
-        <div className="relative">
-          <img
-            src={userProfile.profileImage || DefaultProfileImage} // null이면 기본 이미지 사용
-            alt="프로필 이미지"
-            className="w-12 h-12 rounded-full object-cover"
-          />
-          {isEditable && (
-            <button
-              onClick={handleEditProfile}
-              className="absolute -right-1 -bottom-1 bg-white rounded-full p-1 border border-gray-300"
-              aria-label="프로필 이미지 수정"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="w-full max-w-5xl mx-auto p-8 bg-white">
+      <div className="flex flex-col md:flex-row gap-10 items-center">
+        {/* 프로필 이미지 섹션 */}
+        <ProfileSection
+          imageUrl={userProfile.profileImage}
+          isEditable={isEditable}
+          onEditImage={handleEditProfile}
+        />
 
-      <div>
-        {/* 닉네임 */}
-        <div className="text-sm font-medium text-gray-500 mb-1">닉네임</div>
-        <div className="flex justify-between items-center mb-1 min-w-[200px]">
-          {isEditingNickname ? (
-            <div className="flex-1 flex flex-col">
-              <div className="flex items-center">
-                <input
-                  ref={nicknameInputRef}
-                  type="text"
-                  value={newNickname}
-                  onChange={(e) => setNewNickname(e.target.value)}
-                  onKeyDown={handleNicknameKeyDown}
-                  className="flex-1 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  disabled={isSubmittingNickname}
-                />
-                <div className="flex ml-2">
-                  <button
-                    onClick={saveNickname}
-                    disabled={isSubmittingNickname}
-                    className="text-green-600 hover:text-green-800 mr-1"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </button>
-                  <button
-                    onClick={cancelEditingNickname}
-                    disabled={isSubmittingNickname}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
+        {/* 사용자 정보 섹션 */}
+        <div className="flex-1 space-y-6">
+          {/* 닉네임 */}
+          <div>
+            <div className="text-xl font-medium text-gray-700 mb-2">닉네임</div>
+            <div className="flex justify-between items-center min-w-[300px] border border-[#BEBEBE] rounded-[10px] p-4">
+              {isEditingNickname ? (
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-center">
+                    <input
+                      ref={nicknameInputRef}
+                      type="text"
+                      value={newNickname}
+                      onChange={(e) => setNewNickname(e.target.value)}
+                      onKeyDown={handleNicknameKeyDown}
+                      className="flex-1 border border-white rounded focus:outline-none text-xl"
+                      disabled={isSubmittingNickname}
+                    />
+                    <div className="flex ml-3">
+                      <button
+                        onClick={saveNickname}
+                        disabled={isSubmittingNickname}
+                        className="text-green-600 hover:text-green-800 mr-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button
+                        onClick={cancelEditingNickname}
+                        disabled={isSubmittingNickname}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  {nicknameError && (
+                    <p className="text-sm text-red-500 mt-2">{nicknameError}</p>
+                  )}
                 </div>
-              </div>
-              {nicknameError && (
-                <p className="text-sm text-red-500 mt-1">{nicknameError}</p>
+              ) : (
+                <>
+                  <div className="text-xl">{userProfile.nickname}</div>
+                  {isEditable && (
+                    <button
+                      onClick={startEditingNickname}
+                      className="text-gray-400 hover:text-gray-600 p-1"
+                      aria-label="닉네임 수정"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                  )}
+                </>
               )}
             </div>
-          ) : (
-            <>
-              <div className="text-base">{userProfile.nickname}</div>
-              {isEditable && (
-                <button
-                  onClick={startEditingNickname}
-                  className="text-gray-400 hover:text-gray-600"
-                  aria-label="닉네임 수정"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                  </svg>
-                </button>
-              )}
-            </>
-          )}
-        </div>
+          </div>
 
-        {/* 이메일 */}
-        <div className="text-sm font-medium text-gray-500 mb-1">이메일</div>
-        <div className="flex justify-between items-center">
-          <div className="text-base">{userProfile.mail}</div>
+          {/* 이메일 */}
+          <div>
+            <div className="text-xl font-medium text-gray-700 mb-2">이메일</div>
+            <div className="text-xl border border-[#BEBEBE] rounded-[10px] p-4">
+              {userProfile.mail}
+            </div>
+          </div>
+
+          {/* 계정 관리 링크들 */}
+          {isEditable && (
+            <div className="flex justify-end gap-10 mt-6 text-sm">
+              <div
+                onClick={handlePasswordChange}
+                className="text-gray-700 hover:text-gray-900 cursor-pointer"
+              >
+                비밀번호 수정하기
+              </div>
+              <div
+                onClick={handleDeleteAccount}
+                className="text-gray-700 hover:text-gray-900 cursor-pointer"
+              >
+                회원탈퇴
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
