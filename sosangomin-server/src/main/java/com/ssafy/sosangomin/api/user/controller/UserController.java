@@ -1,14 +1,13 @@
 package com.ssafy.sosangomin.api.user.controller;
 
 import com.ssafy.sosangomin.api.user.docs.UserSwagger;
-import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.*;
 import com.ssafy.sosangomin.api.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/user")
@@ -19,7 +18,7 @@ public class UserController implements UserSwagger {
 
     @PostMapping("/name/check")
     public ResponseEntity<?> checkName(@ModelAttribute NameCheckRequestDto nameCheckRequestDto) {
-        userService.checkNameDuplication(nameCheckRequestDto.name());
+        userService.checkNameDuplication(nameCheckRequestDto);
         return ResponseEntity.ok().build();
     }
 
@@ -36,7 +35,15 @@ public class UserController implements UserSwagger {
 
     @PostMapping("/email/check")
     public ResponseEntity<?> checkEmail(@ModelAttribute EmailCheckRequestDto emailCheckRequestDto) {
-        userService.checkEmailDuplication(emailCheckRequestDto.email());
+        userService.checkEmailDuplication(emailCheckRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/name")
+    public ResponseEntity<?> updateName(Principal principal, @ModelAttribute UpdateNameRequestDto updateNameRequestDto) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        userService.updateName(updateNameRequestDto, userId);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,8 +1,11 @@
 package com.ssafy.sosangomin.api.user.service;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
+import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.UpdateNameRequestDto;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
@@ -12,6 +15,7 @@ import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -24,8 +28,8 @@ public class UserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final IdEncryptionUtil idEncryptionUtil;
 
-    public void checkNameDuplication(String name) {
-        Optional<User> user = userMapper.findUserByName(name);
+    public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
+        Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
 
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
@@ -69,11 +73,25 @@ public class UserService {
         );
     }
 
-    public void checkEmailDuplication(String mail) {
-        Optional<User> user = userMapper.findUserByEmail(mail);
+    public void checkEmailDuplication(EmailCheckRequestDto emailCheckRequestDto) {
+        Optional<User> user = userMapper.findUserByEmail(emailCheckRequestDto.email());
 
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
         }
+    }
+
+    @Transactional
+    public void updateName(UpdateNameRequestDto updateNameRequestDto, Long userId) {
+
+        // 여기서 중복검사 한번 더 진행
+        Optional<User> user = userMapper.findUserByName(updateNameRequestDto.name());
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
+        }
+
+        // 중복 안되면 업데이트 진행
+        userMapper.updateName(updateNameRequestDto.name(), userId);
     }
 }

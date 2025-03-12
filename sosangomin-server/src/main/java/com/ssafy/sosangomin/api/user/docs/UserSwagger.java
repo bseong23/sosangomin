@@ -1,9 +1,6 @@
 package com.ssafy.sosangomin.api.user.docs;
 
-import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.security.Principal;
 
 public interface UserSwagger {
 
@@ -123,5 +122,37 @@ public interface UserSwagger {
     ResponseEntity<?> checkEmail(
             @ParameterObject
             @ModelAttribute EmailCheckRequestDto emailCheckRequestDto
+    );
+
+    @Operation(
+            summary = "닉네임 변경",
+            description = "닉네임을 변경합니다. 자동으로 중복을 감지합니다. 변경할 닉네임이 필요합니다. 요청시 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "닉네임 변경 성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "이미 존재하는 닉네임",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"400\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NAME_DUPLICATE\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> updateName(
+            Principal principal,
+            @ParameterObject
+            @ModelAttribute UpdateNameRequestDto updateNameRequestDto
     );
 }
