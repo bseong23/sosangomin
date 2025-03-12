@@ -67,4 +67,10 @@ public interface UserMapper {
             @Param("password") String password,
             @Param("id") Long id
     );
+
+    @Update("UPDATE users SET profile_img_url = #{profileImgUrl} WHERE id = #{id}")
+    void updateProfileImgUrl(
+            @Param("profileImgUrl") String profileImgUrl,
+            @Param("id") Long id
+    );
 }
