@@ -10,6 +10,7 @@ import News from "./pages/News";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
 import Map from "@/pages/Map";
 import SignupPages from "@/pages/SignupPage";
+import MyPage from "@/pages/Mypage";
 
 const App: React.FC = () => {
   return (
@@ -27,7 +28,7 @@ const App: React.FC = () => {
             path="/reset-password"
             element={<div>비밀번호 재설정 페이지</div>}
           />
-          <Route path="/mypage" element={<div>마이페이지</div>} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/community/notice" element={<Notice />} />
           <Route
             path="/community/notice/post/:postId"

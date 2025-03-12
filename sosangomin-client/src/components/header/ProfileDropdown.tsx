@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ProfileDropdownProps } from "@/types/header";
+import profileImage from "@/assets/profileImage.svg";
 
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   userName,
@@ -46,7 +47,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           src={
             userProfileUrl && userProfileUrl !== "null"
               ? userProfileUrl
-              : "https://picsum.photos/200"
+              : profileImage
           }
           alt="프로필"
           className="flex h-[41px] w-[41px] rounded-full"
