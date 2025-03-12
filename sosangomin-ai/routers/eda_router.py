@@ -1,6 +1,6 @@
 # routers/eda_router.py
 
-from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi import APIRouter, HTTPException, Path, Query, Form
 import logging
 from typing import Optional
 from bson import ObjectId
@@ -19,6 +19,7 @@ router = APIRouter(
 
 @router.post("/analyze/{source_id}")
 async def analyze_data(
+    store_id: int = Form(...),
     source_id: str = Path(..., description="데이터소스 ID")
 ):
     """
@@ -30,7 +31,7 @@ async def analyze_data(
         except:
             raise HTTPException(status_code=400, detail="유효하지 않은 데이터소스 ID입니다.")
         
-        result = await eda_service.perform_eda(source_id)
+        result = await eda_service.perform_eda(store_id, source_id)
         return result
     except ValueError as e:
         logger.error(f"EDA 분석 중 오류: {str(e)}")

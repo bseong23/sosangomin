@@ -84,7 +84,7 @@ class EdaService:
             
         return chart_data
     
-    async def perform_eda(self, source_id):
+    async def perform_eda(self,store_id, source_id):
         """데이터소스에 대한 EDA를 수행하고 결과를 MongoDB에 저장"""
         try:
             data_sources = mongo_instance.get_collection("DataSources")
@@ -136,6 +136,7 @@ class EdaService:
                 
                 result_doc = {
                     "_id": ObjectId(),
+                    'store_id': store_id,
                     "source_id": ObjectId(source_id),
                     "analysis_type": "eda",  
                     "created_at": datetime.now(),
@@ -153,6 +154,7 @@ class EdaService:
                 
                 return {
                     "status": "success",
+                    'store_id': store_id,
                     "message": "EDA 분석이 완료되었습니다.",
                     "analysis_id": str(result_id),
                     "source_id": source_id,
