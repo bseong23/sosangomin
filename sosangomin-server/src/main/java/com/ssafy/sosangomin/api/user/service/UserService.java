@@ -1,7 +1,9 @@
 package com.ssafy.sosangomin.api.user.service;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
+import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
@@ -24,8 +26,8 @@ public class UserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final IdEncryptionUtil idEncryptionUtil;
 
-    public void checkNameDuplication(String name) {
-        Optional<User> user = userMapper.findUserByName(name);
+    public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
+        Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
 
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
@@ -69,8 +71,8 @@ public class UserService {
         );
     }
 
-    public void checkEmailDuplication(String mail) {
-        Optional<User> user = userMapper.findUserByEmail(mail);
+    public void checkEmailDuplication(EmailCheckRequestDto emailCheckRequestDto) {
+        Optional<User> user = userMapper.findUserByEmail(emailCheckRequestDto.email());
 
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
