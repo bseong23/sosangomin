@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.mapper;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
+import com.ssafy.sosangomin.api.user.domain.entity.UserType;
 import org.apache.ibatis.annotations.*;
 
 import java.util.Optional;
@@ -10,7 +11,10 @@ public interface UserMapper {
 
     @Results({
             @Result(property = "socialId", column = "social_id"),
-            @Result(property = "profileImgUrl", column = "profile_img_url")
+            @Result(property = "profileImgUrl", column = "profile_img_url"),
+            @Result(property = "userType", column = "user_type",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserType.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE id = #{id}")
     Optional<User> findUserById(@Param("id") Long id);
