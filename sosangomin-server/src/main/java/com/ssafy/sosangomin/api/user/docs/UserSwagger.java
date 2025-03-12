@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.user.docs;
 import com.ssafy.sosangomin.api.user.dto.request.*;
 import com.ssafy.sosangomin.api.user.dto.response.UserInfoResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -192,4 +195,39 @@ public interface UserSwagger {
             }
     )
     ResponseEntity<?> getUserInfo(Principal principal);
+
+    @Operation(
+            summary = "유저 프로필 사진 변경",
+            description = "유저 프로필 사진을 변경합니다. 프로필 사진 파일이 필요합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "프로필 사진 업로드 성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "프로필 사진 업로드 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"500\",\n" +
+                                                    "  \"errorMessage\": \"ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> updateProfileImg(
+            Principal principal,
+            @Parameter(
+                    description = "업로드할 프로필 이미지 파일 (10MB 이하)",
+                    required = true
+            )
+            @RequestParam MultipartFile profileImage
+    );
 }

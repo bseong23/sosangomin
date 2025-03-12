@@ -1,5 +1,9 @@
 package com.ssafy.sosangomin.api.user.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.dto.request.*;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
@@ -7,14 +11,20 @@ import com.ssafy.sosangomin.api.user.dto.response.UserInfoResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
+import com.ssafy.sosangomin.common.exception.InternalServerException;
 import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +34,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final IdEncryptionUtil idEncryptionUtil;
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
         Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
@@ -109,5 +123,46 @@ public class UserService {
                 user.getName(),
                 user.getProfileImgUrl()
         );
+    }
+
+    public void updateProfileImg(MultipartFile multipartFile, Long userId) {
+        // 파일명 충돌 방지를 위한 고유 파일명 생성
+        String fileName = createFileName(multipartFile.getOriginalFilename());
+
+        String filePath = "profile_image/" + fileName;
+
+        // 파일 메타데이터 설정
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
+
+        // S3에 파일 업로드
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, filePath, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR);
+        }
+
+        // 업로드된 파일의 S3 URL 반환
+        String newProfileImgUrl = amazonS3.getUrl(bucket, filePath).toString();
+
+        userMapper.updateProfileImgUrl(newProfileImgUrl, userId);
+    }
+
+    private String createFileName(String originalFileName) {
+        // 파일 확장자 추출
+        String ext = extractExt(originalFileName);
+
+        // UUID를 사용하여 고유한 파일명 생성
+        String uuid = UUID.randomUUID().toString();
+
+        return uuid + "." + ext;
+    }
+
+    // 확장자
+    private String extractExt(String originalFileName) {
+        int pos = originalFileName.lastIndexOf(".");
+        return originalFileName.substring(pos + 1);
     }
 }

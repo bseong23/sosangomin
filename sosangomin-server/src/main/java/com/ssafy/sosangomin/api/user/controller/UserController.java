@@ -6,6 +6,7 @@ import com.ssafy.sosangomin.api.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -60,5 +61,13 @@ public class UserController implements UserSwagger {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
         return ResponseEntity.ok().body(userService.getUserInfo(userId));
+    }
+
+    @PutMapping("/profile_img")
+    public ResponseEntity<?> updateProfileImg(Principal principal, @RequestParam MultipartFile profileImg) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        userService.updateProfileImg(profileImg, userId);
+        return ResponseEntity.ok().build();
     }
 }
