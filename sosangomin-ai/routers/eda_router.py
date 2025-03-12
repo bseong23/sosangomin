@@ -128,20 +128,29 @@ async def get_chart_data(
         if not result or "analysis_result" not in result:
             raise HTTPException(status_code=404, detail=f"ID가 {analysis_id}인 분석 결과를 찾을 수 없습니다.")
         
-        chart_data = result["analysis_result"].get("result_data", {})
+        result_data = result["analysis_result"].get("result_data", {})
         
         if chart_type:
-            if chart_type in chart_data:
+            if chart_type in result_data:
+                chart_info = result_data[chart_type]
                 return {
                     "status": "success",
-                    chart_type: chart_data[chart_type]
+                    chart_type: chart_info.get("data", {}),
+                    f"{chart_type}_summary": chart_info.get("summary", "")
                 }
             else:
                 raise HTTPException(status_code=404, detail=f"요청한 차트 유형({chart_type})을 찾을 수 없습니다.")
         
+        chart_data = {}
+        summaries = {}
+        for chart_key, chart_info in result_data.items():
+            chart_data[chart_key] = chart_info.get("data", {})
+            summaries[f"{chart_key}_summary"] = chart_info.get("summary", "")
+        
         return {
             "status": "success",
-            "chart_data": chart_data
+            "chart_data": chart_data,
+            "summaries": summaries
         }
     except HTTPException:
         raise

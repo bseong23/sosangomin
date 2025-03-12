@@ -10,7 +10,8 @@ from bson import ObjectId
 
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
-from services.automl import preprocess_data  # automl.py에서 전처리 함수 사용
+from services.automl import preprocess_data  
+from services.eda_chat_service import eda_chat_service
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,6 @@ class EdaService:
                 daily_dict = df.groupby(df['날짜'].dt.date)['총매출'].sum().to_dict()
                 chart_data["daily_sales"] = {str(k): float(v) for k, v in daily_dict.items()}
             except:
-                # 날짜 변환 실패 시 무시
                 pass
         
         # 9. 고객당 평균 매출
@@ -108,15 +108,29 @@ class EdaService:
             try:
                 file_ext = os.path.splitext(filename)[1].lower()
                 if file_ext == '.xlsx' or file_ext == '.xls':
-                    df = pd.read_excel(local_path, header=None)
+                    df = pd.read_excel(local_path, header=2)
                 elif file_ext == '.csv':
-                    df = pd.read_csv(local_path, header=None)
+                    df = pd.read_csv(local_path, header=2)
                 else:
                     raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
-                
+
                 df = preprocess_data(df)
-                
+
                 chart_data = self.generate_chart_data(df)
+                
+                result_data = {}
+                for chart_type, data in chart_data.items():
+                    if not data:  
+                        continue
+                    
+                    summary = await eda_chat_service.generate_chart_summary(chart_type, data)
+                    
+                    result_data[chart_type] = {
+                        "data": data,
+                        "summary": summary
+                    }
+                
+                overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
                 
                 analysis_results = mongo_instance.get_collection("AnalysisResults")
                 
@@ -126,8 +140,8 @@ class EdaService:
                     "analysis_type": "eda",  
                     "created_at": datetime.now(),
                     "status": "completed",
-                    "result_data": chart_data,
-                    "summary": "기본 EDA 분석 완료"
+                    "result_data": result_data,  
+                    "summary": overall_summary   
                 }
                 
                 result_id = analysis_results.insert_one(result_doc).inserted_id
@@ -142,7 +156,8 @@ class EdaService:
                     "message": "EDA 분석이 완료되었습니다.",
                     "analysis_id": str(result_id),
                     "source_id": source_id,
-                    "chart_data": chart_data
+                    "result_data": result_data,
+                    "summary": overall_summary
                 }
                 
             finally:
