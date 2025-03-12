@@ -4,7 +4,7 @@ import {
   getUserInfo,
   getAccessToken,
   clearAuthData,
-  isUserLoggedIn
+  isLoggedIn as isUserLoggedIn
 } from "@/api/userStorage";
 import { logout as apiLogout } from "@/api/authApi";
 

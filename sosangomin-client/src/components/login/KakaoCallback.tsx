@@ -4,8 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { saveAuthData } from "@/api/userStorage";
 import Loading from "@/components/common/Loading";
 
+import { LoginResponse } from "@/types/auth";
+
 interface KakaoCallbackProps {
-  onSuccess?: (userData: any) => void;
+  onSuccess?: (userData: LoginResponse) => void;
   onError?: (error: string) => void;
   redirectOnSuccess?: string;
 }
@@ -36,7 +38,7 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
         const accessToken = searchParams.get("accessToken");
         const userName = searchParams.get("userName");
         const userProfileUrl = searchParams.get("userProfileUrl");
-        const isFirstLogin = searchParams.get("isFirstLogin") === "true";
+        const isFirstLoginValue = searchParams.get("isFirstLogin");
         const userId = searchParams.get("userId");
 
         // 필수 정보 확인
@@ -44,12 +46,14 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
           throw new Error("필수 로그인 정보가 없습니다.");
         }
 
-        // 사용자 정보 구성
+        // 사용자 정보 구성 (accessToken 포함)
+        // isFirstLogin은 LoginResponse 타입에 맞게 string으로 유지
         const userData = {
           userId,
           userName: userName || "",
           userProfileUrl: userProfileUrl || "",
-          isFirstLogin
+          isFirstLogin: isFirstLoginValue || "", // string 타입으로 유지
+          accessToken
         };
 
         // 사용자 정보와 토큰 저장
@@ -59,7 +63,7 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
 
         // 성공 콜백 호출
         if (onSuccess) {
-          onSuccess({ ...userData, accessToken });
+          onSuccess(userData);
         }
 
         // 그 외 경우 기본 페이지로 리다이렉트
