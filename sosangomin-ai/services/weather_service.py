@@ -3,7 +3,7 @@ import logging
 import requests
 import json 
 from dotenv import load_dotenv
-from config.redis_config import redis_client
+# from config.redis_config import redis_client
 from typing import Dict, Optional, Union
 
 logger = logging.getLogger(__name__)
@@ -48,11 +48,11 @@ class WeatherService:
         stn_id = self.get_stn_id(location)
 
         cache_key = f"weather:past:{location}:{date}:{hh}" 
-        cached_data = redis_client.get(cache_key)
-        if cached_data:
-            logger.info(f"[CACHE HIT] {cache_key}")
-            logger.info(f"[CACHE DATA] {cached_data}") 
-            return json.loads(cached_data)
+        # cached_data = redis_client.get(cache_key)
+        # if cached_data:
+        #     logger.info(f"[CACHE HIT] {cache_key}")
+        #     logger.info(f"[CACHE DATA] {cached_data}") 
+        #     return json.loads(cached_data)
 
         logger.info(f"[CACHE MISS] {cache_key}, API 호출 진행...")
 
@@ -84,7 +84,7 @@ class WeatherService:
 
             parsed_data = self.parse_weather_data(items[0])  # 하루 데이터
             try:
-                redis_client.setex(cache_key, 86400, json.dumps(parsed_data))  # 24시간 캐시
+                # redis_client.setex(cache_key, 86400, json.dumps(parsed_data))  # 24시간 캐시
                 logger.info(f"[CACHE SET] {cache_key} -> {parsed_data}")
             except Exception as e:
                 logger.warning(f"[WARNING] 캐시 저장 실패: {e}")
@@ -115,15 +115,15 @@ class WeatherService:
 # 전역 인스턴스
 weather_service = WeatherService()
 
-# ✅ 단독 테스트용 함수
+# 단독 테스트용 함수
 def test_weather():
     location = "서울"
     date = "20240309"  # yyyyMMdd 형식
-    hh = '15'
+    hh = '12'
     result = weather_service.get_weather_data(location, date, hh)
     print(f"[TEST] 날짜: {date}, 시간: {hh}시, 위치: {location}, 날씨 데이터: {result}")
 
 
-# ✅ 단독 실행 (python services/weather_service.py)
+# 단독 실행 (python services/weather_service.py)
 if __name__ == "__main__":
     test_weather()

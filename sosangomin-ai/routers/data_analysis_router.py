@@ -94,7 +94,8 @@ async def analyze_from_source_id(
             "s3_key": s3_key,
             "presigned_url": get_s3_presigned_url(s3_key),
             "analysis_type": analysis_type,
-            "result": result
+            "result_data": result,
+            # "summary":
         }
     
     except Exception as e:        
