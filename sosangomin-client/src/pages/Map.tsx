@@ -7,7 +7,7 @@ import seoulDistrictsData from "@/assets/sig.json";
 
 const MapPage: React.FC = () => {
   const [markers, setMarkers] = useState<Marker[]>([]);
-  const [center, setCenter] = useState({ lat: 37.5665, lng: 126.978 }); // 서울 시청 기본값
+  const [center, setCenter] = useState({ lat: 37.501, lng: 127.039 }); // 서울 시청 기본값
   const [showSidebar, setShowSidebar] = useState(true);
 
   const handleSearch = async (address: string) => {

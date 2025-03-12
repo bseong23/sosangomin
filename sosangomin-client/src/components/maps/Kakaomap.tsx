@@ -9,7 +9,7 @@ import {
 const Kakaomap: React.FC<KakaomapProps> = ({
   width,
   height,
-  center = { lat: 37.5665, lng: 126.978 }, // 서울 시청 기본값
+  center = { lat: 37.501, lng: 127.039 }, // 서울 시청 기본값
   level = 3,
   markers = [],
   geoJsonData // GeoJSON 데이터 prop
@@ -22,6 +22,28 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   const [populationData, setPopulationData] = useState<Map<string, number>>(
     new Map()
   );
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  // 사용자 위치 가져오기
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error("위치 정보 가져오기 실패:", error);
+          // 위치 정보 거부 시 기본값 사용 (이미 center로 설정됨)
+        }
+      );
+    } else {
+      console.error("Geolocation이 이 브라우저에서 지원되지 않습니다.");
+    }
+  }, []);
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
@@ -61,25 +83,40 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
+      // 사용자 위치가 있으면 사용, 없으면 기본 center 사용
+      const mapCenter = userLocation || center;
+
       const options = {
-        center: new window.kakao.maps.LatLng(center.lat, center.lng),
+        center: new window.kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
         level
       };
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
 
-      // 서울 지역으로 지도 범위 설정
-      const northEast = new window.kakao.maps.LatLng(37.701, 127.1824);
-      const southWest = new window.kakao.maps.LatLng(37.4273, 126.764);
-      const seoulBounds = new window.kakao.maps.LatLngBounds(
-        southWest,
-        northEast
-      );
-      map.setBounds(seoulBounds);
+      // 사용자 위치가 있으면 해당 위치에 마커 추가
+      if (userLocation) {
+        const userMarker = new window.kakao.maps.Marker({
+          position: new window.kakao.maps.LatLng(
+            userLocation.lat,
+            userLocation.lng
+          ),
+          map: map
+        });
+
+        const infowindow = new window.kakao.maps.InfoWindow({
+          content:
+            '<div style="padding:5px;width:150px;text-align:center;">현재 위치</div>',
+          zIndex: 1
+        });
+
+        window.kakao.maps.event.addListener(userMarker, "click", function () {
+          infowindow.open(map, userMarker);
+        });
+      }
 
       setMapInstance(map);
     }
-  }, [isLoading, error, center, level]);
+  }, [isLoading, error, center, level, userLocation]);
 
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
