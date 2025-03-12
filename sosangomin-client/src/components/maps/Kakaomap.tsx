@@ -1,19 +1,49 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MapProps, Marker } from "@/types/map";
-import { loadKakaoMapScript } from "@/api/mapApi";
+import { KakaomapProps } from "@/types/map";
+import {
+  loadKakaoMapScript,
+  displayGeoJsonPolygon,
+  fetchPopulationData
+} from "@/api/mapApi";
 
-const Kakaomap: React.FC<MapProps & { markers?: Marker[] }> = ({
+const Kakaomap: React.FC<KakaomapProps> = ({
   width,
   height,
-  center = { lat: 37.5665, lng: 126.978 }, // 서울 시청 기본값
+  center = { lat: 37.501, lng: 127.039 }, // 서울 시청 기본값
   level = 3,
-  markers = []
+  markers = [],
+  geoJsonData // GeoJSON 데이터 prop
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const markersRef = useRef<any[]>([]);
+  const [populationData, setPopulationData] = useState<Map<string, number>>(
+    new Map()
+  );
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  // 사용자 위치 가져오기
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error("위치 정보 가져오기 실패:", error);
+          // 위치 정보 거부 시 기본값 사용 (이미 center로 설정됨)
+        }
+      );
+    } else {
+      console.error("Geolocation이 이 브라우저에서 지원되지 않습니다.");
+    }
+  }, []);
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
@@ -36,20 +66,81 @@ const Kakaomap: React.FC<MapProps & { markers?: Marker[] }> = ({
     initializeMap();
   }, []);
 
+  // 인구 데이터 가져오기
+  useEffect(() => {
+    const getPopulationData = async () => {
+      try {
+        const data = await fetchPopulationData();
+        setPopulationData(data);
+      } catch (err) {
+        console.error("인구 데이터 로드 실패:", err);
+      }
+    };
+
+    getPopulationData();
+  }, []);
+
   // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
+      // 사용자 위치가 있으면 사용, 없으면 기본 center 사용
+      const mapCenter = userLocation || center;
+
       const options = {
-        center: new window.kakao.maps.LatLng(center.lat, center.lng),
+        center: new window.kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
         level
       };
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
+
+      // 사용자 위치가 있으면 해당 위치에 마커 추가
+      if (userLocation) {
+        const userMarker = new window.kakao.maps.Marker({
+          position: new window.kakao.maps.LatLng(
+            userLocation.lat,
+            userLocation.lng
+          ),
+          map: map
+        });
+
+        const infowindow = new window.kakao.maps.InfoWindow({
+          content:
+            '<div style="padding:5px;width:150px;text-align:center;">현재 위치</div>',
+          zIndex: 1
+        });
+
+        window.kakao.maps.event.addListener(userMarker, "click", function () {
+          infowindow.open(map, userMarker);
+        });
+      }
+
       setMapInstance(map);
     }
-  }, [isLoading, error, center, level]);
+  }, [isLoading, error, center, level, userLocation]);
 
-  // 마커 생성
+  // GeoJSON 데이터를 폴리곤으로 표시
+  useEffect(() => {
+    if (mapInstance && geoJsonData && populationData.size > 0) {
+      // 인구 데이터를 기반으로 폴리곤 표시
+      displayGeoJsonPolygon(mapInstance, geoJsonData, {
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 1,
+        fillOpacity: 0.5,
+        populationData: populationData,
+        fitBounds: true
+      });
+    } else if (mapInstance && geoJsonData) {
+      // 인구 데이터가 없는 경우 기본 색상으로 표시
+      displayGeoJsonPolygon(mapInstance, geoJsonData, {
+        strokeColor: "#FF0000",
+        fillColor: "#FF8888",
+        fillOpacity: 0.3
+      });
+    }
+  }, [mapInstance, geoJsonData, populationData]);
+
+  // 마커 생성 (기존 코드 유지)
   useEffect(() => {
     if (mapInstance && markers.length > 0) {
       // 기존 마커 제거
