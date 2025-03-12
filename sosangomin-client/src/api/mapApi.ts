@@ -93,8 +93,40 @@ export const searchLocation = (
   });
 };
 
-// GeoJSON 데이터를 카카오맵 폴리곤으로 변환하여 표시
-export const displayGeoJsonPolygon = (
+// 인구 데이터 가져오기
+export const fetchPopulationData = async (): Promise<Map<string, number>> => {
+  try {
+    // 여기에 실제 API 호출 코드 작성
+    // 예: const response = await fetch('인구데이터API주소');
+    // const data = await response.json();
+
+    // 결과를 행정동 코드/이름을 키로 하는 Map으로 변환
+    const populationMap = new Map<string, number>();
+
+    // 예시 데이터 처리
+    // data.forEach(item => {
+    //   populationMap.set(item.adm_cd, item.population);
+    // });
+
+    return populationMap;
+  } catch (error) {
+    console.error("인구 데이터 가져오기 실패:", error);
+    return new Map();
+  }
+};
+
+// 인구 수에 따른 색상 결정 함수
+export const getColorByPopulation = (population: number): string => {
+  // 인구 단계별 색상 설정
+  if (population > 30000) return "#FF0000"; // 빨강 - 인구 많음
+  if (population > 20000) return "#FF8C00"; // 주황
+  if (population > 10000) return "#FFFF00"; // 노랑
+  if (population > 5000) return "#00FF00"; // 초록
+  return "#0000FF"; // 파랑 - 인구 적음
+};
+
+// GeoJSON 데이터를 카카오맵 폴리곤으로 변환하여 표시 (수정된 버전)
+export const displayGeoJsonPolygon = async (
   map: any,
   geoJsonData: any,
   options = {}
@@ -104,112 +136,144 @@ export const displayGeoJsonPolygon = (
     return;
   }
 
+  // 인구 데이터 가져오기
+  const populationData = await fetchPopulationData();
+
+  // 인포윈도우 참조 생성
+  const infowindowRef = { current: null };
+
   // 기본 스타일 옵션
   const defaultOptions = {
     strokeColor: "#004c80",
     strokeOpacity: 0.8,
     strokeWeight: 2,
     fillColor: "#0088ff",
-    fillOpacity: 0.7
+    fillOpacity: 0.7,
+    fitBounds: false
   };
 
   const polygonOptions = { ...defaultOptions, ...options };
 
-  // GeometryCollection 형식 처리
-  if (geoJsonData.type === "GeometryCollection" && geoJsonData.geometries) {
-    geoJsonData.geometries.forEach((geometry: any) => {
-      processGeometry(map, geometry, polygonOptions);
-    });
-  }
   // FeatureCollection 형식 처리
-  else if (geoJsonData.type === "FeatureCollection" && geoJsonData.features) {
+  if (geoJsonData.type === "FeatureCollection" && geoJsonData.features) {
+    const bounds = new window.kakao.maps.LatLngBounds();
+
     geoJsonData.features.forEach((feature: any) => {
       if (feature.geometry) {
-        processGeometry(
-          map,
-          feature.geometry,
-          polygonOptions,
-          feature.properties
-        );
+        // 행정동 코드 또는 이름 가져오기
+        const admCode = feature.properties.adm_cd || "";
+
+        // 인구 데이터에서 해당 행정동의 인구 가져오기
+        const population = populationData.get(admCode) || 0;
+
+        // 인구에 따른 색상 결정
+        const fillColor = getColorByPopulation(population);
+
+        // 폴리곤 옵션 업데이트
+        const customOptions = {
+          ...polygonOptions,
+          fillColor: fillColor
+        };
+
+        if (feature.geometry.type === "Polygon") {
+          processPolygon(
+            map,
+            feature.geometry.coordinates[0],
+            feature.properties,
+            customOptions,
+            bounds,
+            population,
+            infowindowRef
+          );
+        } else if (feature.geometry.type === "MultiPolygon") {
+          // MultiPolygon은 폴리곤 배열이므로 각각 처리
+          feature.geometry.coordinates.forEach((polygonCoords: any) => {
+            processPolygon(
+              map,
+              polygonCoords[0],
+              feature.properties,
+              customOptions,
+              bounds,
+              population,
+              infowindowRef
+            );
+          });
+        }
       }
     });
-  }
-  // 단일 Geometry 형식 처리
-  else if (
-    geoJsonData.type === "Polygon" ||
-    geoJsonData.type === "MultiPolygon"
-  ) {
-    processGeometry(map, geoJsonData, polygonOptions);
+
+    // 폴리곤 영역으로 지도 이동 (옵션)
+    if (polygonOptions.fitBounds) {
+      map.setBounds(bounds);
+    }
   } else {
     console.error("유효하지 않은 GeoJSON 데이터 형식입니다");
   }
 };
 
-// 지오메트리 처리 함수
-const processGeometry = (
+// 폴리곤 처리 함수 (수정된 버전)
+const processPolygon = (
   map: any,
-  geometry: any,
+  coordinates: any,
+  properties: any,
   options: any,
-  properties?: any
+  bounds: any,
+  population: number = 0,
+  infowindowRef: React.MutableRefObject<any> // 인포윈도우 참조 추가
 ) => {
-  if (geometry.type === "Polygon") {
-    // 폴리곤 좌표 추출
-    const coordinates = geometry.coordinates[0];
-    if (!coordinates || !Array.isArray(coordinates)) {
-      console.error("유효하지 않은 좌표 데이터");
-      return;
-    }
-
-    // 카카오맵 LatLng 객체 배열로 변환
-    const path = coordinates.map(
-      (coord: number[]) => new window.kakao.maps.LatLng(coord[1], coord[0])
-    );
-
-    // 폴리곤 생성
-    const polygon = new window.kakao.maps.Polygon({
-      path: path,
-      strokeColor: options.strokeColor,
-      strokeOpacity: options.strokeOpacity,
-      strokeWeight: options.strokeWeight,
-      fillColor: options.fillColor,
-      fillOpacity: options.fillOpacity
-    });
-
-    // 지도에 폴리곤 표시
-    polygon.setMap(map);
-
-    // 선택적: 폴리곤 클릭 이벤트 추가
-    if (properties && properties.name) {
-      window.kakao.maps.event.addListener(polygon, "click", function () {
-        alert(properties.name);
-      });
-    }
-  } else if (geometry.type === "MultiPolygon") {
-    // 멀티폴리곤 처리
-    geometry.coordinates.forEach((polygonCoords: any) => {
-      const modifiedGeometry = {
-        type: "Polygon",
-        coordinates: polygonCoords
-      };
-      processGeometry(map, modifiedGeometry, options, properties);
-    });
-  }
-};
-
-// 서울 지역으로 지도 범위 설정하기
-export const setSeoulBounds = (map: any) => {
-  if (!window.kakao || !window.kakao.maps) {
-    console.error("Kakao maps API not loaded");
+  if (!coordinates || !Array.isArray(coordinates)) {
     return;
   }
 
-  // 서울의 북동쪽과 남서쪽 좌표 (서울 경계)
-  const northEast = new window.kakao.maps.LatLng(37.701, 127.1824); // 서울 북동쪽
-  const southWest = new window.kakao.maps.LatLng(37.4273, 126.764); // 서울 남서쪽
+  // WGS84 좌표계이므로 경도(x), 위도(y) 순서로 저장되어 있음
+  const path = coordinates.map(
+    (coord: number[]) => new window.kakao.maps.LatLng(coord[1], coord[0])
+  );
 
-  // 좌표로 영역 객체 생성
-  const bounds = new window.kakao.maps.LatLngBounds(southWest, northEast);
+  // 폴리곤 생성
+  const polygon = new window.kakao.maps.Polygon({
+    path: path,
+    strokeColor: options.strokeColor,
+    strokeOpacity: options.strokeOpacity,
+    strokeWeight: options.strokeWeight,
+    fillColor: options.fillColor,
+    fillOpacity: options.fillOpacity
+  });
 
-  // 지도 범위 재설정
-  map.setBounds(bounds);
+  // 지도에 폴리곤 표시
+  polygon.setMap(map);
+
+  // 경계 확장
+  if (options.fitBounds) {
+    path.forEach((point) => bounds.extend(point));
+  }
+
+  // 선택적: 폴리곤 클릭 이벤트 추가 (인구 정보 포함)
+  if (properties && properties.adm_nm) {
+    window.kakao.maps.event.addListener(polygon, "click", function () {
+      // 이전 인포윈도우가 있으면 닫기
+      if (infowindowRef.current) {
+        infowindowRef.current.close();
+      }
+
+      const content = `
+        <div style="padding:5px;width:200px;text-align:center;">
+          <strong>${properties.adm_nm}</strong><br>
+          인구: ${population.toLocaleString()}명
+        </div>
+      `;
+
+      // 새 인포윈도우 생성 및 열기
+      const infowindow = new window.kakao.maps.InfoWindow({
+        content: content,
+        position: path[0],
+        zIndex: 1
+      });
+
+      infowindow.open(map);
+
+      // 참조 업데이트
+      infowindowRef.current = infowindow;
+    });
+  }
 };

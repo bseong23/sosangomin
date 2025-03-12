@@ -3,7 +3,7 @@ import { KakaomapProps } from "@/types/map";
 import {
   loadKakaoMapScript,
   displayGeoJsonPolygon,
-  setSeoulBounds
+  fetchPopulationData
 } from "@/api/mapApi";
 
 const Kakaomap: React.FC<KakaomapProps> = ({
@@ -19,6 +19,9 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const markersRef = useRef<any[]>([]);
+  const [populationData, setPopulationData] = useState<Map<string, number>>(
+    new Map()
+  );
 
   // 카카오맵 스크립트 로드
   useEffect(() => {
@@ -41,6 +44,20 @@ const Kakaomap: React.FC<KakaomapProps> = ({
     initializeMap();
   }, []);
 
+  // 인구 데이터 가져오기
+  useEffect(() => {
+    const getPopulationData = async () => {
+      try {
+        const data = await fetchPopulationData();
+        setPopulationData(data);
+      } catch (err) {
+        console.error("인구 데이터 로드 실패:", err);
+      }
+    };
+
+    getPopulationData();
+  }, []);
+
   // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
@@ -50,30 +67,43 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       };
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
+
+      // 서울 지역으로 지도 범위 설정
+      const northEast = new window.kakao.maps.LatLng(37.701, 127.1824);
+      const southWest = new window.kakao.maps.LatLng(37.4273, 126.764);
+      const seoulBounds = new window.kakao.maps.LatLngBounds(
+        southWest,
+        northEast
+      );
+      map.setBounds(seoulBounds);
+
       setMapInstance(map);
     }
   }, [isLoading, error, center, level]);
 
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
-    if (mapInstance && geoJsonData) {
-      // GeoJSON 데이터를 폴리곤으로 표시
+    if (mapInstance && geoJsonData && populationData.size > 0) {
+      // 인구 데이터를 기반으로 폴리곤 표시
       displayGeoJsonPolygon(mapInstance, geoJsonData, {
         strokeColor: "#FF0000",
-        fillColor: "#FF8888"
+        strokeOpacity: 0.8,
+        strokeWeight: 1,
+        fillOpacity: 0.5,
+        populationData: populationData,
+        fitBounds: true
+      });
+    } else if (mapInstance && geoJsonData) {
+      // 인구 데이터가 없는 경우 기본 색상으로 표시
+      displayGeoJsonPolygon(mapInstance, geoJsonData, {
+        strokeColor: "#FF0000",
+        fillColor: "#FF8888",
+        fillOpacity: 0.3
       });
     }
-  }, [mapInstance, geoJsonData]);
+  }, [mapInstance, geoJsonData, populationData]);
 
-  // 맵 인스턴스 생성 useEffect 내부 또는 그 다음에 추가
-  useEffect(() => {
-    if (mapInstance) {
-      // 서울 지역으로 지도 범위 설정
-      setSeoulBounds(mapInstance);
-    }
-  }, [mapInstance]);
-
-  // 마커 생성
+  // 마커 생성 (기존 코드 유지)
   useEffect(() => {
     if (mapInstance && markers.length > 0) {
       // 기존 마커 제거
