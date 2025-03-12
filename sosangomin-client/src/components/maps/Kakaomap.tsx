@@ -1,13 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MapProps, Marker } from "@/types/map";
-import { loadKakaoMapScript } from "@/api/mapApi";
+import { KakaomapProps } from "@/types/map";
+import {
+  loadKakaoMapScript,
+  displayGeoJsonPolygon,
+  setSeoulBounds
+} from "@/api/mapApi";
 
-const Kakaomap: React.FC<MapProps & { markers?: Marker[] }> = ({
+const Kakaomap: React.FC<KakaomapProps> = ({
   width,
   height,
   center = { lat: 37.5665, lng: 126.978 }, // 서울 시청 기본값
   level = 3,
-  markers = []
+  markers = [],
+  geoJsonData // GeoJSON 데이터 prop
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
@@ -48,6 +53,25 @@ const Kakaomap: React.FC<MapProps & { markers?: Marker[] }> = ({
       setMapInstance(map);
     }
   }, [isLoading, error, center, level]);
+
+  // GeoJSON 데이터를 폴리곤으로 표시
+  useEffect(() => {
+    if (mapInstance && geoJsonData) {
+      // GeoJSON 데이터를 폴리곤으로 표시
+      displayGeoJsonPolygon(mapInstance, geoJsonData, {
+        strokeColor: "#FF0000",
+        fillColor: "#FF8888"
+      });
+    }
+  }, [mapInstance, geoJsonData]);
+
+  // 맵 인스턴스 생성 useEffect 내부 또는 그 다음에 추가
+  useEffect(() => {
+    if (mapInstance) {
+      // 서울 지역으로 지도 범위 설정
+      setSeoulBounds(mapInstance);
+    }
+  }, [mapInstance]);
 
   // 마커 생성
   useEffect(() => {

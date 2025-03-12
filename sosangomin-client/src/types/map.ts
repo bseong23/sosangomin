@@ -38,3 +38,8 @@ export interface ToggleSwitchProps {
   defaultSelected?: string;
   onChange?: (selected: string) => void;
 }
+
+export interface KakaomapProps extends MapProps {
+  markers?: Marker[];
+  geoJsonData?: any; // GeoJSON 데이터를 위한 prop 추가
+}
