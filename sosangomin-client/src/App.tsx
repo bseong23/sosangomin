@@ -11,6 +11,7 @@ import BoardPostEditPage from "@/pages/BoardPostEditPage";
 import Map from "@/pages/Map";
 import SignupPages from "@/pages/SignupPage";
 import MyPage from "@/pages/Mypage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 const App: React.FC = () => {
   return (
@@ -24,10 +25,7 @@ const App: React.FC = () => {
             element={<KakaoCallbackPage />}
           />
           <Route path="/signup" element={<SignupPages />} />
-          <Route
-            path="/reset-password"
-            element={<div>비밀번호 재설정 페이지</div>}
-          />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/community/notice" element={<Notice />} />
           <Route
