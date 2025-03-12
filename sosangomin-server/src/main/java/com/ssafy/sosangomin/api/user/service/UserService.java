@@ -5,6 +5,7 @@ import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
 import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.UpdateNameRequestDto;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
@@ -14,6 +15,7 @@ import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -77,5 +79,19 @@ public class UserService {
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
         }
+    }
+
+    @Transactional
+    public void updateName(UpdateNameRequestDto updateNameRequestDto, Long userId) {
+
+        // 여기서 중복검사 한번 더 진행
+        Optional<User> user = userMapper.findUserByName(updateNameRequestDto.name());
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
+        }
+
+        // 중복 안되면 업데이트 진행
+        userMapper.updateName(updateNameRequestDto.name(), userId);
     }
 }
