@@ -1,18 +1,25 @@
 // ResetPassword.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import EmailVerificationModal from "@/components/signup/EmailVerificationModal";
 import { isApiError } from "@/api/authApi";
 import { useSignup } from "@/hooks/useSignup";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { usePasswordReset } from "@/hooks/usePasswordReset";
 import { ErrorMessages } from "@/types/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   // 커스텀 훅 호출 (컴포넌트 최상위 레벨)
   const { sendVerification } = useSignup();
-  const { changePassword } = useUserProfile();
+  const { changePassword: changePasswordForLoggedIn } = useUserProfile();
+  const {
+    resetPassword: resetPasswordForNonLoggedIn,
+    isLoading: isResetLoading,
+    error: resetError
+  } = usePasswordReset();
 
   // 상태 관리
   const [mail, setMail] = useState("");
@@ -22,7 +29,13 @@ const ResetPassword: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  // resetError가 변경되면 컴포넌트의 error 상태에 반영
+  useEffect(() => {
+    if (resetError) {
+      setError(resetError);
+    }
+  }, [resetError]);
 
   // 현재 단계: 1=이메일 인증, 2=비밀번호 재설정
   const currentStep = isVerified ? 2 : 1;
@@ -108,7 +121,6 @@ const ResetPassword: React.FC = () => {
       }
 
       setIsEmailSent(true);
-      setIsVerificationModalOpen(true);
     } catch (error) {
       console.error("이메일 인증 요청 오류:", error);
       setError("이메일 인증 요청 중 오류가 발생했습니다.");
@@ -117,10 +129,41 @@ const ResetPassword: React.FC = () => {
     }
   };
 
+  // 인증 메일 재발송 처리
+  const handleResendVerification = async () => {
+    if (!mail.trim()) {
+      setError("이메일 주소가 유효하지 않습니다.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await sendVerification(mail);
+
+      if (isApiError(response)) {
+        const errorMsg =
+          response.errorMessage === ErrorMessages.MAIL_SEND_FAIL
+            ? "이메일 발송에 실패했습니다."
+            : "이메일 재발송 요청 중 오류가 발생했습니다.";
+
+        setError(errorMsg);
+        return;
+      }
+
+      // 성공 메시지 표시
+      setError("인증 메일이 재발송되었습니다.");
+    } catch (error) {
+      console.error("이메일 재발송 요청 오류:", error);
+      setError("이메일 재발송 요청 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // 인증 완료 처리
   const handleVerificationComplete = async (code: string, success: boolean) => {
-    setIsVerificationModalOpen(false);
-
     if (success) {
       setIsVerified(true);
       setVerificationCode(code);
@@ -138,7 +181,20 @@ const ResetPassword: React.FC = () => {
     setError(null);
 
     try {
-      const success = await changePassword(newPassword);
+      let success = false;
+
+      // 로그인 상태에 따라 다른 함수 호출
+      if (isLoggedIn) {
+        // 로그인된 사용자의 경우 useUserProfile의 changePassword 사용
+        success = await changePasswordForLoggedIn(newPassword);
+      } else {
+        // 로그인되지 않은 사용자의 경우 usePasswordReset의 resetPassword 사용
+        success = await resetPasswordForNonLoggedIn(
+          mail,
+          verificationCode,
+          newPassword
+        );
+      }
 
       if (!success) {
         setError("비밀번호 변경에 실패했습니다.");
@@ -189,11 +245,14 @@ const ResetPassword: React.FC = () => {
               type="button"
               onClick={handlePasswordChange}
               disabled={
-                isLoading || !newPassword.trim() || newPassword.length < 8
+                isLoading ||
+                isResetLoading ||
+                !newPassword.trim() ||
+                newPassword.length < 8
               }
               className="w-full bg-[#16125D] text-white p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading ? "처리 중..." : "비밀번호 변경하기"}
+              {isLoading || isResetLoading ? "처리 중..." : "비밀번호 변경하기"}
             </button>
           </div>
         </div>
@@ -228,6 +287,16 @@ const ResetPassword: React.FC = () => {
               className="w-full bg-[#16125D] text-white p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               {isLoading ? "처리 중..." : "인증코드 확인"}
+            </button>
+          </div>
+          <div className="mt-2 text-center">
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={isLoading}
+              className="text-indigo-600 hover:text-indigo-800 text-sm"
+            >
+              인증 메일 재발송
             </button>
           </div>
         </div>
@@ -305,16 +374,6 @@ const ResetPassword: React.FC = () => {
             로그인 페이지로 돌아가기
           </a>
         </div>
-
-        {/* 인증 모달 */}
-        {isVerificationModalOpen && (
-          <EmailVerificationModal
-            mail={mail}
-            isOpen={isVerificationModalOpen}
-            onClose={() => setIsVerificationModalOpen(false)}
-            onComplete={handleVerificationComplete}
-          />
-        )}
       </div>
     </div>
   );
