@@ -46,4 +46,12 @@ public class UserController implements UserSwagger {
         userService.updateName(updateNameRequestDto, userId);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(Principal principal, @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        userService.updatePassword(updatePasswordRequestDto, userId);
+        return ResponseEntity.ok().build();
+    }
 }

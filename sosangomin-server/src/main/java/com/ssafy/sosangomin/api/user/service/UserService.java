@@ -1,11 +1,7 @@
 package com.ssafy.sosangomin.api.user.service;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
-import com.ssafy.sosangomin.api.user.dto.request.EmailCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.LoginRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.NameCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.SignUpRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.UpdateNameRequestDto;
+import com.ssafy.sosangomin.api.user.dto.request.*;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
@@ -93,5 +89,12 @@ public class UserService {
 
         // 중복 안되면 업데이트 진행
         userMapper.updateName(updateNameRequestDto.name(), userId);
+    }
+
+    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, Long userId) {
+        userMapper.updatePassword(
+                passwordEncoder.encode(updatePasswordRequestDto.password()),
+                userId
+        );
     }
 }

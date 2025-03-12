@@ -57,4 +57,10 @@ public interface UserMapper {
             @Param("name") String name,
             @Param("id") Long id
     );
+
+    @Update("UPDATE users SET password = #{password} WHERE id = #{id}")
+    void updatePassword(
+            @Param("password") String password,
+            @Param("id") Long id
+    );
 }

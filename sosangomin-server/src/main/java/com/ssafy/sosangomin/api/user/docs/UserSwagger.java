@@ -155,4 +155,22 @@ public interface UserSwagger {
             @ParameterObject
             @ModelAttribute UpdateNameRequestDto updateNameRequestDto
     );
+
+    @Operation(
+            summary = "비밀번호 번경",
+            description = "비밀번호를 변경합니다. 변경할 비밀번호가 필요합니다. 요청시 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "비밀번호 변경 성공"
+                    )
+            }
+    )
+    ResponseEntity<?> updatePassword(
+            Principal principal,
+            @ParameterObject
+            @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto
+    );
 }
