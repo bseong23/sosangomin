@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.user.service;
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.dto.request.*;
 import com.ssafy.sosangomin.api.user.dto.response.LoginResponseDto;
+import com.ssafy.sosangomin.api.user.dto.response.UserInfoResponseDto;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
@@ -95,6 +96,18 @@ public class UserService {
         userMapper.updatePassword(
                 passwordEncoder.encode(updatePasswordRequestDto.password()),
                 userId
+        );
+    }
+
+    public UserInfoResponseDto getUserInfo(Long userId) {
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        User user = userOptional.get();
+
+        return new UserInfoResponseDto(
+                user.getUserType(),
+                user.getEmail(),
+                user.getName(),
+                user.getProfileImgUrl()
         );
     }
 }

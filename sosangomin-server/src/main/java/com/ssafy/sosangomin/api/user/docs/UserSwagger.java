@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.docs;
 
 import com.ssafy.sosangomin.api.user.dto.request.*;
+import com.ssafy.sosangomin.api.user.dto.response.UserInfoResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -173,4 +174,22 @@ public interface UserSwagger {
             @ParameterObject
             @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto
     );
+
+    @Operation(
+            summary = "유저정보",
+            description = "유저정보를 반환합니다. 요청시 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "유저정보 반환 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserInfoResponseDto.class)
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> getUserInfo(Principal principal);
 }

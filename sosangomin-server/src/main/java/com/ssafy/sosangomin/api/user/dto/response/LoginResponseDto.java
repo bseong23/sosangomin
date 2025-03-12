@@ -3,7 +3,6 @@ package com.ssafy.sosangomin.api.user.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
-@Builder
 public record LoginResponseDto(
         @Schema(description = "JWT 엑세스 토큰")
         String accessToken,

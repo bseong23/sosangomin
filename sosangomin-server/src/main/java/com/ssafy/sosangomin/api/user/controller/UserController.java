@@ -54,4 +54,11 @@ public class UserController implements UserSwagger {
         userService.updatePassword(updatePasswordRequestDto, userId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping
+    public ResponseEntity<?> getUserInfo(Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        return ResponseEntity.ok().body(userService.getUserInfo(userId));
+    }
 }
