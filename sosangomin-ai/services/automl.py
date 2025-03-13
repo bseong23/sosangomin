@@ -13,6 +13,7 @@ from pycaret.regression import *
 from pycaret.clustering import *
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+from services.weather_service import weather_service
 
 # 우선 키움 페이 포스기 데이터를 기준으로 작성하였음.
 
@@ -79,6 +80,8 @@ def preprocess_data(df) :
     df['공휴일'] = df['매출 일시'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
     
     # 외부 데이터 불러오기
+    # weather_df = weather_service.get_weather_range_with_fallback(start_date, end_date, location='서울')
+    # df = df.merge(weather_df, left_on='날짜', right_on='date', how='left').drop(columns=['날짜', 'date'])
     # df['기온']
     # df['강수량']
     # df['미세먼지']
