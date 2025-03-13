@@ -23,7 +23,7 @@ const WritePost: React.FC = () => {
   return (
     <div className="w-full max-w-[972px] mx-auto px-4 py-10">
       <div className="w-full mb-8">
-        <h1 className="text-2xl font-bold">게시글 작성</h1>
+        <h1 className="text-xl font-bold">게시글 작성</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full">
@@ -31,7 +31,7 @@ const WritePost: React.FC = () => {
           <input
             type="text"
             placeholder="제목을 입력해 주세요."
-            className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-4 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -41,7 +41,7 @@ const WritePost: React.FC = () => {
         <div className="w-full mb-6">
           <textarea
             placeholder="내용을 입력해 주세요."
-            className="w-full h-[400px] p-4 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-[400px] p-4 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
@@ -52,13 +52,13 @@ const WritePost: React.FC = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="border border-gray-300 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-md w-[116px] h-[40px]"
+            className="border border-border text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-md w-[116px] h-[40px]"
           >
             취소
           </button>
           <button
             type="submit"
-            className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md w-[116px] h-[40px]"
+            className="bg-bit-main text-basic-white hover:bg-blue-900 px-4 py-2 rounded-md w-[116px] h-[40px]"
           >
             등록하기
           </button>
