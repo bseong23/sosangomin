@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Layout from "@/components/layouts/Layout";
+import MobileLayout from "@/components/layouts/MobileLayout";
 import LoginPage from "@/pages/LoginPage";
 import KakaoCallbackPage from "@/pages/KakaoCallbackPage";
 import WritePost from "@/pages/BoardWritePage";
@@ -14,10 +16,23 @@ import MyPage from "@/pages/Mypage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 const App: React.FC = () => {
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1280);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const AppLayout = isMobile ? MobileLayout : Layout;
+
   return (
     <Router>
       <Routes>
-        <Route element={<Layout />}>
+        <Route element={<AppLayout />}>
           <Route path="/" element={<p className="h-screen">메인페이지</p>} />
           <Route path="/login" element={<LoginPage />} />
           <Route

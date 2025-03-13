@@ -48,7 +48,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] w-screen font-inter bg-white">
+    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] w-screen bg-white">
       <div className="pl-[28px]">
         <Link to="/">
           <img
