@@ -42,14 +42,14 @@ const ResetPassword: React.FC = () => {
 
   // 진행 표시기 렌더링
   const renderProgressBar = () => (
-    <div className="flex items-center justify-left space-x-2 text-sm text-gray-500 mb-6">
+    <div className="flex items-center justify-left space-x-2 text-sm md:text-base text-gray-500 mb-6">
       {/* 1단계: 이메일 인증 */}
       <div className="relative flex items-center justify-center w-6 h-6">
         <div
           className={`absolute inset-0 ${
             currentStep === 1
               ? "bg-blue-200 border-blue-200"
-              : "bg-gray-200  border-gray-200"
+              : "bg-gray-200 border-gray-200"
           } border rounded-full blur-sm`}
         ></div>
         <span
@@ -218,10 +218,10 @@ const ResetPassword: React.FC = () => {
     if (isVerified) {
       // 비밀번호 재설정 단계
       return (
-        <div className="mt-4">
+        <div className="mt-10">
           <label
             htmlFor="newPassword"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base md:text-lg font-medium text-[#333333]"
           >
             새 비밀번호
           </label>
@@ -234,13 +234,13 @@ const ResetPassword: React.FC = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="새 비밀번호 입력"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              className="block w-full px-3 py-2 border border-gray-300 rounded md:rounded-md lg:rounded-md"
             />
             <p className="text-xs text-gray-500 mt-1">
               비밀번호는 8자 이상이어야 합니다.
             </p>
           </div>
-          <div className="mt-2">
+          <div className="mt-4">
             <button
               type="button"
               onClick={handlePasswordChange}
@@ -250,9 +250,11 @@ const ResetPassword: React.FC = () => {
                 !newPassword.trim() ||
                 newPassword.length < 8
               }
-              className="w-full bg-[#16125D] text-white p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full bg-bit-main text-white p-2 rounded md:rounded-md lg:rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading || isResetLoading ? "처리 중..." : "비밀번호 변경하기"}
+              {isLoading || isResetLoading
+                ? "비밀번호 변경 중..."
+                : "비밀번호 변경하기"}
             </button>
           </div>
         </div>
@@ -260,14 +262,14 @@ const ResetPassword: React.FC = () => {
     } else if (isEmailSent && !isVerified) {
       // 인증코드 확인 단계
       return (
-        <div className="mt-4">
+        <div className="mt-10">
           <label
             htmlFor="verificationCode"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base md:text-lg text-comment text-bit-comment"
           >
             인증번호
           </label>
-          <div className="mt-1">
+          <div className="mt-2">
             <input
               id="verificationCode"
               name="verificationCode"
@@ -276,20 +278,20 @@ const ResetPassword: React.FC = () => {
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
               placeholder="인증 번호 입력"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              className="block w-full px-3 py-2 border border-gray-300 rounded md:rounded-md lg:rounded-md"
             />
           </div>
-          <div className="mt-2">
+          <div className="mt-7">
             <button
               type="button"
               onClick={() => handleVerificationComplete(verificationCode, true)}
               disabled={isLoading || !verificationCode.trim()}
-              className="w-full bg-[#16125D] text-white p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full bg-bit-main text-white p-2 rounded md:rounded-md lg:rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               {isLoading ? "처리 중..." : "인증코드 확인"}
             </button>
           </div>
-          <div className="mt-2 text-left">
+          <div className="mt-1 text-left">
             <button
               type="button"
               onClick={handleResendVerification}
@@ -305,10 +307,13 @@ const ResetPassword: React.FC = () => {
       // 초기 이메일 입력 단계
       return (
         <div className="mt-10">
-          <label htmlFor="email" className="block text-md text-bit-comment">
+          <label
+            htmlFor="email"
+            className="block text-base md:text-lg text-bit-comment"
+          >
             이메일
           </label>
-          <div className="mt-2 relative">
+          <div className="mt-2">
             <input
               id="email"
               name="email"
@@ -320,16 +325,16 @@ const ResetPassword: React.FC = () => {
               placeholder="이메일을 입력해 주세요"
               className={`block w-full px-3 py-2 border 
                 ${error ? "border-red-500" : "border-border"} 
-                rounded-md`}
+                rounded md:rounded-md lg:rounded-md`}
             />
             <div className="mt-7">
               <button
                 type="button"
                 onClick={handleEmailVerification}
                 disabled={isLoading}
-                className="w-full bg-bit-main text-white p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full bg-bit-main text-white p-2 border rounded md:rounded-md lg:rounded-md hover:bg-blue-800"
               >
-                {isLoading ? "처리 중..." : "인증메일 보내기"}
+                {isLoading ? "인증메일 보내는 중..." : "인증메일 보내기"}
               </button>
             </div>
           </div>
@@ -345,10 +350,10 @@ const ResetPassword: React.FC = () => {
 
       <div className="w-full max-w-ml py-8 mx-auto">
         <div className="text-left mb-6">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">
             {isVerified ? "비밀번호 재설정" : "이메일 인증"}
           </h1>
-          <p className="text-gray-600 mt-5">
+          <p className="text-gray-600 text-sm md:text-base mt-5">
             {isVerified
               ? "새로운 비밀번호를 입력해주세요."
               : "가입하신 이메일 주소로 인증코드를 보내드립니다."}
@@ -357,7 +362,7 @@ const ResetPassword: React.FC = () => {
 
         {/* 에러 메시지 표시 */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded md:rounded-md lg:rounded-md">
             {error}
           </div>
         )}
