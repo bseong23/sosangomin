@@ -1,5 +1,236 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/assets/fonts/Pretendard-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 @theme {
-    --font-inter: "Inter", "sans-serif"; 
+  /* 색상 설정 */
+  --color-bit-main: #16125d; /* 비트 및 메인색 */
+  --color-basic-white: #ffffff; /* 기본 흰색 */
+  --color-border: #bebebe; /* 테두리색 */
+  --color-comment-text: #8d8d8d; /* 작은 코멘트 텍스트 */
+  --color-comment: #333333; /* 코멘트색 */
+
+  /* 폰트 설정 - Pretendard를 기본 폰트로 설정 */
+  --font-main: "Pretendard", sans-serif;
+}
+
+/* 전역 폰트 설정 - Regular(400) 가중치를 기본값으로 */
+html,
+body {
+  font-family: var(--font-main);
+  font-weight: 400; /* Regular 가중치 */
+}
+
+/* Tailwind 기본 텍스트 클래스 재정의 */
+@layer utilities {
+  /* 기본 크기 (모바일) */
+  .text-xs {
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem;
   }
+
+  .text-sm {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem;
+  }
+
+  .text-base {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem;
+  }
+
+  .text-lg {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem;
+  }
+
+  .text-xl {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.75rem;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem;
+  }
+
+  .text-3xl {
+    font-size: 1.875rem; /* 30px */
+    line-height: 2.25rem;
+  }
+
+  .text-4xl {
+    font-size: 2.25rem; /* 36px */
+    line-height: 2.5rem;
+  }
+
+  .text-5xl {
+    font-size: 3rem; /* 48px */
+    line-height: 1;
+  }
+
+  /* 기본 라운드 클래스 */
+  .rounded-sm {
+    border-radius: 0.125rem; /* 2px */
+  }
+
+  .rounded {
+    border-radius: 0.25rem; /* 4px */
+  }
+
+  .rounded-md {
+    border-radius: 0.375rem; /* 6px */
+  }
+
+  .rounded-lg {
+    border-radius: 0.5rem; /* 8px */
+  }
+
+  .rounded-xl {
+    border-radius: 0.75rem; /* 12px */
+  }
+}
+
+/* 태블릿 크기 */
+@media (min-width: 768px) {
+  .text-lg {
+    font-size: 1.25rem; /* 20px - 기존의 text-xl */
+    line-height: 1.75rem;
+  }
+
+  .text-xl {
+    font-size: 1.5rem; /* 24px - 기존의 text-2xl */
+    line-height: 2rem;
+  }
+
+  .text-2xl {
+    font-size: 1.875rem; /* 30px - 기존의 text-3xl */
+    line-height: 2.25rem;
+  }
+
+  .text-3xl {
+    font-size: 2.25rem; /* 36px - 기존의 text-4xl */
+    line-height: 2.5rem;
+  }
+
+  .text-4xl {
+    font-size: 3rem; /* 48px - 기존의 text-5xl */
+    line-height: 1;
+  }
+
+  /* 라운드 클래스 */
+  .rounded-md {
+    border-radius: 0.5rem; /* 8px - 기존의 rounded-lg */
+  }
+
+  .rounded-lg {
+    border-radius: 0.75rem; /* 12px - 기존의 rounded-xl */
+  }
+}
+
+/* 데스크탑 크기 */
+@media (min-width: 1024px) {
+  .text-lg {
+    font-size: 1.5rem; /* 24px - 기존의 text-2xl */
+    line-height: 2rem;
+  }
+
+  .text-xl {
+    font-size: 1.875rem; /* 30px - 기존의 text-3xl */
+    line-height: 2.25rem;
+  }
+
+  .text-2xl {
+    font-size: 2.25rem; /* 36px - 기존의 text-4xl */
+    line-height: 2.5rem;
+  }
+
+  .text-3xl {
+    font-size: 3rem; /* 48px - 기존의 text-5xl */
+    line-height: 1;
+  }
+
+  .text-4xl {
+    font-size: 3.75rem; /* 60px - 기존의 text-6xl */
+    line-height: 1;
+  }
+
+  /* 라운드 클래스 */
+  .rounded-md {
+    border-radius: 0.75rem; /* 12px - 기존의 rounded-xl */
+  }
+
+  .rounded-lg {
+    border-radius: 1rem; /* 16px - 기존의 rounded-2xl */
+  }
+}
