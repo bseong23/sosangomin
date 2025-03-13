@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -15,6 +16,7 @@ import com.ssafy.sosangomin.common.exception.InternalServerException;
 import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -125,7 +128,18 @@ public class UserService {
         );
     }
 
+    @Transactional
     public void updateProfileImg(MultipartFile multipartFile, Long userId) {
+        // 기존 프로필 이미지 URL 조회
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        User user = userOptional.get();
+        String oldProfileImgUrl = user.getProfileImgUrl();
+
+        // 기존 이미지가 있으면 삭제
+        if (oldProfileImgUrl != null) {
+            deleteOldProfileImage(oldProfileImgUrl);
+        }
+
         // 파일명 충돌 방지를 위한 고유 파일명 생성
         String fileName = createFileName(multipartFile.getOriginalFilename());
 
@@ -164,5 +178,28 @@ public class UserService {
     private String extractExt(String originalFileName) {
         int pos = originalFileName.lastIndexOf(".");
         return originalFileName.substring(pos + 1);
+    }
+
+    private void deleteOldProfileImage(String profileImgUrl) {
+        try {
+            // URL에서 S3 키(경로) 추출
+            String key = extractKeyFromUrl(profileImgUrl);
+
+            // 키가 존재하는지 확인 후 삭제
+            if (amazonS3.doesObjectExist(bucket, key)) {
+                amazonS3.deleteObject(new DeleteObjectRequest(bucket, key));
+            }
+        } catch (Exception e) {
+            throw new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR);
+        }
+    }
+
+    private String extractKeyFromUrl(String url) {
+        try {
+            String bucketUrl = amazonS3.getUrl(bucket, "").toString();
+            return url.substring(bucketUrl.length()); // 버킷 URL을 제외한 부분이 키
+        } catch (Exception e) {
+            throw new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR);
+        }
     }
 }
