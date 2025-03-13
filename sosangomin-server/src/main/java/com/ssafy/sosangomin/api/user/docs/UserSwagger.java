@@ -1,7 +1,7 @@
 package com.ssafy.sosangomin.api.user.docs;
 
-import com.ssafy.sosangomin.api.user.dto.request.*;
-import com.ssafy.sosangomin.api.user.dto.response.UserInfoResponseDto;
+import com.ssafy.sosangomin.api.user.domain.dto.request.*;
+import com.ssafy.sosangomin.api.user.domain.dto.response.UserInfoResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

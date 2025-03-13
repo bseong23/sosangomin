@@ -1,4 +1,4 @@
-package com.ssafy.sosangomin.api.user.dto.response;
+package com.ssafy.sosangomin.api.user.domain.dto.response;
 
 import com.ssafy.sosangomin.api.user.domain.entity.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;

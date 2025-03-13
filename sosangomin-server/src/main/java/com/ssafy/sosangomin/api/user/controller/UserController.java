@@ -1,7 +1,7 @@
 package com.ssafy.sosangomin.api.user.controller;
 
 import com.ssafy.sosangomin.api.user.docs.UserSwagger;
-import com.ssafy.sosangomin.api.user.dto.request.*;
+import com.ssafy.sosangomin.api.user.domain.dto.request.*;
 import com.ssafy.sosangomin.api.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,10 +1,8 @@
 package com.ssafy.sosangomin.api.user.docs;
 
-import com.ssafy.sosangomin.api.user.dto.request.MailCheckRequestDto;
-import com.ssafy.sosangomin.api.user.dto.request.MailSendRequestDto;
+import com.ssafy.sosangomin.api.user.domain.dto.request.MailCheckRequestDto;
+import com.ssafy.sosangomin.api.user.domain.dto.request.MailSendRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
