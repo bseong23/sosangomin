@@ -230,4 +230,18 @@ public interface UserSwagger {
             )
             @RequestParam MultipartFile profileImage
     );
+
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "회원 탈퇴 로직입니다. 요청시 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "회원 탈퇴 성공"
+                    )
+            }
+    )
+    ResponseEntity<?> deleteUser(Principal principal);
 }

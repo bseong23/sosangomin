@@ -73,4 +73,7 @@ public interface UserMapper {
             @Param("profileImgUrl") String profileImgUrl,
             @Param("id") Long id
     );
+
+    @Delete("DELETE FROM users WHERE id = #{id}")
+    void deleteUser(@Param("id") Long id);
 }
