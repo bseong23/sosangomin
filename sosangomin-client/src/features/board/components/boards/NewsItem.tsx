@@ -23,7 +23,9 @@ const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
         <div className="flex flex-col justify-between flex-grow">
           <h3 className="text-lg font-medium line-clamp-2">{item.title}</h3>
           <div className="flex justify-between items-center mt-2">
-            <span className="text-gray-500 text-sm">{item.date}</span>
+            <span className="text-gray-500 text-sm">
+              {item.pubDate.split("T")[0].replace(/-/g, ".")}
+            </span>
           </div>
         </div>
       </Link>

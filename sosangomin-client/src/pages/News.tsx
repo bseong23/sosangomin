@@ -1,81 +1,21 @@
 import React, { useEffect, useState } from "react";
-import {
-  NewsItem,
-  NewsListResponse,
-  NewsParams
-} from "@/features/board/types/news";
+import { NewsListResponse, NewsParams } from "@/features/board/types/news";
 import NewsList from "@/features/board/components/boards/NewsList";
 import CategoryFilter from "@/features/board/components/boards/CategoryFilter";
 import Pagination from "@/components/common/Pagination";
 import Banner from "@/features/board/components/boards/Banner";
 import Loading from "@/components/common/Loading";
+import {
+  fetchNewsPageCount,
+  fetchNewsList
+} from "@/features/board/api/newsApi";
 
 const News: React.FC = () => {
-  // 더미 데이터
-  const dummyData: NewsItem[] = [
-    {
-      id: 1,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/1/400/300",
-      date: "2025.03.06",
-      category: "지원정책"
-    },
-    {
-      id: 2,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/2/400/300",
-      date: "2025.03.06",
-      category: "창업정보"
-    },
-    {
-      id: 3,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/3/400/300",
-      date: "2025.03.06",
-      category: "경영관리"
-    },
-    {
-      id: 4,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/4/400/300",
-      date: "2025.03.06",
-      category: "시장동향"
-    },
-    {
-      id: 5,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/5/400/300",
-      date: "2025.03.06",
-      category: "홍보물"
-    },
-    {
-      id: 6,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/6/400/300",
-      date: "2025.03.06",
-      category: "지원정책"
-    },
-    {
-      id: 7,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/6/400/300",
-      date: "2025.03.06",
-      category: "지원정책"
-    },
-    {
-      id: 8,
-      title: "소상공인 자금지원 드디어 살아나는 경제?",
-      imageUrl: "https://picsum.photos/id/6/400/300",
-      date: "2025.03.06",
-      category: "지원정책"
-    }
-  ];
-
   const [newsData, setNewsData] = useState<NewsListResponse>({
-    items: dummyData,
-    totalCount: dummyData.length,
+    items: [],
+    totalCount: 0,
     currentPage: 1,
-    totalPages: 10
+    totalPages: 1
   });
 
   const [params, setParams] = useState<NewsParams>({
@@ -84,47 +24,79 @@ const News: React.FC = () => {
     category: "all"
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [pageLoading, setPageLoading] = useState(false);
 
+  // 카테고리에 따른 페이지 수 가져오기
+  useEffect(() => {
+    const getPageCount = async () => {
+      try {
+        // 카테고리 정보를 API 요청에 포함
+        const pageCount = await fetchNewsPageCount(params.category);
+        setTotalPages(pageCount > 0 ? pageCount : 1); // 0이면 최소 1페이지로 설정
+      } catch (error) {
+        console.error("페이지 수 가져오기 실패:", error);
+        setTotalPages(1); // 오류 시 기본값 1로 설정
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    getPageCount();
+  }, [params.category]); // 카테고리가 변경될 때마다 페이지 수 다시 가져오기
+
+  // 뉴스 목록 가져오기
   useEffect(() => {
     const getNewsList = async () => {
-      setLoading(true);
+      if (pageLoading) return; // 페이지 로딩 중일 때는 뉴스 목록 가져오지 않음
       try {
-        // 검색 및 카테고리 필터링 시뮬레이션
-        let filteredData = [...dummyData];
-
-        if (params.category && params.category !== "all") {
-          filteredData = dummyData.filter(
-            (item) => item.category === params.category
-          );
+        // 현재 페이지가 총 페이지 수보다 크면 1페이지로 리셋
+        if (params.page > totalPages && totalPages > 0) {
+          setParams((prev) => ({ ...prev, page: 1 }));
+          return;
         }
 
-        if (params.search) {
-          filteredData = filteredData.filter((item) =>
-            item.title.toLowerCase().includes(params.search!.toLowerCase())
-          );
-        }
+        // API에서 뉴스 목록 가져오기
+        const response = await fetchNewsList(params);
 
-        setTimeout(() => {
+        // API 응답이 배열인 경우 처리
+        if (Array.isArray(response)) {
           setNewsData({
-            items: filteredData,
-            totalCount: filteredData.length,
+            items: response,
+            totalCount: response.length,
             currentPage: params.page,
-            totalPages: Math.ceil(filteredData.length / params.limit)
+            totalPages: totalPages
           });
-          setLoading(false);
-        });
+        }
+        // API 응답이 객체인 경우 처리
+        else {
+          setNewsData({
+            items: response.items || [],
+            totalCount: response.totalCount || 0,
+            currentPage: response.currentPage || params.page,
+            totalPages: response.totalPages || totalPages
+          });
+        }
       } catch (error) {
         console.error("뉴스 로딩 실패:", error);
+        setNewsData({
+          items: [],
+          totalCount: 0,
+          currentPage: params.page,
+          totalPages: totalPages
+        });
+      } finally {
         setLoading(false);
       }
     };
 
     getNewsList();
-  }, [params]);
+  }, [params, totalPages, pageLoading]);
 
   const handlePageChange = (page: number) => {
     setParams((prev) => ({ ...prev, page }));
+    window.scrollTo(0, 0); // 페이지 변경 시 상단으로 스크롤
   };
 
   const handleCategoryChange = (category: string) => {
@@ -145,21 +117,25 @@ const News: React.FC = () => {
           />
         </div>
 
-        {loading ? (
+        {loading || pageLoading ? (
           <div className="flex justify-center py-20">
             <Loading />
           </div>
-        ) : (
+        ) : newsData.items.length > 0 ? (
           <>
             <NewsList items={newsData.items} />
             <div className="flex justify-center mt-8">
               <Pagination
                 currentPage={newsData.currentPage}
-                totalPages={newsData.totalPages}
+                totalPages={totalPages}
                 onPageChange={handlePageChange}
               />
             </div>
           </>
+        ) : (
+          <div className="flex justify-center py-20 text-gray-500">
+            뉴스 데이터가 없습니다.
+          </div>
         )}
       </div>
     </div>
