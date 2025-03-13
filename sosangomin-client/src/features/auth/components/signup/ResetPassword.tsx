@@ -1,7 +1,7 @@
 // ResetPassword.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isApiError, verifyMailCode } from "@/features/auth/api/authApi";
+import { isApiError } from "@/features/auth/api/authApi";
 import { useSignup } from "@/features/auth/hooks/useSignup";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
 import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
