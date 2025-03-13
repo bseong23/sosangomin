@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { KakaomapProps } from "@/types/map";
+import { KakaomapProps } from "@/features/map/types/map";
 import {
   loadKakaoMapScript,
   displayGeoJsonPolygon,
   fetchPopulationData
-} from "@/api/mapApi";
+} from "@/features/map/api/mapApi";
 
 const Kakaomap: React.FC<KakaomapProps> = ({
   width,

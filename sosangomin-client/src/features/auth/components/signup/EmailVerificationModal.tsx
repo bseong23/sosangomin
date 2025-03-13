@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { MailVerificationModalProps } from "@/types/auth";
-import { useSignup } from "@/hooks/useSignup";
+import { MailVerificationModalProps } from "@/features/auth/types/auth";
+import { useSignup } from "@/features/auth/hooks/useSignup";
 
 const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
   mail,

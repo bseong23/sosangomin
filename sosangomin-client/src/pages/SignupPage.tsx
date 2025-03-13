@@ -1,4 +1,4 @@
-import Signup from "@/components/signup/Signup";
+import Signup from "@/features/auth/components/signup/Signup";
 import Logo from "@/assets/Logo.svg";
 import { Link } from "react-router-dom";
 

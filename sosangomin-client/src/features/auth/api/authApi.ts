@@ -1,6 +1,10 @@
-import axiosInstance from "./axios";
+import axiosInstance from "@/api/axios";
 import axios from "axios";
-import { SignupRequest, ApiResponse, ApiErrorResponse } from "@/types/auth";
+import {
+  SignupRequest,
+  ApiResponse,
+  ApiErrorResponse
+} from "@/features/auth/types/auth";
 
 /**
  * 카카오 로그인 URL을 반환합니다.

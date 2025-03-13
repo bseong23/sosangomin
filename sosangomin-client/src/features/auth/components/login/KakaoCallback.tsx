@@ -1,10 +1,9 @@
 // src/components/login/KakaoCallback.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { saveAuthData } from "@/api/userStorage";
+import { saveAuthData } from "@/features/auth/api/userStorage";
 import Loading from "@/components/common/Loading";
-
-import { LoginResponse } from "@/types/auth";
+import { LoginResponse } from "@/features/auth/types/auth";
 
 interface KakaoCallbackProps {
   onSuccess?: (userData: LoginResponse) => void;

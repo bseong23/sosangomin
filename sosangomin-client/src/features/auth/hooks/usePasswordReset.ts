@@ -1,7 +1,7 @@
 // src/hooks/usePasswordReset.ts
 import { useState } from "react";
 import axiosInstance from "@/api/axios";
-import { UsePasswordResetReturn } from "@/types/auth";
+import { UsePasswordResetReturn } from "@/features/auth/types/auth";
 
 export const usePasswordReset = (): UsePasswordResetReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

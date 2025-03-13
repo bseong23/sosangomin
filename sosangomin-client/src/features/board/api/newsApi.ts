@@ -1,5 +1,5 @@
 import axios from "axios";
-import { NewsParams, NewsListResponse } from "../types/news";
+import { NewsParams, NewsListResponse } from "@/features/board/types/news";
 
 const BASE_URL = "/api";
 

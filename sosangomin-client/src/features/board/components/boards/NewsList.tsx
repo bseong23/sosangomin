@@ -1,6 +1,6 @@
 import React from "react";
-import { NewsItem as NewsItemType } from "@/types/news";
-import NewsItem from "./NewsItem";
+import { NewsItem as NewsItemType } from "@/features/board/types/news";
+import NewsItem from "@/features/board/components/boards/NewsItem";
 
 interface NewsListProps {
   items: NewsItemType[];

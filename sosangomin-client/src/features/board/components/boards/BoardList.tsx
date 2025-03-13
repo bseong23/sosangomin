@@ -1,6 +1,6 @@
 import React from "react";
-import { BoardListProps } from "@/types/board";
-import BoardItemComponent from "@/components/boards/BoardItemComponent";
+import { BoardListProps } from "@/features/board/types/board";
+import BoardItemComponent from "@/features/board/components/boards/BoardItemComponent";
 
 const BoardList: React.FC<BoardListProps> = ({ items, boardType }) => {
   return (

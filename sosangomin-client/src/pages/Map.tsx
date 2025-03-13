@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Kakaomap from "@/components/maps/Kakaomap";
-import MapSidebar from "@/components/maps/MapSidebar";
-import { Marker } from "@/types/map";
-import { searchLocation } from "@/api/mapApi";
+import Kakaomap from "@/features/map/components/maps/Kakaomap";
+import MapSidebar from "@/features/map/components/maps/MapSidebar";
+import { Marker } from "@/features/map/types/map";
+import { searchLocation } from "@/features/map/api/mapApi";
 import seoulDistrictsData from "@/assets/sig.json";
 
 const MapPage: React.FC = () => {

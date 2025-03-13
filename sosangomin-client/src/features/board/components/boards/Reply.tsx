@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FiMoreVertical } from "react-icons/fi";
-import { ReplyProps } from "@/types/board";
+import { ReplyProps } from "@/features/board/types/board";
 
 const Reply: React.FC<ReplyProps> = ({
   reply,

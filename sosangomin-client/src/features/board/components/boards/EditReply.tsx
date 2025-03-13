@@ -1,7 +1,7 @@
 // src/components/boards/EditReply.tsx
 
 import React, { useState } from "react";
-import { EditReplyProps } from "@/types/board";
+import { EditReplyProps } from "@/features/board/types/board";
 
 const EditReply: React.FC<EditReplyProps> = ({
   reply,

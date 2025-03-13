@@ -5,8 +5,8 @@ import {
   getAccessToken,
   clearAuthData,
   isLoggedIn as isUserLoggedIn
-} from "@/api/userStorage";
-import { logout as apiLogout } from "@/api/authApi";
+} from "@/features/auth/api/userStorage";
+import { logout as apiLogout } from "@/features/auth/api/authApi";
 
 interface UseAuthReturn {
   user: any | null;

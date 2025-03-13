@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import kakao_login_button from "@/assets/kakao_login.svg"; // 카카오 로그인 이미지 경로 확인 필요
 import Loading from "@/components/common/Loading"; // 로딩 컴포넌트
-import { getKakaoAuthUrl } from "@/api/authApi"; // authApi 임포트
+import { getKakaoAuthUrl } from "@/features/auth/api/authApi"; // authApi 임포트
 
 const SocialLoginButtons: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);

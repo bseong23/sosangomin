@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BoardParams, BoardListResponse } from "@/types/board";
+import { BoardParams, BoardListResponse } from "@/features/board/types/board";
 
 const BASE_URL = import.meta.env.VITE_API_SERVER_URL;
 

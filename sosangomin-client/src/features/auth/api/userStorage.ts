@@ -1,4 +1,4 @@
-import { LoginResponse } from "../types/auth";
+import { LoginResponse } from "@/features/auth/types/auth";
 
 /**
  * 액세스 토큰과 사용자 정보를 저장합니다.

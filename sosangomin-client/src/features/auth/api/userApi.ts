@@ -1,12 +1,12 @@
 // src/api/userApi.ts
-import axiosInstance from "./axios";
+import axiosInstance from "@/api/axios";
 import axios from "axios";
 import {
   UserProfileResponse,
   ApiErrorResponse,
   ChangeNameResponse,
   ChangePasswordResponse
-} from "@/types/user";
+} from "@/features/auth/types/user";
 
 /**
  * 사용자 정보를 가져오는 API 함수

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { login, isApiError } from "@/api/authApi";
-import { saveAuthData } from "@/api/userStorage";
+import { login, isApiError } from "@/features/auth/api/authApi";
+import { saveAuthData } from "@/features/auth/api/userStorage";
 import {
   LoginRequest,
   LoginResponse,
   ErrorMessages,
   LoginState
-} from "@/types/auth";
+} from "@/features/auth/types/auth";
 
 /**
  * 로그인 프로세스를 관리하는 커스텀 훅

@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { NewsItem, NewsListResponse, NewsParams } from "@/types/news";
-import NewsList from "@/components/boards/NewsList";
-import CategoryFilter from "@/components/boards/CategoryFilter";
+import {
+  NewsItem,
+  NewsListResponse,
+  NewsParams
+} from "@/features/board/types/news";
+import NewsList from "@/features/board/components/boards/NewsList";
+import CategoryFilter from "@/features/board/components/boards/CategoryFilter";
 import Pagination from "@/components/common/Pagination";
-import Banner from "@/components/boards/Banner";
+import Banner from "@/features/board/components/boards/Banner";
 import Loading from "@/components/common/Loading";
 
 const News: React.FC = () => {

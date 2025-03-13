@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapSidebarProps } from "@/types/map";
+import { MapSidebarProps } from "@/features/map/types/map";
 
 const Analysismap: React.FC<MapSidebarProps> = ({ onSearch }) => {
   const [searchAddress, setSearchAddress] = useState<string>("");

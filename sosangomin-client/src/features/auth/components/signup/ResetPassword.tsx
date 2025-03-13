@@ -1,12 +1,12 @@
 // ResetPassword.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isApiError } from "@/api/authApi";
-import { useSignup } from "@/hooks/useSignup";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { usePasswordReset } from "@/hooks/usePasswordReset";
-import { ErrorMessages } from "@/types/auth";
-import { useAuth } from "@/hooks/useAuth";
+import { isApiError } from "@/features/auth/api/authApi";
+import { useSignup } from "@/features/auth/hooks/useSignup";
+import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
+import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
+import { ErrorMessages } from "@/features/auth/types/auth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();

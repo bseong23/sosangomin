@@ -1,7 +1,7 @@
 // src/components/login/StandardLoginForm.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLogin } from "@/hooks/useLogin";
+import { useLogin } from "@/features/auth/hooks/useLogin";
 
 const StandardLoginForm: React.FC = () => {
   const { loginState, submitLogin, getSavedEmail } = useLogin();

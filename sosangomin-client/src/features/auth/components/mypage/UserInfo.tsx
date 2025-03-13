@@ -1,9 +1,9 @@
 // src/components/UserInfo.tsx
 import React, { useState, useRef } from "react";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
-import ProfileSection from "@/components/mypage/ProfileSection";
-import { getUserInfo, saveAuthData } from "@/api/userStorage"; // 헤더 정보 업데이트를 위해 추가
+import ProfileSection from "@/features/auth/components/mypage/ProfileSection";
+import { getUserInfo, saveAuthData } from "@/features/auth/api/userStorage"; // 헤더 정보 업데이트를 위해 추가
 
 interface UserInfoProps {
   isEditable?: boolean;

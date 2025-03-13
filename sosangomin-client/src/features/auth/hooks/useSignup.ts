@@ -5,14 +5,14 @@ import {
   sendVerificationMail,
   verifyMailCode,
   isApiError
-} from "@/api/authApi";
+} from "@/features/auth/api/authApi";
 import {
   SignupRequest,
   MailVerificationState,
   NameCheckState,
   SignupState,
   ErrorMessages
-} from "@/types/auth";
+} from "@/features/auth/types/auth";
 
 /**
  * 회원가입 프로세스를 관리하는 커스텀 훅

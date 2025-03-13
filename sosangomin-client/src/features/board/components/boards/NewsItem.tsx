@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { NewsItem as NewsItemType } from "@/types/news";
+import { NewsItem as NewsItemType } from "@/features/board/types/news";
 
 interface NewsItemProps {
   item: NewsItemType;

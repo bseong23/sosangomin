@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { FaRegComment } from "react-icons/fa";
-import Comment from "@/components/boards/Comment";
-import EditComment from "@/components/boards/EditComment";
-import CommentForm from "@/components/boards/CommentForm";
-import { CommentListProps } from "@/types/board";
+import Comment from "@/features/board/components/boards/Comment";
+import EditComment from "@/features/board/components/boards/EditComment";
+import CommentForm from "@/features/board/components/boards/CommentForm";
+import { CommentListProps } from "@/features/board/types/board";
 
 const CommentList: React.FC<CommentListProps> = ({
   comments,

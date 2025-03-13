@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { MapSidebarProps } from "@/types/map";
-import Analysismap from "@/components/maps/Analysismap";
-import Recommendmap from "@/components/maps/Recommendmap";
-import ToggleSwitch from "@/components/maps/ToggleSwitch";
+import { MapSidebarProps } from "@/features/map/types/map";
+import Analysismap from "@/features/map/components/maps/Analysismap";
+import Recommendmap from "@/features/map/components/maps/Recommendmap";
+import ToggleSwitch from "@/features/map/components/maps/ToggleSwitch";
 
 const MapSidebar: React.FC<MapSidebarProps> = ({ onSearch, onClose }) => {
   const [activeTab, setActiveTab] = useState<"상권분석" | "입지추천">(

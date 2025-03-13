@@ -5,12 +5,12 @@ import {
   changeName,
   changePassword,
   isApiError
-} from "@/api/userApi";
+} from "@/features/auth/api/userApi";
 import {
   UserProfileData,
   UseUserProfileReturn,
   ErrorMessages
-} from "@/types/user";
+} from "@/features/auth/types/user";
 
 export const useUserProfile = (): UseUserProfileReturn => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);

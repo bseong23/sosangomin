@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { BoardItemProps } from "@/types/board";
+import { BoardItemProps } from "@/features/board/types/board";
 
 const BoardItemComponent: React.FC<BoardItemProps> = ({ item, boardType }) => {
   return (

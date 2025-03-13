@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { FiMoreVertical, FiCornerDownRight } from "react-icons/fi";
 import { FaRegComments } from "react-icons/fa";
-import CommentForm from "@/components/boards/CommentForm";
-import Reply from "@/components/boards/Reply";
-import EditReply from "@/components/boards/EditReply";
-import { CommentProps } from "@/types/board";
+import CommentForm from "@/features/board/components/boards/CommentForm";
+import Reply from "@/features/board/components/boards/Reply";
+import EditReply from "@/features/board/components/boards/EditReply";
+import { CommentProps } from "@/features/board/types/board";
 
 const Comment: React.FC<CommentProps> = ({
   comment,

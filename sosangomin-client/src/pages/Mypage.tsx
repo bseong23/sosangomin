@@ -1,4 +1,4 @@
-import UserInfo from "@/components/mypage/UserInfo";
+import UserInfo from "@/features/auth/components/mypage/UserInfo";
 
 const MyPage = () => {
   return (

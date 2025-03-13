@@ -1,6 +1,6 @@
 // src/pages/KakaoCallbackPage.tsx
 import React from "react";
-import KakaoCallback from "@/components/login/KakaoCallback";
+import KakaoCallback from "@/features/auth/components/login/KakaoCallback";
 
 const KakaoCallbackPage: React.FC = () => {
   // 로그인 성공 처리 함수

@@ -1,8 +1,8 @@
 // src/pages/LoginPage.tsx
 import React from "react";
 import Logo from "@/assets/Logo.svg";
-import StandardLoginForm from "@/components/login/StandardLoginForm";
-import SocialLoginButtons from "@/components/login/SocialLoginButton";
+import StandardLoginForm from "@/features/auth/components/login/StandardLoginForm";
+import SocialLoginButtons from "@/features/auth/components/login/SocialLoginButton";
 
 const LoginPage: React.FC = () => {
   return (

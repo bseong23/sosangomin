@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import EmailVerificationModal from "./EmailVerificationModal";
 import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
-import { useSignup } from "@/hooks/useSignup";
-import { SignupRequest } from "@/types/auth";
+import { useSignup } from "@/features/auth/hooks/useSignup";
+import { SignupRequest } from "@/features/auth/types/auth";
 import { redirect } from "react-router-dom";
 
 const Signup: React.FC = () => {

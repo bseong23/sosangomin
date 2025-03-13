@@ -1,7 +1,7 @@
 // src/components/comments/CommentForm.tsx
 
 import React, { useState } from "react";
-import { CommentFormProps } from "@/types/board";
+import { CommentFormProps } from "@/features/board/types/board";
 
 const CommentForm: React.FC<CommentFormProps> = ({
   onSubmit,
