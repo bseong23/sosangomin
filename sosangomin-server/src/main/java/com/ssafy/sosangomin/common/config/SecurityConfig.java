@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/api/mail/**",
                                 "/api/user/name/check",
                                 "/api/user/login",
-                                "/api/user/email/check"
+                                "/api/user/email/check",
+                                "/api/news/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .anyRequest().authenticated()
