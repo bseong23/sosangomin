@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import ProfileSection from "@/features/auth/components/mypage/ProfileSection";
-import { getUserInfo, saveAuthData } from "@/features/auth/api/userStorage"; // 헤더 정보 업데이트를 위해 추가
+import useAuthStore from "@/store/useAuthStore"; // Zustand 스토어 import
 
 interface UserInfoProps {
   isEditable?: boolean;
@@ -11,6 +11,9 @@ interface UserInfoProps {
 
 const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
   const navigate = useNavigate();
+
+  // Zustand 스토어에서 필요한 상태와 액션 가져오기
+  const { userInfo, updateUserInfo } = useAuthStore();
 
   // 커스텀 훅 사용
   const { userProfile, isLoading, error, changeNickname } = useUserProfile();
@@ -71,8 +74,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
         // 닉네임 변경 성공
         setIsEditingNickname(false);
 
-        // 헤더에 저장된 사용자 정보 업데이트
-        updateStoredUserInfo(newNickname);
+        // Zustand 스토어 업데이트 - 로컬스토리지 사용 대신
+        if (userInfo) {
+          updateUserInfo({ userName: newNickname });
+        }
 
         // 커스텀 이벤트를 발생시켜 헤더에 알림
         document.dispatchEvent(
@@ -97,32 +102,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
       saveNickname();
     } else if (e.key === "Escape") {
       cancelEditingNickname();
-    }
-  };
-
-  // 로컬 스토리지에 저장된 사용자 정보 업데이트
-  const updateStoredUserInfo = (newNickname: string) => {
-    try {
-      // 현재 저장된 사용자 정보 가져오기
-      const currentUserInfo = getUserInfo();
-
-      if (currentUserInfo && currentUserInfo.accessToken) {
-        // 닉네임 업데이트된 정보 저장
-        const updatedUserInfo = {
-          ...currentUserInfo,
-          userName: newNickname
-        };
-
-        // 업데이트된 정보 저장
-        saveAuthData(currentUserInfo.accessToken, updatedUserInfo);
-
-        console.log(
-          "저장된 사용자 정보가 업데이트되었습니다:",
-          updatedUserInfo
-        );
-      }
-    } catch (error) {
-      console.error("사용자 정보 업데이트 중 오류:", error);
     }
   };
 

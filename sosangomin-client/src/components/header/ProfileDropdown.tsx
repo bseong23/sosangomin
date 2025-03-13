@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ProfileDropdownProps } from "@/types/header";
 import profileImage from "@/assets/profileImage.svg";
+import useAuthStore from "@/store/useAuthStore";
+import { clearAuthData } from "@/features/auth/api/userStorage";
 
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   userName,
@@ -9,6 +11,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Zustand 스토어에서 유저 정보 가져오기
+  const userInfo = useAuthStore((state) => state.userInfo);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -31,11 +36,16 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     };
   }, []);
 
+  // 로그아웃 처리
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userInfo");
+    clearAuthData();
     window.location.href = "/";
   };
+
+  // userInfo가 없는 경우 대체 처리
+  if (!userInfo) {
+    return null;
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>

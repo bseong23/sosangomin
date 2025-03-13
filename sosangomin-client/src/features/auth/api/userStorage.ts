@@ -1,7 +1,9 @@
 import { LoginResponse } from "@/features/auth/types/auth";
+import useAuthStore from "@/store/useAuthStore";
 
 /**
  * 액세스 토큰과 사용자 정보를 저장합니다.
+ * 액세스 토큰은 로컬스토리지에, 사용자 정보는 Zustand 스토어에 저장합니다.
  * @param accessToken 액세스 토큰
  * @param userData 사용자 정보 객체
  */
@@ -9,29 +11,13 @@ export const saveAuthData = (
   accessToken: string,
   userData: LoginResponse
 ): void => {
-  // 액세스 토큰 저장
+  // 액세스 토큰 로컬스토리지에 저장
   localStorage.setItem("accessToken", accessToken);
 
-  // 사용자 정보를 JSON 문자열로 변환하여 저장
-  localStorage.setItem("userInfo", JSON.stringify(userData));
+  // 사용자 정보 Zustand 스토어에 저장
+  useAuthStore.getState().setUserInfo(userData);
 
   console.log("인증 정보 저장 완료:", { accessToken, userData });
-};
-
-/**
- * 사용자 정보를 반환합니다.
- * @returns 사용자 정보 객체 또는 null
- */
-export const getUserInfo = (): LoginResponse | null => {
-  const userInfoStr = localStorage.getItem("userInfo");
-  if (!userInfoStr) return null;
-
-  try {
-    return JSON.parse(userInfoStr) as LoginResponse;
-  } catch (error) {
-    console.error("사용자 정보 파싱 오류:", error);
-    return null;
-  }
 };
 
 /**
@@ -44,17 +30,28 @@ export const getAccessToken = (): string | null => {
 
 /**
  * 사용자가 로그인되어 있는지 확인합니다.
+ * 액세스 토큰과 Zustand 스토어의 사용자 정보를 확인합니다.
  * @returns 로그인 여부
  */
 export const isLoggedIn = (): boolean => {
-  return !!getAccessToken() && !!getUserInfo();
+  return !!getAccessToken() && !!useAuthStore.getState().userInfo;
 };
 
 /**
  * 로그아웃 처리 - 인증 관련 데이터 삭제
+ * 로컬스토리지의 액세스 토큰과 Zustand 스토어의 사용자 정보를 제거합니다.
  */
 export const clearAuthData = (): void => {
   localStorage.removeItem("accessToken");
-  localStorage.removeItem("userInfo");
+  useAuthStore.getState().clearUserInfo();
   console.log("로그아웃: 인증 정보 삭제 완료");
+};
+
+/**
+ * 사용자 정보를 반환합니다.
+ * Zustand 스토어에서 사용자 정보를 가져옵니다.
+ * @returns 사용자 정보 객체 또는 null
+ */
+export const getUserInfo = (): LoginResponse | null => {
+  return useAuthStore.getState().userInfo;
 };
