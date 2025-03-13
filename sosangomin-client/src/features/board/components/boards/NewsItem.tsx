@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { NewsItem as NewsItemType } from "@/features/board/types/news";
 
 interface NewsItemProps {
@@ -9,7 +8,12 @@ interface NewsItemProps {
 const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
   return (
     <div className="border-b border-gray-200 py-4 hover:bg-gray-50">
-      <Link to={`/community/news/${item.id}`} className="flex">
+      <a
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex"
+      >
         {/* 좌측 이미지 영역 */}
         <div className="w-[120px] h-[120px] flex-shrink-0 mr-[18px] overflow-hidden">
           <img
@@ -28,7 +32,7 @@ const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
             </span>
           </div>
         </div>
-      </Link>
+      </a>
     </div>
   );
 };

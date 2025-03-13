@@ -4,6 +4,7 @@ export interface NewsItem {
   imageUrl: string;
   pubDate: string;
   category: string;
+  link: string;
 }
 
 export interface NewsListResponse {
