@@ -1,7 +1,7 @@
 // ResetPassword.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isApiError } from "@/features/auth/api/authApi";
+import { isApiError, verifyMailCode } from "@/features/auth/api/authApi";
 import { useSignup } from "@/features/auth/hooks/useSignup";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
 import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
@@ -14,6 +14,7 @@ const ResetPassword: React.FC = () => {
 
   // 커스텀 훅 호출 (컴포넌트 최상위 레벨)
   const { sendVerification } = useSignup();
+  const { verifyCode } = useSignup();
   const { changePassword: changePasswordForLoggedIn } = useUserProfile();
   const {
     resetPassword: resetPasswordForNonLoggedIn,
@@ -163,13 +164,43 @@ const ResetPassword: React.FC = () => {
   };
 
   // 인증 완료 처리
-  const handleVerificationComplete = async (code: string, success: boolean) => {
-    if (success) {
-      setIsVerified(true);
-      setVerificationCode(code);
+  const handleVerificationComplete = async () => {
+    if (!verificationCode.trim()) {
+      setError("인증 코드를 입력해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // 문자열로 된 인증코드를 숫자로 변환
+      const codeNumber = parseInt(verificationCode, 10);
+
+      if (isNaN(codeNumber)) {
+        setError("유효한 인증 코드를 입력해주세요.");
+        setIsLoading(false);
+        return;
+      }
+
+      // useSignup의 verifyCode 함수 사용
+      const success = await verifyCode(mail, codeNumber);
+
+      if (success) {
+        // 인증 성공 시 상태 변경
+        setIsVerified(true);
+      } else {
+        // 실패 시 오류 메시지는 이미 verifyCode 내부에서 설정됨
+        // 필요하다면 여기서 커스텀 오류 메시지 설정
+        setError("인증번호가 일치하지 않습니다. 다시 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("인증 코드 확인 오류:", error);
+      setError("인증 코드 확인 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   // 비밀번호 변경 처리
   const handlePasswordChange = async () => {
     if (!newPassword.trim() || newPassword.length < 8) {
@@ -284,7 +315,7 @@ const ResetPassword: React.FC = () => {
           <div className="mt-7">
             <button
               type="button"
-              onClick={() => handleVerificationComplete(verificationCode, true)}
+              onClick={handleVerificationComplete}
               disabled={isLoading || !verificationCode.trim()}
               className="w-full bg-bit-main text-white p-2 rounded md:rounded-md lg:rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
