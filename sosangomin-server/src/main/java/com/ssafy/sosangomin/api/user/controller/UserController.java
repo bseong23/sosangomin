@@ -68,7 +68,7 @@ public class UserController implements UserSwagger {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
         userService.updateProfileImg(profileImg, userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(userService.updateProfileImg(profileImg, userId));
     }
 
     @DeleteMapping

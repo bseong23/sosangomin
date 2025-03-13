@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.docs;
 
 import com.ssafy.sosangomin.api.user.domain.dto.request.*;
+import com.ssafy.sosangomin.api.user.domain.dto.response.UpdateProfileImgResponseDto;
 import com.ssafy.sosangomin.api.user.domain.dto.response.UserInfoResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -204,7 +205,11 @@ public interface UserSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "프로필 사진 업로드 성공"
+                            description = "프로필 사진 업로드 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UpdateProfileImgResponseDto.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",

@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.ssafy.sosangomin.api.user.domain.dto.request.*;
+import com.ssafy.sosangomin.api.user.domain.dto.response.UpdateProfileImgResponseDto;
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.domain.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.domain.dto.response.UserInfoResponseDto;
@@ -129,7 +130,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfileImg(MultipartFile multipartFile, Long userId) {
+    public UpdateProfileImgResponseDto updateProfileImg(MultipartFile multipartFile, Long userId) {
         // 기존 프로필 이미지 URL 조회
         Optional<User> userOptional = userMapper.findUserById(userId);
         User user = userOptional.get();
@@ -162,6 +163,8 @@ public class UserService {
         String newProfileImgUrl = amazonS3.getUrl(bucket, filePath).toString();
 
         userMapper.updateProfileImgUrl(newProfileImgUrl, userId);
+
+        return new UpdateProfileImgResponseDto(newProfileImgUrl);
     }
 
     public void deleteUser(Long userId) {
