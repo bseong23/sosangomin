@@ -2,8 +2,9 @@ export interface NewsItem {
   id: number;
   title: string;
   imageUrl: string;
-  date: string;
+  pubDate: string;
   category: string;
+  link: string;
 }
 
 export interface NewsListResponse {
@@ -18,4 +19,8 @@ export interface NewsParams {
   limit: number;
   category?: string;
   search?: string;
+}
+
+export interface NewsPageCountResponse {
+  pageCount: number;
 }

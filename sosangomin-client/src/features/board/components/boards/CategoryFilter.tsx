@@ -11,11 +11,12 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const categories = [
     { id: "all", name: "전체" },
-    { id: "policy", name: "지원정책" },
-    { id: "startup", name: "창업정보" },
-    { id: "management", name: "경영관리" },
-    { id: "trend", name: "시장동향" },
-    { id: "promotion", name: "플랫폼" }
+    { id: "지원정책", name: "지원정책" },
+    { id: "창업정보", name: "창업정보" },
+    { id: "경영관리", name: "경영관리" },
+    { id: "시장동향", name: "시장동향" },
+    { id: "플랫폼", name: "플랫폼" },
+    { id: "기타", name: "기타" }
   ];
 
   return (
