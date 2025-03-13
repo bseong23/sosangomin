@@ -70,4 +70,12 @@ public class UserController implements UserSwagger {
         userService.updateProfileImg(profileImg, userId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
+    }
 }

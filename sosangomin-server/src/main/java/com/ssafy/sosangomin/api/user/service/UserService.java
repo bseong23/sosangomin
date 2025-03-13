@@ -164,6 +164,10 @@ public class UserService {
         userMapper.updateProfileImgUrl(newProfileImgUrl, userId);
     }
 
+    public void deleteUser(Long userId) {
+        userMapper.deleteUser(userId);
+    }
+
     private String createFileName(String originalFileName) {
         // 파일 확장자 추출
         String ext = extractExt(originalFileName);
