@@ -12,7 +12,7 @@ from services.s3_service import (
     download_file_from_s3, 
     get_s3_presigned_url,
 )
-from services.automl import predict_next_month_sales, perform_clustering, preprocess_data
+from services.automl import predict_next_30_sales, perform_clustering, preprocess_data
 import pandas as pd
 import numpy as np
 from database.mongo_connector import mongo_instance
@@ -63,7 +63,7 @@ async def analyze_from_source_id(
         result = {}
         
         if analysis_type == "sales_prediction":
-            result = await predict_next_month_sales(local_file_path)  
+            result = await predict_next_30_sales(local_file_path)  
         
         elif analysis_type == "clustering":
             result = await perform_clustering(local_file_path)  
@@ -94,7 +94,8 @@ async def analyze_from_source_id(
             "s3_key": s3_key,
             "presigned_url": get_s3_presigned_url(s3_key),
             "analysis_type": analysis_type,
-            "result": result
+            "result_data": result,
+            # "summary":
         }
     
     except Exception as e:        

@@ -53,3 +53,21 @@ class ChatHistory(Base):
     created_at = Column(DateTime(timezone=True))
     session = relationship("ChatSession", back_populates="conversations")
 
+class Weathers(Base):
+    __tablename__ = 'weathers'
+
+    weather_id = Column(Integer, primary_key=True, autoincrement=True, comment='날씨 데이터 ID (PK)')
+    datetime = Column(Integer, unique=True, comment='YYYYMMDDHH 형식의 단일 datetime 키')
+    year = Column(String(4), comment='연도 (YYYY)')
+    month = Column(String(2), comment='월 (MM, 두 자리)')
+    day = Column(String(2), comment='일 (DD, 두 자리)')
+    hour = Column(String(2), nullable=False, comment='시간 (HH, 두 자리)')
+    location = Column(String(20), comment='지역명 (예: 서울)')
+    
+    ta = Column(Float, nullable=True, comment='기온 (°C)')
+    ws = Column(Float, nullable=True, comment='풍속 (m/s)')
+    hm = Column(Float, nullable=True, comment='습도 (%)')
+    rn = Column(Float, nullable=True, comment='강수량 (mm)')
+
+    # def __repr__(self):
+    #     return f"<Weathers(datetime={self.datetime}, location={self.location}, ta={self.ta}, ws={self.ws}, hm={self.hm}, rn={self.rn})>"
