@@ -1,93 +1,15 @@
-// import React, { useEffect, useState } from "react";
-// import { BoardListResponse, BoardParams } from "@/types/board";
-// import { fetchNoticeList } from "@/api/noticeApi";
-// import BoardList from "@/components/boards/BoardList";
-// import Pagination from "@/components/common/Pagination";
-// import SearchBar from "@/components/common/SearchBar";
-// import WriteButton from "@/components/boards/WriteButton";
-// import Loading from "@/components/common/Loading";
-// const Notice: React.FC = () => {
-//   const [noticeData, setNoticeData] = useState<BoardListResponse>({
-//     items: [],
-//     totalCount: 0,
-//     currentPage: 1,
-//     totalPages: 1
-//   });
-//   const [params, setParams] = useState<BoardParams>({
-//     page: 1,
-//     limit: 10
-//   });
-//   const [loading, setLoading] = useState(false);
-
-//   useEffect(() => {
-//     const getNoticeList = async () => {
-//       setLoading(true);
-//       try {
-//         const data = await fetchNoticeList(params);
-//         setNoticeData(data);
-//       } catch (error) {
-//         console.error("공지사항 로딩 실패:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     getNoticeList();
-//   }, [params]);
-
-//   const handlePageChange = (page: number) => {
-//     setParams((prev) => ({ ...prev, page }));
-//   };
-
-//   const handleSearch = (keyword: string) => {
-//     setParams((prev) => ({ ...prev, page: 1, search: keyword }));
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8">
-//       <div className="w-full">
-//         <h1 className="text-2xl font-bold mb-6">공지사항</h1>
-
-//         <div className="flex justify-end mb-4">
-//           <SearchBar
-//             onSearch={handleSearch}
-//             placeholder="검색어를 입력하세요"
-//           />
-//         </div>
-
-//         {loading ? (
-//           <div className="flex justify-center">
-//             <Loading />
-//           </div>
-//         ) : (
-//           <>
-//             <BoardList items={noticeData.items} boardType="notice" />
-//             <div className="flex justify-between mt-4">
-//               <div></div>
-//               <Pagination
-//                 currentPage={noticeData.currentPage}
-//                 totalPages={noticeData.totalPages}
-//                 onPageChange={handlePageChange}
-//               />
-//               <WriteButton boardType="notice" />
-//             </div>
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Notice;
-
 import React, { useEffect, useState } from "react";
-import { BoardItem, BoardListResponse, BoardParams } from "@/types/board";
+import {
+  BoardItem,
+  BoardListResponse,
+  BoardParams
+} from "@/features/board/types/board";
 // import { fetchNoticeList } from "@/api/noticeApi";
-import BoardList from "@/components/boards/BoardList";
+import BoardList from "@/features/board/components/boards/BoardList";
 import Pagination from "@/components/common/Pagination";
 import SearchBar from "@/components/common/SearchBar";
 import Loading from "@/components/common/Loading";
-import Banner from "@/components/boards/Banner";
+import Banner from "@/features/board/components/boards/Banner";
 
 const Notice: React.FC = () => {
   // 더미 데이터 생성

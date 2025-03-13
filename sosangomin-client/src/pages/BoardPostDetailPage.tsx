@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
-import CommentList from "@/components/boards/CommentList";
-import { PostType } from "@/types/board";
+import CommentList from "@/features/board/components/boards/CommentList";
+import { PostType } from "@/features/board/types/board";
 
 const PostDetail: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();

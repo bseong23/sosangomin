@@ -1,6 +1,6 @@
 // ResetPasswordPage.tsx
 import React from "react";
-import ResetPassword from "@/components/signup/ResetPassword";
+import ResetPassword from "@/features/auth/components/signup/ResetPassword";
 import Logo from "@/assets/Logo.svg";
 
 const ResetPasswordPage: React.FC = () => {

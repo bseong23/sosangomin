@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "@/components/layouts/Layout";
-import LoginPage from "./pages/LoginPage";
-import KakaoCallbackPage from "./pages/KakaoCallbackPage";
+import LoginPage from "@/pages/LoginPage";
+import KakaoCallbackPage from "@/pages/KakaoCallbackPage";
 import WritePost from "@/pages/BoardWritePage";
 import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
 import Board from "@/pages/Board";
 import Notice from "@/pages/Notice";
-import News from "./pages/News";
+import News from "@/pages/News";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
 import Map from "@/pages/Map";
 import SignupPages from "@/pages/SignupPage";

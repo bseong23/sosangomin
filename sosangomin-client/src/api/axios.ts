@@ -1,6 +1,6 @@
 // src/api/axios.ts
 import axios from "axios";
-import { getAccessToken } from "./userStorage";
+import { getAccessToken } from "@/features/auth/api/userStorage";
 
 // 기본 axios 인스턴스 생성
 const API_URL = import.meta.env.VITE_API_SERVER_URL || "";
