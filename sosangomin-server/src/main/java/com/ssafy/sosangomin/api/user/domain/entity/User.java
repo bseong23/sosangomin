@@ -19,7 +19,7 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity implements OAuth2User, UserDetails {
 
-    private Long id;
+    private Long userId;
     private String socialId;
     private UserType userType;
     private String email;
@@ -30,7 +30,7 @@ public class User extends BaseTimeEntity implements OAuth2User, UserDetails {
 
     @Builder
     public User(
-            Long id,
+            Long userId,
             String socialId,
             UserType userType,
             String email,
@@ -38,7 +38,7 @@ public class User extends BaseTimeEntity implements OAuth2User, UserDetails {
             String name,
             String profileImgUrl,
             UserRole userRole) {
-        this.id = id;
+        this.userId = userId;
         this.socialId = socialId;
         this.userType = userType;
         this.email = email;
@@ -67,7 +67,7 @@ public class User extends BaseTimeEntity implements OAuth2User, UserDetails {
 
     @Override
     public String getUsername() {
-        return this.id.toString();
+        return this.userId.toString();
     }
 
     @Override

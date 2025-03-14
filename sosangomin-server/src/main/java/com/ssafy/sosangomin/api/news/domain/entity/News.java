@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class News extends BaseTimeEntity {
 
+    private Long newsId;
     private String title;
     private String link;
     private Date pubDate;
@@ -22,6 +23,7 @@ public class News extends BaseTimeEntity {
 
     @Builder
     public News(
+            Long newsId,
             String title,
             String link,
             Date pubDate,
@@ -30,6 +32,7 @@ public class News extends BaseTimeEntity {
             int likesCount,
             int commentsCount
     ) {
+        this.newsId = newsId;
         this.title = title;
         this.link = link;
         this.pubDate = pubDate;

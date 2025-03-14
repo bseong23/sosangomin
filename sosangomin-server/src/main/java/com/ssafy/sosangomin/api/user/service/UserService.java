@@ -74,10 +74,10 @@ public class UserService {
         }
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenUtil.createAccessToken(String.valueOf(user.getId()));
+        String accessToken = jwtTokenUtil.createAccessToken(String.valueOf(user.getUserId()));
 
         // 암호화된 유저 id (pk)
-        String encryptedUserId = idEncryptionUtil.encrypt(user.getId());
+        String encryptedUserId = idEncryptionUtil.encrypt(user.getUserId());
 
         return new LoginResponseDto(
                 accessToken,

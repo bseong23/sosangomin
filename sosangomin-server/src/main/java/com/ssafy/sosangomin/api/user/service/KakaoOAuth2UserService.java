@@ -48,12 +48,12 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
             Collection<GrantedAuthority> authorities = Collections.singletonList(
                     new SimpleGrantedAuthority("ROLE_USER"));
 
-            String encryptedUserId = idEncryptionUtil.encrypt(user.getId());
+            String encryptedUserId = idEncryptionUtil.encrypt(user.getUserId());
 
             // 사용자 속성 설정
             Map<String, Object> attributes = new HashMap<>();
             // 아래에서 주요 식별자로 "id"를 사용할 것이기 때문에 넣어줌
-            attributes.put("id", user.getId());
+            attributes.put("id", user.getUserId());
             attributes.put("name", user.getName());
             attributes.put("profileImgUrl", user.getProfileImgUrl());
             attributes.put("isFirstLogin", "false");
@@ -77,13 +77,13 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
                     new SimpleGrantedAuthority("ROLE_USER"));
 
             Optional<User> savedUser = userMapper.findUserBySocialId(socialId);
-            String encryptedUserId = idEncryptionUtil.encrypt(savedUser.get().getId());
+            String encryptedUserId = idEncryptionUtil.encrypt(savedUser.get().getUserId());
 
             // 사용자 속성 설정
             Map<String, Object> attributes = new HashMap<>();
 
             // 아래에서 주요 식별자로 "id"를 사용할 것이기 때문에 넣어줌
-            attributes.put("id", savedUser.get().getId());
+            attributes.put("id", savedUser.get().getUserId());
             attributes.put("name", name);
             attributes.put("profileImgUrl", profileImgUrl);
             attributes.put("isFirstLogin", "true");
