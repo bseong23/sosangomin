@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface NewsMapper {
 
     @Results({
+            @Result(property = "newsId", column = "news_id"),
             @Result(property = "pubDate", column = "pub_date"),
             @Result(property = "imageUrl", column = "image_url"),
             @Result(property = "likesCount", column = "likes_count"),
@@ -33,6 +34,7 @@ public interface NewsMapper {
     int getAllNewsPageCount();
 
     @Results({
+            @Result(property = "newsId", column = "news_id"),
             @Result(property = "pubDate", column = "pub_date"),
             @Result(property = "imageUrl", column = "image_url"),
             @Result(property = "likesCount", column = "likes_count"),

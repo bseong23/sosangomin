@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface UserMapper {
 
     @Results({
+            @Result(property = "userId", column = "user_id"),
             @Result(property = "socialId", column = "social_id"),
             @Result(property = "profileImgUrl", column = "profile_img_url"),
             @Result(property = "userType", column = "user_type",
@@ -20,22 +21,34 @@ public interface UserMapper {
     Optional<User> findUserById(@Param("userId") Long userId);
 
     @Results({
+            @Result(property = "userId", column = "user_id"),
             @Result(property = "socialId", column = "social_id"),
-            @Result(property = "profileImgUrl", column = "profile_img_url")
+            @Result(property = "profileImgUrl", column = "profile_img_url"),
+            @Result(property = "userType", column = "user_type",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserType.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE name = #{name}")
     Optional<User> findUserByName(@Param("name") String name);
 
     @Results({
+            @Result(property = "userId", column = "user_id"),
             @Result(property = "socialId", column = "social_id"),
-            @Result(property = "profileImgUrl", column = "profile_img_url")
+            @Result(property = "profileImgUrl", column = "profile_img_url"),
+            @Result(property = "userType", column = "user_type",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserType.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE social_id = #{socialId}")
     Optional<User> findUserBySocialId(@Param("socialId") String socialId);
 
     @Results({
+            @Result(property = "userId", column = "user_id"),
             @Result(property = "socialId", column = "social_id"),
-            @Result(property = "profileImgUrl", column = "profile_img_url")
+            @Result(property = "profileImgUrl", column = "profile_img_url"),
+            @Result(property = "userType", column = "user_type",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserType.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE email = #{email}")
     Optional<User> findUserByEmail(@Param("email") String email);
