@@ -83,6 +83,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   }, []);
 
   // 맵 인스턴스 생성
+  // 맵 인스턴스 생성 부분
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
       // 사용자 위치가 있으면 사용, 없으면 기본 center 사용
@@ -100,9 +101,31 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       const map = new window.kakao.maps.Map(mapRef.current, options);
 
       // 명시적으로 드래그와 줌 기능 활성화
+      map.setDraggable(true);
       map.setZoomable(true);
-      map.setDraggable(true); // 이 부분을 추가
-      // 줌 컨트롤 추가
+
+      // 모바일 터치 이벤트 처리를 위한 설정
+      if (mapRef.current) {
+        // 터치 이벤트 처리
+        const container = mapRef.current;
+
+        // 기본 터치 동작 방지
+        container.addEventListener(
+          "touchstart",
+          function () {
+            // 기본 동작 방지하지 않음 (e.preventDefault() 호출 안 함)
+          },
+          { passive: true }
+        );
+
+        container.addEventListener(
+          "touchmove",
+          function () {
+            // 기본 동작 방지하지 않음 (e.preventDefault() 호출 안 함)
+          },
+          { passive: true }
+        );
+      }
 
       // 확대/축소 이벤트 리스너 추가
       window.kakao.maps.event.addListener(map, "zoom_changed", function () {
