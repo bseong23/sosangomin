@@ -36,18 +36,18 @@ class News(Base):
     comments_count = Column(Integer, default=0)
 
 class ChatSession(Base):
-    __tablename__ = 'chatsessions'
+    __tablename__ = 'chat_sessions'
     uid = Column(String(36), primary_key=True)
     user_id = Column(String(16))
     created_at = Column(DateTime(timezone=True)) 
-    last_active = Column(DateTime(timezone=True))  
+    updated_at = Column(DateTime(timezone=True))  
     conversations = relationship("ChatHistory", back_populates="session")
 
 class ChatHistory(Base):
-    __tablename__ = 'chathistories'
+    __tablename__ = 'chat_histories'
     index = Column(Integer, primary_key=True, autoincrement=True)
     session_id = Column(String(50), ForeignKey('chatsessions.uid'))
-    user_id = Column(String(16))
+    user_id = Column(Integer)
     user_message = Column(Text)
     bot_message = Column(Text)
     created_at = Column(DateTime(timezone=True))
