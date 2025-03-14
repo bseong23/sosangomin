@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { SideItem } from "@/types/layout";
 import SidebarMenuItem from "@/components/sidebar/SidebarMenuItem";
 import { Link } from "react-router-dom";
+import useAuthStore from "@/store/useAuthStore";
+import { getAccessToken, clearAuthData } from "@/features/auth/api/userStorage";
+import profileImage from "@/assets/profileImage.svg";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,6 +12,18 @@ interface SidebarProps {
 }
 
 const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
+  // Zustand 스토어에서 유저 정보 가져오기
+  const { userInfo } = useAuthStore();
+
+  // 액세스 토큰 확인
+  const token = getAccessToken();
+
+  // 로그아웃 처리
+  const handleLogout = () => {
+    clearAuthData();
+    window.location.href = "/";
+  };
+
   const [menuItems, setMenuItems] = useState<SideItem[]>([
     {
       title: "서비스 소개",
@@ -70,7 +85,7 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     <div
       className={`fixed inset-y-0 right-0 transform ${
         isOpen ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out bg-[#181E4B] w-64 z-30 overflow-y-auto`}
+      } transition-transform duration-300 ease-in-out bg-[#181E4B] w-64 z-30 overflow-y-auto flex flex-col`}
     >
       <div className="flex justify-between items-center p-4">
         <button
@@ -93,18 +108,80 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             />
           </svg>
         </button>
-        <Link to="/login" className="text-white hover:underline">
-          로그인
-        </Link>
+
+        {/* 로그인/로그아웃 버튼 */}
+        {token && userInfo ? (
+          <button
+            onClick={handleLogout}
+            className="text-white p-2 cursor-pointer rounded-full transition-colors"
+            aria-label="로그아웃"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="text-white text-sm font-medium hover:text-blue-300 transition-colors"
+          >
+            로그인
+          </Link>
+        )}
       </div>
 
-      <div className="px-4 py-6">
+      {/* 로그인 상태에 따라 다른 UI 표시 */}
+      {token && userInfo ? (
+        <div className="px-4 py-3">
+          <Link to="/mypage">
+            <div className="flex items-center">
+              <img
+                src={
+                  userInfo.userProfileUrl && userInfo.userProfileUrl !== "null"
+                    ? userInfo.userProfileUrl
+                    : profileImage
+                }
+                alt="프로필"
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <div className="ml-3">
+                <p className="text-white text-base font-medium">환영합니다</p>
+                <p className="text-white text-base font-medium">
+                  {userInfo.userName}님
+                </p>
+              </div>
+            </div>
+          </Link>
+        </div>
+      ) : (
+        <div className="px-4 py-3">
+          {/* <Link
+            to="/login"
+            className="block w-full text-center py-2 bg-[#16125D] text-white rounded-md hover:bg-blue-800 transition-colors"
+          >
+            로그인
+          </Link> */}
+        </div>
+      )}
+
+      <div className="px-4 py-10 flex-grow">
         {menuItems.map((item, index) => (
           <SidebarMenuItem key={index} item={item} toggleMenu={toggleMenu} />
         ))}
       </div>
 
-      <div className="absolute bottom-0 w-full p-4 text-white text-center text-sm">
+      <div className="w-full p-4 text-white text-center text-sm mt-auto border-t border-gray-700">
         © 2025 소상공인. All rights reserved.
       </div>
     </div>
