@@ -27,7 +27,7 @@ async def read_file(temp_file: str) -> pd.DataFrame:
     else:
         raise ValueError("지원되지 않는 파일 형식입니다. CSV 또는 Excel만 가능합니다.")
 
-def preprocess_data(df) :
+async def preprocess_data(df) :
     """데이터 전처리 및 시간 변수 생성"""
     # TODO : 현재 직접적인 변수명을 사용한 부분이 있는데 일반화를 할지 고민
 
@@ -36,22 +36,26 @@ def preprocess_data(df) :
     columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
     df = df.drop(columns=columns_to_drop)
 
-    df = df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
-    df = df.dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
-    df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
-    df = df.T.drop_duplicates().T      # 중복된 열 제거  
+    # 결측 및 중복 처리 
+    df = (
+        df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+          .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+          .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
+          .T.drop_duplicates().T    # 중복 열 제거
+    )
 
     # 'Unnamed'가 포함되지 않은 열 중복
     cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
-    df[cols_to_fill] = df[cols_to_fill].fillna(method='ffill') # 해당 열에서 결측값을 이전 행 값으로 채우기
+    df[cols_to_fill] = df[cols_to_fill].ffill() 
 
     # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
     dup_val = ['단가', '수량', '원가']
     for val in dup_val :
         columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
         # print(val, columns)
-        df[val] = df[columns].bfill(axis=1).iloc[:, 0]
-        df = df.drop(columns=columns)
+        if columns:
+            df[val] = df[columns].bfill(axis=1).iloc[:, 0]
+            df = df.drop(columns=columns)
 
     # TODO: 결제 수단 이용할건지?
 
@@ -59,39 +63,56 @@ def preprocess_data(df) :
 
     # 컬럼명 수정
     new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
-    df.columns = new_columns  # 새로운 열 이름 설정
+    df.columns = new_columns
     df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
-    df = df.loc[:, df.nunique() > 1]   # 고유값 개수가 1개 이하인 열 제거
+    df = df.loc[:, df.nunique() > 1]  
     
     # 파생변수 생성
     kr_holidays = holidays.KR()
 
     df['매출 일시'] = pd.to_datetime(df['매출 일시'])
-    df['년'] = df['매출 일시'].dt.year
-    df['월'] = df['매출 일시'].dt.month
-    df['일'] = df['매출 일시'].dt.day
-    df['시'] = df['매출 일시'].dt.hour
-    df['분'] = df['매출 일시'].dt.minute
+    df['년'] = df['매출 일시'].dt.year.astype(str)  
+    df['월'] = df['매출 일시'].dt.month.astype(str).str.zfill(2)
+    df['일'] = df['매출 일시'].dt.day.astype(str).str.zfill(2)
+    df['시'] = df['매출 일시'].dt.hour.astype(str).str.zfill(2)
+    df['분'] = df['매출 일시'].dt.minute.astype(str).str.zfill(2)
     df['요일'] = df['매출 일시'].dt.day_name()  
-    df['시간대'] = df['시'].apply(lambda x: '점심' if 11 <= x <= 15 else ('저녁' if 17 <= x <= 21 else '기타')) # 시간대 (점심, 저녁, 기타)
-    df['계절'] = df['월'].apply(lambda x: '봄' if 3 <= x <= 5 else
+    df['시간대'] = df['시'].astype(int).apply(lambda x: '점심' if 11 <= x <= 15 else ('저녁' if 17 <= x <= 21 else '기타')) # 시간대 (점심, 저녁, 기타)
+    df['계절'] = df['월'].astype(int).apply(lambda x: '봄' if 3 <= x <= 5 else
                                         '여름' if 6 <= x <= 8 else
                                         '가을' if 9 <= x <= 11 else '겨울')
     df['공휴일'] = df['매출 일시'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
     
     # 외부 데이터 불러오기
-    # weather_df = weather_service.get_weather_range_with_fallback(start_date, end_date, location='서울')
-    # df = df.merge(weather_df, left_on='날짜', right_on='date', how='left').drop(columns=['날짜', 'date'])
-    # df['기온']
-    # df['강수량']
+    min_date, max_date = df['매출 일시'].min(), df['매출 일시'].max()
+    start_date, end_date = min_date.strftime('%Y%m%d%H'), max_date.strftime('%Y%m%d%H')
+
+    # 날씨
+    weather_df = await weather_service.process_weather(start_date, end_date, "서울") # TODO : 장소 받아오는 로직 짜기
+
+    merged_df = pd.merge(
+        df, 
+        weather_df, 
+        left_on=['년', '월', '일', '시'],
+        right_on=['year', 'month', 'day', 'hour'],
+        how='left'
+    ).drop(columns=['year', 'month', 'day', 'hour'])
+    
+    merged_df = merged_df.rename(columns={
+        'ta': '기온',
+        'ws': '풍속',
+        'hm': '습도',
+        'rn': '강수량'
+    })
+    merged_df['강수량'] = merged_df['강수량'].fillna(0)
     # df['미세먼지']
     # df['유동인구']
 
 
-    df.drop('매출 일시', axis=1, inplace=True)
-    df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in df.columns]
+    # df.drop('매출 일시', axis=1, inplace=True)
+    merged_df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in merged_df.columns]
 
-    return df
+    return merged_df
 
 def find_best_k(data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> int:
     """Silhouette Score로 최적 k 찾기"""
@@ -137,7 +158,7 @@ async def predict_next_30_sales(temp_file: str):
     """향후 30일 매출 예측"""
     try:
         df = await read_file(temp_file)
-        df = preprocess_data(df)
+        df = await preprocess_data(df)
 
         sales_df = df[['년', '월', '일', '고객 수', '매출', '수량', '요일', '계절', '공휴일']] 
 
@@ -245,7 +266,7 @@ async def perform_clustering(temp_file: str):
     """상품 클러스터링"""
     try:
         df = await read_file(temp_file)
-        df = preprocess_data(df)
+        df = await preprocess_data(df)
 
         cluster_df = df[['상품 명칭', '매출', '단가', '수량', '월', '요일', '시간대', '계절', '공휴일']] 
 
@@ -314,9 +335,33 @@ async def test_perform_clustering():
     # 결과 출력
     print("[TEST] 클러스터링 결과:", result)
 
+async def test_preprocess():
+    """preprocess_data 함수 테스트"""
+    # 테스트용 파일 경로 설정
+    script_dir = os.path.dirname(os.path.abspath(__file__))  
+    temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx")  # 실제 파일명에 맞게 수정하세요
+
+    # 데이터 읽기
+    df = await read_file(temp_file)
+
+    print("원본 데이터 샘플 (상위 5개):")
+    print(df.head())
+
+    # 데이터 전처리
+    processed_df = await preprocess_data(df)
+
+    print("\n전처리된 데이터 샘플 (상위 5개):")
+    print(processed_df.head())
+
+    print("\n전처리된 데이터 컬럼 목록:")
+    print(processed_df.columns.tolist())
+
+    print("\n전처리된 데이터 형태 (행, 열):", processed_df.shape)
 
 # (python -m services.automl)
 if __name__ == "__main__":
     # asyncio.run(test_predict_sales())
-    asyncio.run(test_perform_clustering())
+    # asyncio.run(test_perform_clustering())
+    asyncio.run(test_preprocess())
+    
 
