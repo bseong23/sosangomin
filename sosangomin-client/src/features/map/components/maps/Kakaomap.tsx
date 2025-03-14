@@ -253,13 +253,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
     return <div>지도를 불러오는데 실패했습니다: {error}</div>;
   }
   return (
-    <div
-      ref={mapRef}
-      style={{ width, height }}
-      className="shadow-md"
-      onTouchStart={(e) => e.stopPropagation()}
-      onTouchMove={(e) => e.stopPropagation()}
-    ></div>
+    <div ref={mapRef} style={{ width, height }} className="shadow-md"></div>
   );
 };
 
