@@ -48,9 +48,9 @@ const StandardLoginForm: React.FC = () => {
         <div>
           <label
             htmlFor="email"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base font-medium text-comment"
           >
-            아이디
+            이메일
           </label>
           <input
             id="email"
@@ -61,7 +61,7 @@ const StandardLoginForm: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="아이디를 입력해 주세요."
-            className="mt-1 block w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+            className="mt-1 block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
           />
         </div>
 
@@ -70,7 +70,7 @@ const StandardLoginForm: React.FC = () => {
           <div className="flex justify-between">
             <label
               htmlFor="password"
-              className="block text-md font-medium text-gray-700"
+              className="block text-base font-medium text-comment"
             >
               비밀번호
             </label>
@@ -90,7 +90,7 @@ const StandardLoginForm: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력해 주세요."
-              className="block w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
             />
           </div>
         </div>
@@ -103,11 +103,11 @@ const StandardLoginForm: React.FC = () => {
             type="checkbox"
             checked={saveEmail}
             onChange={(e) => setSaveEmail(e.target.checked)}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            className="h-4 w-4 text-bit-main focus:ring-bit-main border-border rounded"
           />
           <label
             htmlFor="save-email"
-            className="ml-2 block text-sm text-gray-700"
+            className="ml-2 block text-sm text-comment-text"
           >
             아이디 저장
           </label>
@@ -116,11 +116,11 @@ const StandardLoginForm: React.FC = () => {
 
       {/* 회원가입 링크 */}
       <div className="flex items-center justify-center">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-comment-text">
           아직 계정이 없으신가요?{" "}
           <a
             href="/signup"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-bit-main hover:opacity-80"
           >
             회원가입하기
           </a>
@@ -132,11 +132,9 @@ const StandardLoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={loginState.isLoading}
-          className={`w-full flex justify-center py-4 px-4 border cursor-pointer border-transparent rounded-[10px] shadow-sm text-xl font-medium text-white ${
-            loginState.isLoading
-              ? "bg-indigo-400"
-              : "bg-[#16125D] hover:bg-indigo-800"
-          } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+          className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-basic-white ${
+            loginState.isLoading ? "bg-opacity-70" : "hover:bg-blue-900"
+          } bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
         >
           {loginState.isLoading ? "로그인 중..." : "로그인"}
         </button>

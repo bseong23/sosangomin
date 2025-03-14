@@ -56,10 +56,20 @@ export const useSignup = () => {
       const response = await signup(data);
 
       if (isApiError(response)) {
+        let errorMessage: string;
+
+        // 에러 메시지 처리
+        if (response.errorMessage === ErrorMessages.USER_DUPLICATE) {
+          errorMessage =
+            "이미 등록된 이메일입니다. 다른 이메일을 사용하거나 로그인해 주세요.";
+        } else {
+          errorMessage = "회원가입 중 오류가 발생했습니다.";
+        }
+
         setSignupState((prev) => ({
           ...prev,
           isLoading: false,
-          error: response.errorMessage,
+          error: errorMessage,
           isSuccess: false
         }));
         return false;

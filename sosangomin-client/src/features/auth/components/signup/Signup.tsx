@@ -4,7 +4,7 @@ import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
 import { useSignup } from "@/features/auth/hooks/useSignup";
 import { SignupRequest } from "@/features/auth/types/auth";
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Signup: React.FC = () => {
   // 커스텀 훅 사용
@@ -18,6 +18,7 @@ const Signup: React.FC = () => {
     setMailVerified,
     resetMailVerification
   } = useSignup();
+  const navigate = useNavigate();
 
   // 로컬 상태 관리
   const [name, setName] = useState("");
@@ -73,21 +74,16 @@ const Signup: React.FC = () => {
     const success = await submitSignup(signupData);
     if (success) {
       alert("회원가입이 완료되었습니다.");
-      redirect("/login");
+      navigate("/login");
       // 여기서 리다이렉트 등 추가 작업 가능
     }
   };
 
   // 닉네임 중복 확인
   const handleCheckDuplicate = async () => {
-    if (!name.trim()) {
-      alert("닉네임을 입력해주세요.");
-      return;
-    }
-
     const isAvailable = await checkName(name);
     if (isAvailable) {
-      alert("사용 가능한 닉네임입니다.");
+      return;
     }
   };
 
@@ -122,7 +118,7 @@ const Signup: React.FC = () => {
         <div>
           <label
             htmlFor="name"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base font-medium text-comment"
           >
             닉네임 <span className="text-red-500">*</span>
           </label>
@@ -136,14 +132,14 @@ const Signup: React.FC = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="닉네임을 입력해주세요."
               className={`block w-full px-3 py-4 border ${
-                nameCheckState.error ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none pr-24`}
+                nameCheckState.error ? "border-red-500" : "border-border"
+              } rounded focus:outline-none focus:border-bit-main pr-24`}
             />
             <button
               type="button"
               onClick={handleCheckDuplicate}
               disabled={nameCheckState.isLoading}
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-gray-300 rounded-md bg-gray-50 text-gray-500 text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-comment-text text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
             >
               {nameCheckState.isLoading ? "확인 중..." : "중복확인"}
             </button>
@@ -162,9 +158,9 @@ const Signup: React.FC = () => {
         <div>
           <label
             htmlFor="email"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base font-medium text-comment"
           >
-            이메일 아이디 <span className="text-red-500">*</span>
+            이메일<span className="text-red-500">*</span>
           </label>
           <div className="mt-1 relative">
             <input
@@ -181,12 +177,12 @@ const Signup: React.FC = () => {
                   ? "border-red-500"
                   : mailVerificationState.isVerified
                   ? "border-green-500"
-                  : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none pr-24`}
+                  : "border-border"
+              } rounded focus:outline-none focus:border-bit-main pr-24`}
             />
-            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-gray-300 rounded-md bg-gray-50 text-sm font-medium">
+            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-sm font-medium">
               {mailVerificationState.isLoading ? (
-                <span className="text-gray-500">처리 중...</span>
+                <span className="text-comment-text">처리 중...</span>
               ) : mailVerificationState.isVerified ? (
                 <div className="flex items-center text-green-600 font-medium">
                   <svg
@@ -209,7 +205,7 @@ const Signup: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleEmailVerification}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-comment-text hover:text-comment"
                 >
                   인증하기
                 </button>
@@ -227,7 +223,7 @@ const Signup: React.FC = () => {
         <div>
           <label
             htmlFor="password"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base font-medium text-comment"
           >
             비밀번호 입력 <span className="text-red-500">*</span>
           </label>
@@ -241,7 +237,7 @@ const Signup: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력해주세요."
-              className="block w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
             />
             <button
               type="button"
@@ -261,7 +257,7 @@ const Signup: React.FC = () => {
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block text-md font-medium text-[#333333]"
+            className="block text-base font-medium text-comment"
           >
             비밀번호 확인 <span className="text-red-500">*</span>
           </label>
@@ -275,7 +271,7 @@ const Signup: React.FC = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="비밀번호를 입력해주세요."
-              className="block w-full px-3 py-4 border border-gray-300 rounded-md shadow-sm focus:outline-none"
+              className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
             />
             <button
               type="button"
@@ -301,11 +297,11 @@ const Signup: React.FC = () => {
           <button
             type="submit"
             disabled={signupState.isLoading}
-            className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-[10px] shadow-sm text-xl font-medium text-white ${
+            className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-basic-white ${
               signupState.isLoading
-                ? "bg-indigo-400"
-                : "bg-[#16125D] hover:bg-indigo-800"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                ? "bg-opacity-70"
+                : "bg-bit-main hover:bg-blue-900"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
           >
             {signupState.isLoading ? "처리 중..." : "회원가입"}
           </button>

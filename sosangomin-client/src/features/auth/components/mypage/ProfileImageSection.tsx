@@ -62,7 +62,7 @@ const ProfileImageSection: React.FC<ProfileImageSectionProps> = ({
     }
 
     // 파일 크기 검사 (1MB 제한)
-    const MAX_SIZE = 10 * 1024 * 1024; // 1MB
+    const MAX_SIZE = 1 * 1024 * 1024; // 1MB
     if (file.size > MAX_SIZE) {
       setImageError("이미지 용량은 1MB 이하여야 합니다");
       return;

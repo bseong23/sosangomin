@@ -30,7 +30,8 @@ export const useUserProfile = (): UseUserProfileReturn => {
       setUserProfile({
         profileImage: userInfo.userProfileUrl,
         nickname: userInfo.name,
-        mail: userInfo.mail
+        mail: userInfo.mail,
+        userType: userInfo.userType
       });
     } catch (err) {
       console.error("사용자 정보 조회 실패:", err);

@@ -33,18 +33,18 @@ const WithdrawalConfirm: React.FC<WithdrawalConfirmProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-basic-white rounded-lg p-6 w-full max-w-md mx-4">
         <h2 className="text-xl font-bold mb-4 text-red-600">회원 탈퇴</h2>
 
         <div className="mb-6">
-          <p className="text-gray-700 mb-4">
+          <p className="text-comment mb-4">
             회원 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다. 정말로
             탈퇴하시겠습니까?
           </p>
 
-          <div className="bg-gray-100 p-3 rounded-md mb-4">
-            <ul className="list-disc pl-5 text-sm text-gray-600">
+          <div className="bg-gray-100 p-3 rounded mb-4">
+            <ul className="list-disc pl-5 text-sm text-comment-text">
               <li className="mb-1">
                 계정 정보 및 개인 데이터가 모두 삭제됩니다.
               </li>
@@ -59,14 +59,14 @@ const WithdrawalConfirm: React.FC<WithdrawalConfirmProps> = ({
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-comment mb-1">
                 확인을 위해 "회원탈퇴"를 입력해주세요
               </label>
               <input
                 type="text"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded focus:outline-none focus:border-bit-main"
                 placeholder="회원탈퇴"
                 required
               />
@@ -76,14 +76,14 @@ const WithdrawalConfirm: React.FC<WithdrawalConfirmProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
+                className="px-4 py-2 text-comment bg-gray-200 rounded hover:bg-gray-300 focus:outline-none"
                 disabled={isProcessing}
               >
                 취소
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none"
+                className="px-4 py-2 text-basic-white bg-red-600 rounded hover:bg-red-700 focus:outline-none"
                 disabled={isProcessing || confirmText !== "회원탈퇴"}
               >
                 {isProcessing ? "처리 중..." : "탈퇴하기"}

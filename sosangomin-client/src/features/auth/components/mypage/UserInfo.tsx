@@ -1,4 +1,3 @@
-// src/components/UserInfo.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
@@ -99,24 +98,24 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
 
   if (!userProfile) {
     return (
-      <div className="text-gray-500 p-8 w-full text-center">
+      <div className="text-comment-text p-8 w-full text-center">
         사용자 정보가 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-8 bg-white">
+    <div className="w-full max-w-5xl mx-auto p-8 bg-basic-white">
       {/* 이미지 업로드 에러 메시지 */}
       {imageError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-center">
+        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
           {imageError}
         </div>
       )}
 
       {/* 회원 탈퇴 에러 메시지 */}
       {withdrawalError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-center">
+        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
           {withdrawalError}
         </div>
       )}
@@ -142,7 +141,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
           />
 
           {/* 이메일 섹션 */}
-          <EmailSection email={userProfile.mail} />
+          <EmailSection
+            email={userProfile.mail}
+            userType={userProfile.userType}
+          />
 
           {/* 계정 관리 링크 섹션 */}
           {isEditable && (

@@ -11,6 +11,7 @@ export interface UserProfileData {
   profileImage: string | null;
   nickname: string;
   mail: string;
+  userType: string;
 }
 
 // API 에러 응답 타입
