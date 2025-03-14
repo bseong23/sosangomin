@@ -4,6 +4,7 @@ import {
   getUserInfo,
   changeName,
   changePassword,
+  changeProfileImage,
   isApiError
 } from "@/features/auth/api/userApi";
 import {
@@ -99,6 +100,53 @@ export const useUserProfile = (): UseUserProfileReturn => {
     }
   };
 
+  // 프로필 이미지 변경 함수
+  const changeProfileImg = async (imageFile: File): Promise<boolean> => {
+    if (!imageFile) {
+      setError("이미지 파일이 필요합니다.");
+      return false;
+    }
+
+    // 이미지 타입 체크
+    if (!imageFile.type.startsWith("image/")) {
+      setError("이미지 파일만 업로드 가능합니다.");
+      return false;
+    }
+
+    // 파일 크기 체크 (5MB 제한)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
+    if (imageFile.size > MAX_FILE_SIZE) {
+      setError("이미지 크기는 10MB 이하여야 합니다.");
+      return false;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await changeProfileImage(imageFile);
+
+      if (isApiError(response)) {
+        setError(response.errorMessage || "프로필 이미지 변경에 실패했습니다.");
+        return false;
+      }
+
+      // 정확히 'profileImgUrl' 키 사용
+      if (userProfile && response.profileImgUrl) {
+        setUserProfile({
+          ...userProfile,
+          profileImage: response.profileImgUrl
+        });
+      }
+
+      return true;
+    } catch (err) {
+      console.error("프로필 이미지 변경 실패:", err);
+      setError("프로필 이미지 변경 중 오류가 발생했습니다.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // 컴포넌트 마운트 시 사용자 정보 가져오기
   useEffect(() => {
     fetchUserProfile();
@@ -109,7 +157,9 @@ export const useUserProfile = (): UseUserProfileReturn => {
     isLoading,
     error,
     changeNickname,
-    changePassword: changeUserPassword
+    changePassword: changeUserPassword,
+    changeProfileImg,
+    fetchUserProfile
   };
 };
 

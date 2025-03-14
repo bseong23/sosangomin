@@ -25,9 +25,24 @@ export type ChangeNameResponse = {} | ApiErrorResponse;
 // 비밀번호 변경 응답 타입
 export type ChangePasswordResponse = {} | ApiErrorResponse;
 
+// 프로필 이미지 변경 요청 타입
+export interface ProfileImageRequest {
+  profileImg: File;
+}
+
+// FormData로 변환할 때 사용할 타입
+export type ProfileImageFormData = FormData;
+
+// 프로필 이미지 변경 응답 타입
+export type ChangeProfileImageResponse =
+  | {
+      profileImgUrl: string; // 실제 API가 반환하는 이미지 URL 키
+    }
+  | ApiErrorResponse;
 // 에러 메시지 상수
 export enum ErrorMessages {
-  NAME_DUPLICATE = "ERR_NAME_DUPLICATE"
+  NAME_DUPLICATE = "ERR_NAME_DUPLICATE",
+  PROFILE_IMG_UPLOAD_FAIL = "ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR"
 }
 
 // 커스텀 훅 반환 타입
@@ -37,4 +52,6 @@ export interface UseUserProfileReturn {
   error: string | null;
   changeNickname: (name: string) => Promise<boolean>;
   changePassword: (password: string) => Promise<boolean>;
+  changeProfileImg: (imageFile: File) => Promise<boolean>;
+  fetchUserProfile: () => Promise<void>; // 함수 추가
 }

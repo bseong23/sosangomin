@@ -1,11 +1,11 @@
-// src/api/userApi.ts
 import axiosInstance from "@/api/axios";
 import axios from "axios";
 import {
   UserProfileResponse,
   ApiErrorResponse,
   ChangeNameResponse,
-  ChangePasswordResponse
+  ChangePasswordResponse,
+  ChangeProfileImageResponse
 } from "@/features/auth/types/user";
 
 /**
@@ -57,6 +57,38 @@ export const changePassword = async (
       return error.response.data as ApiErrorResponse;
     }
     console.error("비밀번호 변경 실패:", error);
+    throw error;
+  }
+};
+
+/**
+ * 사용자 프로필 이미지 변경 API 함수
+ * @param imageFile 새 프로필 이미지 파일
+ */
+export const changeProfileImage = async (
+  imageFile: File
+): Promise<ChangeProfileImageResponse> => {
+  try {
+    // FormData 객체 생성
+    const formData = new FormData();
+    formData.append("profileImg", imageFile);
+
+    // multipart/form-data로 전송
+    const response = await axiosInstance.put(
+      "/api/user/profile_img",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
+    console.error("프로필 이미지 변경 실패:", error);
     throw error;
   }
 };

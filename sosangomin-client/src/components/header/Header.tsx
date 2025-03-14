@@ -18,12 +18,31 @@ const Header: React.FC = () => {
 
   // 프로필 업데이트 이벤트 리스너 등록
   useEffect(() => {
-    const handleProfileUpdate = (e: CustomEvent<{ nickname: string }>) => {
+    // 이벤트 타입 확장 - 프로필 이미지 업데이트 처리 추가
+    const handleProfileUpdate = (
+      e: CustomEvent<{
+        nickname?: string;
+        profileImage?: string;
+      }>
+    ) => {
       if (userInfo) {
-        // Zustand 스토어 업데이트
-        updateUserInfo({
-          userName: e.detail.nickname
-        });
+        // 업데이트할 정보 객체 생성
+        const updateInfo: Record<string, any> = {};
+
+        // 닉네임 업데이트 처리
+        if (e.detail.nickname) {
+          updateInfo.userName = e.detail.nickname;
+        }
+
+        // 프로필 이미지 업데이트 처리
+        if (e.detail.profileImage) {
+          updateInfo.userProfileUrl = e.detail.profileImage;
+        }
+
+        // 업데이트할 정보가 있으면 Zustand 스토어 업데이트
+        if (Object.keys(updateInfo).length > 0) {
+          updateUserInfo(updateInfo);
+        }
       }
     };
 
