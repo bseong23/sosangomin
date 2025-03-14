@@ -33,13 +33,13 @@ const EditReply: React.FC<EditReplyProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md"
+            className="bg-bit-main text-white hover:bg-blue-900 px-4 py-2 text-sm rounded-md"
           >
             취소
           </button>
           <button
             type="submit"
-            className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md"
+            className="bg-bit-main text-white hover:bg-blue-900 px-4 py-2 text-sm rounded-md"
           >
             수정완료
           </button>
