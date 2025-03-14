@@ -18,7 +18,7 @@ public interface NewsMapper {
     @Select(
             "SELECT * " +
             "FROM news " +
-            "ORDER BY id DESC " +
+            "ORDER BY news_id DESC " +
             "LIMIT 8 " +
             "OFFSET ${offset}"
     )
@@ -42,7 +42,7 @@ public interface NewsMapper {
             "SELECT * " +
                     "FROM news " +
                     "WHERE category = #{category} " +
-                    "ORDER BY id DESC " +
+                    "ORDER BY news_id DESC " +
                     "LIMIT 8 " +
                     "OFFSET #{offset}"
     )

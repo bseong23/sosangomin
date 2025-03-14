@@ -16,7 +16,7 @@ public interface UserMapper {
                     typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
                     javaType = UserType.class) // for Enum Type
     })
-    @Select("SELECT * FROM users WHERE id = #{id}")
+    @Select("SELECT * FROM users WHERE user_id = #{id}")
     Optional<User> findUserById(@Param("id") Long id);
 
     @Results({
@@ -56,24 +56,24 @@ public interface UserMapper {
             @Param("password") String password
     );
 
-    @Update("UPDATE users SET name = #{name} WHERE id = #{id}")
+    @Update("UPDATE users SET name = #{name} WHERE user_id = #{id}")
     void updateName(
             @Param("name") String name,
             @Param("id") Long id
     );
 
-    @Update("UPDATE users SET password = #{password} WHERE id = #{id}")
+    @Update("UPDATE users SET password = #{password} WHERE user_id = #{id}")
     void updatePassword(
             @Param("password") String password,
             @Param("id") Long id
     );
 
-    @Update("UPDATE users SET profile_img_url = #{profileImgUrl} WHERE id = #{id}")
+    @Update("UPDATE users SET profile_img_url = #{profileImgUrl} WHERE user_id = #{id}")
     void updateProfileImgUrl(
             @Param("profileImgUrl") String profileImgUrl,
             @Param("id") Long id
     );
 
-    @Delete("DELETE FROM users WHERE id = #{id}")
+    @Delete("DELETE FROM users WHERE user_id = #{id}")
     void deleteUser(@Param("id") Long id);
 }
