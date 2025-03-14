@@ -22,14 +22,14 @@ const CommentForm: React.FC<CommentFormProps> = ({
     <form onSubmit={handleSubmit}>
       <textarea
         placeholder={placeholder}
-        className={`w-full p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 ${minHeight}`}
+        className={`w-full p-3 border border-border rounded-lg text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 ${minHeight}`}
         value={content}
         onChange={(e) => setContent(e.target.value)}
       ></textarea>
       <div className="flex justify-end mt-2">
         <button
           type="submit"
-          className="bg-[#16125D] text-white hover:bg-blue-900 px-4 py-2 rounded-md"
+          className="bg-bit-main text-white hover:bg-blue-900 px-4 py-2 text-sm rounded-md"
         >
           {buttonText}
         </button>

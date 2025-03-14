@@ -244,7 +244,7 @@ const PostDetail: React.FC = () => {
 
         {/* 게시글 내용 */}
         <div className="my-4 sm:my-5 lg:my-6">
-          <div className="whitespace-pre-wrap min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-lg">
+          <div className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-lg">
             {post.content}
           </div>
         </div>
