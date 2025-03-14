@@ -8,6 +8,9 @@ import NicknameSection from "@/features/auth/components/mypage/NicknameSection";
 import EmailSection from "@/features/auth/components/mypage/EmailSection";
 import ProfileImageSection from "@/features/auth/components/mypage/ProfileImageSection";
 import AccountManagementSection from "@/features/auth/components/mypage/AccountManagementSection";
+import WithdrawalConfirm from "@/features/auth/components/mypage/WithdrawalConfirm"; // 회원 탈퇴 확인 모달 import
+import { clearAuthData } from "@/features/auth/api/userStorage"; // 로컬 스토리지 정리 함수
+import { withdrawUser } from "@/features/auth/api/authApi"; // 회원 탈퇴 API 함수
 
 interface UserInfoProps {
   isEditable?: boolean;
@@ -15,11 +18,20 @@ interface UserInfoProps {
 
 const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
   const navigate = useNavigate();
-  const { userInfo, setUserInfo } = useAuthStore();
+  const { userInfo, setUserInfo, clearUserInfo } = useAuthStore();
   const { userProfile, isLoading, error, fetchUserProfile } = useUserProfile();
 
   // 이미지 업로드 에러 표시를 위한 상태
   const [imageError, setImageError] = useState<string | null>(null);
+
+  // 회원 탈퇴 모달 제어 상태
+  const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+
+  // 회원 탈퇴 처리 중 상태
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+
+  // 회원 탈퇴 과정 에러 상태
+  const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -41,13 +53,39 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
     navigate("/reset-password");
   };
 
-  // 회원탈퇴 핸들러
+  // 회원탈퇴 모달 열기 핸들러
   const handleDeleteAccount = () => {
-    if (
-      window.confirm("정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
-    ) {
-      console.log("회원탈퇴 진행");
-      // 회원탈퇴 로직 구현
+    setIsWithdrawalModalOpen(true);
+  };
+
+  // 회원탈퇴 실행 핸들러
+  const handleConfirmWithdrawal = async () => {
+    setIsWithdrawing(true);
+    setWithdrawalError(null);
+
+    try {
+      // 회원 탈퇴 API 호출
+      await withdrawUser();
+
+      // 로컬 스토리지 데이터 삭제
+      clearAuthData();
+
+      // Zustand 스토어 초기화
+      clearUserInfo();
+
+      // 회원 탈퇴 성공 메시지
+      alert("회원 탈퇴가 완료되었습니다.");
+
+      // 메인 페이지로 이동
+      navigate("/");
+    } catch (error) {
+      console.error("회원 탈퇴 오류:", error);
+      setWithdrawalError(
+        "회원 탈퇴 처리 중 오류가 발생했습니다. 다시 시도해주세요."
+      );
+    } finally {
+      setIsWithdrawing(false);
+      setIsWithdrawalModalOpen(false);
     }
   };
 
@@ -73,6 +111,13 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
       {imageError && (
         <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-center">
           {imageError}
+        </div>
+      )}
+
+      {/* 회원 탈퇴 에러 메시지 */}
+      {withdrawalError && (
+        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-md text-center">
+          {withdrawalError}
         </div>
       )}
 
@@ -108,6 +153,16 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
           )}
         </div>
       </div>
+
+      {/* 회원 탈퇴 확인 모달 */}
+      {isEditable && (
+        <WithdrawalConfirm
+          isOpen={isWithdrawalModalOpen}
+          onClose={() => setIsWithdrawalModalOpen(false)}
+          onConfirm={handleConfirmWithdrawal}
+          isProcessing={isWithdrawing}
+        />
+      )}
     </div>
   );
 };

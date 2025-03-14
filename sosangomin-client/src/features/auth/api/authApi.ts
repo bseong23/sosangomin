@@ -5,6 +5,8 @@ import {
   ApiResponse,
   ApiErrorResponse
 } from "@/features/auth/types/auth";
+import { clearAuthData } from "@/features/auth/api/userStorage";
+import useAuthStore from "@/store/useAuthStore";
 
 /**
  * 카카오 로그인 URL을 반환합니다.
@@ -146,6 +148,32 @@ export const verifyMailCode = async (
       return error.response.data as ApiErrorResponse;
     }
     console.error("이메일 인증번호 확인 오류:", error);
+    throw error;
+  }
+};
+
+/**
+ * 회원 탈퇴 API 호출
+ * 토큰 삭제 및 Zustand 스토어 초기화도 함께 처리
+ */
+export const withdrawUser = async (): Promise<ApiResponse> => {
+  try {
+    // API 회원 탈퇴 요청
+    const response = await axiosInstance.delete("/api/user");
+
+    // 로컬 스토리지 토큰 및 사용자 정보 삭제
+    clearAuthData();
+
+    // Zustand 스토어 초기화
+    const resetUserInfo = useAuthStore.getState().clearUserInfo;
+    resetUserInfo();
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
+    console.error("회원 탈퇴 오류:", error);
     throw error;
   }
 };
