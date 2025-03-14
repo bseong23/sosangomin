@@ -94,6 +94,21 @@ body {
 
 /* 태블릿 크기 */
 @media (min-width: 768px) {
+  .text-xs {
+    font-size: 0.875rem; /* 14px - 기존의 text-sm */
+    line-height: 1.25rem;
+  }
+
+  .text-sm {
+    font-size: 1rem; /* 16px - 기존의 text-base */
+    line-height: 1.5rem;
+  }
+
+  .text-base {
+    font-size: 1.125rem; /* 18px - 기존의 text-lg */
+    line-height: 1.75rem;
+  }
+
   .text-lg {
     font-size: 1.25rem; /* 20px - 기존의 text-xl */
     line-height: 1.75rem;
@@ -131,6 +146,21 @@ body {
 
 /* 데스크탑 크기 */
 @media (min-width: 1024px) {
+  .text-xs {
+    font-size: 1rem; /* 16px - 기존의 text-base */
+    line-height: 1.5rem;
+  }
+
+  .text-sm {
+    font-size: 1.125rem; /* 18px - 기존의 text-lg */
+    line-height: 1.75rem;
+  }
+
+  .text-base {
+    font-size: 1.25rem; /* 20px - 기존의 text-xl */
+    line-height: 1.75rem;
+  }
+
   .text-lg {
     font-size: 1.5rem; /* 24px - 기존의 text-2xl */
     line-height: 2rem;

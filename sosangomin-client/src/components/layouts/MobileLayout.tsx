@@ -40,7 +40,7 @@ const MobileLayout: React.FC = () => {
       )}
 
       {/* children 대신 Outlet만 사용 */}
-      <main className="flex flex-grow w-full">
+      <main className="flex flex-grow w-full mx-auto px-5">
         <Outlet />
       </main>
     </div>
