@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 mx-auto">
       <div className="max-w-lg w-[90%] space-y-6 p-8 rounded-lg">
         {/* 로고 */}
         <Link to="/">

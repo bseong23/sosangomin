@@ -120,8 +120,8 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
 
   return (
     <div>
-      <div className="text-xl font-medium text-gray-700 mb-2">닉네임</div>
-      <div className="flex justify-between items-center min-w-[300px] border border-[#BEBEBE] rounded-[10px] p-4">
+      <div className="text-xl font-medium text-comment mb-2">닉네임</div>
+      <div className="flex justify-between items-center min-w-[300px] border border-border rounded-md p-4">
         {isEditingNickname ? (
           <div className="flex-1 flex flex-col">
             <div className="flex items-center">
@@ -131,7 +131,7 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                 value={newNickname}
                 onChange={(e) => setNewNickname(e.target.value)}
                 onKeyDown={handleNicknameKeyDown}
-                className="flex-1 border border-white rounded focus:outline-none text-xl"
+                className="flex-1 border border-basic-white rounded focus:outline-none focus:border-bit-main text-xl"
                 disabled={isSubmittingNickname}
               />
               <div className="flex ml-3">
@@ -186,7 +186,7 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
             {isEditable && (
               <button
                 onClick={startEditingNickname}
-                className="text-gray-400 hover:text-gray-600 p-1"
+                className="text-comment-text hover:text-comment p-1"
                 aria-label="닉네임 수정"
               >
                 <svg

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const SignupPage = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen py-12 mx-auto">
       <div className="max-w-md w-full space-y-8">
         {/* 로고 */}
         <Link to="/">

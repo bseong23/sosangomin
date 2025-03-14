@@ -1,4 +1,3 @@
-// src/components/login/SocialLoginButton.tsx
 import React, { useState } from "react";
 import kakao_login_button from "@/assets/kakao_login.svg"; // 카카오 로그인 이미지 경로 확인 필요
 import Loading from "@/components/common/Loading"; // 로딩 컴포넌트
@@ -21,10 +20,12 @@ const SocialLoginButtons: React.FC = () => {
     <div className="pt-4">
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">또는</span>
+          <span className="px-2 bg-basic-white text-comment-text">
+            카카오로 간편 로그인 / 회원가입하기
+          </span>
         </div>
       </div>
 

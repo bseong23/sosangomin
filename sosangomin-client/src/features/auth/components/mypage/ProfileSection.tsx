@@ -22,7 +22,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
           <img
             src={imageUrl || DefaultProfileImage}
             alt="프로필 이미지"
-            className="w-32 h-32 rounded-full object-cover border-1 border-[#BEBEBE]"
+            className="w-32 h-32 rounded-full object-cover border-1 border-border"
           />
 
           {/* 로딩 오버레이 */}
@@ -32,7 +32,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
         {isEditable && !isLoading && (
           <button
             onClick={onEditImage}
-            className="absolute -right-2 -bottom-2 bg-white rounded-full p-2 border border-gray-300 shadow-sm hover:bg-gray-50"
+            className="absolute -right-2 -bottom-2 bg-basic-white rounded-full p-2 border border-border shadow-sm hover:bg-gray-50"
             aria-label="프로필 이미지 수정"
           >
             <svg
@@ -53,7 +53,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
         )}
       </div>
       <div className="mt-5">
-        <p className="text-[#BEBEBE] text-sm">
+        <p className="text-comment-text text-sm">
           이미지 용량은 1MB로 제한됩니다.
         </p>
       </div>

@@ -139,15 +139,15 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
       ></div>
 
       {/* 모달 컨텐츠 */}
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 z-10">
+      <div className="bg-basic-white rounded-lg p-6 w-full max-w-md mx-4 z-10">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">이메일 인증</h2>
+          <h2 className="text-lg font-semibold text-comment">이메일 인증</h2>
 
           {/* 인증 성공시 X 버튼 숨김 - 두 가지 조건 모두 확인 */}
           {!(isSuccess || mailVerificationState.isVerified) && (
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-comment-text hover:text-comment"
               aria-label="닫기"
             >
               <svg
@@ -189,15 +189,15 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
             <h3 className="text-xl font-medium text-green-600 mb-2">
               인증이 완료되었습니다
             </h3>
-            <p className="text-gray-600">회원가입을 계속 진행해주세요.</p>
+            <p className="text-comment-text">회원가입을 계속 진행해주세요.</p>
           </div>
         ) : (
           <>
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-comment-text mb-2">
                 <strong>{mail}</strong>으로 인증번호가 발송되었습니다.
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-comment-text">
                 이메일에 포함된 인증번호 6자리를 입력해주세요.
               </p>
             </div>
@@ -216,7 +216,7 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
                     if (error) setError("");
                   }}
                   placeholder="인증번호 6자리"
-                  className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-3 border border-border rounded focus:outline-none focus:border-bit-main"
                 />
                 <span className="text-sm font-medium text-red-500 whitespace-nowrap">
                   {formatTime(timer)}
@@ -232,7 +232,7 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
                 disabled={
                   timer === 0 || isVerifying || mailVerificationState.isLoading
                 }
-                className="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-900 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-basic-white bg-bit-main hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main disabled:opacity-50"
               >
                 {isVerifying || mailVerificationState.isLoading
                   ? "확인 중..."
@@ -243,7 +243,7 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
                 type="button"
                 onClick={handleResend}
                 disabled={mailVerificationState.isLoading}
-                className="w-full py-3 px-4 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="w-full py-3 px-4 border border-border rounded-md shadow-sm text-base font-medium text-comment bg-basic-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main disabled:opacity-50"
               >
                 {mailVerificationState.isLoading
                   ? "재발송 중..."
