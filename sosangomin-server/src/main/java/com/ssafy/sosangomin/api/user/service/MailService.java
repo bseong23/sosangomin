@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.user.service;
 
+import com.ssafy.sosangomin.api.user.domain.entity.VerificationInfo;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.InternalServerException;
@@ -28,7 +29,7 @@ public class MailService {
     private long expiryMinutes;
 
     // 각 사용자의 인증 번호를 저장하는 맵
-    private final ConcurrentHashMap<String, VerificationInfo> emailVerificationMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, VerificationInfo> emailVerificationMap;
 
     @Async
     public void createAndSendMail(String mail) {
@@ -64,15 +65,12 @@ public class MailService {
         int storedNumber = getVerificationNumber(mail);
         boolean isMatch = storedNumber == userNumber;
 
-        // 인증에 성공하면 맵에서 제거
-        if (isMatch) {
-            emailVerificationMap.remove(mail);
-        } else {
+        if (!isMatch) {
             throw new BadRequestException(ErrorMessage.ERR_INVALID_MAIL_NUMBER);
         }
     }
 
-    public int getVerificationNumber(String mail) {
+    private int getVerificationNumber(String mail) {
         VerificationInfo info = emailVerificationMap.get(mail);
         if (info == null || info.isExpired()) {
             return -1; // 인증정보가 없거나 만료된 경우
@@ -89,28 +87,5 @@ public class MailService {
             VerificationInfo info = entry.getValue();
             return info.isExpired();
         });
-    }
-
-    // 인증 정보를 저장하는 내부 클래스
-    private static class VerificationInfo {
-        private final int number;
-        private final LocalDateTime expiryTime;
-
-        public VerificationInfo(int number, LocalDateTime expiryTime) {
-            this.number = number;
-            this.expiryTime = expiryTime;
-        }
-
-        public int getNumber() {
-            return number;
-        }
-
-        public LocalDateTime getExpiryTime() {
-            return expiryTime;
-        }
-
-        public boolean isExpired() {
-            return LocalDateTime.now().isAfter(expiryTime);
-        }
     }
 }

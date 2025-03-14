@@ -34,12 +34,6 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().body(userService.login(loginRequestDto));
     }
 
-    @PostMapping("/email/check")
-    public ResponseEntity<?> checkEmail(@ModelAttribute EmailCheckRequestDto emailCheckRequestDto) {
-        userService.checkEmailDuplication(emailCheckRequestDto);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping("/name")
     public ResponseEntity<?> updateName(Principal principal, @ModelAttribute UpdateNameRequestDto updateNameRequestDto) {
         // 로그인한 user pk
@@ -49,10 +43,8 @@ public class UserController implements UserSwagger {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<?> updatePassword(Principal principal, @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto) {
-        // 로그인한 user pk
-        Long userId = Long.parseLong(principal.getName());
-        userService.updatePassword(updatePasswordRequestDto, userId);
+    public ResponseEntity<?> updatePassword(@ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto) {
+        userService.updatePassword(updatePasswordRequestDto);
         return ResponseEntity.ok().build();
     }
 

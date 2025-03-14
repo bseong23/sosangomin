@@ -59,6 +59,20 @@ public interface UserSwagger {
                     @ApiResponse(
                             responseCode = "200",
                             description = "회원가입 성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "회원가입 실패 - 이미 존재하는 회원입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"400\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_DUPLICATE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -96,37 +110,6 @@ public interface UserSwagger {
     ResponseEntity<?> login(
             @ParameterObject
             @ModelAttribute LoginRequestDto loginRequestDto
-    );
-
-    @Operation(
-            summary = "이메일 중복 체크",
-            description = "이메일 중복 체크를 합니다. 확인할 이메일이 필요합니다."
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "사용가능한 이메일"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "이미 존재하는 이메일",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            type = "object",
-                                            example = "{\n" +
-                                                    "  \"status\": \"400\",\n" +
-                                                    "  \"errorMessage\": \"ERR_EMAIL_DUPLICATE\"\n" +
-                                                    "}"
-                                    )
-                            )
-                    )
-            }
-    )
-    ResponseEntity<?> checkEmail(
-            @ParameterObject
-            @ModelAttribute EmailCheckRequestDto emailCheckRequestDto
     );
 
     @Operation(
@@ -174,7 +157,6 @@ public interface UserSwagger {
             }
     )
     ResponseEntity<?> updatePassword(
-            Principal principal,
             @ParameterObject
             @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto
     );

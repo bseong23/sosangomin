@@ -10,6 +10,7 @@ import com.ssafy.sosangomin.api.user.domain.dto.response.UpdateProfileImgRespons
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.domain.dto.response.LoginResponseDto;
 import com.ssafy.sosangomin.api.user.domain.dto.response.UserInfoResponseDto;
+import com.ssafy.sosangomin.api.user.domain.entity.VerificationInfo;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -39,6 +41,7 @@ public class UserService {
     private final JwtTokenUtil jwtTokenUtil;
     private final IdEncryptionUtil idEncryptionUtil;
     private final AmazonS3 amazonS3;
+    private final ConcurrentHashMap<String, VerificationInfo> emailVerificationMap;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -52,6 +55,13 @@ public class UserService {
     }
 
     public void signUp(SignUpRequestDto signUpRequestDto) {
+
+        Optional<User> user = userMapper.findUserByEmail(signUpRequestDto.mail());
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_USER_DUPLICATE);
+        }
+
         userMapper.signUpUser(
                 signUpRequestDto.mail(),
                 signUpRequestDto.name(),
@@ -88,14 +98,6 @@ public class UserService {
         );
     }
 
-    public void checkEmailDuplication(EmailCheckRequestDto emailCheckRequestDto) {
-        Optional<User> user = userMapper.findUserByEmail(emailCheckRequestDto.email());
-
-        if (user.isPresent()) {
-            throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
-        }
-    }
-
     @Transactional
     public void updateName(UpdateNameRequestDto updateNameRequestDto, Long userId) {
 
@@ -110,10 +112,18 @@ public class UserService {
         userMapper.updateName(updateNameRequestDto.name(), userId);
     }
 
-    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, Long userId) {
+    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto) {
+
+        int storedNumber = getVerificationNumber(updatePasswordRequestDto.mail());
+        boolean isMatch = storedNumber == updatePasswordRequestDto.userNumber();
+
+        if (!isMatch) {
+            throw new BadRequestException(ErrorMessage.ERR_INVALID_MAIL_NUMBER);
+        }
+
         userMapper.updatePassword(
                 passwordEncoder.encode(updatePasswordRequestDto.password()),
-                userId
+                updatePasswordRequestDto.mail()
         );
     }
 
@@ -208,5 +218,13 @@ public class UserService {
         } catch (Exception e) {
             throw new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_PROFILE_IMG_UPLOAD_FAIL_ERROR);
         }
+    }
+
+    private int getVerificationNumber(String mail) {
+        VerificationInfo info = emailVerificationMap.get(mail);
+        if (info == null || info.isExpired()) {
+            return -1; // 인증정보가 없거나 만료된 경우
+        }
+        return info.getNumber();
     }
 }
