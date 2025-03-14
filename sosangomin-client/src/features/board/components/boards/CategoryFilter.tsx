@@ -20,12 +20,12 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap gap-4 mb-6">
+    <div className="flex flex-wrap justify-start gap-4 px-10 md:px-1">
       {categories.map((category) => (
         <button
           key={category.id}
           onClick={() => onCategoryChange(category.id)}
-          className={`px-[25px] py-[9px] rounded-full border border-[#BCBCBC] text-sm font-medium ${
+          className={`px-3 py-2 rounded-full border border-[#BCBCBC] w-25 ${
             activeCategory === category.id
               ? "bg-[#0078D4] text-white border-[#0078D4]"
               : "bg-[#ffffff] text-gray-700 hover:bg-gray-100"

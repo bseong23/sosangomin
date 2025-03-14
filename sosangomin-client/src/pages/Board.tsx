@@ -111,12 +111,12 @@ const Board: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 font-inter">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <Banner />
       <div className="w-full">
-        <div className="h-[700px] mx-auto">
-          <div className="flex justify-between pb-[20px]">
-            <div className="flex text-2xl font-bold items-center">
+        <div className="h-full mx-auto">
+          <div className="flex justify-between pb-5">
+            <div className="flex text-xl font-bold items-center">
               자유게시판
             </div>
 
@@ -126,13 +126,13 @@ const Board: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="flex justify-center pb-[445px]">
+            <div className="flex justify-center">
               <Loading />
             </div>
           ) : (
             <>
               <BoardList items={boardData.items} boardType="board" />
-              <div className="flex h-[37.5px] justify-end items-center pt-[15px]">
+              <div className="flex h-10 justify-end items-center pt-4">
                 <WriteButton boardType="board" />
               </div>
             </>

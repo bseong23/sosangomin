@@ -6,6 +6,8 @@ export interface MapProps {
     lng: number;
   };
   level?: number;
+  minLevel?: number; // 최대 줌인 레벨 추가
+  maxLevel?: number; // 최대 줌아웃 레벨 추가
   markers?: Marker[];
 }
 

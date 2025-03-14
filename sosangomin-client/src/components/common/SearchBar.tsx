@@ -10,16 +10,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex items-center relative h-[34px]"
-    >
+    <form onSubmit={handleSubmit} className="flex items-center relative h-5">
       <input
         type="text"
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
         placeholder={placeholder}
-        className="border border-gray-300 rounded-full px-[30px] py-[4px] w-full pr-10"
+        className="border border-gray-300 rounded-full px-5 py-2 w-50 pr-10"
       />
       <button
         type="submit"
