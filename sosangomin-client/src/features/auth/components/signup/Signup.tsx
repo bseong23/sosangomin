@@ -4,7 +4,7 @@ import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
 import { useSignup } from "@/features/auth/hooks/useSignup";
 import { SignupRequest } from "@/features/auth/types/auth";
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Signup: React.FC = () => {
   // 커스텀 훅 사용
@@ -18,6 +18,7 @@ const Signup: React.FC = () => {
     setMailVerified,
     resetMailVerification
   } = useSignup();
+  const navigate = useNavigate();
 
   // 로컬 상태 관리
   const [name, setName] = useState("");
@@ -73,21 +74,16 @@ const Signup: React.FC = () => {
     const success = await submitSignup(signupData);
     if (success) {
       alert("회원가입이 완료되었습니다.");
-      redirect("/login");
+      navigate("/login");
       // 여기서 리다이렉트 등 추가 작업 가능
     }
   };
 
   // 닉네임 중복 확인
   const handleCheckDuplicate = async () => {
-    if (!name.trim()) {
-      alert("닉네임을 입력해주세요.");
-      return;
-    }
-
     const isAvailable = await checkName(name);
     if (isAvailable) {
-      alert("사용 가능한 닉네임입니다.");
+      return;
     }
   };
 
@@ -164,7 +160,7 @@ const Signup: React.FC = () => {
             htmlFor="email"
             className="block text-md font-medium text-[#333333]"
           >
-            이메일 아이디 <span className="text-red-500">*</span>
+            이메일<span className="text-red-500">*</span>
           </label>
           <div className="mt-1 relative">
             <input

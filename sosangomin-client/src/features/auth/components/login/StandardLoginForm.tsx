@@ -50,7 +50,7 @@ const StandardLoginForm: React.FC = () => {
             htmlFor="email"
             className="block text-md font-medium text-[#333333]"
           >
-            아이디
+            이메일
           </label>
           <input
             id="email"

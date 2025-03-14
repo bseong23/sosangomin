@@ -7,9 +7,11 @@ const SignupPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* 로고 */}
-        <div className="text-center">
-          <img src={Logo} alt="소상고민" className="w-2/3 mx-auto" />
-        </div>
+        <Link to="/">
+          <div className="text-center">
+            <img src={Logo} alt="소상고민" className="w-2/3 mx-auto" />
+          </div>
+        </Link>
 
         {/* 회원가입 폼 */}
         <Signup />

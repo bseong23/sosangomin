@@ -1,4 +1,3 @@
-// src/components/UserInfo.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
@@ -142,7 +141,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
           />
 
           {/* 이메일 섹션 */}
-          <EmailSection email={userProfile.mail} />
+          <EmailSection
+            email={userProfile.mail}
+            userType={userProfile.userType}
+          />
 
           {/* 계정 관리 링크 섹션 */}
           {isEditable && (
