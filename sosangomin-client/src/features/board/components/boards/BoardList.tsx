@@ -5,15 +5,15 @@ import BoardItemComponent from "@/features/board/components/boards/BoardItemComp
 const BoardList: React.FC<BoardListProps> = ({ items, boardType }) => {
   return (
     <div className="w-full">
-      <table className="w-full h-[250px] border-collapse pt-[20px]">
+      <table className="w-full h-65 border-collapse">
         <thead>
           <tr className="border-b border-t border-gray-300 ">
-            <th className="py-[6px]text-center">No.</th>
-            <th className="py-[6px] text-center">제목</th>
-            <th className="py-[6px] text-center">글쓴이</th>
-            <th className="py-[6px] text-center">작성시간</th>
-            <th className="py-[6px] text-center">조회수</th>
-            <th className="py-[6px] text-center">좋아요</th>
+            <th className="py-2 text-center">No.</th>
+            <th className="py-2 text-center">제목</th>
+            <th className="py-2 text-center">글쓴이</th>
+            <th className="py-2 text-center">작성시간</th>
+            <th className="py-2 text-center">조회수</th>
+            <th className="py-2 text-center">좋아요</th>
           </tr>
         </thead>
         <tbody>

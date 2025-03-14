@@ -67,23 +67,19 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-row items-center justify-between border-b border-gray-300 h-[73px] w-screen bg-white">
-      <div className="pl-[28px]">
+    <div className="flex flex-row items-center justify-between border-b border-[var(--color-border)] h-19 w-screen bg-white">
+      <div className="pl-8">
         <Link to="/">
-          <img
-            src={Logo}
-            alt="로고"
-            className="w-[116px] h-[38px] cursor-pointer"
-          />
+          <img src={Logo} alt="로고" className="w-30 h-10 cursor-pointer" />
         </Link>
       </div>
 
-      <div className="flex gap-[100px]">
+      <div className="flex gap-25">
         {navItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
-            className={`cursor-pointer hover:text-blue-500 text-gray-600 text-[16px] ${
+            className={`cursor-pointer hover:text-blue-800 text-[#4B5563] ${
               isPathActive(location.pathname, item.path) ? "font-extrabold" : ""
             }`}
           >
@@ -91,7 +87,7 @@ const Header: React.FC = () => {
           </Link>
         ))}
       </div>
-      <div className="flex pr-[60px]">
+      <div className="flex pr-15">
         {token && userInfo ? (
           <ProfileDropdown
             userName={userInfo.userName}
@@ -100,7 +96,7 @@ const Header: React.FC = () => {
         ) : (
           <Link
             to="/login"
-            className="flex items-center justify-center bg-[#16125D] text-white px-[25px] py-[12px] rounded-md hover:bg-blue-800 w-[116px] h-[40px]"
+            className="flex items-center justify-center bg-[#16125D] text-white px-3 py-4 rounded-md hover:bg-blue-800 w-29 h-10"
           >
             로그인
           </Link>

@@ -109,10 +109,10 @@ const Notice: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 font-inter">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <Banner />
       <div className="w-full">
-        <div className="h-[700px] mx-auto">
+        <div className="h-full mx-auto">
           <div className="flex justify-between pb-[20px]">
             <div className="flex text-2xl font-bold items-center">공지사항</div>
 

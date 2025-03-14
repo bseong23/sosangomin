@@ -9,11 +9,7 @@ const MobileHeader: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   return (
     <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
       <Link to="/" className="text-indigo-900 font-bold text-xl">
-        <img
-          src={Logo}
-          alt="로고"
-          className="w-[116px] h-[38px] cursor-pointer"
-        />
+        <img src={Logo} alt="로고" className="w-30 h-10 cursor-pointer" />
       </Link>
       <button
         onClick={toggleSidebar}

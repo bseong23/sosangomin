@@ -38,8 +38,10 @@ const MapPage: React.FC = () => {
           height="calc(100vh - 73px)"
           center={center}
           level={3}
+          minLevel={1} // 최대 줌인 레벨 (숫자가 작을수록 더 확대됨)
+          maxLevel={5} // 최대 줌아웃 레벨 (숫자가 클수록 더 축소됨)
           markers={markers}
-          geoJsonData={seoulDistrictsData} // GeoJSON 데이터 전달
+          geoJsonData={seoulDistrictsData}
         />
       </div>
 

@@ -5,8 +5,8 @@ import { BoardItemProps } from "@/features/board/types/board";
 const BoardItemComponent: React.FC<BoardItemProps> = ({ item, boardType }) => {
   return (
     <tr className="border-b border-gray-300 hover:bg-gray-100">
-      <td className="py-[6px] text-center">{item.id}</td>
-      <td className="py-[6px]">
+      <td className="py-2 text-center">{item.id}</td>
+      <td className="py-2">
         <Link
           to={`/community/${boardType}/post/${item.id}`}
           className="flex items-center"
@@ -19,10 +19,10 @@ const BoardItemComponent: React.FC<BoardItemProps> = ({ item, boardType }) => {
           )}
         </Link>
       </td>
-      <td className="py-[6px] text-center text-[15px]">{item.author}</td>
-      <td className="py-[6px] text-center text-[15px]">{item.createdAt}</td>
-      <td className="py-[6px] text-center text-[15px]">{item.viewCount}</td>
-      <td className="py-[6px] text-center text-[15px]">{item.likeCount}</td>
+      <td className="py-2 text-center">{item.author}</td>
+      <td className="py-2 text-center">{item.createdAt}</td>
+      <td className="py-2 text-center">{item.viewCount}</td>
+      <td className="py-2 text-center">{item.likeCount}</td>
     </tr>
   );
 };

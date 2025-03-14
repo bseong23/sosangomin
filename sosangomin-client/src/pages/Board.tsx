@@ -55,6 +55,46 @@ const Board: React.FC = () => {
       createdAt: "57분전",
       viewCount: 3,
       likeCount: 0
+    },
+    {
+      id: 7,
+      title: "2월 26일 공지사항",
+      author: "관리자",
+      createdAt: "57분전",
+      viewCount: 3,
+      likeCount: 0
+    },
+    {
+      id: 7,
+      title: "2월 26일 공지사항",
+      author: "관리자",
+      createdAt: "57분전",
+      viewCount: 3,
+      likeCount: 0
+    },
+    {
+      id: 7,
+      title: "2월 26일 공지사항",
+      author: "관리자",
+      createdAt: "57분전",
+      viewCount: 3,
+      likeCount: 0
+    },
+    {
+      id: 7,
+      title: "2월 26일 공지사항",
+      author: "관리자",
+      createdAt: "57분전",
+      viewCount: 3,
+      likeCount: 0
+    },
+    {
+      id: 7,
+      title: "2월 26일 공지사항",
+      author: "관리자",
+      createdAt: "57분전",
+      viewCount: 3,
+      likeCount: 0
     }
   ];
 
@@ -111,10 +151,10 @@ const Board: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 font-inter">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <Banner />
       <div className="w-full">
-        <div className="h-[700px] mx-auto">
+        <div className="h-full mx-auto">
           <div className="flex justify-between pb-[20px]">
             <div className="flex text-2xl font-bold items-center">
               자유게시판

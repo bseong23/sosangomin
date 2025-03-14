@@ -219,61 +219,61 @@ const processPolygon = (
   options: any,
   bounds: any,
   population: number = 0,
-  infowindowRef: React.MutableRefObject<any> // 인포윈도우 참조 추가
+  infowindowRef: React.MutableRefObject<any>
 ) => {
   if (!coordinates || !Array.isArray(coordinates)) {
     return;
   }
 
-  // WGS84 좌표계이므로 경도(x), 위도(y) 순서로 저장되어 있음
   const path = coordinates.map(
     (coord: number[]) => new window.kakao.maps.LatLng(coord[1], coord[0])
   );
 
-  // 폴리곤 생성
+  // 폴리곤 생성 시 옵션 설정
   const polygon = new window.kakao.maps.Polygon({
     path: path,
     strokeColor: options.strokeColor,
     strokeOpacity: options.strokeOpacity,
     strokeWeight: options.strokeWeight,
     fillColor: options.fillColor,
-    fillOpacity: options.fillOpacity
+    fillOpacity: options.fillOpacity,
+    clickable: true // 클릭 가능 여부 설정
   });
 
-  // 지도에 폴리곤 표시
   polygon.setMap(map);
 
-  // 경계 확장
   if (options.fitBounds) {
     path.forEach((point) => bounds.extend(point));
   }
 
-  // 선택적: 폴리곤 클릭 이벤트 추가 (인구 정보 포함)
+  // 폴리곤 클릭 이벤트 추가
   if (properties && properties.adm_nm) {
-    window.kakao.maps.event.addListener(polygon, "click", function () {
-      // 이전 인포윈도우가 있으면 닫기
-      if (infowindowRef.current) {
-        infowindowRef.current.close();
-      }
+    window.kakao.maps.event.addListener(
+      polygon,
+      "click",
+      function (mouseEvent: any) {
+        // 이전 인포윈도우가 있으면 닫기
+        if (infowindowRef.current) {
+          infowindowRef.current.close();
+        }
 
-      const content = `
+        const content = `
         <div style="padding:5px;width:200px;text-align:center;">
           <strong>${properties.adm_nm}</strong><br>
           인구: ${population.toLocaleString()}명
         </div>
       `;
 
-      // 새 인포윈도우 생성 및 열기
-      const infowindow = new window.kakao.maps.InfoWindow({
-        content: content,
-        position: path[0],
-        zIndex: 1
-      });
+        // 새 인포윈도우 생성 및 열기 (클릭한 위치에 표시)
+        const infowindow = new window.kakao.maps.InfoWindow({
+          content: content,
+          position: mouseEvent.latLng, // 클릭한 위치에 표시
+          zIndex: 1
+        });
 
-      infowindow.open(map);
-
-      // 참조 업데이트
-      infowindowRef.current = infowindow;
-    });
+        infowindow.open(map);
+        infowindowRef.current = infowindow;
+      }
+    );
   }
 };

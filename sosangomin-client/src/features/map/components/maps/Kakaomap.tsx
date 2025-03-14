@@ -81,6 +81,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   }, []);
 
   // 맵 인스턴스 생성
+  // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
       // 사용자 위치가 있으면 사용, 없으면 기본 center 사용
@@ -88,10 +89,24 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       const options = {
         center: new window.kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
-        level
+        level,
+        draggable: true // 드래그 가능하도록 명시적 설정
       };
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
+
+      // 명시적으로 드래그와 줌 기능 활성화
+      map.setDraggable(true);
+      map.setZoomable(true);
+
+      // 줌 컨트롤 추가
+      const zoomControl = new window.kakao.maps.ZoomControl();
+      map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
+
+      // 확대/축소 이벤트 리스너 추가
+      window.kakao.maps.event.addListener(map, "zoom_changed", function () {
+        // 필요한 경우 줌 레벨 변경 시 처리할 로직
+      });
 
       // 사용자 위치가 있으면 해당 위치에 마커 추가
       if (userLocation) {
@@ -225,6 +240,8 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       ref={mapRef}
       style={{ width, height }}
       className="rounded-lg shadow-md"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
     ></div>
   );
 };
