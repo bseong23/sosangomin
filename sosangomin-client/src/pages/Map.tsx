@@ -53,7 +53,7 @@ const MapPage: React.FC = () => {
       {!showSidebar && (
         <button
           onClick={toggleSidebar}
-          className="absolute bottom-6 right-6 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-100"
+          className="absolute top-6 left-6 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-100"
           aria-label="사이드바 열기"
         >
           <svg
