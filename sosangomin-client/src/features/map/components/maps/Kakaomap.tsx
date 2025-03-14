@@ -101,7 +101,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       // 명시적으로 드래그와 줌 기능 활성화
       map.setZoomable(true);
-
+      map.setDraggable(true); // 이 부분을 추가
       // 줌 컨트롤 추가
 
       // 확대/축소 이벤트 리스너 추가

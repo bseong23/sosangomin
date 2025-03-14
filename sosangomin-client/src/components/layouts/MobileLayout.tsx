@@ -19,11 +19,12 @@ const MobileLayout: React.FC = () => {
   }, [location.pathname]); // location.pathname이 변경될 때마다 실행
 
   const isMainPage = location.pathname === "/";
+  const isMapPage = location.pathname.startsWith("/map");
   const showHeader =
     isMainPage ||
     location.pathname.startsWith("/community") ||
     location.pathname.startsWith("/data-analysis") ||
-    location.pathname.startsWith("/map") ||
+    isMapPage ||
     location.pathname.startsWith("/mypage");
 
   return (
@@ -39,8 +40,10 @@ const MobileLayout: React.FC = () => {
         ></div>
       )}
 
-      {/* children 대신 Outlet만 사용 */}
-      <main className="flex flex-grow w-full mx-auto px-5">
+      {/* Map 페이지에서는 px-5 패딩 제거 */}
+      <main
+        className={`flex flex-grow w-full mx-auto ${isMapPage ? "" : "px-5"}`}
+      >
         <Outlet />
       </main>
     </div>
