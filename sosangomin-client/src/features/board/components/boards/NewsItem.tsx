@@ -7,7 +7,7 @@ interface NewsItemProps {
 
 const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
   return (
-    <div className="border-b border-gray-200 py-4 hover:bg-gray-50">
+    <div className="border-b border-gray-200 py-4 hover:bg-gray-50 py-10 px-10">
       <a
         href={item.link}
         target="_blank"
@@ -15,7 +15,7 @@ const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
         className="flex"
       >
         {/* 좌측 이미지 영역 */}
-        <div className="w-[120px] h-[120px] flex-shrink-0 mr-[18px] overflow-hidden">
+        <div className="w-30 h-30 flex-shrink-0 mr-5 overflow-hidden">
           <img
             src={item.imageUrl}
             alt={item.title}

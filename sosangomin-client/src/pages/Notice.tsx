@@ -113,8 +113,8 @@ const Notice: React.FC = () => {
       <Banner />
       <div className="w-full">
         <div className="h-full mx-auto">
-          <div className="flex justify-between pb-[20px]">
-            <div className="flex text-2xl font-bold items-center">공지사항</div>
+          <div className="flex justify-between pb-5">
+            <div className="flex text-xl font-bold items-center">공지사항</div>
 
             <div className="flex justify-end items-center">
               <SearchBar onSearch={handleSearch} placeholder="" />

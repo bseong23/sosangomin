@@ -27,8 +27,9 @@ export interface BoardListProps {
 }
 
 export interface BoardItemProps {
-  item: BoardItem;
-  boardType: "notice" | "board";
+  item: any; // 또는 더 구체적인 타입
+  boardType: "notice" | "board"; // 또는 실제 사용 중인 값들
+  isMobile?: boolean; // isMobile 속성 추가 (선택적으로 만들 수도 있음)
 }
 
 export interface ReplyType {

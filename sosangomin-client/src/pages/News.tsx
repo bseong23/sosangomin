@@ -104,7 +104,7 @@ const News: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 font-inter">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-2">
       <div className="w-full">
         <Banner />
 

@@ -11,6 +11,8 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   height,
   center = { lat: 37.501, lng: 127.039 }, // 서울 시청 기본값
   level = 3,
+  minLevel = 1,
+  maxLevel = 14,
   markers = [],
   geoJsonData // GeoJSON 데이터 prop
 }) => {
@@ -81,31 +83,37 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   }, []);
 
   // 맵 인스턴스 생성
-  // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
       // 사용자 위치가 있으면 사용, 없으면 기본 center 사용
       const mapCenter = userLocation || center;
 
+      // 초기 레벨이 minLevel과 maxLevel 범위 내에 있는지 확인
+      const initialLevel = Math.min(Math.max(level, minLevel), maxLevel);
+
       const options = {
         center: new window.kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
-        level,
+        level: initialLevel,
         draggable: true // 드래그 가능하도록 명시적 설정
       };
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
 
       // 명시적으로 드래그와 줌 기능 활성화
-      map.setDraggable(true);
       map.setZoomable(true);
 
       // 줌 컨트롤 추가
-      const zoomControl = new window.kakao.maps.ZoomControl();
-      map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
 
       // 확대/축소 이벤트 리스너 추가
       window.kakao.maps.event.addListener(map, "zoom_changed", function () {
-        // 필요한 경우 줌 레벨 변경 시 처리할 로직
+        const currentLevel = map.getLevel();
+
+        // 최소/최대 레벨 제한 적용
+        if (currentLevel < minLevel) {
+          map.setLevel(minLevel);
+        } else if (currentLevel > maxLevel) {
+          map.setLevel(maxLevel);
+        }
       });
 
       // 사용자 위치가 있으면 해당 위치에 마커 추가
@@ -131,7 +139,17 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       setMapInstance(map);
     }
-  }, [isLoading, error, center, level, userLocation]);
+  }, [isLoading, error, level, minLevel, maxLevel, userLocation]);
+
+  // center가 변경될 때 지도 중심 위치 업데이트
+  useEffect(() => {
+    if (mapInstance) {
+      // 중심 위치 업데이트
+      mapInstance.setCenter(
+        new window.kakao.maps.LatLng(center.lat, center.lng)
+      );
+    }
+  }, [mapInstance, center]);
 
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
@@ -155,7 +173,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
     }
   }, [mapInstance, geoJsonData, populationData]);
 
-  // 마커 생성 (기존 코드 유지)
+  // 마커 생성 및 업데이트
   useEffect(() => {
     if (mapInstance && markers.length > 0) {
       // 기존 마커 제거
@@ -207,7 +225,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       });
 
       // 모든 마커가 보이도록 지도 범위 재설정
-      if (markers.length > 1) {
+      if (markers.length > 0) {
         mapInstance.setBounds(bounds);
       }
     }
@@ -234,12 +252,11 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   if (error) {
     return <div>지도를 불러오는데 실패했습니다: {error}</div>;
   }
-
   return (
     <div
       ref={mapRef}
       style={{ width, height }}
-      className="rounded-lg shadow-md"
+      className="shadow-md"
       onTouchStart={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
     ></div>

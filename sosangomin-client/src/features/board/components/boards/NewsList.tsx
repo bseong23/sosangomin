@@ -8,7 +8,7 @@ interface NewsListProps {
 
 const NewsList: React.FC<NewsListProps> = ({ items }) => {
   return (
-    <div className="grid grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2">
       {items.slice(0, 8).map((item) => (
         <NewsItem key={item.link} item={item} />
       ))}
