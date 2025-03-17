@@ -25,7 +25,7 @@ public enum ErrorMessage {
      * /** 404 NOT_FOUND
      */
     ERR_NOT_RESOURCE,
-
+    ERR_USER_NOT_FOUND,
 
     /**
      * 500 INTERNAL_SERVER_ERROR

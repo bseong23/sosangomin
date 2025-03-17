@@ -70,8 +70,55 @@ public interface MailSwagger {
                     )
             }
     )
-    ResponseEntity<?> mailCheck(
+    ResponseEntity<?> mailVerify(
             @ParameterObject
             @ModelAttribute MailCertificateRequestDto mailCertificateRequestDto
+    );
+
+    @Operation(
+            summary = "비밀번호 재설정 링크 메일 발송",
+            description = "비밀번호를 재설정할 링크를 메일로 발송합니다. 발송받을 메일이 필요합니다. " +
+                    "비밀번호 재설정 링크는 프론트엔드url/password이며 쿼리파라미터는 accessToken 입니다." +
+                    "예시: https://dev.sosangomin.com/password?accessToken=액세스토큰"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "메일 발송 성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "해당하는 유저가 존재하지 않습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "메일 발송 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"500\",\n" +
+                                                    "  \"errorMessage\": \"ERR_INTERNAL_SERVER_MAIL_SEND_FAIL_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> passwordResetMailSend(
+            @ParameterObject
+            @ModelAttribute MailSendRequestDto mailSendRequestDto
     );
 }
