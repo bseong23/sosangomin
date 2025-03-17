@@ -118,11 +118,11 @@ public class UserService {
         userMapper.updateName(updateNameRequestDto.name(), userId);
     }
 
-    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto) {
+    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, Long userId) {
 
         userMapper.updatePassword(
                 passwordEncoder.encode(updatePasswordRequestDto.password()),
-                updatePasswordRequestDto.mail()
+                userId
         );
     }
 
