@@ -1,6 +1,5 @@
 package com.ssafy.sosangomin.api.user.service;
 
-import com.ssafy.sosangomin.api.user.domain.entity.VerificationInfo;
 import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.InternalServerException;
@@ -8,32 +7,28 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class MailService {
 
     private final JavaMailSender javaMailSender;
+    private final StringRedisTemplate redisTemplate;
+
+    private static final String VERIFICATION_PREFIX = "email-verify:";
+    private static final int VERIFICATION_EXPIRE_MINUTES = 5;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    @Value("${spring.mail.verification.expiry-minutes}")
-    private long expiryMinutes;
-
-    // 각 사용자의 인증 번호를 저장하는 맵
-    private final ConcurrentHashMap<String, VerificationInfo> emailVerificationMap;
-
     @Async
     public void createAndSendMail(String mail) {
-        int number = createNumber();
+        int number = createVerification(mail);
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
@@ -48,21 +43,41 @@ public class MailService {
 
             javaMailSender.send(message);
 
-            // 인증번호와 만료 시간을 함께 저장
-            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(expiryMinutes);
-            emailVerificationMap.put(mail, new VerificationInfo(number, expiryTime));
         } catch (MessagingException e) {
             throw new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_MAIL_SEND_FAIL_ERROR);
         }
     }
 
     public void checkVerification(String mail, int userNumber) {
-        int storedNumber = getVerificationNumber(mail);
-        boolean isMatch = storedNumber == userNumber;
+        String redisKey = VERIFICATION_PREFIX + mail;
 
-        if (!isMatch) {
+        // Redis에 저장된 인증번호 조회
+        String storedNumber = redisTemplate.opsForValue().get(redisKey);
+
+        if (storedNumber == null || !storedNumber.equals(String.valueOf(userNumber))) {
             throw new BadRequestException(ErrorMessage.ERR_INVALID_MAIL_NUMBER);
         }
+
+        // 인증 성공 시 Redis에서 인증번호 삭제
+        redisTemplate.delete(redisKey);
+    }
+
+    private int createVerification(String email) {
+
+        int verificationNumber = createNumber();
+
+        // Redis에 저장할 키 생성
+        String redisKey = VERIFICATION_PREFIX + email;
+
+        // 인증번호를 Redis에 저장 (5분 후 만료)
+        redisTemplate.opsForValue().set(
+                redisKey,
+                String.valueOf(verificationNumber),
+                VERIFICATION_EXPIRE_MINUTES,
+                TimeUnit.MINUTES
+        );
+
+        return verificationNumber;
     }
 
     // 랜덤 숫자 생성
@@ -70,22 +85,4 @@ public class MailService {
         return (int)(Math.random() * (90000)) + 100000;
     }
 
-    private int getVerificationNumber(String mail) {
-        VerificationInfo info = emailVerificationMap.get(mail);
-        if (info == null || info.isExpired()) {
-            return -1; // 인증정보가 없거나 만료된 경우
-        }
-        return info.getNumber();
-    }
-
-    // 5분마다 실행되어 만료된 인증 정보를 제거하는 스케줄 작업
-    @Scheduled(fixedRate = 300000) // 5분(300000ms)마다 실행
-    public void cleanupExpiredVerifications() {
-        LocalDateTime now = LocalDateTime.now();
-
-        emailVerificationMap.entrySet().removeIf(entry -> {
-            VerificationInfo info = entry.getValue();
-            return info.isExpired();
-        });
-    }
 }
