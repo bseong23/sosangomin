@@ -179,6 +179,60 @@ export const verifyMailCode = async (
 };
 
 /**
+ * 비밀번호 재설정 링크 요청 API 호출
+ * @param mail 이메일 주소
+ */
+export const requestPasswordResetLink = async (
+  mail: string
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosInstance.post("/api/mail/password", null, {
+      params: { mail }
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
+    console.error("비밀번호 재설정 링크 요청 오류:", error);
+    throw error;
+  }
+};
+
+/**
+ * 임시 토큰으로 비밀번호 재설정 API 호출
+ * @param token 임시 액세스 토큰
+ * @param password 새 비밀번호
+ */
+export const resetPasswordWithToken = async (
+  token: string,
+  password: string
+): Promise<ApiResponse> => {
+  try {
+    // 임시 토큰을 헤더에 추가한 새로운 axios 인스턴스 생성
+    const tempAxiosInstance = axios.create({
+      baseURL: axiosInstance.defaults.baseURL,
+      timeout: axiosInstance.defaults.timeout,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const response = await tempAxiosInstance.put("/api/user/password", null, {
+      params: { password }
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
+    console.error("비밀번호 재설정 오류:", error);
+    throw error;
+  }
+};
+
+/**
  * 회원 탈퇴 API 호출
  * 토큰 삭제 및 Zustand 스토어 초기화도 함께 처리
  */

@@ -44,7 +44,7 @@ const App: React.FC = () => {
             element={<KakaoCallbackPage />}
           />
           <Route path="/signup" element={<SignupPages />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/password" element={<ResetPasswordPage />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/community/notice" element={<Notice />} />
           <Route

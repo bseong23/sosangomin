@@ -165,11 +165,11 @@ export const isApiError = (
   return (response as ApiErrorResponse).status !== undefined;
 };
 
-// 비밀번호 변경 (로그인 안 한 상태)
+// 비밀번호 재설정 관련 타입
 export interface UsePasswordResetReturn {
-  resetPassword: (
-    email: string,
-    code: string,
+  requestResetEmail: (email: string) => Promise<boolean>;
+  resetPasswordWithAccessToken: (
+    token: string,
     newPassword: string
   ) => Promise<boolean>;
   isLoading: boolean;

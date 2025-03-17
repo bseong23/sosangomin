@@ -1,35 +1,40 @@
 // ResetPassword.tsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { isApiError } from "@/features/auth/api/authApi";
-import { useSignup } from "@/features/auth/hooks/useSignup";
-import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
+import { useNavigate, useLocation } from "react-router-dom";
 import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
-import { ErrorMessages } from "@/features/auth/types/auth";
-import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const location = useLocation();
 
-  // 커스텀 훅 호출 (컴포넌트 최상위 레벨)
-  const { sendVerification } = useSignup();
-  const { verifyCode } = useSignup();
-  const { changePassword: changePasswordForLoggedIn } = useUserProfile();
+  // 커스텀 훅 호출
   const {
-    resetPassword: resetPasswordForNonLoggedIn,
+    requestResetEmail,
+    resetPasswordWithAccessToken,
     isLoading: isResetLoading,
     error: resetError
   } = usePasswordReset();
 
+  // URL에서 토큰 추출
+  const [token, setToken] = useState<string | null>(null);
+
   // 상태 관리
   const [mail, setMail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isResetComplete, setIsResetComplete] = useState(false);
+
+  // URL에서 액세스 토큰 가져오기
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const accessToken = searchParams.get("accessToken");
+    if (accessToken) {
+      setToken(accessToken);
+      console.log("토큰 확인:", accessToken); // 디버깅용
+    }
+  }, [location]);
 
   // resetError가 변경되면 컴포넌트의 error 상태에 반영
   useEffect(() => {
@@ -38,8 +43,9 @@ const ResetPassword: React.FC = () => {
     }
   }, [resetError]);
 
-  // 현재 단계: 1=이메일 인증, 2=비밀번호 재설정
-  const currentStep = isVerified ? 2 : 1;
+  // 현재 단계: 1=이메일 입력(링크 요청), 2=비밀번호 재설정
+  // 토큰이 있을 때만 2단계로 이동 (로그인 상태와 무관하게)
+  const currentStep = token ? 2 : 1;
 
   // 진행 표시기 렌더링
   const renderProgressBar = () => (
@@ -66,7 +72,7 @@ const ResetPassword: React.FC = () => {
           currentStep === 1 ? "text-blue-500" : "text-gray-400"
         } flex items-center`}
       >
-        이메일 인증
+        이메일 요청
       </span>
 
       <span>&gt;</span>
@@ -98,8 +104,8 @@ const ResetPassword: React.FC = () => {
     </div>
   );
 
-  // 이메일 인증 요청
-  const handleEmailVerification = async () => {
+  // 이메일로 비밀번호 재설정 링크 요청
+  const handleRequestResetEmail = async () => {
     if (!mail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
       setError("유효한 이메일 주소를 입력해주세요.");
       return;
@@ -109,98 +115,23 @@ const ResetPassword: React.FC = () => {
     setError(null);
 
     try {
-      const response = await sendVerification(mail);
+      const success = await requestResetEmail(mail);
 
-      if (isApiError(response)) {
-        const errorMsg =
-          response.errorMessage === ErrorMessages.MAIL_SEND_FAIL
-            ? "이메일 발송에 실패했습니다."
-            : "이메일 인증 요청 중 오류가 발생했습니다.";
-
-        setError(errorMsg);
+      if (!success) {
+        // 에러는 usePasswordReset에서 이미 설정됨
         return;
       }
 
+      // 성공 시 이메일 발송 완료 상태로 변경
       setIsEmailSent(true);
     } catch (error) {
-      console.error("이메일 인증 요청 오류:", error);
-      setError("이메일 인증 요청 중 오류가 발생했습니다.");
+      console.error("비밀번호 재설정 링크 요청 오류:", error);
+      setError("이메일 발송 요청 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 인증 메일 재발송 처리
-  const handleResendVerification = async () => {
-    if (!mail.trim()) {
-      setError("이메일 주소가 유효하지 않습니다.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await sendVerification(mail);
-
-      if (isApiError(response)) {
-        const errorMsg =
-          response.errorMessage === ErrorMessages.MAIL_SEND_FAIL
-            ? "이메일 발송에 실패했습니다."
-            : "이메일 재발송 요청 중 오류가 발생했습니다.";
-
-        setError(errorMsg);
-        return;
-      }
-
-      // 성공 메시지 표시
-      setError("인증 메일이 재발송되었습니다.");
-    } catch (error) {
-      console.error("이메일 재발송 요청 오류:", error);
-      setError("이메일 재발송 요청 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 인증 완료 처리
-  const handleVerificationComplete = async () => {
-    if (!verificationCode.trim()) {
-      setError("인증 코드를 입력해주세요.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // 문자열로 된 인증코드를 숫자로 변환
-      const codeNumber = parseInt(verificationCode, 10);
-
-      if (isNaN(codeNumber)) {
-        setError("유효한 인증 코드를 입력해주세요.");
-        setIsLoading(false);
-        return;
-      }
-
-      // useSignup의 verifyCode 함수 사용
-      const success = await verifyCode(mail, codeNumber);
-
-      if (success) {
-        // 인증 성공 시 상태 변경
-        setIsVerified(true);
-      } else {
-        // 실패 시 오류 메시지는 이미 verifyCode 내부에서 설정됨
-        // 필요하다면 여기서 커스텀 오류 메시지 설정
-        setError("인증번호가 일치하지 않습니다. 다시 확인해주세요.");
-      }
-    } catch (error) {
-      console.error("인증 코드 확인 오류:", error);
-      setError("인증 코드 확인 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
   // 비밀번호 변경 처리
   const handlePasswordChange = async () => {
     if (!newPassword.trim() || newPassword.length < 8) {
@@ -214,17 +145,13 @@ const ResetPassword: React.FC = () => {
     try {
       let success = false;
 
-      // 로그인 상태에 따라 다른 함수 호출
-      if (isLoggedIn) {
-        // 로그인된 사용자의 경우 useUserProfile의 changePassword 사용
-        success = await changePasswordForLoggedIn(newPassword);
+      // 토큰이 있는 경우에만 resetPasswordWithAccessToken 사용
+      if (token) {
+        success = await resetPasswordWithAccessToken(token, newPassword);
       } else {
-        // 로그인되지 않은 사용자의 경우 usePasswordReset의 resetPassword 사용
-        success = await resetPasswordForNonLoggedIn(
-          mail,
-          verificationCode,
-          newPassword
-        );
+        setError("인증 정보가 유효하지 않습니다.");
+        setIsLoading(false);
+        return;
       }
 
       if (!success) {
@@ -232,10 +159,11 @@ const ResetPassword: React.FC = () => {
         return;
       }
 
-      alert("비밀번호가 성공적으로 변경되었습니다.");
-
-      // 로그인 페이지로 이동
-      navigate("/login");
+      setIsResetComplete(true);
+      setTimeout(() => {
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        navigate("/login");
+      }, 1500);
     } catch (error) {
       console.error("비밀번호 변경 오류:", error);
       setError("비밀번호 변경 중 오류가 발생했습니다.");
@@ -244,9 +172,89 @@ const ResetPassword: React.FC = () => {
     }
   };
 
-  // 현재 인증 단계에 따른 폼 렌더링
+  // 현재 단계에 따른 폼 렌더링
   const renderForm = () => {
-    if (isVerified) {
+    // 비밀번호 재설정 완료 상태
+    if (isResetComplete) {
+      return (
+        <div className="mt-10 text-center">
+          <div className="flex justify-center mb-4">
+            <svg
+              className="w-16 h-16 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-medium text-green-600 mb-2">
+            비밀번호 재설정 완료
+          </h3>
+          <p className="text-gray-600">
+            비밀번호가 성공적으로 변경되었습니다. 로그인 페이지로 이동합니다.
+          </p>
+        </div>
+      );
+    }
+
+    // 이메일 발송 성공 후 안내 메시지 (1단계에서만 표시)
+    if (isEmailSent && currentStep === 1) {
+      return (
+        <div className="mt-10">
+          <div className="bg-blue-50 p-4 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-blue-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1
+                    1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  비밀번호 재설정 링크 발송 완료
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>
+                    {mail} 주소로 비밀번호 재설정 링크를 발송했습니다. 이메일을
+                    확인하고 링크를 클릭하여 비밀번호를 재설정해주세요.
+                  </p>
+                  <p className="mt-2">
+                    링크는 발송 시점으로부터 5분 동안 유효합니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="text-bit-main hover:text-indigo-800"
+            >
+              로그인 페이지로 돌아가기
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (currentStep === 2) {
       // 비밀번호 재설정 단계
       return (
         <div className="mt-10">
@@ -290,52 +298,8 @@ const ResetPassword: React.FC = () => {
           </div>
         </div>
       );
-    } else if (isEmailSent && !isVerified) {
-      // 인증코드 확인 단계
-      return (
-        <div className="mt-10">
-          <label
-            htmlFor="verificationCode"
-            className="block text-base md:text-lg text-comment text-bit-comment"
-          >
-            인증번호
-          </label>
-          <div className="mt-2">
-            <input
-              id="verificationCode"
-              name="verificationCode"
-              type="text"
-              required
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              placeholder="인증 번호 입력"
-              className="block w-full px-3 py-2 border border-gray-300 rounded md:rounded-md lg:rounded-md"
-            />
-          </div>
-          <div className="mt-7">
-            <button
-              type="button"
-              onClick={handleVerificationComplete}
-              disabled={isLoading || !verificationCode.trim()}
-              className="w-full bg-bit-main text-white p-2 rounded md:rounded-md lg:rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isLoading ? "처리 중..." : "인증코드 확인"}
-            </button>
-          </div>
-          <div className="mt-1 text-left">
-            <button
-              type="button"
-              onClick={handleResendVerification}
-              disabled={isLoading}
-              className="text-indigo-600 hover:text-indigo-800 text-sm"
-            >
-              인증 메일 재발송
-            </button>
-          </div>
-        </div>
-      );
     } else {
-      // 초기 이메일 입력 단계
+      // 초기 이메일 입력 단계 (로그인 상태와 무관하게 항상 표시)
       return (
         <div className="mt-10">
           <label
@@ -361,11 +325,11 @@ const ResetPassword: React.FC = () => {
             <div className="mt-7">
               <button
                 type="button"
-                onClick={handleEmailVerification}
+                onClick={handleRequestResetEmail}
                 disabled={isLoading}
                 className="w-full bg-bit-main text-white p-2 border rounded md:rounded-md lg:rounded-md hover:bg-blue-800"
               >
-                {isLoading ? "인증메일 보내는 중..." : "인증메일 보내기"}
+                {isLoading ? "처리 중..." : "비밀번호 재설정 링크 받기"}
               </button>
             </div>
           </div>
@@ -382,12 +346,14 @@ const ResetPassword: React.FC = () => {
       <div className="w-full max-w-ml py-8 mx-auto">
         <div className="text-left mb-6">
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">
-            {isVerified ? "비밀번호 재설정" : "이메일 인증"}
+            {currentStep === 2 ? "비밀번호 재설정" : "이메일 인증"}
           </h1>
           <p className="text-gray-600 text-sm md:text-base mt-5">
-            {isVerified
+            {isEmailSent
+              ? "이메일로 발송된 링크를 통해 비밀번호를 재설정할 수 있습니다."
+              : currentStep === 2
               ? "새로운 비밀번호를 입력해주세요."
-              : "가입하신 이메일 주소로 인증코드를 보내드립니다."}
+              : "가입하신 이메일 주소로 비밀번호 재설정 링크를 보내드립니다."}
           </p>
         </div>
 
@@ -401,12 +367,14 @@ const ResetPassword: React.FC = () => {
         {/* 현재 단계에 따른 폼 렌더링 */}
         {renderForm()}
 
-        {/* 로그인 페이지로 돌아가기 링크 */}
-        <div className="mt-6 text-center">
-          <a href="/login" className="text-bit-main hover:text-indigo-800">
-            로그인 페이지로 돌아가기
-          </a>
-        </div>
+        {/* 로그인 페이지로 돌아가기 링크 (완료 상태와 이메일 발송 상태가 아닐 때만 표시) */}
+        {!isResetComplete && !(isEmailSent && currentStep === 1) && (
+          <div className="mt-6 text-center">
+            <a href="/login" className="text-bit-main hover:text-indigo-800">
+              로그인 페이지로 돌아가기
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
