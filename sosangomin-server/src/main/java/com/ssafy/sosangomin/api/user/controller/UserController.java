@@ -17,15 +17,24 @@ public class UserController implements UserSwagger {
 
     private final UserService userService;
 
-    @PostMapping("/name/check")
-    public ResponseEntity<?> checkName(@ModelAttribute NameCheckRequestDto nameCheckRequestDto) {
-        userService.checkNameDuplication(nameCheckRequestDto);
-        return ResponseEntity.ok().build();
+    @GetMapping
+    public ResponseEntity<?> getUserInfo(Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        return ResponseEntity.ok().body(userService.getUserInfo(userId));
     }
 
     @PostMapping
     public ResponseEntity<?> signUp(@ModelAttribute SignUpRequestDto signUpRequestDto) {
         userService.signUp(signUpRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
 
@@ -48,13 +57,6 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<?> getUserInfo(Principal principal) {
-        // 로그인한 user pk
-        Long userId = Long.parseLong(principal.getName());
-        return ResponseEntity.ok().body(userService.getUserInfo(userId));
-    }
-
     @PutMapping("/profile_img")
     public ResponseEntity<?> updateProfileImg(Principal principal, @RequestParam MultipartFile profileImg) {
         // 로그인한 user pk
@@ -63,11 +65,9 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().body(userService.updateProfileImg(profileImg, userId));
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteUser(Principal principal) {
-        // 로그인한 user pk
-        Long userId = Long.parseLong(principal.getName());
-        userService.deleteUser(userId);
+    @PostMapping("/name/check")
+    public ResponseEntity<?> checkName(@ModelAttribute NameCheckRequestDto nameCheckRequestDto) {
+        userService.checkNameDuplication(nameCheckRequestDto);
         return ResponseEntity.ok().build();
     }
 }

@@ -46,12 +46,16 @@ public class UserService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
-        Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
+    public UserInfoResponseDto getUserInfo(Long userId) {
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        User user = userOptional.get();
 
-        if (user.isPresent()) {
-            throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
-        }
+        return new UserInfoResponseDto(
+                user.getUserType(),
+                user.getEmail(),
+                user.getName(),
+                user.getProfileImgUrl()
+        );
     }
 
     public void signUp(SignUpRequestDto signUpRequestDto) {
@@ -66,6 +70,10 @@ public class UserService {
                 signUpRequestDto.mail(),
                 signUpRequestDto.name(),
                 passwordEncoder.encode(signUpRequestDto.password()));
+    }
+
+    public void deleteUser(Long userId) {
+        userMapper.deleteUser(userId);
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
@@ -127,18 +135,6 @@ public class UserService {
         );
     }
 
-    public UserInfoResponseDto getUserInfo(Long userId) {
-        Optional<User> userOptional = userMapper.findUserById(userId);
-        User user = userOptional.get();
-
-        return new UserInfoResponseDto(
-                user.getUserType(),
-                user.getEmail(),
-                user.getName(),
-                user.getProfileImgUrl()
-        );
-    }
-
     @Transactional
     public UpdateProfileImgResponseDto updateProfileImg(MultipartFile multipartFile, Long userId) {
         // 기존 프로필 이미지 URL 조회
@@ -177,8 +173,20 @@ public class UserService {
         return new UpdateProfileImgResponseDto(newProfileImgUrl);
     }
 
-    public void deleteUser(Long userId) {
-        userMapper.deleteUser(userId);
+    public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
+        Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
+        }
+    }
+
+    private int getVerificationNumber(String mail) {
+        VerificationInfo info = emailVerificationMap.get(mail);
+        if (info == null || info.isExpired()) {
+            return -1; // 인증정보가 없거나 만료된 경우
+        }
+        return info.getNumber();
     }
 
     private String createFileName(String originalFileName) {
@@ -189,12 +197,6 @@ public class UserService {
         String uuid = UUID.randomUUID().toString();
 
         return uuid + "." + ext;
-    }
-
-    // 확장자
-    private String extractExt(String originalFileName) {
-        int pos = originalFileName.lastIndexOf(".");
-        return originalFileName.substring(pos + 1);
     }
 
     private void deleteOldProfileImage(String profileImgUrl) {
@@ -220,11 +222,9 @@ public class UserService {
         }
     }
 
-    private int getVerificationNumber(String mail) {
-        VerificationInfo info = emailVerificationMap.get(mail);
-        if (info == null || info.isExpired()) {
-            return -1; // 인증정보가 없거나 만료된 경우
-        }
-        return info.getNumber();
+    // 확장자
+    private String extractExt(String originalFileName) {
+        int pos = originalFileName.lastIndexOf(".");
+        return originalFileName.substring(pos + 1);
     }
 }

@@ -15,7 +15,7 @@ public class MailController implements MailSwagger {
 
     private final MailService mailService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<?> mailSend(@ModelAttribute MailSendRequestDto mailSendRequestDto) {
         mailService.createAndSendMail(mailSendRequestDto.mail());
         return ResponseEntity.ok().build();

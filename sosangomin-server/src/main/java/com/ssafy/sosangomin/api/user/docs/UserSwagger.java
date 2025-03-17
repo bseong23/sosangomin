@@ -20,35 +20,22 @@ import java.security.Principal;
 public interface UserSwagger {
 
     @Operation(
-            summary = "닉네임 중복 체크",
-            description = "닉네임 중복 체크를 합니다. 확인할 닉네임이 필요합니다."
+            summary = "유저정보",
+            description = "유저정보를 반환합니다. 요청시 액세스 토큰이 필요합니다."
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "사용 가능한 닉네임"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "이미 존재하는 닉네임",
+                            description = "유저정보 반환 성공",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(
-                                            type = "object",
-                                            example = "{\n" +
-                                                    "  \"status\": \"400\",\n" +
-                                                    "  \"errorMessage\": \"ERR_NAME_DUPLICATE\"\n" +
-                                                    "}"
-                                    )
+                                    schema = @Schema(implementation = UserInfoResponseDto.class)
                             )
                     )
             }
     )
-    ResponseEntity<?> checkName(
-            @ParameterObject
-            @ModelAttribute NameCheckRequestDto nameCheckRequestDto
-    );
+    ResponseEntity<?> getUserInfo(Principal principal);
 
     @Operation(
             summary = "회원가입",
@@ -80,6 +67,20 @@ public interface UserSwagger {
             @ParameterObject
             @ModelAttribute SignUpRequestDto signUpRequestDto
     );
+
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "회원 탈퇴 로직입니다. 요청시 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "회원 탈퇴 성공"
+                    )
+            }
+    )
+    ResponseEntity<?> deleteUser(Principal principal);
 
     @Operation(
             summary = "로그인",
@@ -162,24 +163,6 @@ public interface UserSwagger {
     );
 
     @Operation(
-            summary = "유저정보",
-            description = "유저정보를 반환합니다. 요청시 액세스 토큰이 필요합니다."
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "유저정보 반환 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = UserInfoResponseDto.class)
-                            )
-                    )
-            }
-    )
-    ResponseEntity<?> getUserInfo(Principal principal);
-
-    @Operation(
             summary = "유저 프로필 사진 변경",
             description = "유저 프로필 사진을 변경합니다. 프로필 사진 파일이 필요합니다. 액세스 토큰이 필요합니다."
     )
@@ -219,16 +202,33 @@ public interface UserSwagger {
     );
 
     @Operation(
-            summary = "회원 탈퇴",
-            description = "회원 탈퇴 로직입니다. 요청시 액세스 토큰이 필요합니다."
+            summary = "닉네임 중복 체크",
+            description = "닉네임 중복 체크를 합니다. 확인할 닉네임이 필요합니다."
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "회원 탈퇴 성공"
+                            description = "사용 가능한 닉네임"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "이미 존재하는 닉네임",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"400\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NAME_DUPLICATE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
-    ResponseEntity<?> deleteUser(Principal principal);
+    ResponseEntity<?> checkName(
+            @ParameterObject
+            @ModelAttribute NameCheckRequestDto nameCheckRequestDto
+    );
 }
