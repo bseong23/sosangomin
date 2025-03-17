@@ -83,7 +83,7 @@ const StandardLoginForm: React.FC = () => {
               비밀번호
             </label>
             <div className="text-xs">
-              <a href="/reset-password" className="text-bit-main">
+              <a href="/password" className="text-bit-main">
                 비밀번호를 잃어버리셨나요?
               </a>
             </div>

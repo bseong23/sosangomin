@@ -49,7 +49,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
 
   // 비밀번호 수정 핸들러
   const handlePasswordChange = () => {
-    navigate("/reset-password");
+    navigate("/password");
   };
 
   // 회원탈퇴 모달 열기 핸들러
