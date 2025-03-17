@@ -1,19 +1,18 @@
-import Signup from "@/features/auth/components/signup/Signup";
+import React from "react";
 import Logo from "@/assets/Logo.svg";
+import Signup from "@/features/auth/components/signup/Signup";
 import { Link } from "react-router-dom";
 
-const SignupPage = () => {
+const SignupPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-12 mx-auto">
-      <div className="max-w-md w-full space-y-8">
+      <div className="w-full max-w-xl space-y-6 p-8 rounded-lg">
         {/* 로고 */}
         <Link to="/">
-          <div className="text-center">
-            <img src={Logo} alt="소상고민" className="w-2/3 mx-auto" />
-          </div>
+          <img src={Logo} alt="소상고민" className="w-2/3 mx-auto mb-10" />
         </Link>
 
-        {/* 회원가입 폼 */}
+        {/* 회원가입 폼 - 모든 로직은 컴포넌트 내부에서 처리 */}
         <Signup />
 
         {/* 로그인 링크 */}
