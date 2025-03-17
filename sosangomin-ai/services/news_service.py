@@ -1,7 +1,9 @@
+# services/news_service.py
 import os
 import logging
 import asyncio
 import aiohttp
+import traceback
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -24,6 +26,8 @@ class NewsService:
             logger.error("네이버 API 키가 설정되지 않았습니다. 환경 변수를 확인하세요.")
             self.client_id = "NOT_SET"
             self.client_secret = "NOT_SET"
+        else:
+            logger.info(f"네이버 API 키 설정 완료: {self.client_id[:5]}...")
         
         self.headers = {
             "X-Naver-Client-Id": self.client_id,
@@ -97,10 +101,21 @@ class NewsService:
             }
             
             async with session.get(self.base_url, headers=self.headers, params=params) as response:
-                response.raise_for_status()
-                return await response.json()
+                status = response.status
+                if status != 200:
+                    error_text = await response.text()
+                    logger.error(f"API 응답 오류: {status}, 응답: {error_text}")
+                    return {"items": []}
+                
+                response_json = await response.json()
+                
+                if 'total' in response_json:
+                    logger.info(f"키워드 '{keyword}' 총 검색 결과 수: {response_json['total']}")
+                
+                return response_json
         except Exception as e:
             logger.error(f"뉴스 검색 API 호출 중 오류 발생: {e}")
+            logger.error(traceback.format_exc())
             return {"items": []}
     
     def determine_category(self, title: str, description: str) -> str:
@@ -122,13 +137,11 @@ class NewsService:
     
     def clean_html_text(self, html_text: str) -> str:
         """HTML 태그 제거 및 텍스트 정리"""
-        # HTML 태그 제거
         soup = BeautifulSoup(html_text, 'html.parser')
         clean_text = soup.get_text()
         
-        # 특수문자 제거 및 공백 정리
-        clean_text = re.sub(r'&[a-zA-Z0-9]+;', ' ', clean_text)  # HTML 엔티티 제거
-        clean_text = re.sub(r'\s+', ' ', clean_text).strip()  # 연속된 공백 처리
+        clean_text = re.sub(r'&[a-zA-Z0-9]+;', ' ', clean_text)  
+        clean_text = re.sub(r'\s+', ' ', clean_text).strip()  
         
         return clean_text
     
@@ -162,7 +175,7 @@ class NewsService:
             async with session.get(
                 news_url, 
                 headers=headers, 
-                timeout=aiohttp.ClientTimeout(total=3)
+                timeout=aiohttp.ClientTimeout(total=5)
             ) as response:
                 if response.status != 200:
                     return 0, 0
@@ -194,15 +207,20 @@ class NewsService:
     
     async def update_news(self):
         """최신 뉴스를 수집하고 데이터베이스에 저장 (비동기)"""
-        # DB 세션 생성
         from database.connector import database_instance as mariadb
         db = mariadb.pre_session()
         
         try:
             logger.info("뉴스 업데이트 작업 시작")
+            
+            total_news = db.query(func.count(News.news_id)).scalar()
+            logger.info(f"현재 데이터베이스의 총 뉴스 수: {total_news}")
+            
             all_news = []
             saved_count = 0
             skipped_count = 0
+            duplicate_count = 0
+            no_image_count = 0
             
             current_time = datetime.now(datetime.now().astimezone().tzinfo)
             
@@ -217,9 +235,11 @@ class NewsService:
                             description = self.clean_html_text(item.get("description", ""))
                             link = item.get("originallink") or item.get("link", "")
                             pub_date = self.parse_pub_date(item.get("pubDate", ""))
-                            
+                                 
                             existing_news = db.query(News).filter(News.link == link).first()
                             if existing_news:
+                                duplicate_count += 1
+                                skipped_count += 1
                                 continue
                             
                             category = self.determine_category(title, description)
@@ -228,11 +248,11 @@ class NewsService:
                                 image_url = await self.extract_image_url(session, link)
                                 
                                 if image_url is None:
-                                    skipped_count += 1
-                                    continue
+                                    image_url = "https://picsum.photos/200/300?random=1"
+                                    no_image_count += 1
                                 
                                 likes_count, comments_count = await self.extract_engagement_metrics(session, link)
-                                    
+                                
                                 news = News(
                                     title=title,
                                     link=link,
@@ -240,38 +260,58 @@ class NewsService:
                                     image_url=image_url,
                                     category=category,
                                     created_at=current_time,
+                                    updated_at=current_time,  
                                     likes_count=likes_count,
                                     comments_count=comments_count
                                 )
                                 
-                                db.add(news)
-                                all_news.append(news)
-                                saved_count += 1
+                                try:
+                                    db.add(news)
+                                    db.flush()  
+                                    all_news.append(news)
+                                    saved_count += 1
+                                except Exception as e:
+                                    logger.error(f"뉴스 저장 실패: {e}, 뉴스: {title[:30]}...")
+                                    logger.error(traceback.format_exc())
+                                    skipped_count += 1
+                                    continue
                                 
-                            except UnicodeDecodeError:
+                            except UnicodeDecodeError as ude:
+                                logger.warning(f"유니코드 디코딩 오류: {ude}, 뉴스: {title[:30]}...")
                                 skipped_count += 1
                                 continue
                             except Exception as e:
+                                logger.warning(f"뉴스 처리 중 오류: {e}, 뉴스: {title[:30]}...")
+                                logger.warning(traceback.format_exc())
                                 skipped_count += 1
                                 continue
                                 
                         except Exception as e:
+                            logger.error(f"뉴스 항목 처리 오류: {e}")
+                            logger.error(traceback.format_exc())
                             skipped_count += 1
                             continue
                     
                     await asyncio.sleep(0.5)
             
             try:
-                db.commit()
-                logger.info(f"총 {saved_count}개의 새로운 뉴스 기사가 저장되었습니다. {skipped_count}개 항목 건너뜀.")
+                if saved_count > 0:
+                    db.commit()
+                    logger.info(f"총 {saved_count}개의 새로운 뉴스 기사가 저장되었습니다.")
+                    logger.info(f"건너뛴 항목: {skipped_count}개 (중복: {duplicate_count}개, 이미지 없음: {no_image_count}개)")
+                else:
+                    logger.info("저장할 새로운 뉴스가 없습니다.")
+                    logger.info(f"건너뛴 항목: {skipped_count}개 (중복: {duplicate_count}개, 이미지 없음: {no_image_count}개)")
             except Exception as e:
                 db.rollback()
                 logger.error(f"뉴스 저장 중 오류 발생: {e}")
+                logger.error(traceback.format_exc())
             
             return all_news
             
         except Exception as e:
             logger.error(f"뉴스 업데이트 중 오류 발생: {e}")
+            logger.error(traceback.format_exc())
             return []
         finally:
             db.close()
@@ -286,9 +326,10 @@ class NewsService:
             async with session.get(
                 news_url, 
                 headers=headers, 
-                timeout=aiohttp.ClientTimeout(total=3)  
+                timeout=aiohttp.ClientTimeout(total=5)  
             ) as response:
                 if response.status != 200:
+                    logger.warning(f"뉴스 페이지 접근 실패: {response.status}")
                     return None
                 
                 html = await response.text()
@@ -297,11 +338,25 @@ class NewsService:
                 
                 og_image = soup.find('meta', property='og:image')
                 if og_image and og_image.get('content'):
-                    return og_image['content']
+                    image_url = og_image['content']
+                    return image_url
                 
+                main_image = soup.select_one('article img, .news_content img, .article_body img, .news-article-image img')
+                if main_image and main_image.get('src'):
+                    image_url = main_image['src']
+                    if image_url.startswith('/'):
+                        from urllib.parse import urlparse
+                        parsed_url = urlparse(news_url)
+                        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                        image_url = base_url + image_url
+                    return image_url
+                
+                logger.warning("이미지 URL을 찾을 수 없음")
                 return None
                 
         except Exception as e:
+            logger.error(f"이미지 URL 추출 중 오류 발생: {e}")
+            logger.error(traceback.format_exc())
             return None
     
     def get_recent_news(self, db: Session, category: Optional[str] = None, limit: int = 20) -> List[News]:
@@ -335,6 +390,7 @@ class NewsService:
                         if news.likes_count != likes or news.comments_count != comments:
                             news.likes_count = likes
                             news.comments_count = comments
+                            news.updated_at = datetime.now() 
                             update_count += 1
                             
                         await asyncio.sleep(0.2)
