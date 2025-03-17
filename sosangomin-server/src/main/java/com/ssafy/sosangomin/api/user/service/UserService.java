@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -90,7 +89,7 @@ public class UserService {
         }
 
         // JWT 토큰 생성
-        String accessToken = jwtTokenUtil.createAccessToken(String.valueOf(user.getUserId()));
+        String accessToken = jwtTokenUtil.createWeekAccessToken(String.valueOf(user.getUserId()));
 
         // 암호화된 유저 id (pk)
         String encryptedUserId = idEncryptionUtil.encrypt(user.getUserId());
@@ -118,11 +117,11 @@ public class UserService {
         userMapper.updateName(updateNameRequestDto.name(), userId);
     }
 
-    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto) {
+    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, Long userId) {
 
         userMapper.updatePassword(
                 passwordEncoder.encode(updatePasswordRequestDto.password()),
-                updatePasswordRequestDto.mail()
+                userId
         );
     }
 

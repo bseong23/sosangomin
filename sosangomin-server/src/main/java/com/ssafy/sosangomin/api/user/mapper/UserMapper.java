@@ -78,10 +78,10 @@ public interface UserMapper {
             @Param("userId") Long userId
     );
 
-    @Update("UPDATE users SET password = #{password} WHERE email = #{email}")
+    @Update("UPDATE users SET password = #{password} WHERE user_id = #{userId}")
     void updatePassword(
             @Param("password") String password,
-            @Param("email") String email
+            @Param("userId") Long userId
     );
 
     @Update("UPDATE users SET profile_img_url = #{profileImgUrl} WHERE user_id = #{userId}")

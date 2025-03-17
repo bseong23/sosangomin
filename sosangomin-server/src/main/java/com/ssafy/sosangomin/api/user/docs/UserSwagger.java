@@ -158,6 +158,7 @@ public interface UserSwagger {
             }
     )
     ResponseEntity<?> updatePassword(
+            Principal principal,
             @ParameterObject
             @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto
     );

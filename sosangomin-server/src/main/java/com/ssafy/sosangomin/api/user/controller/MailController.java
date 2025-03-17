@@ -17,13 +17,19 @@ public class MailController implements MailSwagger {
 
     @PostMapping
     public ResponseEntity<?> mailSend(@ModelAttribute MailSendRequestDto mailSendRequestDto) {
-        mailService.createAndSendMail(mailSendRequestDto.mail());
+        mailService.createAndSendEmailVerifyMail(mailSendRequestDto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> mailCheck(@ModelAttribute MailCertificateRequestDto mailCertificateRequestDto) {
+    public ResponseEntity<?> mailVerify(@ModelAttribute MailCertificateRequestDto mailCertificateRequestDto) {
         mailService.checkVerification(mailCertificateRequestDto.mail(), mailCertificateRequestDto.userNumber());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> passwordResetMailSend(@ModelAttribute MailSendRequestDto mailSendRequestDto) {
+        mailService.createAndSendPasswordResetMail(mailSendRequestDto);
         return ResponseEntity.ok().build();
     }
 }

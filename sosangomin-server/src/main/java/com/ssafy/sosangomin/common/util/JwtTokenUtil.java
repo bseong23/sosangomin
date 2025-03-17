@@ -14,12 +14,27 @@ public class JwtTokenUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    public String createAccessToken(String id) {
+    public String createWeekAccessToken(String id) {
         Claims claims = Jwts.claims();
         claims.setSubject(id);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + (3600000 * 24 * 7)); // 1주일, 추후에 바꿀꺼라 곱셈으로 비효율적으로 해놓긴 함
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String createFiveMinuteAccessToken(String id) {
+        Claims claims = Jwts.claims();
+        claims.setSubject(id);
+
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + (300000)); // 5분
 
         return Jwts.builder()
                 .setClaims(claims)
