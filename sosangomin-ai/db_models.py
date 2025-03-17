@@ -25,15 +25,16 @@ class User(Base):
 
 class News(Base):
     __tablename__ = 'news'
-    news_id = Column(Integer, primary_key=True)
+    news_id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(255), nullable=False)
     link = Column(Text, nullable=False)
     pub_date = Column(Date, nullable=False)
     image_url = Column(Text)
     category = Column(String(50), nullable=False)
-    created_at = Column(DateTime(timezone=True))
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
 class ChatSession(Base):
     __tablename__ = 'chat_sessions'
@@ -46,7 +47,7 @@ class ChatSession(Base):
 class ChatHistory(Base):
     __tablename__ = 'chat_histories'
     index = Column(Integer, primary_key=True, autoincrement=True)
-    session_id = Column(String(50), ForeignKey('chatsessions.uid'))
+    session_id = Column(String(50), ForeignKey('chat_sessions.uid'))
     user_id = Column(Integer)
     user_message = Column(Text)
     bot_message = Column(Text)
