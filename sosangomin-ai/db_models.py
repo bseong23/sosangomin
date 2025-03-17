@@ -39,7 +39,7 @@ class News(Base):
 class ChatSession(Base):
     __tablename__ = 'chat_sessions'
     uid = Column(String(36), primary_key=True)
-    user_id = Column(String(16))
+    user_id = Column(Integer)  
     created_at = Column(DateTime(timezone=True)) 
     updated_at = Column(DateTime(timezone=True))  
     conversations = relationship("ChatHistory", back_populates="session")
@@ -52,7 +52,8 @@ class ChatHistory(Base):
     user_message = Column(Text)
     bot_message = Column(Text)
     created_at = Column(DateTime(timezone=True))
-    session = relationship("ChatSession", back_populates="conversations")
+    updated_at = Column(DateTime(timezone=True))  
+    session = relationship("ChatSession", back_populates="conversations")  
 
 class Weathers(Base):
     __tablename__ = 'weathers'
