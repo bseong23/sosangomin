@@ -17,6 +17,7 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import Piechartpage from "./pages/Piechartpage";
 import ResearchPage from "@/pages/ResearchPage";
 import ReviewInsightPage from "@/pages/ReviewInsightPage";
+import DataUploadPage from "@/pages/DataUploadPage";
 
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
@@ -61,10 +62,7 @@ const App: React.FC = () => {
             path="/community/board/post/:postId"
             element={<BoardPostDetailPage />}
           />
-          <Route
-            path="/data-analysis/upload"
-            element={<div>데이터 입력하기</div>}
-          />
+          <Route path="/data-analysis/upload" element={<DataUploadPage />} />
           <Route path="/data-analysis/research" element={<ResearchPage />} />
           <Route path="/data-analysis/insight" element={<Piechartpage />} />
           <Route

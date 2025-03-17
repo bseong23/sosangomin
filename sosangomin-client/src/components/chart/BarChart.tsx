@@ -9,6 +9,7 @@ import {
   Legend
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { BarChartProps } from "@/types/chart"; // 분리된 타입 임포트
 
 // Chart.js 필요한 컴포넌트 등록
 ChartJS.register(
@@ -19,48 +20,6 @@ ChartJS.register(
   Tooltip, // 툴팁 (데이터 포인트에 마우스 오버 시)
   Legend // 범례 (각 데이터셋 구분)
 );
-
-// 데이터셋 타입 정의
-export interface BarChartDataset {
-  label: string; // 데이터셋 이름 (범례에 표시)
-  data: number[]; // 실제 데이터 값 배열
-  backgroundColor?: string | string[]; // 막대 배경색 (단일 색상 또는 배열)
-  borderColor?: string | string[]; // 막대 테두리 색상
-  borderWidth?: number; // 테두리 두께 (픽셀)
-  borderRadius?: number; // 막대 모서리 둥근 정도
-  hoverBackgroundColor?: string | string[]; // 마우스 오버 시 배경색
-  hoverBorderColor?: string | string[]; // 마우스 오버 시 테두리 색상
-  hoverBorderWidth?: number; // 마우스 오버 시 테두리 두께
-  barPercentage?: number; // 막대 너비 비율 (0~1)
-  categoryPercentage?: number; // 카테고리 너비 비율 (0~1)
-}
-
-// BarChart 컴포넌트 Props 타입 정의
-export interface BarChartProps {
-  // 필수 속성
-  labels: string[]; // X축 레이블 배열 (요일, 카테고리 등)
-  datasets: BarChartDataset[]; // 차트 데이터셋 배열
-
-  // 선택적 속성
-  height?: number; // 차트 높이 (픽셀)
-  width?: number; // 차트 너비 (픽셀), 미지정 시 컨테이너 너비
-  horizontal?: boolean; // true면 수평 막대, false면 수직 막대
-  stacked?: boolean; // true면 데이터셋 누적 표시
-  title?: string; // 차트 상단 제목
-  xAxisLabel?: string; // X축 레이블
-  yAxisLabel?: string; // Y축 레이블
-  legend?: boolean; // 범례 표시 여부
-  legendPosition?: "top" | "right" | "bottom" | "left"; // 범례 위치
-  gridLines?: boolean; // 그리드 라인 표시 여부
-  beginAtZero?: boolean; // Y축 0부터 시작 여부
-  tooltips?: boolean; // 툴팁 표시 여부
-  animation?: boolean; // 애니메이션 효과 여부
-  responsive?: boolean; // 반응형 디자인 여부
-  maintainAspectRatio?: boolean; // 종횡비 유지 여부
-  onClick?: (event: any, elements: any) => void; // 클릭 이벤트 핸들러
-  className?: string; // 추가 CSS 클래스
-  id?: string; // 차트 HTML ID
-}
 
 /**
  * 재사용 가능한 BarChart 컴포넌트
@@ -157,22 +116,22 @@ const BarChart: React.FC<BarChartProps> = ({
     datasets // 데이터셋 배열
   };
 
-  // 차트 컨테이너 스타일 설정
-  const containerStyle: React.CSSProperties = {
-    height: `${height}px`, // 높이 설정
-    width: width ? `${width}px` : "100%", // 너비 설정 (지정되지 않으면 100%)
-    position: "relative" // 포지션 설정
-  };
-
-  // 차트 렌더링
+  // 반응형 개선을 위한 wrapper div 추가
   return (
-    <div
-      id={id} // HTML ID
-      className={`chart-container ${className}`} // CSS 클래스
-      style={containerStyle} // 인라인 스타일
-      data-testid="bar-chart" // 테스트용 ID
-    >
-      <Bar data={data} options={options} /> {/* react-chartjs-2 Bar 컴포넌트 */}
+    <div className={`w-full overflow-hidden ${className}`}>
+      <div
+        id={id} // HTML ID
+        className="chart-container w-full" // CSS 클래스
+        style={{
+          height: `${height}px`, // 높이 설정
+          width: width ? `${width}px` : "100%", // 너비 설정 (지정되지 않으면 100%)
+          position: "relative" // 포지션 설정
+        }}
+        data-testid="bar-chart" // 테스트용 ID
+      >
+        <Bar data={data} options={options} />{" "}
+        {/* react-chartjs-2 Bar 컴포넌트 */}
+      </div>
     </div>
   );
 };
