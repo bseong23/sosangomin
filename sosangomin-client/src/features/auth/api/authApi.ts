@@ -112,6 +112,32 @@ export const checkNameDuplicate = async (
 };
 
 /**
+ * 이메일 중복 확인 API 호출
+ * @param mail 확인할 이메일
+ */
+/**
+ * 이메일 중복 확인 API 호출
+ * @param mail 확인할 이메일
+ * @returns 성공 시 빈 객체 {}, 실패 시 ApiErrorResponse
+ */
+export const checkEmailDuplicate = async (
+  mail: string
+): Promise<ApiResponse<{}>> => {
+  try {
+    const response = await axiosInstance.post("/api/user/email/check", null, {
+      params: { mail }
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return error.response.data as ApiErrorResponse;
+    }
+    console.error("이메일 중복 확인 오류:", error);
+    throw error;
+  }
+};
+
+/**
  * 이메일 인증 요청 API 호출
  */
 export const sendVerificationMail = async (
@@ -139,7 +165,7 @@ export const verifyMailCode = async (
   userNumber: number
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosInstance.post("/api/mail/check", null, {
+    const response = await axiosInstance.post("/api/mail/certificate", null, {
       params: { mail, userNumber }
     });
     return response.data;
