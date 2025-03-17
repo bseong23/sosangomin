@@ -66,8 +66,14 @@ public class UserController implements UserSwagger {
     }
 
     @PostMapping("/name/check")
-    public ResponseEntity<?> checkName(@ModelAttribute NameCheckRequestDto nameCheckRequestDto) {
-        userService.checkNameDuplication(nameCheckRequestDto);
+    public ResponseEntity<?> checkNameDuplication(@ModelAttribute NameDuplicateRequestDto nameDuplicateRequestDto) {
+        userService.checkNameDuplication(nameDuplicateRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/email/check")
+    public ResponseEntity<?> checkEmailDuplication(@ModelAttribute MailDuplicateRequestDto mailDuplicateRequestDto) {
+        userService.checkEmailDuplication(mailDuplicateRequestDto);
         return ResponseEntity.ok().build();
     }
 }

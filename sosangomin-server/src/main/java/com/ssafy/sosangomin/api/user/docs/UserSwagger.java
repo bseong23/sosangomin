@@ -227,8 +227,39 @@ public interface UserSwagger {
                     )
             }
     )
-    ResponseEntity<?> checkName(
+    ResponseEntity<?> checkNameDuplication(
             @ParameterObject
-            @ModelAttribute NameCheckRequestDto nameCheckRequestDto
+            @ModelAttribute NameDuplicateRequestDto nameDuplicateRequestDto
+    );
+
+    @Operation(
+            summary = "이메일 중복 체크",
+            description = "이메일 중복 체크를 합니다. 확인할 이메일이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "사용 가능한 이메일"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "이미 존재하는 이메일",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"400\",\n" +
+                                                    "  \"errorMessage\": \"ERR_EMAIL_DUPLICATE\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> checkEmailDuplication(
+            @ParameterObject
+            @ModelAttribute MailDuplicateRequestDto mailDuplicateRequestDto
     );
 }

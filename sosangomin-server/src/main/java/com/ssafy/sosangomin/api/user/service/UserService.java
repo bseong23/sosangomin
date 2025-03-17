@@ -173,11 +173,19 @@ public class UserService {
         return new UpdateProfileImgResponseDto(newProfileImgUrl);
     }
 
-    public void checkNameDuplication(NameCheckRequestDto nameCheckRequestDto) {
-        Optional<User> user = userMapper.findUserByName(nameCheckRequestDto.name());
+    public void checkNameDuplication(NameDuplicateRequestDto nameDuplicateRequestDto) {
+        Optional<User> user = userMapper.findUserByName(nameDuplicateRequestDto.name());
 
         if (user.isPresent()) {
             throw new BadRequestException(ErrorMessage.ERR_NAME_DUPLICATE);
+        }
+    }
+
+    public void checkEmailDuplication(MailDuplicateRequestDto mailDuplicateRequestDto) {
+        Optional<User> user = userMapper.findUserByEmail(mailDuplicateRequestDto.mail());
+
+        if (user.isPresent()) {
+            throw new BadRequestException(ErrorMessage.ERR_EMAIL_DUPLICATE);
         }
     }
 
