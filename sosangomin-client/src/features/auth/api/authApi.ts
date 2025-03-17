@@ -165,7 +165,7 @@ export const verifyMailCode = async (
   userNumber: number
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosInstance.post("/api/mail/certificate", null, {
+    const response = await axiosInstance.post("/api/mail/verify", null, {
       params: { mail, userNumber }
     });
     return response.data;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PieChart from "@/components/chart/Piechart";
+import PieChart from "@/components/chart/PieChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 
 const Piechartpage: React.FC = () => {
