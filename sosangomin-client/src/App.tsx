@@ -16,6 +16,7 @@ import MyPage from "@/pages/Mypage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import Piechartpage from "./pages/Piechartpage";
 import ResearchPage from "@/pages/ResearchPage";
+import ReviewInsightPage from "@/pages/ReviewInsightPage";
 
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
@@ -64,19 +65,11 @@ const App: React.FC = () => {
             path="/data-analysis/upload"
             element={<div>데이터 입력하기</div>}
           />
-          <Route
-            path="/data-analysis/research"
-            element={<div>한눈에 보기기</div>}
-          />
-          <Route path="/data-analysis/insight" element={<Piechartpage />} />
           <Route path="/data-analysis/research" element={<ResearchPage />} />
-          <Route
-            path="/data-analysis/insight"
-            element={<div>분석리포트 보기</div>}
-          />
+          <Route path="/data-analysis/insight" element={<Piechartpage />} />
           <Route
             path="/data-analysis/review-insight"
-            element={<div>리뷰 분석하기</div>}
+            element={<ReviewInsightPage />}
           />
           <Route path="/data-analysis/advise" element={<div>고민해결결</div>} />
           <Route path="/map" element={<Map />} />

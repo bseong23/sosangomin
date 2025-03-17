@@ -3,7 +3,7 @@
 import React from "react";
 import LineChart from "@/components/chart/LineChart";
 
-const ReviewInsightPage = () => {
+const ReviewInsightPage: React.FC = () => {
   // 요일별 레이블 설정
   const labels = [
     "월요일",
