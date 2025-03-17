@@ -1,6 +1,6 @@
 package com.ssafy.sosangomin.api.user.docs;
 
-import com.ssafy.sosangomin.api.user.domain.dto.request.MailCheckRequestDto;
+import com.ssafy.sosangomin.api.user.domain.dto.request.MailCertificateRequestDto;
 import com.ssafy.sosangomin.api.user.domain.dto.request.MailSendRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,6 +72,6 @@ public interface MailSwagger {
     )
     ResponseEntity<?> mailCheck(
             @ParameterObject
-            @ModelAttribute MailCheckRequestDto mailCheckRequestDto
+            @ModelAttribute MailCertificateRequestDto mailCertificateRequestDto
     );
 }

@@ -69,6 +69,9 @@ public interface UserMapper {
             @Param("password") String password
     );
 
+    @Delete("DELETE FROM users WHERE user_id = #{userId}")
+    void deleteUser(@Param("userId") Long userId);
+
     @Update("UPDATE users SET name = #{name} WHERE user_id = #{userId}")
     void updateName(
             @Param("name") String name,
@@ -86,7 +89,4 @@ public interface UserMapper {
             @Param("profileImgUrl") String profileImgUrl,
             @Param("userId") Long userId
     );
-
-    @Delete("DELETE FROM users WHERE user_id = #{userId}")
-    void deleteUser(@Param("userId") Long userId);
 }

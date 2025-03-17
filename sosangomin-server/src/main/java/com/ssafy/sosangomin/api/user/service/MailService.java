@@ -56,11 +56,6 @@ public class MailService {
         }
     }
 
-    // 랜덤 숫자 생성
-    private int createNumber() {
-        return (int)(Math.random() * (90000)) + 100000;
-    }
-
     public void checkVerification(String mail, int userNumber) {
         int storedNumber = getVerificationNumber(mail);
         boolean isMatch = storedNumber == userNumber;
@@ -68,6 +63,11 @@ public class MailService {
         if (!isMatch) {
             throw new BadRequestException(ErrorMessage.ERR_INVALID_MAIL_NUMBER);
         }
+    }
+
+    // 랜덤 숫자 생성
+    private int createNumber() {
+        return (int)(Math.random() * (90000)) + 100000;
     }
 
     private int getVerificationNumber(String mail) {
