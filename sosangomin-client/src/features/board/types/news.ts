@@ -24,3 +24,8 @@ export interface NewsParams {
 export interface NewsPageCountResponse {
   pageCount: number;
 }
+
+export interface CategoryFilterProps {
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
+}
