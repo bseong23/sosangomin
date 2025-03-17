@@ -12,6 +12,19 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  data:
+    redis:
+      host: ${REDIS_SERVER_IP}
+      port: 6379
+      timeout: 3000
+
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
   security:
     oauth2:
       client:

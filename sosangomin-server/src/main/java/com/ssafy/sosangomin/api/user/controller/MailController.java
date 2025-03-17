@@ -21,7 +21,7 @@ public class MailController implements MailSwagger {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/certificate")
+    @PostMapping("/verify")
     public ResponseEntity<?> mailCheck(@ModelAttribute MailCertificateRequestDto mailCertificateRequestDto) {
         mailService.checkVerification(mailCertificateRequestDto.mail(), mailCertificateRequestDto.userNumber());
         return ResponseEntity.ok().build();

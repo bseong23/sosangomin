@@ -1,7 +1,5 @@
 package com.ssafy.sosangomin.common.config;
 
-import com.ssafy.sosangomin.api.user.domain.entity.VerificationInfo;
-import com.ssafy.sosangomin.api.user.service.MailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +7,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 public class MailConfig {
@@ -28,11 +25,6 @@ public class MailConfig {
 
     @Value("${spring.mail.smtp.timeout}")
     private int timeout;
-
-    @Bean
-    public ConcurrentHashMap<String, VerificationInfo> emailVerificationMap() {
-        return new ConcurrentHashMap<>();
-    }
 
     @Bean
     public JavaMailSender javaMailService() {
