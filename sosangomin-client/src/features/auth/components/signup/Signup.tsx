@@ -112,184 +112,197 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full">
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* 닉네임 입력 */}
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-base font-medium text-comment"
-          >
-            닉네임 <span className="text-red-500">*</span>
-          </label>
-          <div className="mt-1 relative">
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="닉네임을 입력해주세요."
-              className={`block w-full px-3 py-4 border ${
-                nameCheckState.error ? "border-red-500" : "border-border"
-              } rounded focus:outline-none focus:border-bit-main pr-24`}
-            />
-            <button
-              type="button"
-              onClick={handleCheckDuplicate}
-              disabled={nameCheckState.isLoading}
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-comment-text text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
-            >
-              {nameCheckState.isLoading ? "확인 중..." : "중복확인"}
-            </button>
+        {/* 일반 에러 메시지 */}
+        {signupState.error && (
+          <div className="p-2 text-sm text-red-600 bg-red-50 rounded">
+            {signupState.error}
           </div>
-          {nameCheckState.error && (
-            <p className="mt-1 text-sm text-red-500">{nameCheckState.error}</p>
-          )}
-          {nameCheckState.isAvailable && (
-            <p className="mt-1 text-sm text-green-600">
-              사용 가능한 닉네임입니다.
-            </p>
-          )}
-        </div>
+        )}
 
-        {/* 이메일 아이디 입력 */}
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-base font-medium text-comment"
-          >
-            이메일<span className="text-red-500">*</span>
-          </label>
-          <div className="mt-1 relative">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={mail}
-              onChange={(e) => setMail(e.target.value)}
-              placeholder="example@naver.com"
-              className={`block w-full px-3 py-4 border ${
-                mailVerificationState.error
-                  ? "border-red-500"
-                  : mailVerificationState.isVerified
-                  ? "border-green-500"
-                  : "border-border"
-              } rounded focus:outline-none focus:border-bit-main pr-24`}
-            />
-            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-sm font-medium">
-              {mailVerificationState.isLoading ? (
-                <span className="text-comment-text">처리 중...</span>
-              ) : mailVerificationState.isVerified ? (
-                <div className="flex items-center text-green-600 font-medium">
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+        <div className="space-y-5">
+          {/* 닉네임 입력 */}
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-base font-medium text-comment"
+            >
+              닉네임 <span className="text-red-500">*</span>
+            </label>
+            <div className="mt-1 relative">
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="닉네임을 입력해주세요."
+                className={`block w-full px-3 py-4 border ${
+                  nameCheckState.error ? "border-red-500" : "border-border"
+                } rounded focus:outline-none focus:border-bit-main pr-24`}
+              />
+              <button
+                type="button"
+                onClick={handleCheckDuplicate}
+                disabled={nameCheckState.isLoading}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-comment-text text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
+              >
+                {nameCheckState.isLoading ? "확인 중..." : "중복확인"}
+              </button>
+            </div>
+            {nameCheckState.error && (
+              <p className="mt-1 text-sm text-red-500">
+                {nameCheckState.error}
+              </p>
+            )}
+            {nameCheckState.isAvailable && (
+              <p className="mt-1 text-sm text-green-600">
+                사용 가능한 닉네임입니다.
+              </p>
+            )}
+          </div>
+
+          {/* 이메일 아이디 입력 */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-base font-medium text-comment"
+            >
+              이메일<span className="text-red-500">*</span>
+            </label>
+            <div className="mt-1 relative">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={mail}
+                onChange={(e) => setMail(e.target.value)}
+                placeholder="example@naver.com"
+                className={`block w-full px-3 py-4 border ${
+                  mailVerificationState.error
+                    ? "border-red-500"
+                    : mailVerificationState.isVerified
+                    ? "border-green-500"
+                    : "border-border"
+                } rounded focus:outline-none focus:border-bit-main pr-24`}
+              />
+              <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-sm font-medium">
+                {mailVerificationState.isLoading ? (
+                  <span className="text-comment-text">처리 중...</span>
+                ) : mailVerificationState.isVerified ? (
+                  <div className="flex items-center text-green-600 font-medium">
+                    <svg
+                      className="w-5 h-5 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    인증완료
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleEmailVerification}
+                    className="text-comment-text hover:text-comment"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  인증완료
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleEmailVerification}
-                  className="text-comment-text hover:text-comment"
-                >
-                  인증하기
-                </button>
-              )}
+                    인증하기
+                  </button>
+                )}
+              </div>
+            </div>
+            {mailVerificationState.error && (
+              <p className="mt-1 text-sm text-red-500">
+                {mailVerificationState.error}
+              </p>
+            )}
+          </div>
+
+          {/* 비밀번호 입력 */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-base font-medium text-comment"
+            >
+              비밀번호 입력 <span className="text-red-500">*</span>
+            </label>
+            <div className="mt-1 relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="비밀번호를 입력해주세요."
+                className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <img
+                  src={showPassword ? eyeIcon : eyeCloseIcon}
+                  alt={showPassword ? "비밀번호 보이기" : "비밀번호 숨기기"}
+                  className="h-6 w-6"
+                />
+              </button>
             </div>
           </div>
-          {mailVerificationState.error && (
-            <p className="mt-1 text-sm text-red-500">
-              {mailVerificationState.error}
-            </p>
-          )}
-        </div>
 
-        {/* 비밀번호 입력 */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-base font-medium text-comment"
-          >
-            비밀번호 입력 <span className="text-red-500">*</span>
-          </label>
-          <div className="mt-1 relative">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력해주세요."
-              className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
+          {/* 비밀번호 확인 */}
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-base font-medium text-comment"
             >
-              <img
-                src={showPassword ? eyeIcon : eyeCloseIcon}
-                alt={showPassword ? "비밀번호 보이기" : "비밀번호 숨기기"}
-                className="h-6 w-6"
+              비밀번호 확인 <span className="text-red-500">*</span>
+            </label>
+            <div className="mt-1 relative">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="비밀번호를 입력해주세요."
+                className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
               />
-            </button>
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <img
+                  src={showConfirmPassword ? eyeIcon : eyeCloseIcon}
+                  alt={
+                    showConfirmPassword ? "비밀번호 보기" : "비밀번호 숨기기"
+                  }
+                  className="h-6 w-6"
+                />
+              </button>
+            </div>
+            {confirmPassword && password !== confirmPassword && (
+              <p className="mt-1 text-sm text-red-500">
+                비밀번호가 일치하지 않습니다.
+              </p>
+            )}
           </div>
-        </div>
-
-        {/* 비밀번호 확인 */}
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-base font-medium text-comment"
-          >
-            비밀번호 확인 <span className="text-red-500">*</span>
-          </label>
-          <div className="mt-1 relative">
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              autoComplete="new-password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="비밀번호를 입력해주세요."
-              className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <img
-                src={showConfirmPassword ? eyeIcon : eyeCloseIcon}
-                alt={showConfirmPassword ? "비밀번호 보기" : "비밀번호 숨기기"}
-                className="h-6 w-6"
-              />
-            </button>
-          </div>
-          {confirmPassword && password !== confirmPassword && (
-            <p className="mt-1 text-sm text-red-500">
-              비밀번호가 일치하지 않습니다.
-            </p>
-          )}
         </div>
 
         {/* 회원가입 버튼 */}
@@ -297,22 +310,13 @@ const Signup: React.FC = () => {
           <button
             type="submit"
             disabled={signupState.isLoading}
-            className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-basic-white ${
-              signupState.isLoading
-                ? "bg-opacity-70"
-                : "bg-bit-main hover:bg-blue-900"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
+            className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-basic-white ${
+              signupState.isLoading ? "bg-opacity-70" : "hover:bg-blue-900"
+            } bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
           >
             {signupState.isLoading ? "처리 중..." : "회원가입"}
           </button>
         </div>
-
-        {/* 일반 에러 메시지 */}
-        {signupState.error && (
-          <div className="text-center text-red-500 text-sm mt-2">
-            {signupState.error}
-          </div>
-        )}
       </form>
 
       {/* 이메일 인증 모달 */}
