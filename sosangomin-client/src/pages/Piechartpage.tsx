@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { MapSidebarProps } from "@/features/map/types/map";
+import PieChart from "@/components/chart/Piechart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 
-const Analysismap: React.FC<MapSidebarProps> = () => {
+const Piechartpage: React.FC = () => {
+  // 차트 데이터 상태 설정
   const [chartData] = useState({
     labels: ["빨강", "파랑", "노랑", "초록", "보라"],
     datasets: [
@@ -27,27 +28,17 @@ const Analysismap: React.FC<MapSidebarProps> = () => {
       }
     ]
   });
+
   return (
-    <div className="p-6">
-      {/* 헤더 섹션 */}
-      <div className="mb-6 relative">
-        <h2 className="text-xl font-bold">내 주변 상권은?</h2>
+    <div className="App">
+      <div className="w-full mx-0 my-auto">
+        <PieChart chartData={chartData} />
       </div>
-
-      {/* 인구 분포도 섹션 */}
-      <div className="mb-6 h-full">
-        <h3 className="text-lg font-semibold mb-2">인구 분포도</h3>
-        <div className="w-full h-full">
-          <DoughnutChart chartData={chartData} />
-        </div>
-      </div>
-
-      {/* 상권 분포도 섹션 */}
-      <div className="mb-6 h-[200px]">
-        <h3 className="text-lg font-semibold mb-2">상권 분포도</h3>
+      <div className="w-full mx-0 my-auto">
+        <DoughnutChart chartData={chartData} />
       </div>
     </div>
   );
 };
 
-export default Analysismap;
+export default Piechartpage;
