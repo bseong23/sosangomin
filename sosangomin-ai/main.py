@@ -11,6 +11,7 @@ from routers import chat_router, news_router, data_analysis_router, s3_router, d
 
 # 스케줄러 
 from schedulers.news_scheduler import start_news_scheduler
+from schedulers.population_scheduler import start_resident_population_scheduler
 
 # 환경 변수 로드
 load_dotenv("./config/.env")
@@ -55,6 +56,9 @@ def read_root():
 async def startup_event():
     start_news_scheduler()
     logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
+
+    start_resident_population_scheduler()
+    logger.info("서울시 상주 인구 스케줄링 완료")
 
 @app.on_event("shutdown")
 async def shutdown_event():

@@ -1,6 +1,7 @@
 # models.py
 import os
 import logging
+import datetime
 from sqlalchemy import create_engine, event, Column, String, DateTime, Integer, Text, ForeignKey, Date, Enum, Float, Boolean, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -71,5 +72,47 @@ class Weathers(Base):
     hm = Column(Float, nullable=True, comment='습도 (%)')
     rn = Column(Float, nullable=True, comment='강수량 (mm)')
 
-    # def __repr__(self):
-    #     return f"<Weathers(datetime={self.datetime}, location={self.location}, ta={self.ta}, ws={self.ws}, hm={self.hm}, rn={self.rn})>"
+class ResidentPopulation(Base):
+    __tablename__ = 'resident_populations' 
+
+    resident_population_id = Column(Integer, primary_key=True, autoincrement=True, comment='인구 데이터 ID (PK)')
+    stdr_yyqu_cd = Column(String(6), comment='기준 년월분기 코드 (예: 202301)', nullable=False)
+    adstrd_cd_nm = Column(String(100), comment='행정동 코드명 (예: 강남구 역삼동)', nullable=False)
+    # population_type = Column(String(20), comment='인구 구분 (예: 상주인구, 유동인구, 직장인구)', nullable=False)  # 인구 구분
+
+    # 총 인구
+    tot_repop = Column(Integer, nullable=True, comment='총 인구 수')
+    ml_repop = Column(Integer, nullable=True, comment='남성 인구 수')
+    fml_repop = Column(Integer, nullable=True, comment='여성 인구 수')
+
+    # 연령대별 인구
+    age_10_repop = Column(Integer, nullable=True, comment='연령대_10_인구 수')
+    age_20_repop = Column(Integer, nullable=True, comment='연령대_20_인구 수')
+    age_30_repop = Column(Integer, nullable=True, comment='연령대_30_인구 수')
+    age_40_repop = Column(Integer, nullable=True, comment='연령대_40_인구 수')
+    age_50_repop = Column(Integer, nullable=True, comment='연령대_50_인구 수')
+    age_60_repop = Column(Integer, nullable=True, comment='연령대_60이상_인구 수')
+
+    # 남성 연령대별 인구
+    male_10_repop = Column(Integer, nullable=True, comment='남성연령대_10_인구 수')
+    male_20_repop  = Column(Integer, nullable=True, comment='남성연령대_20_인구 수')
+    male_30_repop  = Column(Integer, nullable=True, comment='남성연령대_30_인구 수')
+    male_40_repop  = Column(Integer, nullable=True, comment='남성연령대_40_인구 수')
+    male_50_repop  = Column(Integer, nullable=True, comment='남성연령대_50_인구 수')
+    male_60_repop  = Column(Integer, nullable=True, comment='남성연령대_60이상_인구 수')
+
+    # 여성 연령대별 인구
+    female_10_repop = Column(Integer, nullable=True, comment='여성연령대_10_인구 수')
+    female_20_repop = Column(Integer, nullable=True, comment='여성연령대_20_인구 수')
+    female_30_repop = Column(Integer, nullable=True, comment='여성연령대_30_인구 수')
+    female_40_repop = Column(Integer, nullable=True, comment='여성연령대_40_인구 수')
+    female_50_repop = Column(Integer, nullable=True, comment='여성연령대_50_인구 수')
+    female_60_repop = Column(Integer, nullable=True, comment='여성연령대_60이상_인구 수')
+
+    # 가구
+    # tot_hshld_co = Column(Integer, nullable=True, comment='총 가구 수')
+    # apt_hshld_co = Column(Integer, nullable=True, comment='아파트 가구 수')
+    # non_apt_hshld_co = Column(Integer, nullable=True, comment='비아파트 가구 수')
+
+    # 등록 일시
+    created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
