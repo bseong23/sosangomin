@@ -1,17 +1,18 @@
 # sevices/automl.py
 
-# from fastapi import UploadFile, File
-# import re
-# import pickle
-# import shutil
+
 import pandas as pd
 import numpy as np
 import os
-import holidays  # type: ignore
-from datetime import datetime, timedelta 
-from pycaret.regression import *
-from pycaret.clustering import *
+import holidays  
+# from datetime import datetime, timedelta 
+from darts import TimeSeries
+from darts.models import AutoARIMA, Prophet
+# from darts.utils.statistics import plot_residuals
+# from darts.utils.timeseries_generation import datetime_attribute_timeseries
+from darts.metrics import mape, rmse
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from services.weather_service import weather_service
 
@@ -160,104 +161,56 @@ async def predict_next_30_sales(temp_file: str):
         df = await read_file(temp_file)
         df = await preprocess_data(df)
 
-        sales_df = df[['년', '월', '일', '고객 수', '매출', '수량', '요일', '계절', '공휴일']] 
+        # 날짜, 매출만 추출
+        df['매출 일시'] = pd.to_datetime(df['매출 일시'])
+        sales_df = df[['매출 일시', '매출']].copy()
 
-        # 타겟변수 찾기 : "매출"이 포함된 컬럼 리스트 추출
-        sales_cols_ = [col for col in sales_df.columns if "매출" in col]
-        sales_cols = []
-        for col in sales_cols_:
-            try:
-                sales_df[col] = sales_df[col].astype(str).str.replace(",", "", regex=True)  
-                sales_df[col] = pd.to_numeric(df[col], errors='coerce') 
-                if sales_df[col].notna().sum() > 0:  
-                    sales_cols.append(col)
-            except:
-                continue 
+        # 일별 매출 집계 
+        daily_sales_df = sales_df.groupby(sales_df['매출 일시'].dt.date).agg({'매출': 'sum'}).reset_index()
+        daily_sales_df.rename(columns={'매출 일시': '날짜'}, inplace=True)
 
-        target_column = sales_df[sales_cols].mean().idxmax() # 여러 개의 매출 컬럼이 있다면 평균값이 가장 큰 컬럼 선택
+        # 누락된 날짜 채우기
+        date_range = pd.date_range(daily_sales_df['날짜'].min(), daily_sales_df['날짜'].max(), freq='D')
+        daily_sales_df = daily_sales_df.set_index('날짜').reindex(date_range, fill_value=1000).rename_axis('날짜').reset_index()
 
-        # 날짜별 데이터 그룹화 (숫자형 변수는 평균, 문자형 변수는 최빈값 사용)
-        numeric_cols = sales_df.select_dtypes(include=['number']).columns.difference(["년", "월", "일"])
-        categorical_cols = sales_df.select_dtypes(exclude=['number']).columns.difference(["년", "월", "일"])
+        # TimeSeries로 변환
+        ts = TimeSeries.from_dataframe(daily_sales_df, '날짜', '매출')
 
-        grouped_df = sales_df.groupby(["년", "월", "일"]).agg(
-            {col: "mean" for col in numeric_cols} | 
-            {col: (lambda x: x.mode()[0] if not x.mode().empty else None) for col in categorical_cols}
-        ).reset_index()
+        # 모델 학습 
+        model = Prophet()  
+        # model = AutoARIMA()
+        model.fit(ts) # TODO : 외부 요인 반영 future_covariates [날씨, 공휴일, 유동인구, 등]
 
-        grouped_df = grouped_df.sort_values(by=["년", "월", "일"])
-        # grouped_df = grouped_df.loc[:, grouped_df.nunique() > 1]
-
-        # PyCaret 설정
-        exp = RegressionExperiment()
-        exp.setup(data=grouped_df, target=target_column, session_id=42)
-
-        # 최적 모델 선택 및 튜닝
-        models = exp.compare_models(exclude=['lightgbm'], n_select=5)
-        # results = pull()
-        best_model = models[0]
-        exp.predict_model(best_model)
-        # tuned_model = tune_model(best_model)
-        # exp.evaluate_model(best_model) # 시각화 포함 평가 
-
-        # 미래 데이터 생성
-        last_date = grouped_df[["년", "월", "일"]].max()
-        last_date_dt = datetime(int(last_date["년"]), int(last_date["월"]), int(last_date["일"]))
-        future_dates = pd.date_range(start=last_date_dt + timedelta(days=1), periods=30, freq="D")
-
-        future_df = pd.DataFrame({
-            "년": future_dates.year,
-            "월": future_dates.month.astype(str).str.zfill(2),
-            "일": future_dates.day.astype(str).str.zfill(2)
-        })
-
-        # TODO : 독립변수 결측치 대체 방법 수정
-        # 미래 데이터 독립변수 대체
-        # 범주형
-        kr_holidays = holidays.KR()
-        future_df['날짜'] = pd.to_datetime(future_df[['년', '월', '일']].astype(str).agg('-'.join, axis=1))
-        future_df['요일'] = future_df['날짜'].dt.day_name()  
-        # future_df['요일'] = future_df['날짜'].dt.dayofweek.map({0:'월요일', 1:'화요일', 2:'수요일', 3:'목요일', 4:'금요일', 5:'토요일', 6:'일요일'})
-        future_df['계절'] = future_df['날짜'].dt.month.astype(int).apply(
-            lambda x: '봄' if 3 <= x <= 5 else '여름' if 6 <= x <= 8 else '가을' if 9 <= x <= 11 else '겨울'
+        # Backtesting 방식으로 성능 평가 (마지막 30일)
+        forecast_test = model.historical_forecasts(
+            ts,
+            start=-30,  # 끝에서 30개
+            forecast_horizon=1,  # 하루 단위 예측
+            retrain=True,
+            verbose=True
         )
-        future_df['공휴일'] = future_df['날짜'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
-        future_df.drop('날짜', axis=1, inplace=True)
 
-        # 수치형
-        fill_values = grouped_df[['고객 수', '수량']].mean()
-        for col in ['고객 수', '수량']:
-            if col not in future_df.columns:
-                future_df[col] = fill_values[col]
+        # 평가
+        mape_score = float(mape(ts[-30:], forecast_test))
+        rmse_score = float(rmse(ts[-30:], forecast_test))
 
-        # window_size = 30 # 예측 기간 
-        # total_data = pd.concat([grouped_df.drop(columns=target_column), future_df]).reset_index(drop=True)
+        # 향후 30일 예측
+        forecast = model.predict(30)
 
-
-        # for i, col in enumerate(total_data.columns):
-        #     if col not in ["년", "월", "일", target_column]:
-        #         if pd.api.types.is_numeric_dtype(total_data[col]):
-        #             # 숫자형 변수는 마지막 window_size만 이동 평균 적용
-        #             total_data.iloc[len(total_data)-window_size:, i] = (total_data[col].rolling(window=window_size, min_periods=1).mean().iloc[-window_size:].fillna(method="ffill"))
-                # else :
-                #     # 범주형 변수는 우선 최빈값 적용 : 동일 날짜(1일은 1일별로)에 대해서는 같은 값이 나오게 하든 다른 방식 고려해보기
-                #     # 범주형 변수는 마지막 window_size만 이동 최빈값 적용
-                #     for j in range(window_size):
-                #         past_values = total_data.iloc[:len(total_data)-window_size+j, i].dropna().tail(window_size)
-                #         most_frequent = past_values.mode()
-                #         total_data.loc[len(total_data)-window_size+j, col] = most_frequent[0] if not most_frequent.empty else None
-
-        # 다음 달 일별 매출 예측
-        # future_df = total_data.iloc[-window_size:, :]
-        predictions = exp.predict_model(best_model, data=future_df)
-        future_df["predicted_sales"] = predictions["prediction_label"]
+        # 결과 포맷팅
+        forecast_df = forecast.pd_dataframe().reset_index().rename(columns={'time': '날짜', '매출': '예측 매출'})
+        forecast_df['날짜'] = forecast_df['날짜'].dt.strftime('%Y%m%d')
+        forecast_df['예측 매출'] = forecast_df['예측 매출'].round(2)
 
         return {
-            "message": "30일 매출 예측 완료",
-            "target_variable": target_column,
-            "predictions": future_df.to_dict(orient="records")
+            "message": "향후 30일 매출 예측 완료",
+            "predictions": forecast_df.to_dict(orient='records'),
+            "performance": {
+                "MAPE": mape_score,
+                "RMSE": rmse_score
+            }
         }
-    
+
     except Exception as e:
         return {"error": str(e)}
 
@@ -281,19 +234,18 @@ async def perform_clustering(temp_file: str):
             final_df = final_df.merge(pivot, on='상품 명칭', how='left')
         final_df.reset_index(inplace=True)
 
-        # PyCaret 클러스터링 설정
-        exp = ClusteringExperiment()
-        exp.setup(data=final_df.drop(columns=['상품 명칭']), session_id=42, normalize=True, n_jobs=1)
+         # 상품명 제거 후 정규화
+        X = final_df.drop(columns=['상품 명칭'])
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
 
-        processed_data = exp.get_config('X')
-        optimal_k = 2 # find_best_k(processed_data)
+        # 최적의 k 찾기 
+        best_k = find_best_k(X_scaled)
 
-        model = exp.create_model('kmeans', num_clusters=optimal_k)
-        df_clustered = exp.assign_model(model)
-        df_clustered['상품 명칭'] = final_df['상품 명칭'].values
-        # df_clustered["Cluster"] = df_clustered["Cluster"].astype(str)
-        
-        cluster_data = df_clustered.to_dict(orient="records")
+        # KMeans 클러스터링 수행
+        kmeans = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+        final_df['Cluster'] = kmeans.fit_predict(X_scaled)
+        cluster_data = final_df.to_dict(orient="records")
 
         # 클러스터별 통계 요약 # TODO: 범주형 변수때문에 통계 요약을 보낼지 고민해보기
         # cluster_summary = df_clustered.groupby("Cluster").mean().reset_index().to_dict(orient="records")
@@ -303,7 +255,7 @@ async def perform_clustering(temp_file: str):
 
         return {
             "message": "상품 클러스터링 완료",
-            "optimal_k": optimal_k,
+            "optimal_k": best_k,
             "clusters": cluster_data,
             # "openai_analysis": openai_analysis
         }
@@ -339,7 +291,7 @@ async def test_preprocess():
     """preprocess_data 함수 테스트"""
     # 테스트용 파일 경로 설정
     script_dir = os.path.dirname(os.path.abspath(__file__))  
-    temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx")  # 실제 파일명에 맞게 수정하세요
+    temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx") 
 
     # 데이터 읽기
     df = await read_file(temp_file)
@@ -360,8 +312,8 @@ async def test_preprocess():
 
 # (python -m services.automl)
 if __name__ == "__main__":
-    # asyncio.run(test_predict_sales())
-    # asyncio.run(test_perform_clustering())
-    asyncio.run(test_preprocess())
+    asyncio.run(test_predict_sales())
+    asyncio.run(test_perform_clustering())
+    # asyncio.run(test_preprocess())
     
 

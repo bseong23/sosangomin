@@ -46,7 +46,7 @@ class ChatSession(Base):
 class ChatHistory(Base):
     __tablename__ = 'chat_histories'
     index = Column(Integer, primary_key=True, autoincrement=True)
-    session_id = Column(String(50), ForeignKey('chatsessions.uid'))
+    session_id = Column(String(50), ForeignKey('chat_sessions.uid'))
     user_id = Column(Integer)
     user_message = Column(Text)
     bot_message = Column(Text)
