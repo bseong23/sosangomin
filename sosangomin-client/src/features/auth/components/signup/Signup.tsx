@@ -13,6 +13,8 @@ const Signup: React.FC = () => {
     submitSignup,
     nameCheckState,
     checkName,
+    emailCheckState, // 이메일 중복 확인 상태 추가
+    checkEmail, // 이메일 중복 확인 함수 추가
     mailVerificationState,
     sendVerification,
     setMailVerified,
@@ -59,6 +61,11 @@ const Signup: React.FC = () => {
       return;
     }
 
+    if (!emailCheckState.isAvailable) {
+      alert("이메일 중복 확인이 필요합니다.");
+      return;
+    }
+
     if (!mailVerificationState.isVerified) {
       alert("이메일 인증이 필요합니다.");
       return;
@@ -94,9 +101,15 @@ const Signup: React.FC = () => {
       return;
     }
 
-    const isSent = await sendVerification(mail);
-    if (isSent) {
-      setIsVerificationModalOpen(true);
+    // 먼저 이메일 중복 체크를 수행
+    const isAvailable = await checkEmail(mail);
+
+    // 이메일이 사용 가능하면 인증 코드 발송
+    if (isAvailable) {
+      const isSent = await sendVerification(mail);
+      if (isSent) {
+        setIsVerificationModalOpen(true);
+      }
     }
   };
 
@@ -183,15 +196,18 @@ const Signup: React.FC = () => {
                 onChange={(e) => setMail(e.target.value)}
                 placeholder="example@naver.com"
                 className={`block w-full px-3 py-4 border ${
-                  mailVerificationState.error
+                  emailCheckState.error || mailVerificationState.error
                     ? "border-red-500"
                     : mailVerificationState.isVerified
                     ? "border-green-500"
+                    : emailCheckState.isAvailable
+                    ? "border-blue-500"
                     : "border-border"
                 } rounded focus:outline-none focus:border-bit-main pr-24`}
               />
               <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-sm font-medium">
-                {mailVerificationState.isLoading ? (
+                {emailCheckState.isLoading ||
+                mailVerificationState.isLoading ? (
                   <span className="text-comment-text">처리 중...</span>
                 ) : mailVerificationState.isVerified ? (
                   <div className="flex items-center text-green-600 font-medium">
@@ -222,6 +238,18 @@ const Signup: React.FC = () => {
                 )}
               </div>
             </div>
+            {emailCheckState.error && (
+              <p className="mt-1 text-sm text-red-500">
+                {emailCheckState.error}
+              </p>
+            )}
+            {emailCheckState.isAvailable &&
+              !mailVerificationState.isVerified &&
+              !mailVerificationState.error && (
+                <p className="mt-1 text-sm text-blue-600">
+                  사용 가능한 이메일입니다. 인증을 진행해주세요.
+                </p>
+              )}
             {mailVerificationState.error && (
               <p className="mt-1 text-sm text-red-500">
                 {mailVerificationState.error}

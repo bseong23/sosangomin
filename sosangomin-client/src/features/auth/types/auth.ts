@@ -100,6 +100,10 @@ export interface DuplicateCheckResponse {
   message?: string;
 }
 
+export interface EmailCheckRequest {
+  mail: string;
+}
+
 // API 응답 결과 타입
 export type ApiResponse<T = {}> = T | ApiErrorResponse;
 
@@ -109,7 +113,8 @@ export enum ErrorMessages {
   INVALID_MAIL_NUMBER = "ERR_INVALID_MAIL_NUMBER",
   MAIL_SEND_FAIL = "ERR_INTERNAL_SERVER_MAIL_SEND_FAIL_ERROR",
   USER_DUPLICATE = "ERR_USER_DUPLICATE",
-  LOGIN_FAILED = "ERR_LOGIN_FAILED"
+  LOGIN_FAILED = "ERR_LOGIN_FAILED",
+  EMAIL_DUPLICATE = "ERR_EMAIL_DUPLICATE"
 }
 
 // useSignup 훅의 상태 타입들
@@ -117,6 +122,19 @@ export interface SignupState {
   isLoading: boolean;
   error: string | null;
   isSuccess: boolean;
+}
+
+export interface EmailCheckState {
+  isLoading: boolean;
+  error: string | null;
+  isAvailable: boolean;
+}
+
+export interface UseEmailCheckReturn {
+  checkEmail: (email: string) => Promise<boolean>;
+  isLoading: boolean;
+  error: string | null;
+  isAvailable: boolean | null;
 }
 
 export interface NameCheckState {

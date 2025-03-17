@@ -4,14 +4,16 @@ import {
   checkNameDuplicate,
   sendVerificationMail,
   verifyMailCode,
-  isApiError
+  isApiError,
+  checkEmailDuplicate // 이메일 중복 확인 함수 추가
 } from "@/features/auth/api/authApi";
 import {
   SignupRequest,
   MailVerificationState,
   NameCheckState,
   SignupState,
-  ErrorMessages
+  ErrorMessages,
+  EmailCheckState // 이메일 중복 확인 상태 타입 추가
 } from "@/features/auth/types/auth";
 
 /**
@@ -27,6 +29,13 @@ export const useSignup = () => {
 
   // 닉네임 중복 확인 상태
   const [nameCheckState, setNameCheckState] = useState<NameCheckState>({
+    isLoading: false,
+    error: null,
+    isAvailable: false
+  });
+
+  // 이메일 중복 확인 상태 추가
+  const [emailCheckState, setEmailCheckState] = useState<EmailCheckState>({
     isLoading: false,
     error: null,
     isAvailable: false
@@ -144,6 +153,64 @@ export const useSignup = () => {
         ...prev,
         isLoading: false,
         error: "닉네임 확인 중 오류가 발생했습니다.",
+        isAvailable: false
+      }));
+      return false;
+    }
+  };
+
+  /**
+   * 이메일 중복 확인 함수
+   */
+  const checkEmail = async (mail: string): Promise<boolean> => {
+    if (!mail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+      setEmailCheckState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: "유효한 이메일 주소를 입력해주세요.",
+        isAvailable: false
+      }));
+      return false;
+    }
+
+    setEmailCheckState((prev) => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+      isAvailable: false
+    }));
+
+    try {
+      const response = await checkEmailDuplicate(mail);
+
+      if (isApiError(response)) {
+        const errorMessage =
+          response.errorMessage === ErrorMessages.EMAIL_DUPLICATE
+            ? "이미 사용 중인 이메일입니다."
+            : "이메일 확인 중 오류가 발생했습니다.";
+
+        setEmailCheckState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: errorMessage,
+          isAvailable: false
+        }));
+        return false;
+      }
+
+      // 성공적인 응답 (중복 없음)
+      setEmailCheckState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: null,
+        isAvailable: true
+      }));
+      return true;
+    } catch (error) {
+      setEmailCheckState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: "이메일 확인 중 오류가 발생했습니다.",
         isAvailable: false
       }));
       return false;
@@ -281,6 +348,12 @@ export const useSignup = () => {
       isAvailable: false
     });
 
+    setEmailCheckState({
+      isLoading: false,
+      error: null,
+      isAvailable: false
+    });
+
     setMailVerificationState({
       isLoading: false,
       error: null,
@@ -301,11 +374,25 @@ export const useSignup = () => {
     });
   };
 
+  /**
+   * 이메일 중복 확인 상태 초기화 함수
+   */
+  const resetEmailCheck = () => {
+    setEmailCheckState({
+      isLoading: false,
+      error: null,
+      isAvailable: false
+    });
+  };
+
   return {
     signupState,
     submitSignup,
     nameCheckState,
     checkName,
+    emailCheckState, // 이메일 중복 확인 상태 추가
+    checkEmail, // 이메일 중복 확인 함수 추가
+    resetEmailCheck, // 이메일 중복 확인 초기화 함수 추가
     mailVerificationState,
     sendVerification,
     verifyCode,
