@@ -15,6 +15,7 @@ import SignupPages from "@/pages/SignupPage";
 import MyPage from "@/pages/Mypage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import Piechartpage from "./pages/Piechartpage";
+import ResearchPage from "@/pages/ResearchPage";
 
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
@@ -68,6 +69,11 @@ const App: React.FC = () => {
             element={<div>한눈에 보기기</div>}
           />
           <Route path="/data-analysis/insight" element={<Piechartpage />} />
+          <Route path="/data-analysis/research" element={<ResearchPage />} />
+          <Route
+            path="/data-analysis/insight"
+            element={<div>분석리포트 보기</div>}
+          />
           <Route
             path="/data-analysis/review-insight"
             element={<div>리뷰 분석하기</div>}
