@@ -41,9 +41,7 @@ const MobileLayout: React.FC = () => {
       )}
 
       {/* Map 페이지에서는 px-5 패딩 제거 */}
-      <main
-        className={`flex flex-grow w-full mx-auto ${isMapPage ? "" : "px-5"}`}
-      >
+      <main className={`w-full mx-auto ${isMapPage ? "" : "px-5"}`}>
         <Outlet />
       </main>
     </div>

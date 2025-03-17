@@ -49,7 +49,7 @@ const ResetPassword: React.FC = () => {
 
   // 진행 표시기 렌더링
   const renderProgressBar = () => (
-    <div className="flex items-center justify-left space-x-2 text-sm md:text-base text-gray-500 mb-6">
+    <div className="flex items-center justify-left space-x-2 text-sm md:text-base text-gray-500 mt-6 mb-6">
       {/* 1단계: 이메일 인증 */}
       <div className="relative flex items-center justify-center w-6 h-6">
         <div
@@ -119,11 +119,10 @@ const ResetPassword: React.FC = () => {
 
       if (!success) {
         // 에러는 usePasswordReset에서 이미 설정됨
+        // 성공 시 이메일 발송 완료 상태로 변경
+        setIsEmailSent(true);
         return;
       }
-
-      // 성공 시 이메일 발송 완료 상태로 변경
-      setIsEmailSent(true);
     } catch (error) {
       console.error("비밀번호 재설정 링크 요청 오류:", error);
       setError("이메일 발송 요청 중 오류가 발생했습니다.");
