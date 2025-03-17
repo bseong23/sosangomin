@@ -18,17 +18,12 @@ const PieChart: React.FC<PieChartProps> = ({ chartData }) => {
     plugins: {
       legend: {
         position: "top" // 색깔 위치치
-      },
-      title: {
-        display: true,
-        text: "Chart.js 파이 차트"
       }
     }
   };
 
   return (
     <div className="chart-container">
-      <h2 className="text-center">파이 차트</h2>
       <Pie data={chartData} options={options} />
     </div>
   );
