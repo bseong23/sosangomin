@@ -16,8 +16,8 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   ];
 
   return (
-    <div className="overflow-x-auto pb-2 px-2">
-      <div className="flex whitespace-nowrap gap-4 px-2">
+    <div className="overflow-x-auto pb-2">
+      <div className="flex whitespace-nowrap gap-4">
         {categories.map((category) => (
           <button
             key={category.id}

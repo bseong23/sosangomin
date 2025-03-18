@@ -1,15 +1,13 @@
 export interface BoardItem {
-  id: number;
+  boardId: number;
   title: string;
-  author: string;
-  createdAt: string;
-  viewCount: number;
-  likeCount: number;
-  isNew?: boolean;
+  name: string;
+  content: string;
+  views: number;
 }
 
 export interface BoardListResponse {
-  items: BoardItem[];
+  items: BoardItem[]; // items는 BoardItem 배열입니다.
   totalCount: number;
   currentPage: number;
   totalPages: number;
@@ -28,7 +26,7 @@ export interface BoardListProps {
 
 export interface BoardItemProps {
   item: any; // 또는 더 구체적인 타입
-  boardType: "notice" | "board"; // 또는 실제 사용 중인 값들
+  boardType: "notice" | "board";
   isMobile?: boolean; // isMobile 속성 추가 (선택적으로 만들 수도 있음)
 }
 
@@ -123,4 +121,8 @@ export interface CommentProps {
   onAddReply: (commentId: number, content: string) => void;
   onEditReply: (commentId: number, replyId: number, content: string) => void;
   onDeleteReply: (commentId: number, replyId: number) => void;
+}
+
+export interface PageCountResponse {
+  pageCount: number;
 }
