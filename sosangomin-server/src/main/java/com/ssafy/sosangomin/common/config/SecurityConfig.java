@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/api/user/name/check",
                                 "/api/user/login",
                                 "/api/user/email/check",
-                                "/api/news/**"
+                                "/api/news/**",
+                                "/api/board/page/**",
+                                "/api/board/page_count"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .anyRequest().authenticated()

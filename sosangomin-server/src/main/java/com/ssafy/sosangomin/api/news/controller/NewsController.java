@@ -17,7 +17,7 @@ public class NewsController implements NewsSwagger {
 
     private final NewsService newsService;
 
-    @GetMapping("/{pageNum}")
+    @GetMapping("/page/{pageNum}")
     public ResponseEntity<List<NewsResponseDto>> getNews(
             @PathVariable int pageNum,
             @RequestParam(required = true) String category) {

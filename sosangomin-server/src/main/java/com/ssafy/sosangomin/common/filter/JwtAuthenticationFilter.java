@@ -88,7 +88,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/api/user") ||
                 path.equals("/api/user/login") ||
                 path.equals("/api/user/email/check") ||
-                path.startsWith("/api/news");
+                path.startsWith("/api/news") ||
+                path.startsWith("/api/board/page") ||
+                path.equals("/api/board/page_count");
     }
 
     private String detachBearer(String token) {
