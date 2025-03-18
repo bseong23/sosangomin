@@ -14,4 +14,13 @@ public record BoardResponseDto(
         @Schema(description = "조회수")
         Long views
 ) {
+        public BoardResponseDto incrementViews() {
+                return new BoardResponseDto(
+                        this.boardId,
+                        this.name,
+                        this.title,
+                        this.content,
+                        this.views + 1
+                );
+        }
 }

@@ -52,9 +52,10 @@ public class SecurityConfig {
                                 "/api/user/login",
                                 "/api/user/email/check",
                                 "/api/news/**",
-                                "/api/board/page/**",
+                                "/api/board/page/{pageNum}",
                                 "/api/board/page_count"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .anyRequest().authenticated()
                 )

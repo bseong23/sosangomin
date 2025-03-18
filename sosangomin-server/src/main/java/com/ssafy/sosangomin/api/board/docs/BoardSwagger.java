@@ -17,8 +17,40 @@ import java.util.List;
 public interface BoardSwagger {
 
     @Operation(
+            summary = "단일 게시글 반환",
+            description = "단일 게시글을 반환합니다. 게시글 id가 필요합니다. 조회수가 증가합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "단일 게시글 반환 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BoardResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 게시글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_BOARD_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long boardId);
+
+    @Operation(
             summary = "게시판 게시글 리스트 반환",
-            description = "게시판 게시글 리스트 반환"
+            description = "게시판 게시글 리스트 반환합니다. 페이지 수가 필요합니다."
     )
     @ApiResponses(
             value = {
@@ -36,7 +68,7 @@ public interface BoardSwagger {
 
     @Operation(
             summary = "게시판 게시글 페이지 수 반환",
-            description = "게시판 게시글 페이지 수 반환"
+            description = "게시판 게시글 페이지 수를 반환합니다."
     )
     @ApiResponses(
             value = {
