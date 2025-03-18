@@ -1,11 +1,7 @@
 import React from "react";
 import KakaoCallback from "@/features/auth/components/login/KakaoCallback";
-import useAuthStore from "@/store/useAuthStore"; // 실제 스토어 경로를 확인하세요
 
 const KakaoCallbackPage: React.FC = () => {
-  // Auth 스토어에서 setUserInfo 함수 가져오기
-  const { setUserInfo } = useAuthStore();
-
   // 로그인 성공 처리 함수
   const handleLoginSuccess = (userData: any) => {
     console.log("카카오 로그인 성공:", userData);
@@ -23,7 +19,6 @@ const KakaoCallbackPage: React.FC = () => {
       onSuccess={handleLoginSuccess}
       onError={handleLoginError}
       redirectOnSuccess="/"
-      setUserInfo={setUserInfo} // Auth 스토어의 setUserInfo 함수 전달
     />
   );
 };
