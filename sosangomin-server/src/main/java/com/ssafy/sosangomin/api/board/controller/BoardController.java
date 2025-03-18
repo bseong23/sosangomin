@@ -1,16 +1,16 @@
 package com.ssafy.sosangomin.api.board.controller;
 
 import com.ssafy.sosangomin.api.board.docs.BoardSwagger;
+import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.service.BoardService;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -19,6 +19,15 @@ import java.util.List;
 public class BoardController implements BoardSwagger {
 
     private final BoardService boardService;
+
+    @PostMapping
+    public ResponseEntity<?> insertBoard(@RequestBody BoardInsertRequestDto boardInsertRequestDto,
+                                         Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        boardService.insertBoard(boardInsertRequestDto, userId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long boardId) {
