@@ -79,6 +79,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
+        // 경로 매개변수가 있는 게시글 상세 URL 패턴 (예: /api/board/123)
+        if (path.matches("/api/board/\\d+") && method.equals("GET")) {
+            return true;
+        }
+
         return path.startsWith("/swagger-ui/") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-resources") ||

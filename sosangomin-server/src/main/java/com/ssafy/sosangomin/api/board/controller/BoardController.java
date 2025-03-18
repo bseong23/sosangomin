@@ -20,6 +20,11 @@ public class BoardController implements BoardSwagger {
 
     private final BoardService boardService;
 
+    @GetMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long boardId) {
+        return ResponseEntity.ok().body(boardService.getBoard(boardId));
+    }
+
     @GetMapping("/page/{pageNum}")
     public ResponseEntity<List<BoardResponseDto>> getBoards(
             @PathVariable int pageNum) {
