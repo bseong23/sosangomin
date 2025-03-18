@@ -18,7 +18,7 @@ import Piechartpage from "./pages/Piechartpage";
 import ResearchPage from "@/pages/ResearchPage";
 import ReviewInsightPage from "@/pages/ReviewInsightPage";
 import DataUploadPage from "@/pages/DataUploadPage";
-
+import ChatBot from "./components/common/ChatBot";
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
 
@@ -73,6 +73,7 @@ const App: React.FC = () => {
           <Route path="/map" element={<Map />} />
         </Route>
       </Routes>
+      <ChatBot />
     </Router>
   );
 };
