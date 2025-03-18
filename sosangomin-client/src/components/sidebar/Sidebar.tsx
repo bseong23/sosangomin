@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
             <li key={index} className="py-[10px]">
               <Link
                 to={item.path}
-                className={`text-[20px] text-[#333333] ${
+                className={`text-[#333333] ${
                   isSidebarItemActive(currentPath, item.path)
                     ? "font-extrabold"
                     : ""
