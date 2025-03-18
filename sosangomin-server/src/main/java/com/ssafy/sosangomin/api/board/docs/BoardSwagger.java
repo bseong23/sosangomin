@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.board.docs;
 
+import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.NewsResponseDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
@@ -11,10 +12,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface BoardSwagger {
+
+    @Operation(
+            summary = "게시글 등록",
+            description = "게시글을 등록합니다. 게시물 제목, 게시물 본문이 필요합니다 .액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "게시글 등록 성공"
+                    )
+            }
+    )
+    ResponseEntity<?> insertBoard(
+            @RequestBody BoardInsertRequestDto boardInsertRequestDto,
+            Principal principal
+    );
 
     @Operation(
             summary = "단일 게시글 반환",

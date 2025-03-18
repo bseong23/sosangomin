@@ -9,6 +9,12 @@ import java.util.Optional;
 @Mapper
 public interface BoardMapper {
 
+    @Insert("INSERT INTO boards (user_id, title, content, views) " +
+            "VALUES (#{userId}, #{title}, #{content}, 0)")
+    void insertBoard(@Param("userId") Long userId,
+                     @Param("title") String title,
+                     @Param("content") String content);
+
     @Select(
             "SELECT b.*, n.name " +
             "FROM boards b " +
@@ -26,7 +32,7 @@ public interface BoardMapper {
 
     @Update("UPDATE boards SET views = views + 1 WHERE board_id = #{boardId}")
     void incrementBoardViews(@Param("boardId") Long boardId);
-    
+
     @Select(
             "SELECT b.*, n.name " +
             "FROM boards b " +
