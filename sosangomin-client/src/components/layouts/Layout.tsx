@@ -43,11 +43,7 @@ const Layout: React.FC = () => {
             </main>
           ) : (
             // 일반 페이지 레이아웃
-            <main
-              className={`flex flex-grow justify-center mx-auto ${
-                !showHeader ? "w-full" : ""
-              }`}
-            >
+            <main className={`flex flex-grow ${!showHeader ? "w-full" : ""}`}>
               <div className={`${showHeader ? "container" : "w-full"}`}>
                 <Outlet />
               </div>

@@ -182,11 +182,9 @@ const AlternateLayoutDashboard: React.FC = () => {
 
   return (
     <div className="bg-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1000px] mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            지금 우리 가게는?
-          </h1>
+          <h1 className="text-xl font-bold text-gray-800">지금 우리 가게는?</h1>
         </div>
 
         {/* 기본 통계 카드 */}

@@ -27,7 +27,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
       <div className="flex justify-between">
         <div>
           <h3 className="text-gray-500 text-sm">{title}</h3>
-          <p className="text-2xl font-bold">{formattedValue}</p>
+          <p className="text-xl font-bold">{formattedValue}</p>
           {subValue && <p className={`${colorClass} text-sm`}>{subValue}</p>}
         </div>
         {icon && <div className="text-gray-400">{icon}</div>}
