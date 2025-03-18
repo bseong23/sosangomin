@@ -1,5 +1,5 @@
 import React from "react";
-import AnalysisDashboard from "@/features/analysis/components/AnalysisDashboard";
+import AnalysisDashboard from "@/features/analysis/components/dashboard/AnalysisDashboard";
 
 const ResearchPage: React.FC = () => {
   return (

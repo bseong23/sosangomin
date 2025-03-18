@@ -4,7 +4,7 @@ import LineChart from "@/components/chart/LineChart";
 import BarChart from "@/components/chart/BarChart";
 import PieChart from "@/components/chart/PieChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
-import { useAnalysisData } from "../hooks/useAnalysisData";
+import { useAnalysisData } from "../../hooks/useAnalysisData";
 
 const AlternateLayoutDashboard: React.FC = () => {
   const { data, loading, error } = useAnalysisData();
