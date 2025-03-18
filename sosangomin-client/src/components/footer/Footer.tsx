@@ -1,34 +1,36 @@
-import React from 'react';
-import Coin from '@/assets/coin.svg';
+import React from "react";
+import Logo from "@/assets/Logo.svg";
 
 const Footer: React.FC = () => {
-    return (
-        <div className="h-[228px] w-full flex flex-col bg-[#16125D] pb-[8px] font-inter">
-            <div className="flex justify-between px-[80px] pt-[48px] pb-[30px]">
-                <div className="h-[120px] w-[288px]">
-                    <p className="flex text-white pb-[28px]">
-                        <img src={Coin} alt="" className='h-[21px] w-[21px] mr-[8px]' />
-                        소상고민
-                    </p>
-                    <p className="text-[#9CA3AF]">Transforming data into actionable insights</p>
-                </div>
-                <div className="h-[120px] w-[288px]">
-                    <p className="text-white pb-[28px]">Company</p>
-                    <p className="text-[#9CA3AF]">삼성소프트웨어아카데미(SSAFY)</p>
-                    <p className="text-[#9CA3AF]">서울특별시 강남구 테헤란로 212</p>
-                    <p className="text-[#9CA3AF]">1544-9001</p>    
-                </div>
-                <div className="h-[120px] w-[288px]">
-                    <p className="text-white pb-[28px]">Connect</p>
-                    <p className="text-[#9CA3AF]">삼성소프트웨어 아카데미 12기</p>
-                    <p className="text-[#9CA3AF]">3반 306팀</p>
-                </div>
-            </div>
-            <div className="flex text-[#9CA3AF] justify-center">
-                © 2025 소상고민. All rights reserved.
-            </div>
+  return (
+    <div className="w-full bg-[#F8F7F7] text-white font-inter">
+      {/* 상단 섹션 */}
+      <div className="flex items-center justify-between py-6 px-10">
+        {/* 로고 섹션 */}
+        <div className="text-lg font-bold">
+          <img src={Logo} alt="Logo" className="w-32" />
         </div>
-    );
+
+        {/* 링크 섹션 */}
+        <div className="flex space-x-6 text-sm text-gray-400">
+          <div>
+            삼성청년소프트웨어 아카데미 서울특별시 강남구 테헤란로 212
+            (1544-9001)
+          </div>
+        </div>
+
+        {/* 소셜 미디어 및 이메일 */}
+        <div className="flex items-center text-sm text-gray-400">
+          <div>삼성청년소프트웨어 아카데미 12기 3반 A306팀</div>
+        </div>
+      </div>
+
+      {/* 하단 저작권 표시 */}
+      <div className="text-center text-sm pb-2 text-gray-400">
+        © 2025 소상고민.All rights reserved.
+      </div>
+    </div>
+  );
 };
 
 export default Footer;

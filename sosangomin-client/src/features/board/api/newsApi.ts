@@ -19,7 +19,7 @@ export const fetchNewsList = async (
 
     // URL 경로에 페이지 번호 포함, 카테고리는 쿼리 파라미터로 전달
     const response = await axios.get(
-      `${API_URL}/api/news/${page}?category=${category}`,
+      `${API_URL}/api/news/page/${page}?category=${category}`,
       { params: otherParams }
     );
     return response.data;
