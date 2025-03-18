@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.board.mapper;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +17,8 @@ public interface BoardMapper {
                      @Param("content") String content);
 
     @Select(
-            "SELECT b.*, n.name " +
+            "SELECT b.*, n.name, " +
+            "DATE_ADD(b.created_at, INTERVAL 9 HOUR) AS created_at " + // 9시간 더하기
             "FROM boards b " +
             "JOIN users n ON b.user_id = n.user_id " +
             "WHERE b.board_id = #{boardId}"
@@ -26,7 +28,8 @@ public interface BoardMapper {
             @Arg(column = "name", javaType = String.class),
             @Arg(column = "title", javaType = String.class),
             @Arg(column = "content", javaType = String.class),
-            @Arg(column = "views", javaType = Long.class)
+            @Arg(column = "views", javaType = Long.class),
+            @Arg(column = "created_at", javaType = LocalDateTime.class)
     })
     Optional<BoardResponseDto> findBoardById(@Param("boardId") Long boardId);
 
@@ -34,19 +37,21 @@ public interface BoardMapper {
     void incrementBoardViews(@Param("boardId") Long boardId);
 
     @Select(
-            "SELECT b.*, n.name " +
+            "SELECT b.board_id, n.name, b.title, b.content, b.views, " +
+            "DATE_ADD(b.created_at, INTERVAL 9 HOUR) AS created_at " + // 9시간 더하기
             "FROM boards b " +
             "JOIN users n ON b.user_id = n.user_id " +
             "ORDER BY b.board_id DESC " +
             "LIMIT 10 " +
-            "OFFSET ${offset}"
+            "OFFSET #{offset}"
     )
     @ConstructorArgs({ // 반환타입을 record dto로 받기 위해서 이렇게 사용
             @Arg(column = "board_id", javaType = Long.class),
             @Arg(column = "name", javaType = String.class),
             @Arg(column = "title", javaType = String.class),
             @Arg(column = "content", javaType = String.class),
-            @Arg(column = "views", javaType = Long.class)
+            @Arg(column = "views", javaType = Long.class),
+            @Arg(column = "created_at", javaType = LocalDateTime.class)
     })
     List<BoardResponseDto> findBoardsByPageNum(@Param("offset") int offset);
 
