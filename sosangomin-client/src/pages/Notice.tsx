@@ -15,45 +15,39 @@ const Notice: React.FC = () => {
   // 더미 데이터 생성
   const dummyData: BoardItem[] = [
     {
-      id: 1,
+      boardId: 1,
       title: "게시판 사용 수칙",
-      author: "관리자",
-      createdAt: "57분전",
-      viewCount: 78,
-      likeCount: 0,
-      isNew: true
+      name: "관리자",
+      content: "1",
+      views: 78
     },
     {
-      id: 10,
+      boardId: 10,
       title: "진심희서 물 픈다",
-      author: "관리자",
-      createdAt: "57분전",
-      viewCount: 17,
-      likeCount: 0
+      name: "관리자",
+      content: "1",
+      views: 17
     },
     {
-      id: 9,
+      boardId: 9,
       title: "네이버 댓글 관리하세요~",
-      author: "관리자",
-      createdAt: "57분전",
-      viewCount: 3,
-      likeCount: 0
+      name: "관리자",
+      content: "1",
+      views: 3
     },
     {
-      id: 8,
+      boardId: 8,
       title: "더운에 좋은 위치 알려줍니다",
-      author: "관리자",
-      createdAt: "57분전",
-      viewCount: 3,
-      likeCount: 0
+      name: "관리자",
+      content: "1",
+      views: 3
     },
     {
-      id: 7,
+      boardId: 7,
       title: "2월 26일 공지사항",
-      author: "관리자",
-      createdAt: "57분전",
-      viewCount: 3,
-      likeCount: 0
+      name: "관리자",
+      content: "1",
+      views: 3
     }
   ];
 

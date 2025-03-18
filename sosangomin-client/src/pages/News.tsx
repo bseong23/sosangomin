@@ -104,11 +104,11 @@ const News: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-2">
+    <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <div className="w-full">
         <Banner />
 
-        <h1 className="text-2xl font-bold mb-6">최신 뉴스</h1>
+        <div className="text-xl font-bold mb-6">최신 뉴스</div>
 
         <div className="flex justify-between items-center mb-6">
           <CategoryFilter
