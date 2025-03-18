@@ -3,27 +3,20 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { saveAuthData } from "@/features/auth/api/userStorage";
 import Loading from "@/components/common/Loading";
 import { LoginResponse } from "@/features/auth/types/auth";
-import FirstLoginModal from "@/features/auth/components/login/FirstLoginModal"; // 경로는 프로젝트 구조에 맞게 조정하세요
 
 interface KakaoCallbackProps {
   onSuccess?: (userData: LoginResponse) => void;
   onError?: (error: string) => void;
   redirectOnSuccess?: string;
-  setUserInfo: (userInfo: LoginResponse) => void; // Auth 스토어의 setUserInfo 함수
 }
 
 const KakaoCallback: React.FC<KakaoCallbackProps> = ({
   onSuccess,
   onError,
-  redirectOnSuccess = "/",
-  setUserInfo
+  redirectOnSuccess = "/"
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [userData, setUserData] = useState<LoginResponse | null>(null);
-  const [showFirstLoginModal, setShowFirstLoginModal] =
-    useState<boolean>(false);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,29 +45,27 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
         }
 
         // 사용자 정보 구성 (accessToken 포함)
-        const userDataObj: LoginResponse = {
+        // isFirstLogin은 LoginResponse 타입에 맞게 string으로 유지
+        const userData = {
           userId,
           userName: userName || "",
           userProfileUrl: userProfileUrl || "",
-          isFirstLogin: isFirstLoginValue || "",
+          isFirstLogin: isFirstLoginValue || "", // string 타입으로 유지
           accessToken
         };
 
         // 사용자 정보와 토큰 저장
-        saveAuthData(accessToken, userDataObj);
-        setUserData(userDataObj);
-
-        // 글로벌 상태 업데이트
-        setUserInfo(userDataObj);
+        saveAuthData(accessToken, userData);
 
         console.log("로그인 성공! 액세스 토큰과 사용자 정보 저장 완료");
 
-        // 첫 로그인인지 확인하고 모달 표시 여부 결정
-        if (isFirstLoginValue === "true") {
-          setShowFirstLoginModal(true);
-        } else {
-          completeLogin(userDataObj);
+        // 성공 콜백 호출
+        if (onSuccess) {
+          onSuccess(userData);
         }
+
+        // 그 외 경우 기본 페이지로 리다이렉트
+        navigate(redirectOnSuccess, { replace: true });
       } catch (err: any) {
         console.error("카카오 로그인 콜백 처리 오류:", err);
         const errorMsg = err.message || "로그인 처리 중 오류가 발생했습니다.";
@@ -94,26 +85,7 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
     };
 
     handleKakaoCallback();
-  }, [location, navigate, onError, setUserInfo]);
-
-  // 로그인 완료 처리 함수 (모달 닫기 후 실행됨)
-  const completeLogin = (loginData: LoginResponse) => {
-    // 성공 콜백 호출
-    if (onSuccess) {
-      onSuccess(loginData);
-    }
-
-    // 리다이렉트
-    navigate(redirectOnSuccess, { replace: true });
-  };
-
-  // 모달 닫기 핸들러
-  const handleCloseModal = () => {
-    setShowFirstLoginModal(false);
-    if (userData) {
-      completeLogin(userData);
-    }
-  };
+  }, [location, navigate, onSuccess, onError, redirectOnSuccess]);
 
   if (isLoading) {
     return (
@@ -138,18 +110,7 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
     );
   }
 
-  return (
-    <>
-      {showFirstLoginModal && userData && (
-        <FirstLoginModal
-          isOpen={showFirstLoginModal}
-          onClose={handleCloseModal}
-          userData={userData}
-          setUserInfo={setUserInfo}
-        />
-      )}
-    </>
-  );
+  return null;
 };
 
 export default KakaoCallback;
