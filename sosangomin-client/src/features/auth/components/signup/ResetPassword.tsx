@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
+import eyeIcon from "@/assets/eye.svg";
+import eyeCloseIcon from "@/assets/eye_close.svg";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +27,10 @@ const ResetPassword: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isResetComplete, setIsResetComplete] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [timer, setTimer] = useState(300); // 5분 타이머
 
   // URL에서 액세스 토큰 가져오기
   useEffect(() => {
@@ -42,6 +48,32 @@ const ResetPassword: React.FC = () => {
       setError(resetError);
     }
   }, [resetError]);
+
+  // 타이머 포맷팅 함수 추가
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  };
+
+  // 이메일 발송 성공 후 타이머 시작을 위한 useEffect 추가
+  useEffect(() => {
+    if (isEmailSent) {
+      // 타이머 설정
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+
+      // 컴포넌트 언마운트 시 타이머 정리
+      return () => clearInterval(interval);
+    }
+  }, [isEmailSent]);
 
   // 현재 단계: 1=이메일 입력(링크 요청), 2=비밀번호 재설정
   // 토큰이 있을 때만 2단계로 이동 (로그인 상태와 무관하게)
@@ -121,6 +153,7 @@ const ResetPassword: React.FC = () => {
         // 에러는 usePasswordReset에서 이미 설정됨
         // 성공 시 이메일 발송 완료 상태로 변경
         setIsEmailSent(true);
+        setTimer(300);
         return;
       }
     } catch (error) {
@@ -138,6 +171,10 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
+    if (newPassword !== confirmPassword) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
@@ -160,7 +197,6 @@ const ResetPassword: React.FC = () => {
 
       setIsResetComplete(true);
       setTimeout(() => {
-        alert("비밀번호가 성공적으로 변경되었습니다.");
         navigate("/login");
       }, 1500);
     } catch (error) {
@@ -176,29 +212,36 @@ const ResetPassword: React.FC = () => {
     // 비밀번호 재설정 완료 상태
     if (isResetComplete) {
       return (
-        <div className="mt-10 text-center">
-          <div className="flex justify-center mb-4">
-            <svg
-              className="w-16 h-16 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
+        <div className="mt-10">
+          <div className="bg-blue-50 p-4 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-blue-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  비밀번호 재설정 완료
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>
+                    비밀번호가 성공적으로 변경되었습니다. 로그인 페이지로
+                    이동합니다.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="text-xl font-medium text-green-600 mb-2">
-            비밀번호 재설정 완료
-          </h3>
-          <p className="text-gray-600">
-            비밀번호가 성공적으로 변경되었습니다. 로그인 페이지로 이동합니다.
-          </p>
         </div>
       );
     }
@@ -233,13 +276,34 @@ const ResetPassword: React.FC = () => {
                     {mail} 주소로 비밀번호 재설정 링크를 발송했습니다. 이메일을
                     확인하고 링크를 클릭하여 비밀번호를 재설정해주세요.
                   </p>
-                  <p className="mt-2">
+                  {/* <p className="mt-2">
                     링크는 발송 시점으로부터 5분 동안 유효합니다.
-                  </p>
+                  </p> */}
+                  <div className="mt-2 flex items-center">
+                    <p>링크 유효 시간:</p>
+                    <span className="ml-2 font-medium text-red-500">
+                      {formatTime(timer)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          {/* 링크 만료 시 재발송 버튼 추가 */}
+          {timer === 0 && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setTimer(300);
+                  handleRequestResetEmail();
+                }}
+                className="text-bit-main hover:text-indigo-800"
+              >
+                메일 재발송하기
+              </button>
+            </div>
+          )}
           <div className="mt-4">
             <button
               type="button"
@@ -257,28 +321,82 @@ const ResetPassword: React.FC = () => {
       // 비밀번호 재설정 단계
       return (
         <div className="mt-10">
+          {/* 새 비밀번호 입력 */}
           <label
             htmlFor="newPassword"
-            className="block text-base md:text-lg font-medium text-[#333333]"
+            className="block text-base md:text-lg font-medium text-comment"
           >
             새 비밀번호
           </label>
-          <div className="mt-1">
+          <div className="mt-2 relative">
             <input
               id="newPassword"
               name="newPassword"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="새 비밀번호 입력"
-              className="block w-full px-3 py-2 border border-gray-300 rounded md:rounded-md lg:rounded-md"
+              placeholder="새 비밀번호를 입력해주세요"
+              className="block w-full sm:w-80 md:w-96 lg:w-110 px-2 py-4 border border-border rounded focus:outline-none focus:border-bit-main md:rounded-md lg:rounded-md pr-12"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              비밀번호는 8자 이상이어야 합니다.
-            </p>
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <img
+                src={showPassword ? eyeIcon : eyeCloseIcon}
+                alt={showPassword ? "비밀번호 보이기" : "비밀번호 숨기기"}
+                className="h-6 w-6"
+              />
+            </button>
           </div>
-          <div className="mt-4">
+          <p
+            className={`text-xs ${
+              newPassword.length >= 8 ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            비밀번호는 8자 이상이어야 합니다.
+          </p>
+
+          {/* 비밀번호 확인 입력 - 별도 div로 분리 */}
+          <label
+            htmlFor="confirmPassword"
+            className="block text-base md:text-lg font-medium text-comment mt-4"
+          >
+            비밀번호 확인
+          </label>
+          <div className="mt-2 relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="비밀번호를 다시 입력해주세요"
+              className="block w-full sm:w-80 md:w-96 lg:w-110 px-2 py-4 border border-border rounded focus:outline-none focus:border-bit-main md:rounded-md lg:rounded-md pr-12"
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <img
+                src={showConfirmPassword ? eyeIcon : eyeCloseIcon}
+                alt={
+                  showConfirmPassword ? "비밀번호 보이기" : "비밀번호 숨기기"
+                }
+                className="h-6 w-6"
+              />
+            </button>
+          </div>
+          {confirmPassword && newPassword !== confirmPassword && (
+            <p className="mt-1 text-xs text-red-500">
+              비밀번호가 일치하지 않습니다.
+            </p>
+          )}
+          <div className="mt-7">
             <button
               type="button"
               onClick={handlePasswordChange}
@@ -286,9 +404,10 @@ const ResetPassword: React.FC = () => {
                 isLoading ||
                 isResetLoading ||
                 !newPassword.trim() ||
-                newPassword.length < 8
+                newPassword.length < 8 ||
+                newPassword !== confirmPassword
               }
-              className="w-full bg-bit-main text-white p-2 rounded md:rounded-md lg:rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base  text-basic-white hover:bg-blue-900 bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main disabled:opacity-50"
             >
               {isLoading || isResetLoading
                 ? "비밀번호 변경 중..."
@@ -317,7 +436,7 @@ const ResetPassword: React.FC = () => {
               value={mail}
               onChange={(e) => setMail(e.target.value)}
               placeholder="이메일을 입력해 주세요"
-              className={`block w-full px-3 py-2 border 
+              className={`block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main pr-24
                 ${error ? "border-red-500" : "border-border"} 
                 rounded md:rounded-md lg:rounded-md`}
             />
@@ -326,7 +445,7 @@ const ResetPassword: React.FC = () => {
                 type="button"
                 onClick={handleRequestResetEmail}
                 disabled={isLoading}
-                className="w-full bg-bit-main text-white p-2 border rounded md:rounded-md lg:rounded-md hover:bg-blue-800"
+                className="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base text-basic-white hover:bg-blue-900 bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main"
               >
                 {isLoading ? "처리 중..." : "비밀번호 재설정 링크 받기"}
               </button>
@@ -341,14 +460,15 @@ const ResetPassword: React.FC = () => {
     <div>
       {/* 프로그레스 바 */}
       {renderProgressBar()}
-
       <div className="w-full max-w-ml py-8 mx-auto">
         <div className="text-left mb-6">
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">
             {currentStep === 2 ? "비밀번호 재설정" : "이메일 인증"}
           </h1>
           <p className="text-gray-600 text-sm md:text-base mt-5">
-            {isEmailSent
+            {isResetComplete
+              ? "비밀번호가 성공적으로 변경되었습니다."
+              : isEmailSent
               ? "이메일로 발송된 링크를 통해 비밀번호를 재설정할 수 있습니다."
               : currentStep === 2
               ? "새로운 비밀번호를 입력해주세요."
