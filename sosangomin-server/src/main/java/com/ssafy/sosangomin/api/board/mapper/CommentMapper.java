@@ -4,11 +4,21 @@ import com.ssafy.sosangomin.api.board.domain.dto.response.CommentResponseDto;
 import com.ssafy.sosangomin.api.board.domain.entity.Comment;
 import org.apache.ibatis.annotations.*;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface CommentMapper {
+
+    @Results({
+            @Result(property = "commentId", column = "comment_id"),
+            @Result(property = "boardId", column = "board_id"),
+            @Result(property = "commenterId", column = "commenter_id")
+    })
+    @Select("SELECT * FROM comments WHERE comment_id = #{commentId}")
+    Optional<Comment> findByCommentId(@Param("commentId") Long commentId);
 
     @Select(
             "SELECT c.comment_id, u.name, c.content, " +
@@ -31,4 +41,7 @@ public interface CommentMapper {
     void insertComment(@Param("boardId") Long boardId,
                        @Param("userId") Long userId,
                        @Param("content") String content);
+
+    @Update("UPDATE comments SET content = #{content} WHERE comment_id = #{commentId}")
+    void updateComment(@Param("content") String content, @Param("commentId") Long commentId);
 }

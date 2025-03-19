@@ -21,6 +21,7 @@ public enum ErrorMessage {
      */
     ERR_INVALID_TOKEN,
     ERR_USER_BOARD_NOT_MATCH,
+    ERR_USER_COMMENT_NOT_MATCH,
 
     /**
      * /** 404 NOT_FOUND
@@ -28,6 +29,7 @@ public enum ErrorMessage {
     ERR_NOT_RESOURCE,
     ERR_USER_NOT_FOUND,
     ERR_BOARD_NOT_FOUND,
+    ERR_COMMENT_NOT_FOUND,
 
     /**
      * 500 INTERNAL_SERVER_ERROR
