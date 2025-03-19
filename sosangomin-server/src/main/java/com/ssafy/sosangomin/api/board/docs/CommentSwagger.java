@@ -23,7 +23,7 @@ public interface CommentSwagger {
 
     @Operation(
             summary = "해당 게시물의 댓글 리스트 반환",
-            description = "해당 게시물의 댓글 리스트 반환합니다."
+            description = "해당 게시물의 댓글 리스트 반환합니다. 로그인이 되어있다면 암호화된 userId를 포함해주세요"
     )
     @ApiResponses(
             value = {
@@ -131,4 +131,46 @@ public interface CommentSwagger {
     public ResponseEntity<?> updateComment(@PathVariable Long commentId,
                                            @RequestBody CommentUpdateRequestDto commentUpdateRequestDto,
                                            Principal principal);
+
+    @Operation(
+            summary = "댓글 삭제",
+            description = "댓글을 삭제합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "댓글 삭제 성공."
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "댓글을 삭제할 자격이 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_COMMENT_NOT_MATCH\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 댓글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_COMMENT_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId, Principal principal);
 }

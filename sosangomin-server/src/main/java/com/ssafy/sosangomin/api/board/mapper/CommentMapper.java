@@ -46,4 +46,7 @@ public interface CommentMapper {
 
     @Update("UPDATE comments SET content = #{content} WHERE comment_id = #{commentId}")
     void updateComment(@Param("content") String content, @Param("commentId") Long commentId);
+
+    @Delete("DELETE FROM comments WHERE comment_id = #{commentId}")
+    void deleteComment(@Param("commentId") Long commentId);
 }
