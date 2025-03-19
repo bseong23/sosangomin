@@ -17,6 +17,11 @@ public interface BoardMapper {
                      @Param("title") String title,
                      @Param("content") String content);
 
+    @Update("UPDATE boards SET title = #{title}, content = #{content} WHERE board_id = #{boardId}")
+    void updateBoard(@Param("boardId") Long boardId,
+                     @Param("title") String title,
+                     @Param("content") String content);
+
     @Results({
             @Result(property = "boardId", column = "board_id"),
             @Result(property = "userId", column = "user_id"),

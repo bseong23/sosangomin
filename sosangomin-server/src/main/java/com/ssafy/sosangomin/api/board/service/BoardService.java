@@ -4,6 +4,7 @@ import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.domain.entity.Board;
 import com.ssafy.sosangomin.api.board.mapper.BoardMapper;
+import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.NotFoundException;
@@ -35,6 +36,23 @@ public class BoardService {
 
         BoardResponseDto boardResponseDto = boardOptional.get();
         return boardResponseDto.incrementViews();
+    }
+
+    @Transactional
+    public void updateBoard(BoardUpdateRequestDto boardUpdateRequestDto, Long boardId, Long userId) {
+        Optional<Board> boardOriginalOptional = boardMapper.findBoardById(boardId);
+
+        if (!boardOriginalOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_BOARD_NOT_FOUND);
+        }
+
+        Board boardOriginal = boardOriginalOptional.get();
+
+        if (!boardOriginal.getUserId().equals(userId)) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_USER_BOARD_NOT_MATCH);
+        }
+
+        boardMapper.updateBoard(boardId, boardUpdateRequestDto.title(), boardUpdateRequestDto.content());
     }
 
     public List<BoardResponseDto> getBoardsByPageNum(int pageNum) {
