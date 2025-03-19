@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import requests
 from dotenv import load_dotenv
@@ -9,10 +10,10 @@ from typing import List, Tuple
 from datetime import datetime, timedelta
 import asyncio
 import calendar
-
 from db_models import Weathers
 from database.connector import database_instance
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 logger = logging.getLogger(__name__)
 
 class WeatherService:
