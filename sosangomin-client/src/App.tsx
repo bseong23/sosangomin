@@ -14,9 +14,7 @@ import Map from "@/pages/Map";
 import SignupPages from "@/pages/SignupPage";
 import MyPage from "@/pages/Mypage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import Piechartpage from "./pages/Piechartpage";
 import ResearchPage from "@/pages/ResearchPage";
-import ReviewInsightPage from "@/pages/ReviewInsightPage";
 import DataUploadPage from "@/pages/DataUploadPage";
 import ChatBot from "./components/common/ChatBot";
 const App: React.FC = () => {
