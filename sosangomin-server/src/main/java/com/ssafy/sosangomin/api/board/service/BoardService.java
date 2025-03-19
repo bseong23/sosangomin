@@ -7,6 +7,7 @@ import com.ssafy.sosangomin.api.board.mapper.BoardMapper;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.NotFoundException;
+import com.ssafy.sosangomin.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class BoardService {
 
     @Transactional
     public BoardResponseDto getBoard(Long boardId) {
-        Optional<BoardResponseDto> boardOptional = boardMapper.findBoardById(boardId);
+        Optional<BoardResponseDto> boardOptional = boardMapper.findBoardResponseDtoById(boardId);
         if (!boardOptional.isPresent()) {
             throw new NotFoundException(ErrorMessage.ERR_BOARD_NOT_FOUND);
         }
@@ -44,6 +45,18 @@ public class BoardService {
 
     public PageCountResponseDto getBoardsPageCount() {
         return new PageCountResponseDto(boardMapper.getBoardsPageCount());
+    }
+
+    public void verifyBoardUserMatch(Long boardId, Long userId) {
+        Optional<Board> boardOptional = boardMapper.findBoardById(boardId);
+        if (!boardOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_BOARD_NOT_FOUND);
+        }
+        Board board = boardOptional.get();
+
+        if (!board.getUserId().equals(userId)) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_USER_BOARD_NOT_MATCH);
+        }
     }
 
 }

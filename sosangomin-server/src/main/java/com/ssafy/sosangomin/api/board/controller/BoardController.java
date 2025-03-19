@@ -44,4 +44,12 @@ public class BoardController implements BoardSwagger {
     public ResponseEntity<PageCountResponseDto> getPageCount() {
         return ResponseEntity.ok().body(boardService.getBoardsPageCount());
     }
+
+    @GetMapping("/{boardId}/verify")
+    public ResponseEntity<Boolean> verify(@PathVariable Long boardId, Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        boardService.verifyBoardUserMatch(boardId, userId);
+        return ResponseEntity.ok().build();
+    }
 }
