@@ -25,4 +25,10 @@ public interface CommentMapper {
             @Arg(column = "created_at", javaType = LocalDateTime.class)
     })
     List<CommentResponseDto> findCommentResponseDtoByBoardId(@Param("boardId") Long boardId);
+
+    @Insert("INSERT INTO comments (board_id, commenter_id, content) " +
+            "VALUES (#{boardId}, #{userId}, #{content})")
+    void insertComment(@Param("boardId") Long boardId,
+                       @Param("userId") Long userId,
+                       @Param("content") String content);
 }
