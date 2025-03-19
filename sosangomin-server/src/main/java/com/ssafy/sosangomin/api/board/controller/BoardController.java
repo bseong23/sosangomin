@@ -4,6 +4,7 @@ import com.ssafy.sosangomin.api.board.docs.BoardSwagger;
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.service.BoardService;
+import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,16 @@ public class BoardController implements BoardSwagger {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long boardId) {
         return ResponseEntity.ok().body(boardService.getBoard(boardId));
+    }
+
+    @PutMapping("/{boardId}")
+    public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
+                                         BoardUpdateRequestDto boardUpdateRequestDto,
+                                         Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        boardService.updateBoard(boardUpdateRequestDto, boardId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/page/{pageNum}")

@@ -2,6 +2,7 @@ package com.ssafy.sosangomin.api.board.docs;
 
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
+import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.NewsResponseDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +68,54 @@ public interface BoardSwagger {
             }
     )
     ResponseEntity<BoardResponseDto> getBoard(@PathVariable Long boardId);
+
+    @Operation(
+            summary = "게시글 수정",
+            description = "게시글을 수정합니다. 수정할 제목과 내용이 필요합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "게시물 수정 성공.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BoardResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "게시물을 수정할 자격이 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_BOARD_NOT_MATCH\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 게시글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_BOARD_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> updateBoard(@PathVariable Long boardId,
+                                  BoardUpdateRequestDto boardUpdateRequestDto,
+                                  Principal principal);
 
     @Operation(
             summary = "게시판 게시글 리스트 반환",
