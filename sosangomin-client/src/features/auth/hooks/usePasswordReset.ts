@@ -75,9 +75,13 @@ export const usePasswordReset = (): UsePasswordResetReturn => {
         }
       });
 
-      const response = await tempAxiosInstance.put("/api/user/password", null, {
-        params: { password: newPassword }
-      });
+      const response = await tempAxiosInstance.patch(
+        "/api/user/password",
+        null,
+        {
+          params: { password: newPassword }
+        }
+      );
 
       if (response.data) {
         return true;

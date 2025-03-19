@@ -27,7 +27,7 @@ export const getUserInfo = async (): Promise<UserProfileResponse> => {
  */
 export const changeName = async (name: string): Promise<ChangeNameResponse> => {
   try {
-    const response = await axiosInstance.put("/api/user/name", null, {
+    const response = await axiosInstance.patch("/api/user/name", null, {
       params: { name }
     });
     return response.data;
@@ -48,7 +48,7 @@ export const changePassword = async (
   password: string
 ): Promise<ChangePasswordResponse> => {
   try {
-    const response = await axiosInstance.put("/api/user/password", null, {
+    const response = await axiosInstance.patch("/api/user/password", null, {
       params: { password }
     });
     return response.data;
@@ -74,7 +74,7 @@ export const changeProfileImage = async (
     formData.append("profileImg", imageFile);
 
     // multipart/form-data로 전송
-    const response = await axiosInstance.put(
+    const response = await axiosInstance.patch(
       "/api/user/profile_img",
       formData,
       {
