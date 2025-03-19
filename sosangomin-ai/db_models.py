@@ -157,6 +157,32 @@ class WorkingPopulation(Base):
     # 등록 일시
     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
 
+<<<<<<< sosangomin-ai/db_models.py
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Store(Base):
     __tablename__ = 'stores'
@@ -174,3 +200,27 @@ class Store(Base):
     longitude = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+=======
+class SubwayStation(Base):
+    __tablename__ = "subway_stations"
+
+    station_id = Column(Integer, primary_key=True, autoincrement=True, comment="지하철역 데이터 ID (PK)")
+    bldn_id = Column(String(20), unique=True, nullable=False, comment="역사 ID")
+    station_name = Column(String(100), nullable=False, comment="역사명")
+    route = Column(String(50), nullable=False, comment="호선")
+    latitude = Column(Float, nullable=False, comment="위도")
+    longitude = Column(Float, nullable=False, comment="경도")
+    created_at = Column(DateTime, default=datetime.datetime.now, comment="데이터 수집 시점")
+
+class BusStop(Base):
+    __tablename__ = "bus_stops"
+
+    stop_id = Column(Integer, primary_key=True, autoincrement=True, comment="정류소 데이터 ID (PK)")
+    stop_no = Column(String(20), unique=True, nullable=False, comment="정류소 번호")
+    stop_name = Column(String(100), nullable=False, comment="정류소 이름")
+    longitude = Column(Float, nullable=False, comment="경도")
+    latitude = Column(Float, nullable=False, comment="위도")
+    node_id = Column(String(50), nullable=True, comment="노드 ID")
+    stop_type = Column(String(50), nullable=True, comment="정류소 타입")
+    created_at = Column(DateTime, default=datetime.datetime.now, comment="데이터 수집 시점")
+>>>>>>> sosangomin-ai/db_models.py

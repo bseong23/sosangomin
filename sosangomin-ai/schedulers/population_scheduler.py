@@ -36,12 +36,8 @@ async def schedule_working_population_updates():
             # 오류 발생 시 1일 후 재시도
             await asyncio.sleep(60 * 60 * 24)
 
-def start_resident_population_scheduler():
-    """상주 인구 데이터 스케줄러 시작"""
+def start_population_scheduler():
+    """인구 데이터 스케줄러 시작"""
     asyncio.create_task(schedule_resident_population_updates())
-    return True
-
-def start_working_population_scheduler():
-    """직장 인구 데이터 스케줄러 시작"""
     asyncio.create_task(schedule_working_population_updates())
     return True
