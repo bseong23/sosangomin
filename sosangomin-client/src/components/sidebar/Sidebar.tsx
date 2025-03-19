@@ -9,6 +9,7 @@ const Sidebar: React.FC = () => {
 
   const isCommunityPath = currentPath.startsWith("/community");
   const isDataAnalysisPath = currentPath.startsWith("/data-analysis");
+  const isReviewPath = currentPath.startsWith("/review");
 
   const communityMenu: MenuGroup = {
     label: "커뮤니티",
@@ -19,14 +20,18 @@ const Sidebar: React.FC = () => {
     ]
   };
 
+  const reviewMenu: MenuGroup = {
+    label: "리뷰",
+    items: [
+      { label: "가게 분석", path: "/review/store" },
+      { label: "비교 분석", path: "/review/compare" }
+    ]
+  };
   const dataAnalysisMenu: MenuGroup = {
     label: "데이터 분석",
     items: [
       { label: "데이터 입력하기", path: "/data-analysis/upload" },
-      { label: "한눈에 보기", path: "/data-analysis/research" },
-      { label: "분석리포트 보기", path: "/data-analysis/insight" },
-      { label: "리뷰 분석하기", path: "/data-analysis/review-insight" },
-      { label: "고민해결", path: "/data-analysis/advise" }
+      { label: "한눈에 보기", path: "/data-analysis/research" }
     ]
   };
 
@@ -35,6 +40,8 @@ const Sidebar: React.FC = () => {
     ? communityMenu
     : isDataAnalysisPath
     ? dataAnalysisMenu
+    : isReviewPath
+    ? reviewMenu
     : null;
 
   if (!menuToShow) return null;

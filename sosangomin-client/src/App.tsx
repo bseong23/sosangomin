@@ -64,13 +64,23 @@ const App: React.FC = () => {
           />
           <Route path="/data-analysis/upload" element={<DataUploadPage />} />
           <Route path="/data-analysis/research" element={<ResearchPage />} />
-          <Route path="/data-analysis/insight" element={<Piechartpage />} />
-          <Route
-            path="/data-analysis/review-insight"
-            element={<ReviewInsightPage />}
-          />
-          <Route path="/data-analysis/advise" element={<div>고민해결결</div>} />
           <Route path="/map" element={<Map />} />
+          <Route
+            path="/review/store"
+            element={<p className="h-screen">가게 리뷰</p>}
+          />
+          <Route
+            path="/review/compare"
+            element={<p className="h-screen">리뷰 비교</p>}
+          />
+          <Route
+            path="/result"
+            element={<p className="h-screen">종합 분석</p>}
+          />
+          <Route
+            path="/service"
+            element={<p className="h-screen">서비스 소개개</p>}
+          />
         </Route>
       </Routes>
       <ChatBot />
