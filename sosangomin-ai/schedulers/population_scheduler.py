@@ -3,8 +3,8 @@
 import asyncio
 import logging
 # from services.resident_population_service import resident_population_service
-from resident_population_service import resident_population_service
-from working_population_service import working_population_service
+from services.resident_population_service import resident_population_service
+from services.working_population_service import working_population_service
 
 logger = logging.getLogger(__name__)
 

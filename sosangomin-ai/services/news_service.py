@@ -331,33 +331,30 @@ class NewsService:
                 if response.status != 200:
                     logger.warning(f"뉴스 페이지 접근 실패: {response.status}")
                     return None
-                
-                html = await response.text()
-                
-                soup = BeautifulSoup(html, 'html.parser')
-                
-                og_image = soup.find('meta', property='og:image')
-                if og_image and og_image.get('content'):
-                    image_url = og_image['content']
-                    return image_url
-                
-                main_image = soup.select_one('article img, .news_content img, .article_body img, .news-article-image img')
-                if main_image and main_image.get('src'):
-                    image_url = main_image['src']
-                    if image_url.startswith('/'):
-                        from urllib.parse import urlparse
-                        parsed_url = urlparse(news_url)
-                        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-                        image_url = base_url + image_url
-                    return image_url
-                
-                logger.warning("이미지 URL을 찾을 수 없음")
-                return None
-                
+                try: 
+                    html = await response.text()
+                    
+                    soup = BeautifulSoup(html, 'html.parser')
+                    
+                    og_image = soup.find('meta', property='og:image')
+                    if og_image and og_image.get('content'):
+                        image_url = og_image['content']
+                        return image_url
+                    
+                    main_image = soup.select_one('article img, .news_content img, .article_body img, .news-article-image img')
+                    if main_image and main_image.get('src'):
+                        image_url = main_image['src']
+                        if image_url.startswith('/'):
+                            from urllib.parse import urlparse
+                            parsed_url = urlparse(news_url)
+                            base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                            image_url = base_url + image_url
+                        return image_url
+                except:
+                    pass
+
         except Exception as e:
-            logger.error(f"이미지 URL 추출 중 오류 발생: {e}")
-            logger.error(traceback.format_exc())
-            return None
+            pass
     
     def get_recent_news(self, db: Session, category: Optional[str] = None, limit: int = 20) -> List[News]:
         """최근 뉴스 조회 (카테고리별 필터링 옵션)"""

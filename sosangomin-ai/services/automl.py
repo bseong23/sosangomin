@@ -8,8 +8,8 @@ import holidays
 # from datetime import datetime, timedelta 
 from darts import TimeSeries
 from darts.models import AutoARIMA, Prophet
-# from darts.utils.statistics import plot_residuals
-# from darts.utils.timeseries_generation import datetime_attribute_timeseries
+from darts.utils.statistics import plot_residuals
+from darts.utils.timeseries_generation import datetime_attribute_timeseries
 from darts.metrics import mape, rmse
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler

@@ -156,3 +156,21 @@ class WorkingPopulation(Base):
 
     # 등록 일시
     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
+
+
+class Store(Base):
+    __tablename__ = 'stores'
+    
+    store_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    store_name = Column(String(255), nullable=False)
+    address = Column(String(255), nullable=False)
+    place_id = Column(String(100), nullable=False)
+    phone = Column(String(20))
+    category = Column(String(100))
+    review_count = Column(Integer)
+    business_hours = Column(Text)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
