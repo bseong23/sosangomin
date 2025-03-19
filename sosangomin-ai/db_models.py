@@ -157,33 +157,6 @@ class WorkingPopulation(Base):
     # 등록 일시
     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
 
-<<<<<<< sosangomin-ai/db_models.py
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Store(Base):
     __tablename__ = 'stores'
     
@@ -200,7 +173,7 @@ class Store(Base):
     longitude = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-=======
+
 class SubwayStation(Base):
     __tablename__ = "subway_stations"
 
@@ -223,4 +196,3 @@ class BusStop(Base):
     node_id = Column(String(50), nullable=True, comment="노드 ID")
     stop_type = Column(String(50), nullable=True, comment="정류소 타입")
     created_at = Column(DateTime, default=datetime.datetime.now, comment="데이터 수집 시점")
->>>>>>> sosangomin-ai/db_models.py
