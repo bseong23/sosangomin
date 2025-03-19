@@ -4,16 +4,12 @@ import pandas as pd
 import numpy as np
 import os
 import holidays  
-# from datetime import datetime, timedelta 
-# from darts import TimeSeries
-# from darts.models import AutoARIMA, Prophet
-# # from darts.utils.statistics import plot_residuals
-# from darts.utils.timeseries_generation import datetime_attribute_timeseries
-# from darts.metrics import mape, rmse
+from prophet import Prophet
+from pmdarima import auto_arima
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-from services.weather_service import weather_service
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, silhouette_score
+from weather_service import weather_service
 
 # 우선 키움 페이 포스기 데이터를 기준으로 작성하였음.
 
@@ -29,90 +25,95 @@ async def read_file(temp_file: str) -> pd.DataFrame:
 
 async def preprocess_data(df) :
     """데이터 전처리 및 시간 변수 생성"""
-    # TODO : 현재 직접적인 변수명을 사용한 부분이 있는데 일반화를 할지 고민
+    try:
+        # TODO : 현재 직접적인 변수명을 사용한 부분이 있는데 일반화를 할지 고민
 
-    # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
-    header_values = set(df.columns.tolist()) 
-    columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
-    df = df.drop(columns=columns_to_drop)
+        # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
+        header_values = set(df.columns.tolist()) 
+        columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
+        df = df.drop(columns=columns_to_drop)
 
-    # 결측 및 중복 처리 
-    df = (
-        df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
-          .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
-          .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
-          .T.drop_duplicates().T    # 중복 열 제거
-    )
+        # 결측 및 중복 처리 
+        df = (
+            df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+            .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+            .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
+            .T.drop_duplicates().T    # 중복 열 제거
+        )
 
-    # 'Unnamed'가 포함되지 않은 열 중복
-    cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
-    df[cols_to_fill] = df[cols_to_fill].ffill() 
+        # 'Unnamed'가 포함되지 않은 열 중복
+        cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
+        df[cols_to_fill] = df[cols_to_fill].ffill()
 
-    # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
-    dup_val = ['단가', '수량', '원가']
-    for val in dup_val :
-        columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
-        # print(val, columns)
-        if columns:
-            df[val] = df[columns].bfill(axis=1).iloc[:, 0]
-            df = df.drop(columns=columns)
+        # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
+        dup_val = ['단가', '수량', '원가']
+        for val in dup_val :
+            columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
+            # print(val, columns)
+            if columns:
+                df[val] = df[columns].bfill(axis=1).iloc[:, 0]
+                df = df.drop(columns=columns)
 
-    # TODO: 결제 수단 이용할건지?
+        # TODO: 결제 수단 이용할건지?
 
-    df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
+        df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
 
-    # 컬럼명 수정
-    new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
-    df.columns = new_columns
-    df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
-    df = df.loc[:, df.nunique() > 1]  
+        # 컬럼명 수정
+        new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
+        df.columns = new_columns
+        df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
+        df = df.loc[:, df.nunique() > 1]  
+
+        # 파생변수 생성
+        kr_holidays = holidays.KR()
+
+        df['매출 일시'] = pd.to_datetime(df['매출 일시'])
+        df['년'] = df['매출 일시'].dt.year.astype(str)  
+        df['월'] = df['매출 일시'].dt.month.astype(str).str.zfill(2)
+        df['일'] = df['매출 일시'].dt.day.astype(str).str.zfill(2)
+        df['시'] = df['매출 일시'].dt.hour.astype(str).str.zfill(2)
+        df['분'] = df['매출 일시'].dt.minute.astype(str).str.zfill(2)
+        df['요일'] = df['매출 일시'].dt.day_name()  
+        df['시간대'] = df['시'].astype(int).apply(lambda x: '점심' if 11 <= x <= 15 else ('저녁' if 17 <= x <= 21 else '기타')) # 시간대 (점심, 저녁, 기타)
+        df['계절'] = df['월'].astype(int).apply(lambda x: '봄' if 3 <= x <= 5 else
+                                            '여름' if 6 <= x <= 8 else
+                                            '가을' if 9 <= x <= 11 else '겨울')
+        df['공휴일'] = df['매출 일시'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
+        
+        # 외부 데이터 불러오기
+        min_date, max_date = df['매출 일시'].min(), df['매출 일시'].max()
+        start_date, end_date = min_date.strftime('%Y%m%d%H'), max_date.strftime('%Y%m%d%H')
+
+        # 날씨
+        weather_df = await weather_service.process_weather(start_date, end_date, "서울") # TODO : 장소 받아오는 로직 짜기
+
+        merged_df = pd.merge(
+            df, 
+            weather_df, 
+            left_on=['년', '월', '일', '시'],
+            right_on=['year', 'month', 'day', 'hour'],
+            how='left'
+        ).drop(columns=['year', 'month', 'day', 'hour'])
+        
+        merged_df = merged_df.rename(columns={
+            'ta': '기온',
+            'ws': '풍속',
+            'hm': '습도',
+            'rn': '강수량'
+        })
+        merged_df['강수량'] = merged_df['강수량'].fillna(0)
+        # df['미세먼지']
+        # df['유동인구']
+
+
+        # df.drop('매출 일시', axis=1, inplace=True)
+        merged_df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in merged_df.columns]
+
+        return merged_df
     
-    # 파생변수 생성
-    kr_holidays = holidays.KR()
-
-    df['매출 일시'] = pd.to_datetime(df['매출 일시'])
-    df['년'] = df['매출 일시'].dt.year.astype(str)  
-    df['월'] = df['매출 일시'].dt.month.astype(str).str.zfill(2)
-    df['일'] = df['매출 일시'].dt.day.astype(str).str.zfill(2)
-    df['시'] = df['매출 일시'].dt.hour.astype(str).str.zfill(2)
-    df['분'] = df['매출 일시'].dt.minute.astype(str).str.zfill(2)
-    df['요일'] = df['매출 일시'].dt.day_name()  
-    df['시간대'] = df['시'].astype(int).apply(lambda x: '점심' if 11 <= x <= 15 else ('저녁' if 17 <= x <= 21 else '기타')) # 시간대 (점심, 저녁, 기타)
-    df['계절'] = df['월'].astype(int).apply(lambda x: '봄' if 3 <= x <= 5 else
-                                        '여름' if 6 <= x <= 8 else
-                                        '가을' if 9 <= x <= 11 else '겨울')
-    df['공휴일'] = df['매출 일시'].dt.date.apply(lambda x: '휴일' if x in kr_holidays or x.weekday() >= 5 else '평일')
-    
-    # 외부 데이터 불러오기
-    min_date, max_date = df['매출 일시'].min(), df['매출 일시'].max()
-    start_date, end_date = min_date.strftime('%Y%m%d%H'), max_date.strftime('%Y%m%d%H')
-
-    # 날씨
-    weather_df = await weather_service.process_weather(start_date, end_date, "서울") # TODO : 장소 받아오는 로직 짜기
-
-    merged_df = pd.merge(
-        df, 
-        weather_df, 
-        left_on=['년', '월', '일', '시'],
-        right_on=['year', 'month', 'day', 'hour'],
-        how='left'
-    ).drop(columns=['year', 'month', 'day', 'hour'])
-    
-    merged_df = merged_df.rename(columns={
-        'ta': '기온',
-        'ws': '풍속',
-        'hm': '습도',
-        'rn': '강수량'
-    })
-    merged_df['강수량'] = merged_df['강수량'].fillna(0)
-    # df['미세먼지']
-    # df['유동인구']
-
-
-    # df.drop('매출 일시', axis=1, inplace=True)
-    merged_df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in merged_df.columns]
-
-    return merged_df
+    except Exception as e:
+        return {"message": "데이터 전처리 중 오류 발생",
+                "error": str(e)}
 
 def find_best_k(data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> int:
     """Silhouette Score로 최적 k 찾기"""
@@ -154,7 +155,7 @@ def find_best_k_elbow(data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> in
 
     return elbow_point
 
-async def predict_next_30_sales(df: pd.DataFrame): # predict_next_30_sales(temp_file: str):
+async def predict_next_30_sales(df: pd.DataFrame, model_type="Prophet"): # predict_next_30_sales(temp_file: str):
     """향후 30일 매출 예측"""
     try:
         # df = await read_file(temp_file)
@@ -172,32 +173,104 @@ async def predict_next_30_sales(df: pd.DataFrame): # predict_next_30_sales(temp_
         date_range = pd.date_range(daily_sales_df['날짜'].min(), daily_sales_df['날짜'].max(), freq='D')
         daily_sales_df = daily_sales_df.set_index('날짜').reindex(date_range, fill_value=1000).rename_axis('날짜').reset_index()
 
-        # TimeSeries로 변환
-        ts = TimeSeries.from_dataframe(daily_sales_df, '날짜', '매출')
+        # 요일 변수 추가 (One-Hot Encoding)
+        # daily_sales_df['요일'] = daily_sales_df['날짜'].dt.day_name()
+        # enc = OneHotEncoder(sparse_output=False, drop='first') 
+        # weekday_encoded = enc.fit_transform(daily_sales_df[['요일']])
+        # weekday_df = pd.DataFrame(weekday_encoded, columns=enc.get_feature_names_out(['요일']))
+        # daily_sales_df = pd.concat([daily_sales_df, weekday_df], axis=1).drop(columns=['요일'])
 
-        # 모델 학습 
-        model = Prophet()  
-        # model = AutoARIMA()
-        model.fit(ts) # TODO : 외부 요인 반영 future_covariates [날씨, 공휴일, 유동인구, 등]
+        # # 공휴일 변수 추가
+        # kr_holidays = holidays.KR()
+        # daily_sales_df['공휴일'] = daily_sales_df['날짜'].apply(lambda x: 1 if x in kr_holidays else 0)
 
-        # Backtesting 방식으로 성능 평가 (마지막 30일)
-        forecast_test = model.historical_forecasts(
-            ts,
-            start=-30,  # 끝에서 30개
-            forecast_horizon=1,  # 하루 단위 예측
-            retrain=True,
-            verbose=True
-        )
+        # 학습 데이터 분할 (성능 평가용)
+        train_df = daily_sales_df.iloc[:-30]  # 학습 데이터
+        test_df = daily_sales_df.iloc[-30:]   # 테스트 데이터 (성능 평가용)
 
-        # 평가
-        mape_score = float(mape(ts[-30:], forecast_test))
-        rmse_score = float(rmse(ts[-30:], forecast_test))
+        ### 모델 학습 & 성능 평가 ###
+        if model_type.lower() == "prophet":
+            df_prophet = train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
+            test_df_prophet = test_df.rename(columns={'날짜': 'ds'})
 
-        # 향후 30일 예측
-        forecast = model.predict(30)
+            model = Prophet()
+            # model = Prophet(yearly_seasonality=True, weekly_seasonality=True) # seasonality_mode='multiplicative')
+            
+            # 추가 요인 반영
+            # for col in weekday_df.columns: 
+            #     model.add_regressor(col)
+            # model.add_regressor('공휴일')
 
-        # 결과 포맷팅
-        forecast_df = forecast.pd_dataframe().reset_index().rename(columns={'time': '날짜', '매출': '예측 매출'})
+            model.fit(df_prophet)
+
+            # 성능 평가용 예측 (마지막 30일)
+            test_future = test_df_prophet.copy()
+            forecast_test = model.predict(test_future)
+            test_predictions = forecast_test[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
+            
+            # 성능 평가 (MAPE, RMSE)
+            y_true = test_df['매출'].values
+            y_pred = test_predictions.loc[test_predictions['날짜'].isin(test_df['날짜'])]['예측 매출'].values
+            mape_score = mean_absolute_percentage_error(y_true, y_pred)
+            rmse_score = mean_squared_error(y_true, y_pred) ** 0.5 
+
+        elif model_type.lower() == "autoarima":
+            train_data = train_df.set_index('날짜')['매출']
+            test_data = test_df.set_index('날짜')['매출']
+
+            model = auto_arima(train_data, seasonal=False, stepwise=True, trace=True)
+            forecast_test = model.predict(n_periods=30)
+
+            # 성능 평가 (MAPE, RMSE)
+            y_true = test_data.values
+            y_pred = forecast_test
+            mape_score = mean_absolute_percentage_error(y_true, y_pred)
+            rmse_score = mean_squared_error(y_true, y_pred) ** 0.5 
+
+        else:
+            raise ValueError("지원되지 않는 모델 유형입니다. 'Prophet' 또는 'AutoARIMA'를 선택하세요.")
+
+        ### 모든 데이터 사용하여 30일 예측 ###
+        full_train_df = daily_sales_df.copy()  # 모든 데이터를 학습에 사용
+
+        if model_type.lower() == "prophet":
+            full_df_prophet = full_train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
+            
+            final_model = Prophet()
+            # final_model = Prophet(yearly_seasonality=True, weekly_seasonality=True) # seasonality_mode='multiplicative')
+            # for col in weekday_df.columns:
+            #     final_model.add_regressor(col)
+            # final_model.add_regressor('공휴일')
+
+            final_model.fit(full_df_prophet)
+
+            # 향후 30일 예측
+            future = final_model.make_future_dataframe(periods=30)
+            # future['요일'] = future['ds'].dt.day_name()
+            # weekday_encoded_future = enc.transform(future[['요일']]) 
+            # weekday_df_future = pd.DataFrame(weekday_encoded_future, columns=enc.get_feature_names_out(['요일']))
+            # future = pd.concat([future, weekday_df_future], axis=1).drop(columns=['요일'])
+            # future['공휴일'] = future['ds'].apply(lambda x: 1 if x in kr_holidays else 0) 
+
+            final_forecast = final_model.predict(future)
+            forecast_df = final_forecast[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
+
+            seasonal_effects = final_forecast[['ds', 'trend']] #, 'yearly', 'weekly']]
+            seasonal_effects.rename(columns={'ds': '날짜'}, inplace=True)
+        
+        elif model_type.lower() == "autoarima":
+            full_train_data = full_train_df.set_index('날짜')['매출']
+
+            final_model = auto_arima(full_train_data, seasonal=False, stepwise=True, trace=True)
+            final_forecast = final_model.predict(n_periods=30)
+
+            # 최종 예측 데이터프레임 생성
+            forecast_df = pd.DataFrame({
+                '날짜': pd.date_range(start=full_train_df['날짜'].max() + pd.Timedelta(days=1), periods=30, freq='D'),
+                '예측 매출': final_forecast
+            })
+
+        # 날짜 형식 변환
         forecast_df['날짜'] = forecast_df['날짜'].dt.strftime('%Y%m%d')
         forecast_df['예측 매출'] = forecast_df['예측 매출'].round(2)
 
@@ -205,9 +278,10 @@ async def predict_next_30_sales(df: pd.DataFrame): # predict_next_30_sales(temp_
             "message": "향후 30일 매출 예측 완료",
             "predictions": forecast_df.to_dict(orient='records'),
             "performance": {
-                "MAPE": mape_score,
-                "RMSE": rmse_score
-            }
+                "MAPE": round(mape_score, 4),
+                "RMSE": round(rmse_score, 4)
+            },
+            "seasonal_trend": seasonal_effects.to_dict(orient='records') 
         }
 
     except Exception as e:
@@ -270,8 +344,13 @@ async def test_predict_sales():
         
     # 파일 경로 설정 및 데이터 로드
     script_dir = os.path.dirname(os.path.abspath(__file__))  
-    temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx") 
-    result = await predict_next_30_sales(temp_file)
+    temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx")
+
+    df = await read_file(temp_file)
+    df = await preprocess_data(df)
+    print(df.columns)
+    print(df.head)
+    result = await predict_next_30_sales(df)
 
     # 결과 출력
     print("[TEST] 매출액 예측 결과:", result)
@@ -312,7 +391,7 @@ async def test_preprocess():
 # (python -m services.automl)
 if __name__ == "__main__":
     asyncio.run(test_predict_sales())
-    asyncio.run(test_cluster_items())
+    # asyncio.run(test_cluster_items())
     # asyncio.run(test_preprocess())
     
 
