@@ -4,7 +4,7 @@ import com.ssafy.sosangomin.api.board.docs.BoardSwagger;
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.service.BoardService;
-import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
+import com.ssafy.sosangomin.api.board.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

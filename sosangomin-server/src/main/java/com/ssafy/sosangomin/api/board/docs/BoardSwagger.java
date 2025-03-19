@@ -2,8 +2,7 @@ package com.ssafy.sosangomin.api.board.docs;
 
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
-import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
-import com.ssafy.sosangomin.api.news.domain.dto.response.NewsResponseDto;
+import com.ssafy.sosangomin.api.board.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

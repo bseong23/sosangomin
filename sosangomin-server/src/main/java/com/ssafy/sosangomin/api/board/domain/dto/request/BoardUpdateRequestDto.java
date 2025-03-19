@@ -1,4 +1,4 @@
-package com.ssafy.sosangomin.api.news.domain.dto.request;
+package com.ssafy.sosangomin.api.board.domain.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

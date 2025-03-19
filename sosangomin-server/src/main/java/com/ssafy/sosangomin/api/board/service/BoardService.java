@@ -4,7 +4,7 @@ import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.domain.entity.Board;
 import com.ssafy.sosangomin.api.board.mapper.BoardMapper;
-import com.ssafy.sosangomin.api.news.domain.dto.request.BoardUpdateRequestDto;
+import com.ssafy.sosangomin.api.board.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.exception.NotFoundException;
