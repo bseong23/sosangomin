@@ -40,18 +40,18 @@ const Layout: React.FC = () => {
           <Header />
         </div>
       )}
-      <div className={`flex flex-grow ${showHeader ? "pt-[73px]" : ""}`}>
+      <div className={`flex ${showHeader ? "pt-[73px]" : ""}`}>
         {showSidebar && <Sidebar />}
-        <div className="flex flex-col flex-grow">
+        <div className="flex flex-col w-full">
           {isMapPage ? (
             // 지도 페이지일 때 특별한 레이아웃
-            <main className="flex flex-grow w-full">
+            <main className="flex w-full">
               <Outlet />
             </main>
           ) : (
             // 일반 페이지 레이아웃
-            <main className={`flex flex-grow ${!showHeader ? "w-full" : ""}`}>
-              <div className={`${showHeader ? "container" : "w-full"}`}>
+            <main className="flex w-full">
+              <div className="w-full mx-auto px-4">
                 <Outlet />
               </div>
             </main>

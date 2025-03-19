@@ -7,7 +7,7 @@ interface KakaoLoginButtonProps {
 
 const KakaoLoginButton: React.FC<KakaoLoginButtonProps> = ({ onClick }) => {
   return (
-    <button
+    <div
       className="w-full relative flex items-center justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-black bg-[#FEE500] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 hover:bg-yellow-400"
       onClick={onClick}
     >
@@ -18,7 +18,7 @@ const KakaoLoginButton: React.FC<KakaoLoginButtonProps> = ({ onClick }) => {
 
       {/* 카카오 로그인 텍스트 - 중앙 정렬 */}
       <span className="text-base">카카오 로그인</span>
-    </button>
+    </div>
   );
 };
 
