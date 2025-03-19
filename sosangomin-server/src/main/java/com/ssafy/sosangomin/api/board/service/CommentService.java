@@ -1,8 +1,10 @@
 package com.ssafy.sosangomin.api.board.service;
 
 import com.ssafy.sosangomin.api.board.domain.dto.request.CommentInsertRequestDto;
+import com.ssafy.sosangomin.api.board.domain.dto.request.CommentUpdateRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.CommentResponseDto;
 import com.ssafy.sosangomin.api.board.domain.entity.Board;
+import com.ssafy.sosangomin.api.board.domain.entity.Comment;
 import com.ssafy.sosangomin.api.board.mapper.BoardMapper;
 import com.ssafy.sosangomin.api.board.mapper.CommentMapper;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
@@ -39,5 +41,20 @@ public class CommentService {
             throw new NotFoundException(ErrorMessage.ERR_BOARD_NOT_FOUND);
         }
         commentMapper.insertComment(boardId, userId, commentInsertRequestDto.content());
+    }
+
+    @Transactional
+    public void updateComment(CommentUpdateRequestDto commentUpdateRequestDto,
+                              Long commentId,
+                              Long userId) {
+        Optional<Comment> commentOptional = commentMapper.findByCommentId(commentId);
+        if (!commentOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_COMMENT_NOT_FOUND);
+        }
+        Comment comment = commentOptional.get();
+        if (!comment.getCommenterId().equals(userId)) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_USER_COMMENT_NOT_MATCH);
+        }
+        commentMapper.updateComment(commentUpdateRequestDto.content(), commentId);
     }
 }
