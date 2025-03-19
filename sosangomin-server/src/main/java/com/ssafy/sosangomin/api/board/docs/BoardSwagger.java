@@ -76,11 +76,7 @@ public interface BoardSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "게시물 수정 성공.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
-                            )
+                            description = "게시물 수정 성공."
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -124,11 +120,7 @@ public interface BoardSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "게시물 삭제 성공.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
-                            )
+                            description = "게시물 삭제 성공."
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -206,11 +198,7 @@ public interface BoardSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "해당 유저의 게시글이 맞습니다.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
-                            )
+                            description = "해당 유저의 게시글이 맞습니다."
                     ),
                     @ApiResponse(
                             responseCode = "401",

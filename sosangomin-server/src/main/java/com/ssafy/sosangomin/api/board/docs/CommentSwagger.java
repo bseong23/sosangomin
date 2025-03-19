@@ -4,7 +4,9 @@ import com.ssafy.sosangomin.api.board.domain.dto.request.CommentInsertRequestDto
 import com.ssafy.sosangomin.api.board.domain.dto.request.CommentUpdateRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.CommentResponseDto;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.List;
@@ -29,7 +32,7 @@ public interface CommentSwagger {
                             description = "게시물의 댓글 리스트 반환 성공",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
+                                    schema = @Schema(implementation = CommentResponseDto.class)
                             )
                     ),
                     @ApiResponse(
@@ -48,7 +51,9 @@ public interface CommentSwagger {
                     )
             }
     )
-    public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long boardId);
+    public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long boardId,
+                                                               @Parameter(name = "userId", description = "암호화된 사용자 id(pk) / 로그인 안되어있을 경우 안넣어도 됨", schema = @Schema(type = "string"), required = false)
+                                                               @DecryptedId @RequestParam(required = false) Long userId);
 
     @Operation(
             summary = "게시물에 댓글 작성",
@@ -58,11 +63,7 @@ public interface CommentSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "댓글 작성 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
-                            )
+                            description = "댓글 작성 성공"
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -94,8 +95,7 @@ public interface CommentSwagger {
                             responseCode = "200",
                             description = "댓글 수정 성공.",
                             content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BoardResponseDto.class)
+                                    mediaType = "application/json"
                             )
                     ),
                     @ApiResponse(

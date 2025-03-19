@@ -5,6 +5,7 @@ import com.ssafy.sosangomin.api.board.domain.dto.request.CommentInsertRequestDto
 import com.ssafy.sosangomin.api.board.domain.dto.request.CommentUpdateRequestDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.CommentResponseDto;
 import com.ssafy.sosangomin.api.board.service.CommentService;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,8 +22,9 @@ public class CommentController implements CommentSwagger {
     private final CommentService commentService;
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long boardId) {
-        return ResponseEntity.ok().body(commentService.findByBoardId(boardId));
+    public ResponseEntity<List<CommentResponseDto>> getComment(@PathVariable Long boardId,
+                                                               @DecryptedId @RequestParam(required = false) Long userId) {
+        return ResponseEntity.ok().body(commentService.findByBoardId(boardId, userId));
     }
 
     @PostMapping("/{boardId}")
