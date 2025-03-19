@@ -4,79 +4,66 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
 import CommentList from "@/features/board/components/boards/CommentList";
 import { PostType } from "@/features/board/types/board";
-// import eye from "@/assets/eye.svg";
+import {
+  fetchBoardPost,
+  deleteBoardPost,
+  verifyBoardPost
+} from "@/features/board/api/boardApi";
 
 const PostDetail: React.FC = () => {
-  const { postId } = useParams<{ postId: string }>();
+  const { boardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [post, setPost] = useState<PostType>({
-    id: postId,
-    title: "제목",
-    content: "내용",
-    author: "박보성",
-    createdAt: "2025.03.06",
-    views: 5,
-    comments: [
-      {
-        id: 1,
-        author: "박보성",
-        content: "ㅋㅋㅋㅋ 빨리 후기 주세요",
-        createdAt: "2024.03.06",
-        replies: [
-          {
-            id: 101,
-            author: "서지윤",
-            content: "곧 올릴게요~",
-            createdAt: "2024.03.06"
-          },
-          {
-            id: 102,
-            author: "김도형",
-            content: "빨리 주세요",
-            createdAt: "2024.03.06"
-          }
-        ]
-      },
-      {
-        id: 2,
-        author: "서지윤",
-        content: "우왕 좋아요",
-        createdAt: "2024.03.06",
-        replies: []
-      },
-      {
-        id: 3,
-        author: "권인승",
-        content: "재밌어요",
-        createdAt: "2024.03.06",
-        replies: []
-      }
-    ]
+    id: boardId,
+    title: "",
+    content: "",
+    author: "",
+    createdAt: "",
+    views: 0,
+    comments: []
   });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // 게시글 데이터 가져오기
   useEffect(() => {
-    // TODO: 게시글 데이터를 가져오는 API 호출
     const fetchPost = async () => {
-      try {
-        // API 호출 예시 코드:
-        // const response = await fetch(`/api/posts/${postId}`);
-        // const data = await response.json();
-        // setPost(data);
+      if (!boardId) return;
 
-        // 임시 데이터로 setPost 사용 (실제 API 구현 전까지)
-        setPost((prevPost) => ({
-          ...prevPost
-          // 여기서 필요한 데이터 업데이트
-        }));
+      setLoading(true);
+      try {
+        const data = await fetchBoardPost(boardId);
+        // API 응답 구조에 맞게 데이터 매핑
+        setPost({
+          id: data.boardId.toString(),
+          title: data.title,
+          content: data.content,
+          author: data.name,
+          createdAt: new Date(data.createdAt).toLocaleDateString(),
+          views: data.views,
+          comments: post.comments // 현재는 댓글 API가 따로 있을 수 있으므로 기존 상태 유지
+        });
+        setError(null);
+
+        // 사용자 권한 확인 (게시글 수정/삭제 가능 여부)
+        try {
+          await verifyBoardPost(boardId);
+        } catch (verifyError) {
+          // 권한이 없으면 수정/삭제 버튼을 표시하지 않음
+          // 여기서는 에러 메시지를 표시하지 않음 (정상적인 상황일 수 있음)
+        }
       } catch (error) {
         console.error("게시글을 불러오는데 실패했습니다:", error);
+        setError("게시글을 불러오는데 실패했습니다. 다시 시도해주세요.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPost();
-  }, [postId]);
+  }, [boardId]);
 
   const togglePostMenu = () => {
     setShowMenu(!showMenu);
@@ -85,7 +72,7 @@ const PostDetail: React.FC = () => {
     if (!showMenu) {
       document.dispatchEvent(
         new CustomEvent("menu:toggle", {
-          detail: { id: `post-${postId}` }
+          detail: { id: `post-${boardId}` }
         })
       );
     }
@@ -94,7 +81,7 @@ const PostDetail: React.FC = () => {
   // 다른 메뉴가 열릴 때 현재 메뉴 닫기
   useEffect(() => {
     const handleToggleMenu = (e: CustomEvent<{ id: string }>) => {
-      if (e.detail.id !== `post-${postId}` && showMenu) {
+      if (e.detail.id !== `post-${boardId}` && showMenu) {
         setShowMenu(false);
       }
     };
@@ -117,20 +104,52 @@ const PostDetail: React.FC = () => {
       );
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [postId, showMenu]);
+  }, [boardId, showMenu]);
 
-  const handleEditPost = () => {
-    navigate(`/community/board/edit/${postId}`, {
-      state: { postId, postData: post }
-    });
+  const handleEditPost = async () => {
+    try {
+      if (!boardId) return;
+
+      // 권한 확인 API 호출
+      await verifyBoardPost(boardId);
+
+      // 권한이 있는 경우 수정 페이지로 이동
+      navigate(`/community/board/edit/${boardId}`, {
+        state: { boardId, postData: post }
+      });
+    } catch (error) {
+      console.error("권한 확인 실패:", error);
+      alert("게시글을 수정할 권한이 없습니다.");
+    }
+
     setShowMenu(false);
   };
 
-  const handleDeletePost = () => {
+  const handleDeletePost = async () => {
     if (window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-      // TODO: 게시글 삭제 API 호출
-      console.log("게시글 삭제 API 호출:", postId);
-      navigate("/community/board");
+      try {
+        if (!boardId) return;
+
+        await deleteBoardPost(boardId);
+        alert("게시글이 성공적으로 삭제되었습니다.");
+        navigate("/community/board");
+      } catch (error: any) {
+        console.error("게시글 삭제 실패:", error);
+
+        // 에러 응답에 따른 처리
+        if (error.response) {
+          if (error.response.status === 401) {
+            alert("게시글을 삭제할 권한이 없습니다.");
+          } else if (error.response.status === 404) {
+            alert("존재하지 않는 게시글입니다.");
+            navigate("/community/board");
+          } else {
+            alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+          }
+        } else {
+          alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+        }
+      }
     }
     setShowMenu(false);
   };
@@ -140,7 +159,7 @@ const PostDetail: React.FC = () => {
     console.log("댓글 등록:", content);
 
     // API 호출 후 게시글 데이터 다시 불러오기
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    // 예시: fetchPost(boardId).then(data => setPost(data));
   };
 
   const handleUpdateComment = (commentId: number, content: string) => {
@@ -148,7 +167,7 @@ const PostDetail: React.FC = () => {
     console.log("댓글 수정 API 호출:", commentId, content);
 
     // API 호출 후 게시글 데이터 다시 불러오기
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    // 예시: fetchPost(boardId).then(data => setPost(data));
   };
 
   const handleDeleteComment = (commentId: number) => {
@@ -157,7 +176,7 @@ const PostDetail: React.FC = () => {
       console.log("댓글 삭제 API 호출:", commentId);
 
       // API 호출 후 게시글 데이터 다시 불러오기
-      // 예시: fetchPost(postId).then(data => setPost(data));
+      // 예시: fetchPost(boardId).then(data => setPost(data));
     }
   };
 
@@ -166,7 +185,7 @@ const PostDetail: React.FC = () => {
     console.log("대댓글 등록:", commentId, content);
 
     // API 호출 후 게시글 데이터 다시 불러오기
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    // 예시: fetchPost(boardId).then(data => setPost(data));
   };
 
   const handleUpdateReply = (
@@ -178,7 +197,7 @@ const PostDetail: React.FC = () => {
     console.log("대댓글 수정 API 호출:", commentId, replyId, content);
 
     // API 호출 후 게시글 데이터 다시 불러오기
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    // 예시: fetchPost(boardId).then(data => setPost(data));
   };
 
   const handleDeleteReply = (commentId: number, replyId: number) => {
@@ -186,11 +205,27 @@ const PostDetail: React.FC = () => {
     console.log("대댓글 삭제 API 호출:", commentId, replyId);
 
     // API 호출 후 게시글 데이터 다시 불러오기
-    // 예시: fetchPost(postId).then(data => setPost(data));
+    // 예시: fetchPost(boardId).then(data => setPost(data));
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col w-full sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <p className="text-center py-10">로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col w-full sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <p className="text-center py-10 text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col w-full sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <div className="max-w-4xl mx-auto w-full sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* 게시판 타이틀 */}
       <div className="w-full">
         <div className="mb-3 sm:mb-4 lg:mb-6">
@@ -244,7 +279,7 @@ const PostDetail: React.FC = () => {
 
         {/* 게시글 내용 */}
         <div className="my-4 sm:my-5 lg:my-6">
-          <div className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-lg">
+          <div className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-sm">
             {post.content}
           </div>
         </div>

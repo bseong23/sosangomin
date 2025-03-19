@@ -2,10 +2,10 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_SERVER_URL;
 
-export const addComment = async (postId: string, content: string) => {
+export const addComment = async (boardId: string, content: string) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/community/board/${postId}/comments`,
+      `${BASE_URL}/community/board/${boardId}/comments`,
       {
         content
       }
@@ -18,13 +18,13 @@ export const addComment = async (postId: string, content: string) => {
 };
 
 export const updateComment = async (
-  postId: string,
+  boardId: string,
   commentId: number,
   content: string
 ) => {
   try {
     const response = await axios.put(
-      `${BASE_URL}/community/board/${postId}/comments/${commentId}`,
+      `${BASE_URL}/community/board/${boardId}/comments/${commentId}`,
       { content }
     );
     return response.data;
@@ -34,10 +34,10 @@ export const updateComment = async (
   }
 };
 
-export const deleteComment = async (postId: string, commentId: number) => {
+export const deleteComment = async (boardId: string, commentId: number) => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/community/board/${postId}/comments/${commentId}`
+      `${BASE_URL}/community/board/${boardId}/comments/${commentId}`
     );
     return response.data;
   } catch (error) {
@@ -47,13 +47,13 @@ export const deleteComment = async (postId: string, commentId: number) => {
 };
 
 export const addReply = async (
-  postId: string,
+  boardId: string,
   commentId: number,
   content: string
 ) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/community/board/${postId}/comments/${commentId}/replies`,
+      `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies`,
       { content }
     );
     return response.data;
@@ -64,14 +64,14 @@ export const addReply = async (
 };
 
 export const updateReply = async (
-  postId: string,
+  boardId: string,
   commentId: number,
   replyId: number,
   content: string
 ) => {
   try {
     const response = await axios.put(
-      `${BASE_URL}/community/board/${postId}/comments/${commentId}/replies/${replyId}`,
+      `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies/${replyId}`,
       { content }
     );
     return response.data;
@@ -82,13 +82,13 @@ export const updateReply = async (
 };
 
 export const deleteReply = async (
-  postId: string,
+  boardId: string,
   commentId: number,
   replyId: number
 ) => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/community/board/${postId}/comments/${commentId}/replies/${replyId}`
+      `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies/${replyId}`
     );
     return response.data;
   } catch (error) {
