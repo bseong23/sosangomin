@@ -20,6 +20,7 @@ public enum ErrorMessage {
      * 401 UNAUTHORIZED
      */
     ERR_INVALID_TOKEN,
+    ERR_USER_BOARD_NOT_MATCH,
 
     /**
      * /** 404 NOT_FOUND

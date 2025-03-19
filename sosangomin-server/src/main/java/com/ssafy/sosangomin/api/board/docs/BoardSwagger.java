@@ -103,4 +103,50 @@ public interface BoardSwagger {
             }
     )
     public ResponseEntity<PageCountResponseDto> getPageCount();
+
+    @Operation(
+            summary = "게시글 자격 확인",
+            description = "해당 게시글이 유저가 쓴 게시글글인지 자격 판단을 합니다. 게시글 id가 필요합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "해당 유저의 게시글이 맞습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BoardResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "해당 유저의 게시글이 아닙니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_BOARD_NOT_MATCH\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 게시글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_BOARD_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<Boolean> verify(@PathVariable Long boardId, Principal principal);
 }

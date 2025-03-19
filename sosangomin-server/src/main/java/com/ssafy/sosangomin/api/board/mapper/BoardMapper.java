@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.board.mapper;
 
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
+import com.ssafy.sosangomin.api.board.domain.entity.Board;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,13 @@ public interface BoardMapper {
     void insertBoard(@Param("userId") Long userId,
                      @Param("title") String title,
                      @Param("content") String content);
+
+    @Results({
+            @Result(property = "boardId", column = "board_id"),
+            @Result(property = "userId", column = "user_id"),
+    })
+    @Select("SELECT * FROM boards WHERE board_id = #{boardId}")
+    Optional<Board> findBoardById(@Param("boardId") Long boardId);
 
     @Select(
             "SELECT b.*, n.name, " +
@@ -31,7 +39,7 @@ public interface BoardMapper {
             @Arg(column = "views", javaType = Long.class),
             @Arg(column = "created_at", javaType = LocalDateTime.class)
     })
-    Optional<BoardResponseDto> findBoardById(@Param("boardId") Long boardId);
+    Optional<BoardResponseDto> findBoardResponseDtoById(@Param("boardId") Long boardId);
 
     @Update("UPDATE boards SET views = views + 1 WHERE board_id = #{boardId}")
     void incrementBoardViews(@Param("boardId") Long boardId);
