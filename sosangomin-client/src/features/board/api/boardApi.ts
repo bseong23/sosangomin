@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BoardItem, PageCountResponse } from "@/features/board/types/board";
+import { getAccessToken } from "@/features/auth/api/userStorage";
 
 const BASE_URL = import.meta.env.VITE_API_SERVER_URL;
 
@@ -28,12 +29,19 @@ export const fetchBoardPageCount = async (): Promise<number> => {
   }
 };
 
+// 게시글 등록
 export const createBoardPost = async (data: {
   title: string;
   content: string;
 }) => {
   try {
-    const response = await axios.post(`${BASE_URL}/community/board`, data);
+    const token = getAccessToken();
+    const response = await axios.post(`${BASE_URL}/api/board`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("게시글 작성 실패:", error);
@@ -42,11 +50,9 @@ export const createBoardPost = async (data: {
 };
 
 // 게시글 단일 조회
-export const fetchBoardPost = async (postId: string) => {
+export const fetchBoardPost = async (boardId: string) => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/community/board/post/${postId}`
-    );
+    const response = await axios.get(`${BASE_URL}/api/board/${boardId}`);
     return response.data;
   } catch (error) {
     console.error("게시글 조회 실패:", error);
@@ -54,19 +60,40 @@ export const fetchBoardPost = async (postId: string) => {
   }
 };
 
+// 게시글 자격 확인
+export const verifyBoardPost = async (boardId: string) => {
+  try {
+    const token = getAccessToken();
+    const response = await axios.get(
+      `${BASE_URL}/api/board/${boardId}/verify`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("게시글 자격 확인 실패:", error);
+    throw error;
+  }
+};
+
 // 게시글 수정
 export const updateBoardPost = async (
-  postId: string,
+  boardId: string,
   data: {
     title: string;
     content: string;
   }
 ) => {
   try {
-    const response = await axios.put(
-      `${BASE_URL}/community/board/${postId}`,
-      data
-    );
+    const token = getAccessToken();
+    const response = await axios.put(`${BASE_URL}/api/board/${boardId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response.data;
   } catch (error) {
     console.error("게시글 수정 실패:", error);
@@ -75,11 +102,14 @@ export const updateBoardPost = async (
 };
 
 // 게시글 삭제
-export const deleteBoardPost = async (postId: string) => {
+export const deleteBoardPost = async (boardId: string) => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/community/board/${postId}`
-    );
+    const token = getAccessToken();
+    const response = await axios.delete(`${BASE_URL}/api/board/${boardId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response.data;
   } catch (error) {
     console.error("게시글 삭제 실패:", error);

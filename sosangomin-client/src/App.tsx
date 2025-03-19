@@ -46,18 +46,18 @@ const App: React.FC = () => {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/community/notice" element={<Notice />} />
           <Route
-            path="/community/notice/post/:postId"
+            path="/community/notice/post/:boardId"
             element={<div>공지사항 상세</div>}
           />
           <Route path="/community/news" element={<News />} />
           <Route path="/community/board" element={<Board />} />
           <Route path="/community/board/write" element={<WritePost />} />
           <Route
-            path="/community/board/edit/:postId"
+            path="/community/board/edit/:boardId"
             element={<BoardPostEditPage />}
           />
           <Route
-            path="/community/board/post/:postId"
+            path="/community/board/post/:boardId"
             element={<BoardPostDetailPage />}
           />
           <Route path="/data-analysis/upload" element={<DataUploadPage />} />
