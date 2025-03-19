@@ -46,4 +46,12 @@ public class CommentController implements CommentSwagger {
         commentService.updateComment(commentUpdateRequestDto, commentId, userId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long commentId, Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        commentService.deleteComment(commentId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

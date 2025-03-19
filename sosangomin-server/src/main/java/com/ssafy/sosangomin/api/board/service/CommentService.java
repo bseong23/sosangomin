@@ -73,4 +73,20 @@ public class CommentService {
         }
         commentMapper.updateComment(commentUpdateRequestDto.content(), commentId);
     }
+
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Optional<Comment> commentOptional = commentMapper.findByCommentId(commentId);
+        if (!commentOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_COMMENT_NOT_FOUND);
+        }
+
+        Comment comment = commentOptional.get();
+
+        if (!comment.getCommenterId().equals(userId)) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_USER_COMMENT_NOT_MATCH);
+        }
+
+        commentMapper.deleteComment(commentId);
+    }
 }
