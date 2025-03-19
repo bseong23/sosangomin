@@ -84,6 +84,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (path.matches("/api/comment/\\d+") && method.equals("GET")) {
+            return true;
+        }
+
         return path.startsWith("/swagger-ui/") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-resources") ||
