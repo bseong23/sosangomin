@@ -8,12 +8,12 @@ const WritePost: React.FC = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  // const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // 페이지 로드 시 로그인 상태 확인
   useEffect(() => {
     const checkLoginStatus = () => {
-      setIsCheckingAuth(true);
+      // setIsCheckingAuth(true);
       try {
         // 인증 유틸리티를 사용하여 로그인 상태 확인
         if (!isLoggedIn()) {
@@ -22,8 +22,9 @@ const WritePost: React.FC = () => {
           navigate("/community/board");
           return;
         }
-      } finally {
-        setIsCheckingAuth(false);
+      } catch (error) {
+        console.error("로그인 상태 확인 중 오류:", error);
+        navigate("/community/board");
       }
     };
 
