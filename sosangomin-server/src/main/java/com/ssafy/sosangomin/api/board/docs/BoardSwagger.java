@@ -118,6 +118,52 @@ public interface BoardSwagger {
                                   Principal principal);
 
     @Operation(
+            summary = "게시글 삭제",
+            description = "게시글을 삭제합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "게시물 삭제 성공.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BoardResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "게시물을 삭제할 자격이 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_USER_BOARD_NOT_MATCH\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 게시글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_BOARD_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId, Principal principal);
+
+    @Operation(
             summary = "게시판 게시글 리스트 반환",
             description = "게시판 게시글 리스트 반환합니다. 페이지 수가 필요합니다."
     )

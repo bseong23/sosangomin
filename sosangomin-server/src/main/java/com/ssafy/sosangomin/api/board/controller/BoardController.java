@@ -45,6 +45,14 @@ public class BoardController implements BoardSwagger {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId, Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        boardService.deleteBoard(boardId, userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/page/{pageNum}")
     public ResponseEntity<List<BoardResponseDto>> getBoards(
             @PathVariable int pageNum) {
