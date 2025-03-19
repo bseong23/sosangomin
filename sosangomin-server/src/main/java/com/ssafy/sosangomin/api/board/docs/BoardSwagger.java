@@ -114,7 +114,7 @@ public interface BoardSwagger {
             }
     )
     ResponseEntity<?> updateBoard(@PathVariable Long boardId,
-                                  BoardUpdateRequestDto boardUpdateRequestDto,
+                                  @RequestBody BoardUpdateRequestDto boardUpdateRequestDto,
                                   Principal principal);
 
     @Operation(

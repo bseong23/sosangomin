@@ -37,7 +37,7 @@ public class BoardController implements BoardSwagger {
 
     @PutMapping("/{boardId}")
     public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
-                                         BoardUpdateRequestDto boardUpdateRequestDto,
+                                         @RequestBody BoardUpdateRequestDto boardUpdateRequestDto,
                                          Principal principal) {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
