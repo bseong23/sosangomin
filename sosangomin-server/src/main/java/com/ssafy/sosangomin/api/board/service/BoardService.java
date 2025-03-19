@@ -55,6 +55,23 @@ public class BoardService {
         boardMapper.updateBoard(boardId, boardUpdateRequestDto.title(), boardUpdateRequestDto.content());
     }
 
+    @Transactional
+    public void deleteBoard(Long boardId, Long userId) {
+        Optional<Board> boardOriginalOptional = boardMapper.findBoardById(boardId);
+
+        if (!boardOriginalOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_BOARD_NOT_FOUND);
+        }
+
+        Board boardOriginal = boardOriginalOptional.get();
+
+        if (!boardOriginal.getUserId().equals(userId)) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_USER_BOARD_NOT_MATCH);
+        }
+
+        boardMapper.deleteBoard(boardId);
+    }
+
     public List<BoardResponseDto> getBoardsByPageNum(int pageNum) {
         int offset = (pageNum - 1) * 10;
         List<BoardResponseDto> boards = boardMapper.findBoardsByPageNum(offset);

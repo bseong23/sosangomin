@@ -22,6 +22,9 @@ public interface BoardMapper {
                      @Param("title") String title,
                      @Param("content") String content);
 
+    @Delete("DELETE FROM boards WHERE board_id = #{boardId}")
+    void deleteBoard(@Param("boardId") Long boardId);
+
     @Results({
             @Result(property = "boardId", column = "board_id"),
             @Result(property = "userId", column = "user_id"),
