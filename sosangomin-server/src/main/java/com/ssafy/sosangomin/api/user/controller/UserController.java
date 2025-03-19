@@ -43,7 +43,7 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().body(userService.login(loginRequestDto));
     }
 
-    @PutMapping("/name")
+    @PatchMapping("/name")
     public ResponseEntity<?> updateName(Principal principal, @ModelAttribute UpdateNameRequestDto updateNameRequestDto) {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
@@ -51,7 +51,7 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/password")
+    @PatchMapping("/password")
     public ResponseEntity<?> updatePassword(Principal principal, @ModelAttribute UpdatePasswordRequestDto updatePasswordRequestDto) {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
@@ -59,7 +59,7 @@ public class UserController implements UserSwagger {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/profile_img")
+    @PatchMapping("/profile_img")
     public ResponseEntity<?> updateProfileImg(Principal principal, @RequestParam MultipartFile profileImg) {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
