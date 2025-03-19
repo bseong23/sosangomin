@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { SideItem } from "@/types/layout";
 import SidebarMenuItem from "@/components/sidebar/SidebarMenuItem";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/useAuthStore";
 import { getAccessToken, clearAuthData } from "@/features/auth/api/userStorage";
 import profileImage from "@/assets/profileImage.svg";
@@ -12,6 +12,7 @@ interface SidebarProps {
 }
 
 const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
+  const navigate = useNavigate();
   // Zustand 스토어에서 유저 정보 가져오기
   const { userInfo } = useAuthStore();
 
@@ -26,28 +27,30 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   const [menuItems, setMenuItems] = useState<SideItem[]>([
     {
-      title: "서비스 소개",
-      isOpen: false,
-      children: [
-        { title: "데이터 분석", path: "/service/intro" },
-        { title: "상권 분석", path: "/service/intro" }
-      ]
-    },
-    {
       title: "데이터 분석",
       isOpen: false,
       children: [
         { title: "데이터 입력하기", path: "/data-analysis/upload" },
-        { title: "한눈에 보기", path: "/data-analysis/research" },
-        { title: "분석리포트 보기", path: "/data-analysis/insight" },
-        { title: "리뷰 분석하기", path: "/data-analysis/review-insight" },
-        { title: "고민해결", path: "/data-analysis/advise" }
+        { title: "한눈에 보기", path: "/data-analysis/research" }
+      ]
+    },
+    {
+      title: "리뷰 분석",
+      isOpen: false,
+      children: [
+        { title: "가게 분석", path: "/review/store" },
+        { title: "비교 분석", path: "/review/compare" }
       ]
     },
     {
       title: "상권 분석",
       isOpen: false,
       children: [{ title: "상권 분석", path: "/map" }]
+    },
+    {
+      title: "종합 분석",
+      isOpen: false,
+      children: [{ title: "종합 분석", path: "/result" }]
     },
     {
       title: "커뮤니티",
@@ -74,10 +77,24 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   }, [isOpen]);
 
   const toggleMenu = (title: string) => {
+    const menuItem = menuItems.find((item) => item.title === title);
+
+    // 하위 메뉴가 하나만 있는 경우 직접 해당 경로로 이동
+    if (menuItem && menuItem.children && menuItem.children.length === 1) {
+      const path = menuItem.children[0].path;
+      if (path) {
+        if (toggleSidebar) toggleSidebar(); // 사이드바 닫기
+        navigate(path);
+      }
+      return;
+    }
+
+    // 다른 열린 메뉴 닫고 현재 메뉴만 토글
     setMenuItems((prevItems) =>
-      prevItems.map((item) =>
-        item.title === title ? { ...item, isOpen: !item.isOpen } : item
-      )
+      prevItems.map((item) => ({
+        ...item,
+        isOpen: item.title === title ? !item.isOpen : false
+      }))
     );
   };
 

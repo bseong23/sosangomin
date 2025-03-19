@@ -19,6 +19,7 @@ const Notice: React.FC = () => {
       title: "게시판 사용 수칙",
       name: "관리자",
       content: "1",
+      createdAt: "2025-03-19T10:25:04",
       views: 78
     },
     {
@@ -26,6 +27,7 @@ const Notice: React.FC = () => {
       title: "진심희서 물 픈다",
       name: "관리자",
       content: "1",
+      createdAt: "2025-03-19T10:25:04",
       views: 17
     },
     {
@@ -33,6 +35,7 @@ const Notice: React.FC = () => {
       title: "네이버 댓글 관리하세요~",
       name: "관리자",
       content: "1",
+      createdAt: "2025-03-19T10:25:04",
       views: 3
     },
     {
@@ -40,6 +43,7 @@ const Notice: React.FC = () => {
       title: "더운에 좋은 위치 알려줍니다",
       name: "관리자",
       content: "1",
+      createdAt: "2025-03-19T10:25:04",
       views: 3
     },
     {
@@ -47,6 +51,7 @@ const Notice: React.FC = () => {
       title: "2월 26일 공지사항",
       name: "관리자",
       content: "1",
+      createdAt: "2025-03-18T20:25:04",
       views: 3
     }
   ];

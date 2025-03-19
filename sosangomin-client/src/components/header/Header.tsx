@@ -60,9 +60,10 @@ const Header: React.FC = () => {
   }, [userInfo, updateUserInfo]);
 
   const navItems: NavItem[] = [
-    { name: "서비스 소개", path: "/service" },
     { name: "데이터 분석", path: "/data-analysis/upload" },
-    { name: "상권분석", path: "/map" },
+    { name: "리뷰 분석", path: "/review/store" },
+    { name: "상권 분석", path: "/map" },
+    { name: "종합 분석", path: "/result" },
     { name: "커뮤니티", path: "/community/notice" }
   ];
 

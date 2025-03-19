@@ -11,7 +11,6 @@ const BoardList: React.FC<BoardListProps> = ({ items, boardType }) => {
       <table className="w-full max-h-65 border-collapse">
         <thead>
           <tr className="border-b border-t border-gray-300 ">
-            {!isMobile && <th className="py-2 text-center">No.</th>}
             <th className="py-2 text-center">제목</th>
             <th className="py-2 text-center">글쓴이</th>
             <th className="py-2 text-center">작성시간</th>

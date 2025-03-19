@@ -3,14 +3,16 @@ export const isPathActive = (
   currentPath: string,
   targetPath: string
 ): boolean => {
-  if (targetPath === "/service") {
-    return currentPath.startsWith("/service");
-  } else if (targetPath === "/data-analysis/upload") {
+  if (targetPath === "/data-analysis/upload") {
     return currentPath.startsWith("/data-analysis");
   } else if (targetPath === "/map") {
     return currentPath.startsWith("/map");
   } else if (targetPath === "/community/notice") {
     return currentPath.startsWith("/community");
+  } else if (targetPath === "/review/store") {
+    return currentPath.startsWith("/review");
+  } else if (targetPath === "/result") {
+    return currentPath.startsWith("/result");
   }
   return false;
 };

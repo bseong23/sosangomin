@@ -12,18 +12,25 @@ const Layout: React.FC = () => {
 
   const showSidebar =
     location.pathname.startsWith("/community") ||
+    location.pathname.startsWith("/review") ||
     location.pathname.startsWith("/data-analysis");
 
   const showHeader =
     isMainPage ||
     location.pathname.startsWith("/community") ||
     location.pathname.startsWith("/data-analysis") ||
+    location.pathname.startsWith("/review") ||
+    location.pathname.startsWith("/result") ||
+    location.pathname.startsWith("/service") ||
     location.pathname.startsWith("/map") ||
     location.pathname.startsWith("/mypage");
 
   const showFooter =
     isMainPage ||
     location.pathname.startsWith("/community") ||
+    location.pathname.startsWith("/result") ||
+    location.pathname.startsWith("/review") ||
+    location.pathname.startsWith("/service") ||
     location.pathname.startsWith("/data-analysis");
 
   return (

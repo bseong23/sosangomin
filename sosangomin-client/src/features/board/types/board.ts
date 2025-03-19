@@ -3,6 +3,7 @@ export interface BoardItem {
   title: string;
   name: string;
   content: string;
+  createdAt: string;
   views: number;
 }
 

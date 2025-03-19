@@ -24,7 +24,10 @@ const MobileLayout: React.FC = () => {
     isMainPage ||
     location.pathname.startsWith("/community") ||
     location.pathname.startsWith("/data-analysis") ||
-    isMapPage ||
+    location.pathname.startsWith("/review") ||
+    location.pathname.startsWith("/result") ||
+    location.pathname.startsWith("/service") ||
+    location.pathname.startsWith("/map") ||
     location.pathname.startsWith("/mypage");
 
   return (
