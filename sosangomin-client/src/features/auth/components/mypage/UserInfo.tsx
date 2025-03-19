@@ -105,7 +105,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-8 bg-basic-white">
+    <div className="w-full mx-auto p-8 bg-basic-white">
       {/* 이미지 업로드 에러 메시지 */}
       {imageError && (
         <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
