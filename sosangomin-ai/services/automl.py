@@ -1,6 +1,5 @@
 # sevices/automl.py
 
-
 import pandas as pd
 import numpy as np
 import os
@@ -155,11 +154,11 @@ def find_best_k_elbow(data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> in
 
     return elbow_point
 
-async def predict_next_30_sales(temp_file: str):
+async def predict_next_30_sales(df: pd.DataFrame): # predict_next_30_sales(temp_file: str):
     """향후 30일 매출 예측"""
     try:
-        df = await read_file(temp_file)
-        df = await preprocess_data(df)
+        # df = await read_file(temp_file)
+        # df = await preprocess_data(df)
 
         # 날짜, 매출만 추출
         df['매출 일시'] = pd.to_datetime(df['매출 일시'])
@@ -215,11 +214,11 @@ async def predict_next_30_sales(temp_file: str):
         return {"error": str(e)}
 
 
-async def perform_clustering(temp_file: str):
+async def cluster_items(df: pd.DataFrame):
     """상품 클러스터링"""
     try:
-        df = await read_file(temp_file)
-        df = await preprocess_data(df)
+        # df = await read_file(temp_file)
+        # df = await preprocess_data(df)
 
         cluster_df = df[['상품 명칭', '매출', '단가', '수량', '월', '요일', '시간대', '계절', '공휴일']] 
 
@@ -277,12 +276,12 @@ async def test_predict_sales():
     # 결과 출력
     print("[TEST] 매출액 예측 결과:", result)
 
-async def test_perform_clustering():
+async def test_cluster_items():
         
     # 파일 경로 설정 및 데이터 로드
     script_dir = os.path.dirname(os.path.abspath(__file__))  
     temp_file = os.path.join(script_dir, "영수증 내역(1월~).xlsx") 
-    result = await perform_clustering(temp_file)
+    result = await cluster_items(temp_file)
 
     # 결과 출력
     print("[TEST] 클러스터링 결과:", result)
@@ -313,7 +312,7 @@ async def test_preprocess():
 # (python -m services.automl)
 if __name__ == "__main__":
     asyncio.run(test_predict_sales())
-    asyncio.run(test_perform_clustering())
+    asyncio.run(test_cluster_items())
     # asyncio.run(test_preprocess())
     
 
