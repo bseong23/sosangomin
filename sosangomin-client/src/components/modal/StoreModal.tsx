@@ -3,6 +3,7 @@ import SearchableMap from "./SearchableMap";
 
 interface StoreModalProps {
   onClose: () => void;
+  onSubmit?: (storeData: StoreData) => void; // 제출 핸들러 추가
 }
 
 interface LocationInfo {
@@ -12,7 +13,14 @@ interface LocationInfo {
   lng: number;
 }
 
-const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
+interface StoreData {
+  name: string;
+  description: string;
+  businessNumber: string;
+  location: LocationInfo | null;
+}
+
+const StoreModal: React.FC<StoreModalProps> = ({ onClose, onSubmit }) => {
   const [storeName, setStoreName] = useState<string>("");
   const [businessNumber, setBusinessNumber] = useState<string>("");
   const [storeDescription, setStoreDescription] = useState<string>("");
@@ -33,6 +41,24 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
     setCurrentStep(1);
   };
 
+  // 비즈니스 번호 포맷팅 함수
+  const formatBusinessNumber = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, "");
+
+    // xxx-xx-xxxxx 형식으로 변환
+    if (numbers.length <= 3) {
+      return numbers;
+    } else if (numbers.length <= 5) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    } else {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 5)}-${numbers.slice(
+        5,
+        10
+      )}`;
+    }
+  };
+
   // 단계별 렌더링
   const renderStep = () => {
     switch (currentStep) {
@@ -49,13 +75,43 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
               height="300px" // 높이 조정
               onSelectLocation={handleSelectLocation}
             />
+
+            {/* 선택된 위치 표시 */}
+            {selectedLocation && (
+              <div className="bg-gray-50 p-3 rounded-md mt-2 border border-blue-200">
+                <div className="flex items-start">
+                  <div className="bg-bit-main text-white w-6 h-6 rounded-full flex items-center justify-center mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="font-bold text-sm truncate">
+                      {selectedLocation.name}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate">
+                      {selectedLocation.address}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
       case 2:
         return (
           <div className="space-y-4">
-            <div className="bg-gray-50 p-3 rounded-md mb-2">
+            <div className="bg-gray-50 p-3 rounded-md mb-2 border border-blue-200">
               <div className="flex items-start">
                 <div className="bg-bit-main text-white w-8 h-8 rounded-full flex items-center justify-center mr-2">
                   <svg
@@ -87,7 +143,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
                 htmlFor="storeName"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                가게 이름
+                가게 이름 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -109,16 +165,16 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
                 htmlFor="businessNumber"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                사업자 등록번호
+                사업자 등록번호 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="businessNumber"
                 value={businessNumber}
                 onChange={(e) => {
-                  // 숫자와 하이픈만 입력 가능하게 설정
-                  const value = e.target.value.replace(/[^0-9-]/g, "");
-                  setBusinessNumber(value);
+                  // 숫자와 하이픈만 입력 가능하게 설정하고 자동 포맷팅
+                  const formattedValue = formatBusinessNumber(e.target.value);
+                  setBusinessNumber(formattedValue);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -127,8 +183,10 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
                   }
                 }}
                 placeholder="000-00-00000"
+                maxLength={12} // xxx-xx-xxxxx 형식에 맞게 최대 길이 제한
                 className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-bit-main"
               />
+              <p className="text-xs text-gray-500 mt-1">형식: 000-00-00000</p>
             </div>
 
             <div>
@@ -163,7 +221,11 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
         isValid
       };
     } else {
-      const isValid = !!storeName.trim() && !!businessNumber.trim();
+      // 사업자 등록번호 형식 검사 (000-00-00000)
+      const businessNumberPattern = /^\d{3}-\d{2}-\d{5}$/;
+      const isValidBusinessNumber = businessNumberPattern.test(businessNumber);
+
+      const isValid = !!storeName.trim() && isValidBusinessNumber;
       return {
         text: "가게 등록",
         isValid
@@ -172,6 +234,35 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
   };
 
   const buttonConfig = getButtonConfig();
+
+  const handleSubmit = () => {
+    if (buttonConfig.isValid) {
+      if (currentStep === 1) {
+        if (selectedLocation) {
+          setCurrentStep(2);
+        } else {
+          alert("가게 위치를 선택해주세요.");
+        }
+      } else {
+        // 최종 제출 처리
+        const storeData = {
+          name: storeName,
+          description: storeDescription,
+          businessNumber: businessNumber,
+          location: selectedLocation
+        };
+        console.log("등록할 가게 정보:", storeData);
+
+        // onSubmit 콜백이 제공된 경우 호출
+        if (onSubmit) {
+          onSubmit(storeData);
+        }
+
+        // 모달 닫기
+        onClose();
+      }
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -218,7 +309,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
           </div>
 
           {/* 현재 단계 컨텐츠 */}
-          <div className="max-h-[calc(80vh-200px)] overflow-y-auto">
+          <div className="max-h-[calc(92vh-200px)] overflow-y-auto">
             {renderStep()}
           </div>
 
@@ -244,30 +335,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose }) => {
 
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                if (buttonConfig.isValid) {
-                  if (currentStep === 1) {
-                    if (selectedLocation) {
-                      setCurrentStep(2);
-                    } else {
-                      alert("가게 위치를 선택해주세요.");
-                    }
-                  } else {
-                    // 최종 제출 처리
-                    const storeData = {
-                      name: storeName,
-                      description: storeDescription,
-                      businessNumber: businessNumber,
-                      location: selectedLocation
-                    };
-                    console.log("등록할 가게 정보:", storeData);
-                    // 여기에 API 호출 등의 저장 로직 추가
-                    // 성공 후 모달 닫기
-                    onClose();
-                  }
-                }
-              }}
+              onClick={handleSubmit}
               disabled={!buttonConfig.isValid}
               className={`px-3 py-1 rounded text-sm ${
                 buttonConfig.isValid
