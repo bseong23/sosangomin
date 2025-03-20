@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import Sidebar from "@/components/sidebar/Sidebar";
+import ChatBot from "@/components/common/ChatBot";
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -33,6 +34,9 @@ const Layout: React.FC = () => {
     location.pathname.startsWith("/service") ||
     location.pathname.startsWith("/data-analysis");
 
+  // ChatBot 표시 여부 결정 - 지도 페이지에서는 표시하지 않음
+  const showChatBot = !isMapPage;
+
   return (
     <div className="flex flex-col">
       {showHeader && (
@@ -56,6 +60,7 @@ const Layout: React.FC = () => {
               </div>
             </main>
           )}
+          {showChatBot && <ChatBot />}
           {showFooter && <Footer />}
         </div>
       </div>

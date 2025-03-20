@@ -44,7 +44,7 @@ const Recommendmap: React.FC = () => {
           {["한식", "양식", "중식", "일식", "아시아"].map((type) => (
             <button
               key={type}
-              className={`p-auto rounded-full text-sm border w-[60px] h-[40px] ${
+              className={`p-auto rounded-full text-sm border w-20 h-full ${
                 selectedBusinessTypes.includes(type)
                   ? "bg-[#0083E2] text-white border-blue-600"
                   : "bg-[#FFFFFF] text-[#000000] border-[#BCBCBC] hover:bg-gray-100"
@@ -64,7 +64,7 @@ const Recommendmap: React.FC = () => {
           {["10대", "20대", "30대", "40대", "50대", "기타"].map((age) => (
             <button
               key={age}
-              className={`p-auto rounded-full text-sm border w-[60px] h-[40px] ${
+              className={`p-auto rounded-full text-sm border w-20 h-full ${
                 selectedAgeGroups.includes(age)
                   ? "bg-[#0083E2] text-white border-blue-600"
                   : "bg-[#FFFFFF] text-[#000000] border-[#BCBCBC] hover:bg-gray-100"

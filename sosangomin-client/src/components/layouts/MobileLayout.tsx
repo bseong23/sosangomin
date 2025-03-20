@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "@/components/header/MobileHeader";
 import Sidebar from "@/components/sidebar/MobileSidebar";
-
+import ChatBot from "@/components/common/ChatBot";
 const MobileLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const location = useLocation();
@@ -29,7 +29,7 @@ const MobileLayout: React.FC = () => {
     location.pathname.startsWith("/service") ||
     location.pathname.startsWith("/map") ||
     location.pathname.startsWith("/mypage");
-
+  const showChatBot = !isMapPage;
   return (
     <div className="min-h-screen">
       {showHeader && <Header toggleSidebar={toggleSidebar} />}
@@ -47,6 +47,7 @@ const MobileLayout: React.FC = () => {
       <main className={`w-full mx-auto ${isMapPage ? "" : "px-5"}`}>
         <Outlet />
       </main>
+      {showChatBot && <ChatBot />}
     </div>
   );
 };
