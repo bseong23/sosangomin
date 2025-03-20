@@ -8,12 +8,12 @@ const EditComment: React.FC<EditCommentProps> = ({
   onUpdate,
   onCancel
 }) => {
-  const [editContent, setEditContent] = useState(comment.content);
+  const [content, setContent] = useState(comment.content);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editContent.trim()) return;
-    onUpdate(comment.id, editContent);
+    if (!content.trim()) return;
+    onUpdate(comment.id, content);
   };
 
   return (
@@ -25,8 +25,8 @@ const EditComment: React.FC<EditCommentProps> = ({
         </div>
         <textarea
           className="w-full p-4 border border-border rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[100px]"
-          value={editContent}
-          onChange={(e) => setEditContent(e.target.value)}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
         ></textarea>
         <div className="flex justify-end gap-2 sm:gap-3 mt-2 sm:mt-3 lg:mt-4">
           <button
