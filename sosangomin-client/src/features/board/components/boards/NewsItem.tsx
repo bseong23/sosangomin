@@ -7,7 +7,7 @@ interface NewsItemProps {
 
 const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
   return (
-    <div className="border-b border-gray-200 py-4 hover:bg-gray-50 py-10 px-10">
+    <div className="border-b border-gray-200 hover:bg-gray-50 py-10 px-10">
       <a
         href={item.link}
         target="_blank"

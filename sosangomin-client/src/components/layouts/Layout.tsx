@@ -34,7 +34,7 @@ const Layout: React.FC = () => {
     location.pathname.startsWith("/data-analysis");
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       {showHeader && (
         <div className="fixed top-0 left-0 w-full z-50">
           <Header />
@@ -51,7 +51,7 @@ const Layout: React.FC = () => {
           ) : (
             // 일반 페이지 레이아웃
             <main className="flex w-full">
-              <div className="w-full mx-auto px-4">
+              <div className="w-full min-h-screen mx-auto px-4">
                 <Outlet />
               </div>
             </main>
