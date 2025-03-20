@@ -3,6 +3,7 @@ import BarChart from "@/components/chart/BarChart";
 // import PieChart from "@/components/chart/PieChart";
 // import LineChart from "@/components/chart/LineChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
+import WordCloud from "./WordCloud";
 
 const ReviewDashBoard: React.FC = () => {
   // 감정 분석 데이터
@@ -95,24 +96,51 @@ const ReviewDashBoard: React.FC = () => {
       }
     ]
   };
+  const data = {
+    positive_words: {
+      명태: 60,
+      보기: 41,
+      조림: 37,
+      양념: 27,
+      매콤: 23,
+      사장: 19,
+      점심: 11,
+      맛집: 11,
+      최고: 10,
+      코다리: 9,
+      반찬: 9,
+      양도: 9,
+      도둑: 9,
+      방문: 8,
+      콩나물: 7,
+      하나: 7,
+      자주: 7,
+      직원: 7
+    },
+    negative_words: {}
+  };
 
   return (
-    <div className="bg-gray-100 p-4 md:p-6 rounded-lg">
+    <div className="bg-gray-50 max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
       {/* 헤더 섹션 */}
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold text-bit-main mb-4">
-          음식점 리뷰 분석 대시보드
-        </h1>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-bit-main mb-4">가게 리뷰 분석</h1>
+
+        <WordCloud
+          positive_words={data.positive_words}
+          negative_words={data.negative_words}
+          maxWords={10}
+        />
 
         {/* 요약 지표 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
-            <p className="text-sm text-comment-text">총 리뷰 수</p>
-            <p className="text-2xl font-bold text-bit-main">60</p>
+            <p className="text-sm text-comment-text">긍정 리뷰 비율</p>
+            <p className="text-2xl font-bold text-blue-500">86.7%</p>
           </div>
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
-            <p className="text-sm text-comment-text">긍정 리뷰 비율</p>
-            <p className="text-2xl font-bold text-green-600">86.7%</p>
+            <p className="text-sm text-comment-text">중립 리뷰 비율</p>
+            <p className="text-2xl font-bold text-green-600">13.3%</p>
           </div>
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
             <p className="text-sm text-comment-text">부정 리뷰 비율</p>
@@ -168,64 +196,66 @@ const ReviewDashBoard: React.FC = () => {
       </div>
 
       {/* 차트 섹션 3: 긍정적 감정 표현 & 핵심 인사이트 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 긍정적 감정 표현 단어 */}
-        <div className="bg-basic-white p-4 rounded-md shadow">
-          <h2 className="text-lg font-semibold mb-4 text-bit-main">
-            긍정적 감정 표현 단어 (상위 10개)
-          </h2>
-          <BarChart
-            labels={positiveSentimentWords.labels}
-            datasets={positiveSentimentWords.datasets}
-            height={350}
-            horizontal={true}
-            title=""
-            xAxisLabel="사용 빈도"
-            yAxisLabel="감정 표현"
-          />
-        </div>
 
-        {/* 핵심 인사이트 */}
-        <div className="bg-basic-white p-4 rounded-md shadow">
-          <h2 className="text-lg font-semibold mb-4 text-bit-main">
-            핵심 인사이트
-          </h2>
+      {/* 긍정적 감정 표현 단어 */}
+      <div className="bg-basic-white p-4 rounded-md shadow mb-6">
+        <h2 className="text-lg font-semibold mb-4 text-bit-main">
+          긍정적 감정 표현 단어 (상위 10개)
+        </h2>
+        <BarChart
+          labels={positiveSentimentWords.labels}
+          datasets={positiveSentimentWords.datasets}
+          height={350}
+          horizontal={true}
+          title=""
+          xAxisLabel="사용 빈도"
+          yAxisLabel="감정 표현"
+        />
+      </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-comment">
-                고객들이 가장 만족하는 점
-              </h3>
-              <ul className="list-disc pl-5 text-sm text-comment-text mt-2">
-                <li>쫄깃하고 부드러운 명태의 식감</li>
-                <li>매콤한 양념의 맛</li>
-                <li>푸짐한 양</li>
-                <li>친절한 서비스</li>
-                <li>깔끔한 매장 분위기</li>
-              </ul>
-            </div>
+      {/* 핵심 인사이트 */}
+      <div className="bg-basic-white p-4 rounded-md shadow mb-6">
+        <h2 className="text-lg font-semibold mb-4 text-bit-main">
+          핵심 인사이트
+        </h2>
 
-            <div>
-              <h3 className="text-lg font-semibold text-comment">
-                개선이 필요한 부분
-              </h3>
-              <ul className="list-disc pl-5 text-sm text-comment-text mt-2">
-                <li>매운맛 조절 옵션</li>
-                <li>공기밥 가격 정책</li>
-              </ul>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 고객 만족 부분 */}
+          <div className="bg-blue-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold text-blue-700 mb-3">
+              고객들이 가장 만족하는 점
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-comment-text space-y-2">
+              <li>쫄깃하고 부드러운 명태의 식감</li>
+              <li>매콤한 양념의 맛</li>
+              <li>푸짐한 양</li>
+              <li>친절한 서비스</li>
+              <li>깔끔한 매장 분위기</li>
+            </ul>
+          </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-comment">
-                추천 운영 개선사항
-              </h3>
-              <ul className="list-disc pl-5 text-sm text-comment-text mt-2">
-                <li>매운맛 단계 옵션 확대 (순한맛, 보통맛, 매운맛)</li>
-                <li>세트 메뉴 구성 시 공기밥 포함</li>
-                <li>단골 고객 서비스 프로그램 도입</li>
-                <li>주차 편의성 강조 마케팅</li>
-              </ul>
-            </div>
+          {/* 개선 필요 부분 */}
+          <div className="bg-yellow-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold text-yellow-700 mb-3">
+              개선이 필요한 부분
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-comment-text space-y-2">
+              <li>매운맛 조절 옵션</li>
+              <li>공기밥 가격 정책</li>
+            </ul>
+          </div>
+
+          {/* 추천 개선사항 */}
+          <div className="bg-green-50 p-4 rounded-md">
+            <h3 className="text-lg font-semibold text-green-700 mb-3">
+              추천 운영 개선사항
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-comment-text space-y-2">
+              <li>매운맛 단계 옵션 확대 (순한맛, 보통맛, 매운맛)</li>
+              <li>세트 메뉴 구성 시 공기밥 포함</li>
+              <li>단골 고객 서비스 프로그램 도입</li>
+              <li>주차 편의성 강조 마케팅</li>
+            </ul>
           </div>
         </div>
       </div>
