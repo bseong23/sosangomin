@@ -21,8 +21,7 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartData }) => {
         position: "top" // 범례 위치
       },
       title: {
-        display: true,
-        text: "도넛 차트" // 제목 변경
+        display: true
       }
     },
     cutout: "50%" // 도넛 차트의 중앙 구멍 크기 설정 (기본값은 '50%')
@@ -30,7 +29,6 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartData }) => {
 
   return (
     <div className="chart-container">
-      <h2 className="text-center">도넛 차트</h2>
       <Doughnut data={chartData} options={options} />
     </div>
   );

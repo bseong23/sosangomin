@@ -5,18 +5,9 @@ const Recommendmap: React.FC = () => {
   const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>(
     []
   );
-  // 월세 금액 범위 상태
-  const [rentRange, setRentRange] = useState<{ min: string; max: string }>({
-    min: "",
-    max: ""
-  });
+
   // 타겟 연령대 선택 상태 (배열로 변경)
   const [selectedAgeGroups, setSelectedAgeGroups] = useState<string[]>([]);
-  // 선호 위치 상태
-  const [location, setLocation] = useState<{ gu: string; dong: string }>({
-    gu: "",
-    dong: ""
-  });
 
   const handleBusinessTypeClick = (type: string) => {
     setSelectedBusinessTypes((prev) => {
@@ -66,34 +57,6 @@ const Recommendmap: React.FC = () => {
         </div>
       </div>
 
-      {/* 월세 금액 */}
-      <div className="mb-6">
-        <p className="mb-2 font-bold">월세 금액</p>
-        <div className="flex items-center">
-          <input
-            type="text"
-            className="w-20 border border-gray-300 rounded-md p-2 text-center"
-            placeholder="0"
-            value={rentRange.min}
-            onChange={(e) =>
-              setRentRange({ ...rentRange, min: e.target.value })
-            }
-          />
-          <span className="ml-2">만원</span>
-          <span className="mx-2">~</span>
-          <input
-            type="text"
-            className="w-20 border border-gray-300 rounded-md p-2 text-center"
-            placeholder="0"
-            value={rentRange.max}
-            onChange={(e) =>
-              setRentRange({ ...rentRange, max: e.target.value })
-            }
-          />
-          <span className="ml-2">만원</span>
-        </div>
-      </div>
-
       {/* 타겟 연령 */}
       <div className="mb-6">
         <p className="mb-2 font-medium">타겟연령</p>
@@ -111,35 +74,6 @@ const Recommendmap: React.FC = () => {
               {age}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* 선호 위치 */}
-      <div className="mb-6">
-        <p className="mb-2 font-bold">선호 위치</p>
-        <div className="flex gap-2">
-          <select
-            className="border border-gray-300 rounded-md p-2 w-full"
-            value={location.gu}
-            onChange={(e) => setLocation({ ...location, gu: e.target.value })}
-          >
-            <option value="">구</option>
-            <option value="강남구">강남구</option>
-            <option value="서초구">서초구</option>
-            <option value="종로구">종로구</option>
-            <option value="마포구">마포구</option>
-          </select>
-          <select
-            className="border border-gray-300 rounded-md p-2 w-full"
-            value={location.dong}
-            onChange={(e) => setLocation({ ...location, dong: e.target.value })}
-          >
-            <option value="">동</option>
-            <option value="역삼동">역삼동</option>
-            <option value="서초동">서초동</option>
-            <option value="종로1가">종로1가</option>
-            <option value="홍대입구">홍대입구</option>
-          </select>
         </div>
       </div>
 
