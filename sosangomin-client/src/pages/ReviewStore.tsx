@@ -1,9 +1,9 @@
-import UpdateComingSoon from "@/components/common/UpdateComingSoon";
+import ReviewDashBoard from "@/features/review/ReviewDashBoard";
 
 const ReviewStore = () => {
   return (
     <div className="mt-10">
-      <UpdateComingSoon />
+      <ReviewDashBoard />
     </div>
   );
 };
