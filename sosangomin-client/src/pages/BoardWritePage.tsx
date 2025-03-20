@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createBoardPost } from "@/features/board/api/boardApi";
 import { isLoggedIn } from "@/features/auth/api/userStorage";
@@ -8,19 +8,25 @@ const WritePost: React.FC = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const didRun = useRef(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false); // 로그인 상태 확인 여부
 
   // 페이지 로드 시 로그인 상태 확인
   useEffect(() => {
+    if (didRun.current) return; // 이미 실행된 경우 다시 실행하지 않음
+    didRun.current = true; // 첫 번째 실행 이후 true로 변경하여 다시 실행 방지
+
     const checkLoginStatus = () => {
-      // setIsCheckingAuth(true);
       try {
         // 인증 유틸리티를 사용하여 로그인 상태 확인
         if (!isLoggedIn()) {
           // 로그인되지 않은 경우
-          alert("로그인이 필요한 서비스입니다.");
-          navigate("/community/board");
-          return;
+          setTimeout(() => {
+            alert("로그인이 필요한 서비스입니다.");
+            navigate("/community/board");
+          }, 0);
+        } else {
+          setIsAuthChecked(true); // 로그인 확인된 후 렌더링링
         }
       } catch (error) {
         console.error("로그인 상태 확인 중 오류:", error);
@@ -82,6 +88,9 @@ const WritePost: React.FC = () => {
     // 게시판 목록으로 돌아감
     navigate("/community/board");
   };
+
+  // 로그인 상태 확인이 끝나기 전에는 렌더링 안함
+  if (!isAuthChecked) return null;
 
   return (
     <div className="w-full max-w-[972px] mx-auto px-4 py-10">

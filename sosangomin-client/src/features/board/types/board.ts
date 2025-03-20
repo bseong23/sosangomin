@@ -43,6 +43,7 @@ export interface CommentType {
   author: string;
   content: string;
   createdAt: string;
+  isVerified: boolean;
   replies?: ReplyType[];
 }
 
@@ -69,31 +70,20 @@ export interface ReplyProps {
 }
 
 export interface EditReplyProps {
-  reply: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-  };
+  reply: ReplyType;
   commentId: number; // 부모 댓글 ID
   onUpdate: (commentId: number, replyId: number, content: string) => void;
   onCancel: () => void;
 }
 
 export interface EditCommentProps {
-  comment: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-    replies?: ReplyType[];
-  };
+  comment: CommentType;
   onUpdate: (commentId: number, content: string) => void;
   onCancel: () => void;
 }
 
 export interface CommentListProps {
-  comments: CommentType[];
+  boardId: string;
   onAddComment: (content: string) => void;
   onUpdateComment: (commentId: number, content: string) => void;
   onDeleteComment: (commentId: number) => void;
@@ -110,13 +100,7 @@ export interface CommentFormProps {
 }
 
 export interface CommentProps {
-  comment: {
-    id: number;
-    author: string;
-    content: string;
-    createdAt: string;
-    replies?: ReplyType[];
-  };
+  comment: CommentType;
   onEdit: (commentId: number) => void;
   onDelete: (commentId: number) => void;
   onAddReply: (commentId: number, content: string) => void;

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FiMoreVertical, FiCornerDownRight } from "react-icons/fi";
-import { FaRegComments } from "react-icons/fa";
+// import { FaRegComments } from "react-icons/fa";
 import CommentForm from "@/features/board/components/boards/CommentForm";
 import Reply from "@/features/board/components/boards/Reply";
 import EditReply from "@/features/board/components/boards/EditReply";
@@ -61,9 +61,9 @@ const Comment: React.FC<CommentProps> = ({
     };
   }, [comment.id, showMenu]);
 
-  const toggleReplyForm = () => {
-    setShowReplyForm(!showReplyForm);
-  };
+  // const toggleReplyForm = () => {
+  //   setShowReplyForm(!showReplyForm);
+  // };
 
   const handleEditComment = () => {
     onEdit(comment.id);
@@ -110,37 +110,41 @@ const Comment: React.FC<CommentProps> = ({
         <span className="font-medium">{comment.author}</span>
         <div className="flex items-center">
           <span className="text-s text-gray-500 mr-3">{comment.createdAt}</span>
-          <div className="relative menu-container">
-            <button
-              onClick={toggleCommentMenu}
-              className="text-gray-500 cursor-pointer"
-            >
-              <FiMoreVertical className="h-5 w-5" />
-            </button>
 
-            {showMenu && (
-              <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1 overflow-hidden">
-                <button
-                  onClick={handleEditComment}
-                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  수정하기
-                </button>
-                <button
-                  onClick={handleDeleteComment}
-                  className="block w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white"
-                >
-                  삭제하기
-                </button>
-              </div>
-            )}
-          </div>
+          {/* isVerified==true 일때만 수정,삭제 보이게 */}
+          {comment.isVerified && (
+            <div className="relative menu-container">
+              <button
+                onClick={toggleCommentMenu}
+                className="text-gray-500 cursor-pointer"
+              >
+                <FiMoreVertical className="h-5 w-5" />
+              </button>
+
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg z-10 py-1 overflow-hidden">
+                  <button
+                    onClick={handleEditComment}
+                    className="block w-full text-center px-4 py-2 text-sm text-comment hover:bg-gray-100 cursor-pointer border-b border-border"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    onClick={handleDeleteComment}
+                    className="block w-full text-center px-4 py-2 text-sm text-comment hover:bg-red-500 hover:text-basic-white cursor-pointer"
+                  >
+                    삭제하기
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex justify-between items-center">
         <p className="text-gray-800">{comment.content}</p>
         {/* 대댓글 영역 */}
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <button
             onClick={toggleReplyForm}
             className="text-sm hover:text-blue-800 flex items-center gap-1"
@@ -148,7 +152,7 @@ const Comment: React.FC<CommentProps> = ({
             <FaRegComments className="fill-gray-600" />
             댓글달기
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* 대댓글 입력 폼 */}
