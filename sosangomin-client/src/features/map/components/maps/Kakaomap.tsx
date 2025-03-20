@@ -101,15 +101,11 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   // 맵 인스턴스 생성
   useEffect(() => {
     if (!isLoading && !error && mapRef.current && window.kakao) {
-      // 초기 레벨이 minLevel과 maxLevel 범위 내에 있는지 확인
       const initialLevel = Math.min(Math.max(level, minLevel), maxLevel);
-
-      // 기본 중심 좌표 (사용자 위치가 있으면 사용자 위치, 없으면 props의 center 값 사용)
       const defaultCenter = userLocation
         ? new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
         : new window.kakao.maps.LatLng(center.lat, center.lng);
 
-      // 기본 옵션으로 지도 생성
       const options = {
         center: defaultCenter,
         level: initialLevel,
@@ -118,51 +114,9 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
 
-      // 명시적으로 드래그와 줌 기능 활성화
-      map.setDraggable(true);
-      map.setZoomable(true);
-
-      // 지도 레벨 변경 시 콘솔 출력
-      window.kakao.maps.event.addListener(map, "zoom_changed", function () {});
-
-      // 지도 중심 변경 시 콘솔 출력
-      window.kakao.maps.event.addListener(
-        map,
-        "center_changed",
-        function () {}
-      );
-
-      // 사용자 위치가 있으면 해당 위치로 중심 설정
-      if (userLocation) {
-        const userPosition = new window.kakao.maps.LatLng(
-          userLocation.lat,
-          userLocation.lng
-        );
-
-        // 지도 중심을 사용자 위치로 설정하고 줌 레벨을 3으로 고정
-        map.setCenter(userPosition);
-        map.setLevel(3);
-
-        // 현재 위치 마커 추가
-        if (markers.length === 0) {
-          const userMarker = new window.kakao.maps.Marker({
-            position: userPosition,
-            map: map
-          });
-
-          const infowindow = new window.kakao.maps.InfoWindow({
-            content:
-              '<div style="padding:5px;width:150px;text-align:center;">현재 위치</div>',
-            zIndex: 1
-          });
-
-          window.kakao.maps.event.addListener(userMarker, "click", function () {
-            infowindow.open(map, userMarker);
-          });
-
-          userMarkerRef.current = userMarker;
-        }
-      }
+      // ✅ 최대 줌아웃(최소 레벨) 설정
+      map.setMinLevel(1); // 원하는 값으로 설정 (1~14 범위)
+      map.setMaxLevel(6);
 
       setMapInstance(map);
     }
@@ -191,6 +145,15 @@ const Kakaomap: React.FC<KakaomapProps> = ({
     }
   }, [mapInstance, geoJsonData, populationData]);
 
+  // useEffect(() => {
+  //   if (mapInstance) {
+  //     // 중심 위치 업데이트
+  //     mapInstance.setCenter(
+  //       new window.kakao.maps.LatLng(center.lat, center.lng),
+  //       console.log("시작", center.lat, center.lng, level)
+  //     );
+  //   }
+  // }, [mapInstance, center]);
   // 마커 생성 및 업데이트
   useEffect(() => {
     if (mapInstance && markers.length > 0) {
@@ -248,7 +211,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       // 모든 마커가 보이도록 지도 범위 재설정
       if (markers.length > 0) {
         mapInstance.setBounds(bounds);
-        setTimeout(() => mapInstance.setLevel(3), 500); // 레벨 강제 설정
+        // setTimeout(() => mapInstance.setLevel(3), 500); // 레벨 강제 설정
       }
     } else if (mapInstance && markers.length === 0 && userLocation) {
       // 마커가 없고 사용자 위치가 있으면 사용자 위치 마커 다시 표시

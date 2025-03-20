@@ -27,7 +27,6 @@ import ReviewCompare from "@/pages/ReviewCompare";
 import ResultPage from "@/pages/ResultPage";
 
 // 기타 컴포넌트
-import ChatBot from "@/components/common/ChatBot";
 import MainPage from "@/pages/MainPage";
 
 const App: React.FC = () => {
@@ -96,7 +95,6 @@ const App: React.FC = () => {
           />
         </Route>
       </Routes>
-      <ChatBot />
     </Router>
   );
 };

@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { MapSidebarProps } from "@/features/map/types/map";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import BarChart from "@/components/chart/BarChart";
 
 const Analysismap: React.FC<MapSidebarProps> = () => {
-  const [chartData] = useState({
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [chartData] = React.useState({
     labels: ["10대", "20대", "30대", "40대", "50대 이상"],
     datasets: [
       {
@@ -41,15 +43,47 @@ const Analysismap: React.FC<MapSidebarProps> = () => {
     }
   ];
 
+  // 컨테이너 크기 조정을 위한 useEffect
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (containerRef.current) {
+        // 필요한 경우 컨테이너 크기 조정 로직
+        const parentHeight =
+          containerRef.current.parentElement?.clientHeight || 0;
+        containerRef.current.style.maxHeight = `${parentHeight - 20}px`; // 여백 고려
+      }
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="p-6">
+    <div
+      ref={containerRef}
+      className="p-6 overflow-y-auto"
+      style={{
+        maxHeight: "calc(100vh - 73px)", // 헤더 높이(73px) 고려
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0, // flex 컨테이너 내에서 스크롤 가능하게 함
+        minWidth: 0
+      }}
+    >
       {/* 헤더 섹션 */}
-      <div className="mb-6 relative">
+      <div className="mb-6 relative flex-shrink-0">
         <h2 className="text-xl font-bold">내 주변 상권은?</h2>
       </div>
 
       {/* 인구 분포도 섹션 */}
-      <div className="mb-6 h-full">
+      <div className="mb-6 flex-shrink-0">
         <h3 className="text-lg font-semibold mb-2">인구 분포도</h3>
         <div className="w-full h-full">
           <DoughnutChart chartData={chartData} />
@@ -57,12 +91,12 @@ const Analysismap: React.FC<MapSidebarProps> = () => {
       </div>
 
       {/* 상권 분포도 섹션 */}
-      <div className="mb-6">
+      <div className="mb-6 flex-shrink-0">
         <h3 className="text-lg font-semibold mb-2">상권 분포도</h3>
         <BarChart
           labels={barLabels}
           datasets={barDatasets}
-          height={200}
+          height={180}
           title="업종별 분포"
           responsive={true}
           maintainAspectRatio={false}
