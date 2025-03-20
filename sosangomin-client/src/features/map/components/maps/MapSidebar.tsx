@@ -97,7 +97,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({ onSearch, onClose }) => {
         />
       </div>
 
-      <div className="h-[calc(100%-120px)] overflow-y-auto">
+      <div className="h-[calc(100%-150px)] overflow-y-auto">
         {activeTab === "상권분석" ? (
           <Analysismap onSearch={onSearch} onClose={onClose} />
         ) : (
