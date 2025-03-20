@@ -1,3 +1,4 @@
+import axiosInstance from "@/api/axios";
 import axios from "axios";
 import { BoardItem, PageCountResponse } from "@/features/board/types/board";
 import { getAccessToken } from "@/features/auth/api/userStorage";
@@ -35,12 +36,8 @@ export const createBoardPost = async (data: {
   content: string;
 }) => {
   try {
-    const token = getAccessToken();
-    const response = await axios.post(`${BASE_URL}/api/board`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    // const token = getAccessToken();
+    const response = await axiosInstance.post(`${BASE_URL}/api/board`, data);
     console.log(response.data);
     return response.data;
   } catch (error) {

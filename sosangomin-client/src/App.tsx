@@ -2,21 +2,34 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Layout from "@/components/layouts/Layout";
 import MobileLayout from "@/components/layouts/MobileLayout";
+
+// 인증 및 사용자 관련 페이지
 import LoginPage from "@/pages/LoginPage";
 import KakaoCallbackPage from "@/pages/KakaoCallbackPage";
-import WritePost from "@/pages/BoardWritePage";
-import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
-import Board from "@/pages/Board";
+import SignupPages from "@/pages/SignupPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import MyPage from "@/pages/Mypage";
+
+// 커뮤니티 관련 페이지
 import Notice from "@/pages/Notice";
 import News from "@/pages/News";
+import Board from "@/pages/Board";
+import WritePost from "@/pages/BoardWritePage";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
-import Map from "@/pages/Map";
-import SignupPages from "@/pages/SignupPage";
-import MyPage from "@/pages/Mypage";
-import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import ResearchPage from "@/pages/ResearchPage";
+import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
+
+// 데이터 분석 관련 페이지
 import DataUploadPage from "@/pages/DataUploadPage";
-import ChatBot from "./components/common/ChatBot";
+import ResearchPage from "@/pages/ResearchPage";
+import Map from "@/pages/Map";
+import ReviewStore from "@/pages/ReviewStore";
+import ReviewCompare from "@/pages/ReviewCompare";
+import ResultPage from "@/pages/ResultPage";
+
+// 기타 컴포넌트
+import ChatBot from "@/components/common/ChatBot";
+import MainPage from "@/pages/MainPage";
+
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
 
@@ -35,7 +48,10 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<p className="h-screen">메인페이지</p>} />
+          {/* 메인 페이지 */}
+          <Route path="/" element={<MainPage />} />
+
+          {/* 인증 및 사용자 관련 라우트 */}
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/auth/kakao/callback/*"
@@ -44,6 +60,8 @@ const App: React.FC = () => {
           <Route path="/signup" element={<SignupPages />} />
           <Route path="/password" element={<ResetPasswordPage />} />
           <Route path="/mypage" element={<MyPage />} />
+
+          {/* 커뮤니티 관련 라우트 */}
           <Route path="/community/notice" element={<Notice />} />
           <Route
             path="/community/notice/post/:boardId"
@@ -60,24 +78,21 @@ const App: React.FC = () => {
             path="/community/board/post/:boardId"
             element={<BoardPostDetailPage />}
           />
+
+          {/* 데이터 분석 관련 라우트 */}
           <Route path="/data-analysis/upload" element={<DataUploadPage />} />
           <Route path="/data-analysis/research" element={<ResearchPage />} />
           <Route path="/map" element={<Map />} />
-          <Route
-            path="/review/store"
-            element={<p className="h-screen">가게 리뷰</p>}
-          />
-          <Route
-            path="/review/compare"
-            element={<p className="h-screen">리뷰 비교</p>}
-          />
-          <Route
-            path="/result"
-            element={<p className="h-screen">종합 분석</p>}
-          />
+
+          {/* 리뷰 관련 라우트 */}
+          <Route path="/review/store" element={<ReviewStore />} />
+          <Route path="/review/compare" element={<ReviewCompare />} />
+
+          {/* 결과 및 서비스 소개 관련 라우트 */}
+          <Route path="/result" element={<ResultPage />} />
           <Route
             path="/service"
-            element={<p className="h-screen">서비스 소개개</p>}
+            element={<p className="h-screen">서비스 소개</p>}
           />
         </Route>
       </Routes>
