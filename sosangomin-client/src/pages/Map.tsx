@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Kakaomap from "@/features/map/components/maps/Kakaomap";
 import MapSidebar from "@/features/map/components/maps/MapSidebar";
+import ColorLegend from "@/features/map/components/maps/ColorLegend"; // 새로 추가한 컴포넌트 import
 import { Marker } from "@/features/map/types/map";
 import { searchLocation } from "@/features/map/api/mapApi";
 import seoulDistrictsData from "@/assets/sig.json";
@@ -9,6 +10,7 @@ const MapPage: React.FC = () => {
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [center, setCenter] = useState({ lat: 37.501, lng: 127.039 }); // 서울 시청 기본값
   const [showSidebar, setShowSidebar] = useState(true);
+  const [showLegend, setShowLegend] = useState(true); // 범례 표시 여부 상태 추가
 
   const handleSearch = async (address: string) => {
     try {
@@ -33,6 +35,10 @@ const MapPage: React.FC = () => {
     setShowSidebar(!showSidebar);
   };
 
+  const toggleLegend = () => {
+    setShowLegend(!showLegend);
+  };
+
   return (
     <div className="flex flex-col w-full h-full relative">
       {/* 맵 컴포넌트 */}
@@ -42,14 +48,14 @@ const MapPage: React.FC = () => {
           height="calc(100vh - 73px)"
           center={center}
           level={3}
-          minLevel={1} // 최대 줌인 레벨 (숫자가 작을수록 더 확대됨)
-          maxLevel={6} // 최대 줌아웃 레벨 (숫자가 클수록 더 축소됨)
+          minLevel={1}
+          maxLevel={6}
           markers={markers}
           geoJsonData={seoulDistrictsData}
         />
       </div>
 
-      {/* 사이드바 토글 버튼 - 오른쪽 아래로 위치 변경 */}
+      {/* 사이드바 토글 버튼 */}
       {!showSidebar && (
         <button
           onClick={toggleSidebar}
@@ -77,6 +83,31 @@ const MapPage: React.FC = () => {
       {showSidebar && (
         <MapSidebar onClose={toggleSidebar} onSearch={handleSearch} />
       )}
+
+      {/* 색상 범례 컴포넌트 */}
+      {showLegend && <ColorLegend position="bottom-right" />}
+
+      {/* 범례 토글 버튼 */}
+      <button
+        onClick={toggleLegend}
+        className="absolute bottom-4 left-4 bg-white p-2 rounded-full shadow-lg z-10 hover:bg-gray-100"
+        aria-label={showLegend ? "범례 숨기기" : "범례 보기"}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h7"
+          />
+        </svg>
+      </button>
     </div>
   );
 };

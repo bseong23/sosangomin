@@ -45,3 +45,13 @@ export interface KakaomapProps extends MapProps {
   markers?: Marker[];
   geoJsonData?: any; // GeoJSON 데이터를 위한 prop 추가
 }
+
+export interface LegendItem {
+  color: string;
+  label: string;
+}
+
+export interface ColorLegendProps {
+  position?: "top-right" | "bottom-right" | "top-left" | "bottom-left";
+  title?: string;
+}
