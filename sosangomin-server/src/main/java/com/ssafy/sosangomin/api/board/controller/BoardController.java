@@ -26,8 +26,7 @@ public class BoardController implements BoardSwagger {
                                          Principal principal) {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
-        boardService.insertBoard(boardInsertRequestDto, userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(boardService.insertBoard(boardInsertRequestDto, userId));
     }
 
     @GetMapping("/{boardId}")

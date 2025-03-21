@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.board.docs;
 
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
+import com.ssafy.sosangomin.api.board.domain.dto.response.BoardInsertResponseDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardUpdateRequestDto;
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
@@ -27,7 +28,11 @@ public interface BoardSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "게시글 등록 성공"
+                            description = "게시글 등록 성공",
+                            content = @Content(
+                                mediaType = "application/json",
+                                schema = @Schema(implementation = BoardInsertResponseDto.class)
+                            )
                     )
             }
     )

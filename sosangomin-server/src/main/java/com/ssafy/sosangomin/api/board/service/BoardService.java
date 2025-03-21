@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.board.service;
 
 import com.ssafy.sosangomin.api.board.domain.dto.request.BoardInsertRequestDto;
+import com.ssafy.sosangomin.api.board.domain.dto.response.BoardInsertResponseDto;
 import com.ssafy.sosangomin.api.board.domain.dto.response.BoardResponseDto;
 import com.ssafy.sosangomin.api.board.domain.entity.Board;
 import com.ssafy.sosangomin.api.board.mapper.BoardMapper;
@@ -22,8 +23,10 @@ public class BoardService {
 
     private final BoardMapper boardMapper;
 
-    public void insertBoard(BoardInsertRequestDto boardInsertRequestDto, Long userId) {
+    @Transactional
+    public BoardInsertResponseDto insertBoard(BoardInsertRequestDto boardInsertRequestDto, Long userId) {
         boardMapper.insertBoard(userId, boardInsertRequestDto.title(), boardInsertRequestDto.content());
+        return new BoardInsertResponseDto(boardMapper.lastInsertId());
     }
 
     @Transactional
