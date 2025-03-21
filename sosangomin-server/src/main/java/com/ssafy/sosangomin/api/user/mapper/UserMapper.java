@@ -1,6 +1,7 @@
 package com.ssafy.sosangomin.api.user.mapper;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
+import com.ssafy.sosangomin.api.user.domain.entity.UserRole;
 import com.ssafy.sosangomin.api.user.domain.entity.UserType;
 import org.apache.ibatis.annotations.*;
 
@@ -15,7 +16,10 @@ public interface UserMapper {
             @Result(property = "profileImgUrl", column = "profile_img_url"),
             @Result(property = "userType", column = "user_type",
                     typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
-                    javaType = UserType.class) // for Enum Type
+                    javaType = UserType.class), // for Enum Type
+            @Result(property = "userRole", column = "user_role",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserRole.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE user_id = #{userId}")
     Optional<User> findUserById(@Param("userId") Long userId);
@@ -26,7 +30,10 @@ public interface UserMapper {
             @Result(property = "profileImgUrl", column = "profile_img_url"),
             @Result(property = "userType", column = "user_type",
                     typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
-                    javaType = UserType.class) // for Enum Type
+                    javaType = UserType.class), // for Enum Type
+            @Result(property = "userRole", column = "user_role",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserRole.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE name = #{name}")
     Optional<User> findUserByName(@Param("name") String name);
@@ -37,7 +44,10 @@ public interface UserMapper {
             @Result(property = "profileImgUrl", column = "profile_img_url"),
             @Result(property = "userType", column = "user_type",
                     typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
-                    javaType = UserType.class) // for Enum Type
+                    javaType = UserType.class), // for Enum Type
+            @Result(property = "userRole", column = "user_role",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserRole.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE social_id = #{socialId}")
     Optional<User> findUserBySocialId(@Param("socialId") String socialId);
@@ -48,7 +58,10 @@ public interface UserMapper {
             @Result(property = "profileImgUrl", column = "profile_img_url"),
             @Result(property = "userType", column = "user_type",
                     typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
-                    javaType = UserType.class) // for Enum Type
+                    javaType = UserType.class), // for Enum Type
+            @Result(property = "userRole", column = "user_role",
+                    typeHandler = org.apache.ibatis.type.EnumTypeHandler.class,
+                    javaType = UserRole.class) // for Enum Type
     })
     @Select("SELECT * FROM users WHERE email = #{email}")
     Optional<User> findUserByEmail(@Param("email") String email);
