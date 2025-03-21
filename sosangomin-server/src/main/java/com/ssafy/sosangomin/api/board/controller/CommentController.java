@@ -8,13 +8,12 @@ import com.ssafy.sosangomin.api.board.service.CommentService;
 import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/comment")
 @RequiredArgsConstructor
 public class CommentController implements CommentSwagger {
