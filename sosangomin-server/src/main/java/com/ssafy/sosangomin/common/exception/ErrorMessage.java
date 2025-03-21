@@ -22,6 +22,7 @@ public enum ErrorMessage {
     ERR_INVALID_TOKEN,
     ERR_USER_BOARD_NOT_MATCH,
     ERR_USER_COMMENT_NOT_MATCH,
+    ERR_NOT_ALLOWD_USER,
 
     /**
      * /** 404 NOT_FOUND
