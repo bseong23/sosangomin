@@ -20,6 +20,14 @@ public interface NoticeMapper {
     @Select("SELECT last_insert_id()")
     Long lastInsertId();
 
+    @Update("UPDATE notices SET title = #{title}, content = #{content} WHERE notice_id = #{noticeId}")
+    void updateNotice(@Param("noticeId") Long noticeId,
+                     @Param("title") String title,
+                     @Param("content") String content);
+
+    @Delete("DELETE FROM notices WHERE notice_id = #{noticeId}")
+    void deleteNotice(@Param("noticeId") Long noticeId);
+
     @Results({
             @Result(property = "noticeId", column = "notice_id"),
             @Result(property = "userId", column = "user_id"),

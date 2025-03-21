@@ -2,8 +2,10 @@ package com.ssafy.sosangomin.api.notice.service;
 
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeInsertRequestDto;
+import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeUpdateRequestDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeInsertResponseDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeResponseDto;
+import com.ssafy.sosangomin.api.notice.domain.entity.Notice;
 import com.ssafy.sosangomin.api.notice.mapper.NoticeMapper;
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.domain.entity.UserRole;
@@ -48,6 +50,38 @@ public class NoticeService {
 
         NoticeResponseDto noticeResponseDto = noticeOptional.get();
         return noticeResponseDto.incrementViews();
+    }
+
+    @Transactional
+    public void updateNotice(NoticeUpdateRequestDto noticeUpdateRequestDto, Long noticeId, Long userId) {
+        Optional<Notice> noticeOriginalOptional = noticeMapper.findNoticeById(noticeId);
+
+        if (!noticeOriginalOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_NOTICE_NOT_FOUND);
+        }
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        User user = userOptional.get();
+        if (user.getUserRole() != UserRole.ADMIN) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_NOT_ALLOWD_USER);
+        }
+
+        noticeMapper.updateNotice(noticeId, noticeUpdateRequestDto.title(), noticeUpdateRequestDto.content());
+    }
+
+    @Transactional
+    public void deleteNotice(Long noticeId, Long userId) {
+        Optional<Notice> noticeOriginalOptional = noticeMapper.findNoticeById(noticeId);
+
+        if (!noticeOriginalOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_NOTICE_NOT_FOUND);
+        }
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        User user = userOptional.get();
+        if (user.getUserRole() != UserRole.ADMIN) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_NOT_ALLOWD_USER);
+        }
+
+        noticeMapper.deleteNotice(noticeId);
     }
 
     public List<NoticeResponseDto> getNoticesByPageNum(int pageNum) {

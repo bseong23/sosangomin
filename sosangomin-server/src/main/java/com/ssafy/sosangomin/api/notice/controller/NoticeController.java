@@ -1,8 +1,8 @@
 package com.ssafy.sosangomin.api.notice.controller;
 
-import com.ssafy.sosangomin.api.board.service.BoardService;
 import com.ssafy.sosangomin.api.notice.docs.NoticeSwagger;
 import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeInsertRequestDto;
+import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeUpdateRequestDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeResponseDto;
 import com.ssafy.sosangomin.api.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,24 @@ public class NoticeController implements NoticeSwagger {
         // 로그인한 user pk
         Long userId = Long.parseLong(principal.getName());
         return ResponseEntity.ok(noticeService.insertNotice(noticeInsertRequestDto, userId));
+    }
+
+    @PutMapping("/{noticeId}")
+    public ResponseEntity<?> updateNotice(@PathVariable Long noticeId,
+                                         @RequestBody NoticeUpdateRequestDto noticeUpdateRequestDto,
+                                         Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        noticeService.updateNotice(noticeUpdateRequestDto, noticeId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{noticeId}")
+    public ResponseEntity<?> deleteNotice(@PathVariable Long noticeId, Principal principal) {
+        // 로그인한 user pk
+        Long userId = Long.parseLong(principal.getName());
+        noticeService.deleteNotice(noticeId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{noticeId}")

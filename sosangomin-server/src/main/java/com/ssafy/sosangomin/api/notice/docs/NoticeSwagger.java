@@ -2,6 +2,7 @@ package com.ssafy.sosangomin.api.notice.docs;
 
 import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeInsertRequestDto;
+import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeUpdateRequestDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeInsertResponseDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +84,93 @@ public interface NoticeSwagger {
             }
     )
     ResponseEntity<?> getNotice(@PathVariable Long noticeId);
+
+    @Operation(
+            summary = "공지글 수정",
+            description = "공지글을 수정합니다. 수정할 제목과 내용이 필요합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "공지글 수정 성공."
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "공지글을 수정할 자격이 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NOT_ALLOWD_USER\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 공지글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NOTICE_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<?> updateNotice(@PathVariable Long noticeId,
+                                  @RequestBody NoticeUpdateRequestDto noticeUpdateRequestDto,
+                                  Principal principal);
+
+    @Operation(
+            summary = "공지글 삭제",
+            description = "공지글을 삭제합니다. 액세스 토큰이 필요합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "공지글 삭제 성공."
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "공지글을 삭제할 자격이 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"401\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NOT_ALLOWD_USER\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "없는 공지글 id 입니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"404\",\n" +
+                                                    "  \"errorMessage\": \"ERR_NOTICE_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<?> deleteNotice(@PathVariable Long noticeId, Principal principal);
+
 
     @Operation(
             summary = "공지글 리스트 반환",
