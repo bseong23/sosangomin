@@ -7,6 +7,7 @@ import CommentForm from "@/features/board/components/boards/CommentForm";
 import Reply from "@/features/board/components/boards/Reply";
 import EditReply from "@/features/board/components/boards/EditReply";
 import { CommentProps } from "@/features/board/types/board";
+import useAuthStore from "@/store/useAuthStore";
 
 const Comment: React.FC<CommentProps> = ({
   comment,
@@ -19,6 +20,8 @@ const Comment: React.FC<CommentProps> = ({
   const [showMenu, setShowMenu] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+
+  const { userInfo } = useAuthStore();
 
   const toggleCommentMenu = () => {
     setShowMenu(!showMenu);
@@ -104,10 +107,41 @@ const Comment: React.FC<CommentProps> = ({
     setEditingReplyId(null);
   };
 
+  const getProfileImage = (): string => {
+    if (comment.profileUrl) {
+      return comment.profileUrl;
+    }
+    // 댓글 작성자가 현재 로그인한 사용자와 같으면 userInfo의 프로필 사용
+    if (
+      userInfo &&
+      comment.author === userInfo.userName &&
+      userInfo.userProfileUrl
+    ) {
+      return userInfo.userProfileUrl;
+    }
+
+    // 기본 이미지 표시 (fallback)
+    return "/images/default-profile.png"; // 서버에 기본 이미지 파일이 있어야 함
+  };
+
   return (
     <div className="border-b border-gray-200 pb-4">
-      <div className="flex justify-between mb-10">
-        <span className="font-medium">{comment.author}</span>
+      <div className="flex items-center justify-between w-full mb-10">
+        {/* 프로필 이미지 추가 */}
+        <div className="flex items-center">
+          <div className="mr-3">
+            <img
+              src={getProfileImage()}
+              alt={`${comment.author} 프로필`}
+              className="w-8 h-8 rounded-full object-cover"
+              onError={(e) => {
+                // 이미지 로드 실패 시 기본 이미지로 대체
+                e.currentTarget.src = "/src/assets/profileImage.svg";
+              }}
+            />
+          </div>
+          <span className="font-medium">{comment.author}</span>
+        </div>
         <div className="flex items-center">
           <span className="text-s text-gray-500 mr-3">{comment.createdAt}</span>
 
