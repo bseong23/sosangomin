@@ -51,7 +51,8 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
           userName: userName || "",
           userProfileUrl: userProfileUrl || "",
           isFirstLogin: isFirstLoginValue || "", // string 타입으로 유지
-          accessToken
+          accessToken,
+          userRole: "USER"
         };
 
         // 사용자 정보와 토큰 저장

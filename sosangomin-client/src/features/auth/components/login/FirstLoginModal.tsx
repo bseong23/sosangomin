@@ -50,7 +50,8 @@ const FirstLoginModal: React.FC<FirstLoginModalProps> = ({
           userName: freshUserInfo.name,
           userProfileUrl: freshUserInfo.userProfileUrl,
           isFirstLogin: userData.isFirstLogin,
-          accessToken: userData.accessToken
+          accessToken: userData.accessToken,
+          userRole: userData.userRole
         };
 
         // 전역 상태 업데이트
