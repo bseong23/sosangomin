@@ -55,6 +55,7 @@ export interface LoginResponse {
   userProfileUrl: string | null;
   isFirstLogin: string;
   userId: string;
+  userRole: string;
 }
 
 // 이메일 인증 관련 타입
