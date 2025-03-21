@@ -31,6 +31,12 @@ const Signup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [prevMail, setPrevMail] = useState(""); // 이전 이메일 저장용
+  const [isPasswordValid, setIsPasswordValid] = useState(false); // 비밀번호 유효성 상태 추가
+
+  // 비밀번호 유효성 검사
+  useEffect(() => {
+    setIsPasswordValid(password.length >= 8);
+  }, [password]);
 
   // 메일 주소가 변경되면 인증 상태 초기화
   useEffect(() => {
@@ -51,6 +57,11 @@ const Signup: React.FC = () => {
     e.preventDefault();
 
     // 기본 유효성 검사
+    if (!isPasswordValid) {
+      alert("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
@@ -199,7 +210,7 @@ const Signup: React.FC = () => {
                   emailCheckState.error || mailVerificationState.error
                     ? "border-red-500"
                     : mailVerificationState.isVerified
-                    ? "border-green-500"
+                    ? "border-border"
                     : emailCheckState.isAvailable
                     ? "border-blue-500"
                     : "border-border"
@@ -275,7 +286,13 @@ const Signup: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력해주세요."
-                className="block w-full px-3 py-4 border border-border rounded focus:outline-none focus:border-bit-main"
+                className={`block w-full px-3 py-4 border ${
+                  password && !isPasswordValid
+                    ? "border-border"
+                    : password && isPasswordValid
+                    ? "border-border"
+                    : "border-border"
+                } rounded focus:outline-none focus:border-bit-main`}
               />
               <button
                 type="button"
@@ -289,6 +306,16 @@ const Signup: React.FC = () => {
                 />
               </button>
             </div>
+            {password && !isPasswordValid && (
+              <p className="mt-1 text-sm text-red-500">
+                비밀번호는 8자 이상이어야 합니다.
+              </p>
+            )}
+            {password && isPasswordValid && (
+              <p className="mt-1 text-sm text-green-600">
+                사용가능한 비밀번호입니다.
+              </p>
+            )}
           </div>
 
           {/* 비밀번호 확인 */}
