@@ -44,6 +44,7 @@ export interface CommentType {
   content: string;
   createdAt: string;
   isVerified: boolean;
+  profileUrl?: string;
   replies?: ReplyType[];
 }
 
