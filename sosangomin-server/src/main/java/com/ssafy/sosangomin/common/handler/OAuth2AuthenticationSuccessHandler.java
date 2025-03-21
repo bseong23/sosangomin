@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.common.handler;
 
+import com.ssafy.sosangomin.api.user.domain.entity.UserRole;
 import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,6 +45,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
         String isFirstLogin = (String) oAuth2User.getAttributes().get("isFirstLogin");
         String userId = (String) oAuth2User.getAttributes().get("userId");
+        String userRole = oAuth2User.getAttributes().get("userRole").toString();
 
         String accessToken = jwtTokenUtil.createWeekAccessToken(id);
 
@@ -53,7 +55,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 + "&userName=" + URLEncoder.encode(name, StandardCharsets.UTF_8)
                 + "&userProfileUrl=" + URLEncoder.encode(profileImgUrl, StandardCharsets.UTF_8)
                 + "&isFirstLogin=" + URLEncoder.encode(isFirstLogin, StandardCharsets.UTF_8)
-                + "&userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8);
+                + "&userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
+                + "&userRole=" + URLEncoder.encode(userRole, StandardCharsets.UTF_8);
+
+        System.out.println(redirectUrl);
 
         // 리다이렉트 수행
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);

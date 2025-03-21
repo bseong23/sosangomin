@@ -99,7 +99,8 @@ public class UserService {
                 user.getName(),
                 user.getProfileImgUrl(),
                 "false",
-                encryptedUserId
+                encryptedUserId,
+                user.getUserRole().toString()
         );
     }
 

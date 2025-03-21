@@ -58,6 +58,7 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
             attributes.put("profileImgUrl", user.getProfileImgUrl());
             attributes.put("isFirstLogin", "false");
             attributes.put("userId", encryptedUserId);
+            attributes.put("userRole", user.getUserRole());
 
             // OAuth2User 객체 생성 및 반환
             return new DefaultOAuth2User(authorities, attributes, "id");

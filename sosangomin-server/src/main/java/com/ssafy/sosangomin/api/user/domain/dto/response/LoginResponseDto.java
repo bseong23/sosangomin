@@ -13,6 +13,8 @@ public record LoginResponseDto(
         @Schema(description = "첫 로그인인지 여부, 일반 로그인은 디폴트로 false")
         String isFirstLogin,
         @Schema(description = "암호화된 유저 id (pk)")
-        String userId
+        String userId,
+        @Schema(description = "유저 역할")
+        String userRole
 ) {
 }
