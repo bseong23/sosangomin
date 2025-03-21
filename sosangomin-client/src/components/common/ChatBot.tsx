@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { sendChatMessage } from "@/api/chatApi";
 import { ChatRequest, ChatResponse } from "@/types/chat";
+import chatbot from "@/assets/chatbot.png";
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,8 +11,21 @@ const ChatBot: React.FC = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [userId] = useState(1); // 실제 사용 시 인증 정보에서 가져오세요
+  // const [showImage, setShowImage] = useState(true);
+  // const [animating, setAnimating] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const toggleChat = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    // 3초마다 플립 애니메이션 실행
+    const interval = setInterval(() => {
+      setIsFlipped((prev) => !prev);
+    }, 3000);
+
+    // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -55,44 +69,34 @@ const ChatBot: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-6 right-4  md:bottom-6 md:right-6 lg:bottom-6 lg:right-8  z-50">
       {isOpen && (
-        <div className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[60vh] max-h-[500px] absolute bottom-[5rem] right-0">
+        <div className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[7rem] right-0">
           <div className="bg-white p-4 border-b border-border flex justify-between items-center">
             <div className="flex items-center">
-              <div className="text-navy-500 mr-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              </div>
-              <span className="font-semibold text-xl">고미니</span>
+              <div className="text-navy-500 mr-2"></div>
+              <span className="font-semibold text-lg">고미니</span>
             </div>
           </div>
 
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-10 text-center">
-              <div className="w-20 h-20 rounded-full bg-bit-main mb-6 shadow-lg"></div>
+            <div className="flex flex-col flex-grow items-center justify-center p-6 md:p-8 lg:p-10 text-center">
+              <img
+                src={chatbot}
+                alt="chatbot"
+                className="w-24 md:w-28 lg:w-36 opacity-60"
+              />
               <p className="text-gray-500 mb-1">물어보고 싶은 질문을</p>
-              <p className="text-gray-500 mb-8">고미니에게 물어보세요</p>
+              <p className="text-gray-500 mb-8">고미니에게 물어보세요!</p>
             </div>
           )}
 
           {messages.length > 0 && (
-            <div className="flex-1 p-4 overflow-y-auto max-h-80">
+            <div className="flex-1 p-3 md:p-4 overflow-y-auto">
               {messages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`mb-3 p-3 rounded-2xl ${
+                  className={`mb-3 p-3 rounded-2xl text-sm ${
                     msg.isBot
                       ? "bg-gray-100 self-start mr-12"
                       : "bg-indigo-900 text-white self-end ml-12"
@@ -139,26 +143,29 @@ const ChatBot: React.FC = () => {
 
       <button
         onClick={toggleChat}
-        className="bg-indigo-900 text-white p-4 rounded-full shadow-lg hover:bg-indigo-800 w-14 h-14 flex items-center justify-center"
+        className="w-16 h-16 md:w-18 md:h-18 lg:w-22 lg:h-22 flex bg-bit-main border border-gray-200 shadow-3xl rounded-full shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] items-center justify-center overflow-hidden cursor-pointer"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {/* isOpen 상태에 따라 채팅창이 열려있을 때는 X 모양 닫기 아이콘, 닫혀있을 때는 말풍선 모양 채팅 아이콘을 표시 */}
-          {isOpen ? (
-            <path d="M18 6L6 18M6 6l12 12"></path>
-          ) : (
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          )}
-        </svg>
+        {/* 내용물 컨테이너 (perspective 적용) */}
+        <div className="perspective-500 w-22 h-22 flex items-center justify-center">
+          {/* 3D 변환을 적용할 중간 컨테이너 */}
+          <div
+            className={`
+              w-full h-full flex items-center justify-center
+              transform-style-3d duration-900
+              ${isFlipped ? "rotate-x-180" : ""}
+            `}
+          >
+            {/* 앞면 (이미지) */}
+            <div className="absolute w-full h-full flex items-center justify-center backface-hidden">
+              <img src={chatbot} alt="chatbot" className="w-[80%]" />
+            </div>
+
+            {/* 뒷면 (텍스트) */}
+            <div className="absolute w-full h-full flex items-center justify-center backface-hidden rotate-x-180">
+              <span className="text-white text-xl font-bold">챗봇</span>
+            </div>
+          </div>
+        </div>
       </button>
     </div>
   );
