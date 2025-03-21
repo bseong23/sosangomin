@@ -54,9 +54,12 @@ public class SecurityConfig {
                                 "/api/news/**",
                                 "/api/board/page/{pageNum}",
                                 "/api/board/page_count",
-                                "/api/comment/{boardId}"
+                                "/api/comment/{boardId}",
+                                "/api/notice/page/{pageNum}",
+                                "api/notice/page_count"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/notice/{noticeId}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -1,17 +1,21 @@
 package com.ssafy.sosangomin.api.notice.service;
 
+import com.ssafy.sosangomin.api.news.domain.dto.response.PageCountResponseDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.request.NoticeInsertRequestDto;
 import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeInsertResponseDto;
+import com.ssafy.sosangomin.api.notice.domain.dto.response.NoticeResponseDto;
 import com.ssafy.sosangomin.api.notice.mapper.NoticeMapper;
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.domain.entity.UserRole;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
+import com.ssafy.sosangomin.common.exception.NotFoundException;
 import com.ssafy.sosangomin.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,5 +35,39 @@ public class NoticeService {
         }
         noticeMapper.insertNotice(userId, noticeInsertRequestDto.title(), noticeInsertRequestDto.content());
         return new NoticeInsertResponseDto(noticeMapper.lastInsertId());
+    }
+
+    @Transactional
+    public NoticeResponseDto getNotice(Long noticeId) {
+        Optional<NoticeResponseDto> noticeOptional = noticeMapper.findNoticeResponseDtoById(noticeId);
+        if (!noticeOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_NOTICE_NOT_FOUND);
+        }
+
+        noticeMapper.incrementNoticeViews(noticeId);
+
+        NoticeResponseDto noticeResponseDto = noticeOptional.get();
+        return noticeResponseDto.incrementViews();
+    }
+
+    public List<NoticeResponseDto> getNoticesByPageNum(int pageNum) {
+        int offset = (pageNum - 1) * 10;
+        List<NoticeResponseDto> notices = noticeMapper.findNoticesByPageNum(offset);
+        return notices;
+    }
+
+    public PageCountResponseDto getNoticesPageCount() {
+        return new PageCountResponseDto(noticeMapper.getNoticesPageCount());
+    }
+
+    public void verifyIsAdmin(Long userId) {
+        Optional<User> userOptional = userMapper.findUserById(userId);
+        if (!userOptional.isPresent()) {
+            throw new NotFoundException(ErrorMessage.ERR_USER_NOT_FOUND);
+        }
+        User user = userOptional.get();
+        if (user.getUserRole() != UserRole.ADMIN) {
+            throw new UnAuthorizedException(ErrorMessage.ERR_NOT_ALLOWD_USER);
+        }
     }
 }

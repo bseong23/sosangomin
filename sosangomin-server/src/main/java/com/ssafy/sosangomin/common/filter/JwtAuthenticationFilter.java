@@ -88,6 +88,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (path.matches("/api/notice/\\d+") && method.equals("GET")) {
+            return true;
+        }
+
         return path.startsWith("/swagger-ui/") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-resources") ||
@@ -99,7 +103,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/api/user/email/check") ||
                 path.startsWith("/api/news") ||
                 path.startsWith("/api/board/page") ||
-                path.equals("/api/board/page_count");
+                path.equals("/api/board/page_count") ||
+                path.startsWith("/api/notice/page") ||
+                path.equals(("/api/notice/page_count"));
     }
 
     private String detachBearer(String token) {

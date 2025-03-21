@@ -31,6 +31,7 @@ public enum ErrorMessage {
     ERR_USER_NOT_FOUND,
     ERR_BOARD_NOT_FOUND,
     ERR_COMMENT_NOT_FOUND,
+    ERR_NOTICE_NOT_FOUND,
 
     /**
      * 500 INTERNAL_SERVER_ERROR

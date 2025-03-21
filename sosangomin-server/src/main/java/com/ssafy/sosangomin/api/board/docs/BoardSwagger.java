@@ -235,5 +235,5 @@ public interface BoardSwagger {
                     )
             }
     )
-    ResponseEntity<Boolean> verify(@PathVariable Long boardId, Principal principal);
+    ResponseEntity<?> verify(@PathVariable Long boardId, Principal principal);
 }
