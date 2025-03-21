@@ -50,15 +50,21 @@ const WritePost: React.FC = () => {
       setIsLoading(true);
       const response = await createBoardPost({ title, content });
 
+      // 응답 로깅 (디버깅용)
+      console.log("서버 응답 전체:", response);
+
       // 성공 메시지 표시
       alert("게시글이 성공적으로 등록되었습니다.");
 
       // 게시글 상세 페이지로 이동 (서버에서 반환한 값 사용)
-      if (response && response.boardId) {
-        console.log("이동할 url:", `/community/board/${response}`);
-        navigate(`/community/board/${response.boardId}`);
+      if (response && response.insertedBoardId) {
+        // console.log(
+        //   "이동할 url:",
+        //   `/community/board/post/${response.insertedBoardId}`
+        // );
+        navigate(`/community/board/post/${response.insertedBoardId}`);
       } else {
-        console.log("이동할 URL:", `/community/board/${response}`);
+        console.log("게시글 ID를 받지 못했습니다. 게시판 목록으로 이동합니다.");
         navigate("/community/board");
       }
     } catch (error: any) {

@@ -38,7 +38,7 @@ export const createBoardPost = async (data: {
   try {
     // const token = getAccessToken();
     const response = await axiosInstance.post(`${BASE_URL}/api/board`, data);
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("게시글 작성 실패:", error);
