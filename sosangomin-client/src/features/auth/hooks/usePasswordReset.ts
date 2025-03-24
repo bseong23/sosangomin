@@ -23,7 +23,7 @@ export const usePasswordReset = (): UsePasswordResetReturn => {
         params: { mail: email }
       });
 
-      if (response.data) {
+      if (response.status === 200) {
         return true;
       }
       return false;

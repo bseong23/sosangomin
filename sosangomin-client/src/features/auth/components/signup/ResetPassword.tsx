@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { usePasswordReset } from "@/features/auth/hooks/usePasswordReset";
 import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
+import Loading from "@/components/common/Loading";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -143,25 +144,29 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
     setError(null);
+    setIsLoading(true);
 
     try {
       const success = await requestResetEmail(mail);
-
-      if (!success) {
-        // 에러는 usePasswordReset에서 이미 설정됨
-        // 성공 시 이메일 발송 완료 상태로 변경
+      if (success) {
+        // 성공했을 때만 바로 폼 전환
         setIsEmailSent(true);
-        setTimer(300);
-        return;
+      } else {
+        setError("메일 발송에 실패했습니다. 이메일 주소를 확인해주세요.");
       }
     } catch (error) {
       console.error("비밀번호 재설정 링크 요청 오류:", error);
+      // setIsEmailSent(false);
       setError("이메일 발송 요청 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleResendEmail = async () => {
+    setTimer(300); // 타이머 리셋
+    await handleRequestResetEmail();
   };
 
   // 비밀번호 변경 처리
@@ -289,21 +294,14 @@ const ResetPassword: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* 링크 만료 시 재발송 버튼 추가 */}
-          {timer === 0 && (
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setTimer(300);
-                  handleRequestResetEmail();
-                }}
-                className="text-bit-main hover:text-indigo-800"
-              >
-                메일 재발송하기
-              </button>
-            </div>
-          )}
+          {/* 메일 재발송송 */}
+          <button
+            type="button"
+            onClick={handleResendEmail}
+            className="text-bit-main hover:text-blue-900 mt-3"
+          >
+            메일 재발송하기
+          </button>
           <div className="mt-4">
             <button
               type="button"
@@ -351,13 +349,17 @@ const ResetPassword: React.FC = () => {
               />
             </button>
           </div>
-          <p
-            className={`text-xs ${
-              newPassword.length >= 8 ? "text-green-600" : "text-red-500"
-            }`}
-          >
-            비밀번호는 8자 이상이어야 합니다.
-          </p>
+          {newPassword.length > 0 && (
+            <p
+              className={`text-xs mt-1 ${
+                newPassword.length >= 8 ? "text-green-600" : "text-red-500"
+              }`}
+            >
+              {newPassword.length >= 8
+                ? "사용 가능한 비밀번호입니다."
+                : "비밀번호는 8자 이상이어야 합니다."}
+            </p>
+          )}
 
           {/* 비밀번호 확인 입력 - 별도 div로 분리 */}
           <label
@@ -445,9 +447,9 @@ const ResetPassword: React.FC = () => {
                 type="button"
                 onClick={handleRequestResetEmail}
                 disabled={isLoading}
-                className="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base text-basic-white hover:bg-blue-900 bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base text-basic-white hover:bg-blue-900 bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main disabled:opacity-50"
               >
-                {isLoading ? "처리 중..." : "비밀번호 재설정 링크 받기"}
+                {isLoading ? <Loading /> : "비밀번호 재설정 링크 받기"}
               </button>
             </div>
           </div>
