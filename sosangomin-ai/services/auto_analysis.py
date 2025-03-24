@@ -27,56 +27,75 @@ class AutoAnalysisService:
         self.temp_dir = "temp_files"
         os.makedirs(self.temp_dir, exist_ok=True)
 
-    async def read_file(self, temp_file: str) -> pd.DataFrame:
+    async def read_file(self, temp_file: str, pos_type: str = "키움") -> pd.DataFrame:
         """파일 확장자에 따른 데이터 읽기"""
         ext = os.path.splitext(temp_file)[1].lower()
+        start = 2 if pos_type == "키움" else 0
         if ext == ".csv":
-            return pd.read_csv(temp_file, header=2)
+            return pd.read_csv(temp_file, header=start)
         elif ext in [".xls", ".xlsx"]:
-            return pd.read_excel(temp_file, header=2)
+            return pd.read_excel(temp_file, header=start)
         else:
             raise ValueError("지원되지 않는 파일 형식입니다. CSV 또는 Excel만 가능합니다.")
 
-    async def preprocess_data(self, df: pd.DataFrame) :
+    async def preprocess_data(self, df: pd.DataFrame, pos_type: str = "키움") -> pd.DataFrame:
         """데이터 전처리 및 시간 변수 생성"""
         try:
             # TODO : 현재 직접적인 변수명을 사용한 부분이 있는데 일반화를 할지 고민
+            
+            if pos_type == "키움":
 
-            # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
-            header_values = set(df.columns.tolist()) 
-            columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
-            df = df.drop(columns=columns_to_drop)
+                # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
+                header_values = set(df.columns.tolist()) 
+                columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
+                df = df.drop(columns=columns_to_drop)
 
-            # 결측 및 중복 처리 
-            df = (
-                df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
-                .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
-                .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
-                .T.drop_duplicates().T    # 중복 열 제거
-            )
+                # 결측 및 중복 처리 
+                df = (
+                    df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+                    .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+                    .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
+                    .T.drop_duplicates().T    # 중복 열 제거
+                )
 
-            # 'Unnamed'가 포함되지 않은 열 중복
-            cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
-            df[cols_to_fill] = df[cols_to_fill].ffill()
+                # 'Unnamed'가 포함되지 않은 열 중복
+                cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
+                df[cols_to_fill] = df[cols_to_fill].ffill()
 
-            # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
-            dup_val = ['단가', '수량', '원가']
-            for val in dup_val :
-                columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
-                # print(val, columns)
-                if columns:
-                    df[val] = df[columns].bfill(axis=1).iloc[:, 0]
-                    df = df.drop(columns=columns)
+                # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
+                dup_val = ['단가', '수량', '원가']
+                for val in dup_val :
+                    columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
+                    # print(val, columns)
+                    if columns:
+                        df[val] = df[columns].bfill(axis=1).iloc[:, 0]
+                        df = df.drop(columns=columns)
 
-            # TODO: 결제 수단 이용할건지?
+                # TODO: 결제 수단 이용할건지?
 
-            df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
+                df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
 
-            # 컬럼명 수정
-            new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
-            df.columns = new_columns
-            df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
-            df = df.loc[:, df.nunique() > 1]  
+                # 컬럼명 수정
+                new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
+                df.columns = new_columns
+                df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
+                df = df.loc[:, df.nunique() > 1]  
+            
+            elif pos_type == "토스":
+
+                # 필요 변수 추출 및 변수명 통일 
+                df = df[['주문시작시각', '상품명', '수량', '상품가격']]
+                df = df.rename(columns={'주문시작시각':'매출 일시', '상품명':'상품 명칭', '상품가격':'단가'})
+                df['매출'] = df['수량'] * df['단가']
+                df = df.drop(index=0).reset_index(drop=True)
+
+                # 전처리 
+                df = (
+                    df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+                    .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+                    .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
+                    .T.drop_duplicates().T    # 중복 열 제거
+                )
 
             # 파생변수 생성
             kr_holidays = holidays.KR()
@@ -437,7 +456,7 @@ class AutoAnalysisService:
             raise ValueError(f"분석 실패: {str(e)}")
 
     
-    async def perform_analyze(self, store_id, source_ids):
+    async def perform_analyze(self, store_id, source_ids, pos_type):
         """여러 source_id의 파일을 분석하여 예측 + 클러스터링 결과를 반환 및 저장"""
         try:
             data_sources = mongo_instance.get_collection("DataSources")
@@ -461,8 +480,8 @@ class AutoAnalysisService:
                 local_path = await download_file_from_s3(s3_key, temp_path)
                 local_files.append(local_path)
 
-                df = await self.read_file(local_path)
-                df = await self.preprocess_data(df)
+                df = await self.read_file(local_path, pos_type)
+                df = await self.preprocess_data(df, pos_type)
                 preprocessed_data.append(df)
 
             # 모든 전처리된 데이터 병합

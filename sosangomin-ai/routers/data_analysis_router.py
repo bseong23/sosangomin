@@ -23,7 +23,8 @@ auto_analysis_service = AutoAnalysisService()
 @router.post("/analyze/auto")
 async def analyze_auto_analysis(
     store_id: int = Form(...),
-    source_ids: List[str] = Form(...)
+    source_ids: List[str] = Form(...),
+    pos_type: str = Form(..., description="POS 유형 (키움, 토스 ...)")
 ):
     """
     여러 source_id에 대해 자동 분석(예측 + 클러스터링)을 수행합니다.
@@ -36,7 +37,7 @@ async def analyze_auto_analysis(
             except Exception:
                 raise HTTPException(status_code=400, detail=f"유효하지 않은 source_id: {sid}")
         
-        result = await auto_analysis_service.perform_analyze(store_id, source_ids)
+        result = await auto_analysis_service.perform_analyze(store_id, source_ids, pos_type)
         return result
 
     except ValueError as e:
