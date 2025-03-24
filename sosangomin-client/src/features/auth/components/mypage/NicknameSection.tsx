@@ -120,8 +120,8 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
 
   return (
     <div>
-      <div className="text-xl font-medium text-comment mb-2">닉네임</div>
-      <div className="flex justify-between items-center min-w-[300px] border border-border rounded-md p-4">
+      <div className="text-base font-medium text-comment mb-1">닉네임</div>
+      <div className="flex gap-10 items-center min-w-[250px] rounded-md p-3">
         {isEditingNickname ? (
           <div className="flex-1 flex flex-col">
             <div className="flex items-center">
@@ -131,10 +131,10 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                 value={newNickname}
                 onChange={(e) => setNewNickname(e.target.value)}
                 onKeyDown={handleNicknameKeyDown}
-                className="flex-1 border border-basic-white rounded focus:outline-none focus:border-bit-main text-xl"
+                className="flex-1 border border-basic-white rounded focus:outline-none focus:border-bit-main text-base"
                 disabled={isSubmittingNickname}
               />
-              <div className="flex ml-3">
+              <div className="flex ml-2">
                 <button
                   onClick={saveNickname}
                   disabled={isSubmittingNickname}
@@ -142,8 +142,8 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -161,8 +161,8 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -177,12 +177,12 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
               </div>
             </div>
             {nicknameError && (
-              <p className="text-sm text-red-500 mt-2">{nicknameError}</p>
+              <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
             )}
           </div>
         ) : (
           <>
-            <div className="text-xl">{nickname}</div>
+            <div className="text-base">{nickname}</div>
             {isEditable && (
               <button
                 onClick={startEditingNickname}
@@ -191,8 +191,8 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

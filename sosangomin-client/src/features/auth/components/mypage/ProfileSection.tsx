@@ -16,13 +16,13 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
   isLoading = false
 }) => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center">
       <div className="relative">
-        <div className="relative w-32 h-32">
+        <div className="relative w-30 h-30">
           <img
             src={imageUrl || DefaultProfileImage}
             alt="프로필 이미지"
-            className="w-32 h-32 rounded-full object-cover border-1 border-border"
+            className="w-30 h-30 rounded-full object-cover border border-border"
           />
 
           {/* 로딩 오버레이 */}
@@ -32,13 +32,13 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
         {isEditable && !isLoading && (
           <button
             onClick={onEditImage}
-            className="absolute -right-2 -bottom-2 bg-basic-white rounded-full p-2 border border-border shadow-sm hover:bg-gray-50"
+            className="absolute -right-1 -bottom-1 bg-basic-white rounded-full p-1 border border-border shadow-sm hover:bg-gray-50"
             aria-label="프로필 이미지 수정"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -51,11 +51,6 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
             </svg>
           </button>
         )}
-      </div>
-      <div className="mt-5">
-        <p className="text-comment-text text-sm">
-          이미지 용량은 1MB로 제한됩니다.
-        </p>
       </div>
     </div>
   );
