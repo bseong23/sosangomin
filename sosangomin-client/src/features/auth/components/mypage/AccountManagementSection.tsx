@@ -11,7 +11,7 @@ const AccountManagementSection: React.FC<AccountManagementSectionProps> = ({
   onDeleteAccount
 }) => {
   return (
-    <div className="flex justify-end gap-10 mt-6 text-sm">
+    <div className="flex justify-end gap-5 mt-3 text-xs">
       <div
         onClick={onPasswordChange}
         className="text-comment hover:text-bit-main cursor-pointer"

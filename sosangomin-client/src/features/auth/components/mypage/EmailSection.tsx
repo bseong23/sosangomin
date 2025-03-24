@@ -8,13 +8,11 @@ interface EmailSectionProps {
 const EmailSection: React.FC<EmailSectionProps> = ({ email, userType }) => {
   return (
     <div>
-      <div className="text-xl font-medium text-comment mb-2">이메일</div>
-      <div className="text-xl border border-border rounded-md p-4">
+      <div className="text-base font-medium text-comment mb-1">이메일</div>
+      <div className="text-base rounded-md p-3">
         {email}
         {userType === "KAKAO" && (
-          <div className="mt-2 text-sm text-[#FEE500] bg-[#FEE50015] px-3 py-1 inline-block rounded-full">
-            카카오로그인입니다
-          </div>
+          <div className="mt-1 text-xs">카카오 로그인</div>
         )}
       </div>
     </div>

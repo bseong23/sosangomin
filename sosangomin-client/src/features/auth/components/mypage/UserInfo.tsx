@@ -105,7 +105,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
   }
 
   return (
-    <div className="w-full mx-auto p-8 bg-basic-white">
+    <div className="w-full mx-auto p-5 bg-basic-white border border-border rounded-lg">
       {/* 이미지 업로드 에러 메시지 */}
       {imageError && (
         <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
@@ -120,7 +120,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-10 items-center">
+      <div className="flex flex-col md:flex-row gap-20 items-center">
         {/* 프로필 이미지 섹션 */}
         <ProfileImageSection
           profileImage={userProfile.profileImage}
@@ -131,7 +131,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
         />
 
         {/* 사용자 정보 섹션 */}
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-2">
           {/* 닉네임 섹션 */}
           <NicknameSection
             nickname={userProfile.nickname}
