@@ -46,7 +46,7 @@ const Recommendmap: React.FC = () => {
               key={type}
               className={`p-auto rounded-full text-sm border w-20 h-full ${
                 selectedBusinessTypes.includes(type)
-                  ? "bg-[#0083E2] text-white border-blue-600"
+                  ? "bg-bit-main text-white border-blue-900"
                   : "bg-[#FFFFFF] text-[#000000] border-[#BCBCBC] hover:bg-gray-100"
               }`}
               onClick={() => handleBusinessTypeClick(type)}
@@ -66,8 +66,8 @@ const Recommendmap: React.FC = () => {
               key={age}
               className={`p-auto rounded-full text-sm border w-20 h-full ${
                 selectedAgeGroups.includes(age)
-                  ? "bg-[#0083E2] text-white border-blue-600"
-                  : "bg-[#FFFFFF] text-[#000000] border-[#BCBCBC] hover:bg-gray-100"
+                  ? "bg-bit-main text-white border-blue-600"
+                  : "bg-[#FFFFFF] text-comment border-[#BCBCBC] hover:bg-gray-100"
               }`}
               onClick={() => handleAgeGroupClick(age)}
             >
@@ -78,7 +78,7 @@ const Recommendmap: React.FC = () => {
       </div>
 
       {/* 분석하기 버튼 */}
-      <button className="w-full bg-blue-800 text-white py-3 rounded-md font-medium">
+      <button className="w-full bg-bit-main hover:bg-blue-900 text-white py-3 rounded-md font-medium">
         분석 하기
       </button>
     </div>

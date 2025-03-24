@@ -48,13 +48,13 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="sidebar border-r border-gray-300 w-[200px] bg-white">
-      <div className="menu-group pt-[100px] pl-[44px] font-inter fixed">
+      <div className="menu-group pt-[100px] pl-[44px] fixed">
         <ul>
           {menuToShow.items.map((item, index) => (
             <li key={index} className="py-[10px]">
               <Link
                 to={item.path}
-                className={`text-[#333333] ${
+                className={`text-comment hover:text-blue-900 ${
                   isSidebarItemActive(currentPath, item.path)
                     ? "font-extrabold"
                     : ""
