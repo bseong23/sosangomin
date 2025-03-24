@@ -1,5 +1,6 @@
 export interface BoardItem {
   boardId: number;
+  noticeId: number;
   title: string;
   name: string;
   content: string;

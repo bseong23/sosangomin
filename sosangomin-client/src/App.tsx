@@ -68,6 +68,10 @@ const App: React.FC = () => {
             path="/community/notice/post/:boardId"
             element={<div>공지사항 상세</div>}
           />
+          <Route
+            path="/community/notice/write"
+            element={<div>공지사항 작성성</div>}
+          />
           <Route path="/community/news" element={<News />} />
           <Route path="/community/board" element={<Board />} />
           <Route path="/community/board/write" element={<WritePost />} />

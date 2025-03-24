@@ -21,7 +21,7 @@ const BoardList: React.FC<BoardListProps> = ({ items, boardType }) => {
           {items &&
             items.map((item) => (
               <BoardItemComponent
-                key={item.boardId}
+                key={boardType === "notice" ? item.noticeId : item.boardId}
                 item={item}
                 boardType={boardType}
               />
