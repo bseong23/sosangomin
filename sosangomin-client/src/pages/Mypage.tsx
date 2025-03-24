@@ -16,12 +16,13 @@ const MyPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-[1000px] mx-auto md:p-6 p-4 space-y-10">
+    <div className="min-h-screen max-w-[1000px] mx-auto md:p-6 p-4 space-y-5">
       {/* 환영 메시지 */}
       <div className="mt-10 px-4">
         <h2 className="text-lg font-semibold">환영합니다!</h2>
-        <p className="text-gray-600">
-          {userProfile?.nickname || "라비퍼"}님, 오늘 하루도 좋은 하루 보내세요
+        <p className="text-comment mt-2">
+          {userProfile?.nickname || "소상공인"}님, 오늘 하루도 좋은 하루
+          보내세요
         </p>
       </div>
 

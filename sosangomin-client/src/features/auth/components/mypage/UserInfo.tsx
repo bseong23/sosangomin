@@ -104,68 +104,82 @@ const UserInfo: React.FC<UserInfoProps> = ({ isEditable = false }) => {
     );
   }
 
+  // UserInfo.tsx의 렌더링 부분 수정
   return (
-    <div className="w-full mx-auto p-5 bg-basic-white border border-border rounded-lg">
-      {/* 이미지 업로드 에러 메시지 */}
-      {imageError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
-          {imageError}
+    <>
+      <div className="w-full mx-auto p-3 sm:p-4 md:p-5 bg-basic-white border border-border rounded-md md:rounded-lg">
+        {/* 이미지 업로드 에러 메시지 */}
+        {imageError && (
+          <div className="mb-3 sm:mb-4 p-2 bg-red-100 text-red-600 rounded text-center text-xs sm:text-sm">
+            {imageError}
+          </div>
+        )}
+
+        {/* 회원 탈퇴 에러 메시지 */}
+        {withdrawalError && (
+          <div className="mb-3 sm:mb-4 p-2 bg-red-100 text-red-600 rounded text-center text-xs sm:text-sm">
+            {withdrawalError}
+          </div>
+        )}
+
+        {/* 모바일에서는 세로 레이아웃, 태블릿 이상에서는 가로 레이아웃 */}
+        <div className="px-2 sm:px-4 md:px-8">
+          <div className="flex flex-col sm:flex-row items-center w-full">
+            {/* 프로필 이미지 섹션 - 모바일에서는 전체 너비, 태블릿 이상에서는 1/3 */}
+            <div className="w-full sm:w-1/3 flex justify-center mb-4 sm:mb-0">
+              <ProfileImageSection
+                profileImage={userProfile.profileImage}
+                isEditable={isEditable}
+                setImageError={setImageError}
+                userInfo={userInfo}
+                setUserInfo={setUserInfo}
+              />
+            </div>
+
+            {/* 사용자 정보 섹션 - 모바일에서는 전체 너비, 태블릿 이상에서는 2/3 */}
+            <div className="w-full sm:w-2/3">
+              {/* 닉네임 섹션 */}
+              <div className="mb-3 sm:mb-4">
+                <NicknameSection
+                  nickname={userProfile.nickname}
+                  isEditable={isEditable}
+                  userInfo={userInfo}
+                  setUserInfo={setUserInfo}
+                />
+              </div>
+
+              {/* 이메일 섹션 */}
+              <div>
+                <EmailSection
+                  email={userProfile.mail}
+                  userType={userProfile.userType}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* 회원 탈퇴 에러 메시지 */}
-      {withdrawalError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-600 rounded text-center">
-          {withdrawalError}
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row gap-20 items-center">
-        {/* 프로필 이미지 섹션 */}
-        <ProfileImageSection
-          profileImage={userProfile.profileImage}
-          isEditable={isEditable}
-          setImageError={setImageError}
-          userInfo={userInfo}
-          setUserInfo={setUserInfo}
-        />
-
-        {/* 사용자 정보 섹션 */}
-        <div className="flex-1 space-y-2">
-          {/* 닉네임 섹션 */}
-          <NicknameSection
-            nickname={userProfile.nickname}
-            isEditable={isEditable}
-            userInfo={userInfo}
-            setUserInfo={setUserInfo}
+        {/* 회원 탈퇴 확인 모달 */}
+        {isEditable && (
+          <WithdrawalConfirm
+            isOpen={isWithdrawalModalOpen}
+            onClose={() => setIsWithdrawalModalOpen(false)}
+            onConfirm={handleConfirmWithdrawal}
+            isProcessing={isWithdrawing}
           />
-
-          {/* 이메일 섹션 */}
-          <EmailSection
-            email={userProfile.mail}
-            userType={userProfile.userType}
-          />
-
-          {/* 계정 관리 링크 섹션 */}
-          {isEditable && (
-            <AccountManagementSection
-              onPasswordChange={handlePasswordChange}
-              onDeleteAccount={handleDeleteAccount}
-            />
-          )}
-        </div>
+        )}
       </div>
 
-      {/* 회원 탈퇴 확인 모달 */}
+      {/* 계정 관리 링크 섹션 - 네모칸 바깥으로 이동 */}
       {isEditable && (
-        <WithdrawalConfirm
-          isOpen={isWithdrawalModalOpen}
-          onClose={() => setIsWithdrawalModalOpen(false)}
-          onConfirm={handleConfirmWithdrawal}
-          isProcessing={isWithdrawing}
-        />
+        <div className="mt-2 sm:mt-3 flex justify-end">
+          <AccountManagementSection
+            onPasswordChange={handlePasswordChange}
+            onDeleteAccount={handleDeleteAccount}
+          />
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

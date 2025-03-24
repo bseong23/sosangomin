@@ -120,8 +120,34 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
 
   return (
     <div>
-      <div className="text-base font-medium text-comment mb-1">닉네임</div>
-      <div className="flex gap-10 items-center min-w-[250px] rounded-md p-3">
+      <div className="flex items-center mb-1 gap-1">
+        <div className="text-lg font-bold text-comment">닉네임</div>
+        {isEditable && !isEditingNickname && (
+          <button
+            onClick={startEditingNickname}
+            className="flex items-center text-lg hover:text-bit-main ml-2 group"
+            aria-label="닉네임 수정"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-1 group-hover:stroke-bit-main transition-all duration-200"
+            >
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      <div className="flex gap-10 items-center rounded-md py-3">
         {isEditingNickname ? (
           <div className="flex-1 flex flex-col">
             <div className="flex items-center">
@@ -181,31 +207,7 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
             )}
           </div>
         ) : (
-          <>
-            <div className="text-base">{nickname}</div>
-            {isEditable && (
-              <button
-                onClick={startEditingNickname}
-                className="text-comment-text hover:text-comment p-1"
-                aria-label="닉네임 수정"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-              </button>
-            )}
-          </>
+          <div className="text-base">{nickname}</div>
         )}
       </div>
     </div>
