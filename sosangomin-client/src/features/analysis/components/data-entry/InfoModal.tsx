@@ -1,4 +1,3 @@
-// InfoModal.tsx - Updated to match design
 import React from "react";
 
 interface InfoModalProps {
@@ -17,8 +16,8 @@ const InfoModal: React.FC<InfoModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ">
-      <div className="bg-basic-white rounded-md shadow-xl w-full max-w-md mx-4 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-basic-white rounded-md shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center border-b border-border p-4">
           <h3 className="text-base font-medium text-bit-main">{title}</h3>
           <button
@@ -42,11 +41,13 @@ const InfoModal: React.FC<InfoModalProps> = ({
             </svg>
           </button>
         </div>
-        <div className="p-5 text-sm text-comment">{content}</div>
+        <div className="p-5 text-sm text-comment overflow-y-auto flex-grow">
+          {content}
+        </div>
         <div className="bg-gray-50 px-4 py-3 flex justify-end">
           <button
             type="button"
-            className="bg-bit-main text-basic-white px-4 py-2 rounded-md hover:bg-opacity-90"
+            className="bg-bit-main text-basic-white px-4 py-2 rounded-md hover:bg-blue-900"
             onClick={onClose}
           >
             확인
