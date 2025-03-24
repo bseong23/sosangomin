@@ -49,6 +49,15 @@ export interface CommentType {
   replies?: ReplyType[];
 }
 
+export interface NoticeType {
+  id: string | undefined;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  views: number;
+}
+
 export interface PostType {
   id: string | undefined;
   title: string;

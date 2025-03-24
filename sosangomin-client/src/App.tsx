@@ -18,6 +18,8 @@ import Board from "@/pages/Board";
 import WritePost from "@/pages/BoardWritePage";
 import BoardPostEditPage from "@/pages/BoardPostEditPage";
 import BoardPostDetailPage from "@/pages/BoardPostDetailPage";
+import NoticePost from "./pages/NoticePost";
+import NoticePostDetailPage from "./pages/NoticePostDetailPage";
 
 // 데이터 분석 관련 페이지
 import DataUploadPage from "@/pages/DataUploadPage";
@@ -29,6 +31,7 @@ import ResultPage from "@/pages/ResultPage";
 
 // 기타 컴포넌트
 import MainPage from "@/pages/MainPage";
+import NoticePostEditPage from "./pages/NoticePostEditPage";
 
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
@@ -65,13 +68,15 @@ const App: React.FC = () => {
           {/* 커뮤니티 관련 라우트 */}
           <Route path="/community/notice" element={<Notice />} />
           <Route
-            path="/community/notice/post/:boardId"
-            element={<div>공지사항 상세</div>}
+            path="/community/notice/post/:noticeId"
+            element={<NoticePostDetailPage />}
           />
+          <Route path="/community/notice/write" element={<NoticePost />} />
           <Route
-            path="/community/notice/write"
-            element={<div>공지사항 작성성</div>}
+            path="/community/notice/edit/:noticeId"
+            element={<NoticePostEditPage />}
           />
+
           <Route path="/community/news" element={<News />} />
           <Route path="/community/board" element={<Board />} />
           <Route path="/community/board/write" element={<WritePost />} />

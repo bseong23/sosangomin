@@ -349,15 +349,15 @@ const ResetPassword: React.FC = () => {
               />
             </button>
           </div>
-          {newPassword.length > 0 && (
-            <p
-              className={`text-xs mt-1 ${
-                newPassword.length >= 8 ? "text-green-600" : "text-red-500"
-              }`}
-            >
-              {newPassword.length >= 8
-                ? "사용 가능한 비밀번호입니다."
-                : "비밀번호는 8자 이상이어야 합니다."}
+          {newPassword && newPassword.length < 8 && (
+            <p className="text-xs mt-1 text-red-500">
+              비밀번호는 8자 이상이어야 합니다.
+            </p>
+          )}
+
+          {newPassword.length >= 8 && (
+            <p className="text-xs mt-1 text-green-600">
+              사용 가능한 비밀번호입니다.
             </p>
           )}
 
