@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
-from services.automl import preprocess_data  
+from services.auto_analysis import preprocess_data  
 from services.eda_chat_service import eda_chat_service
 
 logger = logging.getLogger(__name__)
