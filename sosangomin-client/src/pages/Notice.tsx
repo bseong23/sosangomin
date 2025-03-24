@@ -1,70 +1,30 @@
 import React, { useEffect, useState } from "react";
+import { BoardListResponse, BoardParams } from "@/features/board/types/board";
 import {
-  BoardItem,
-  BoardListResponse,
-  BoardParams
-} from "@/features/board/types/board";
-// import { fetchNoticeList } from "@/api/noticeApi";
+  fetchNoticeList,
+  fetchNoticePageCount
+} from "@/features/board/api/noticeApi";
 import BoardList from "@/features/board/components/boards/BoardList";
 import Pagination from "@/components/common/Pagination";
 import SearchBar from "@/components/common/SearchBar";
 import Loading from "@/components/common/Loading";
 import Banner from "@/features/board/components/boards/Banner";
+import WriteButton from "@/features/board/components/boards/WriteButton";
+import useAuthStore from "@/store/useAuthStore";
 
 const Notice: React.FC = () => {
-  // 더미 데이터 생성
-  const dummyData: BoardItem[] = [
-    {
-      boardId: 1,
-      title: "게시판 사용 수칙",
-      name: "관리자",
-      content: "1",
-      createdAt: "2025-03-19T10:25:04",
-      views: 78
-    },
-    {
-      boardId: 10,
-      title: "진심희서 물 픈다",
-      name: "관리자",
-      content: "1",
-      createdAt: "2025-03-19T10:25:04",
-      views: 17
-    },
-    {
-      boardId: 9,
-      title: "네이버 댓글 관리하세요~",
-      name: "관리자",
-      content: "1",
-      createdAt: "2025-03-19T10:25:04",
-      views: 3
-    },
-    {
-      boardId: 8,
-      title: "더운에 좋은 위치 알려줍니다",
-      name: "관리자",
-      content: "1",
-      createdAt: "2025-03-19T10:25:04",
-      views: 3
-    },
-    {
-      boardId: 7,
-      title: "2월 26일 공지사항",
-      name: "관리자",
-      content: "1",
-      createdAt: "2025-03-18T20:25:04",
-      views: 3
-    }
-  ];
-
+  const userInfo = useAuthStore();
+  const userrole = userInfo.userInfo;
   const [noticeData, setNoticeData] = useState<BoardListResponse>({
-    items: dummyData,
-    totalCount: dummyData.length,
+    items: [],
+    totalCount: 0,
     currentPage: 1,
-    totalPages: 10
+    totalPages: 1
   });
   const [params, setParams] = useState<BoardParams>({
     page: 1,
-    limit: 10
+    limit: 10,
+    search: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -73,31 +33,26 @@ const Notice: React.FC = () => {
     const getNoticeList = async () => {
       setLoading(true);
       try {
-        // 검색 기능 시뮬레이션
-        let filteredData = [...dummyData];
-        if (params.search) {
-          filteredData = dummyData.filter((item) =>
-            item.title.toLowerCase().includes(params.search!.toLowerCase())
-          );
-        }
+        const [listResponse, totalPages] = await Promise.all([
+          fetchNoticeList(params.page),
+          fetchNoticePageCount()
+        ]);
 
-        setTimeout(() => {
-          setNoticeData({
-            items: filteredData,
-            totalCount: filteredData.length,
-            currentPage: params.page,
-            totalPages: 10
-          });
-          setLoading(false);
-        }); // 로딩 효과를 위한 지연
+        setNoticeData({
+          items: listResponse, // listResponse 자체가 items 배열입니다.
+          totalCount: listResponse.length, // 배열의 길이를 totalCount로 사용
+          currentPage: params.page, // 현재 페이지는 params에서 가져옵니다.
+          totalPages: totalPages
+        });
       } catch (error) {
         console.error("공지사항 로딩 실패:", error);
+      } finally {
         setLoading(false);
       }
     };
 
     getNoticeList();
-  }, [params]);
+  }, [params.page]);
 
   const handlePageChange = (page: number) => {
     setParams((prev) => ({ ...prev, page }));
@@ -119,7 +74,6 @@ const Notice: React.FC = () => {
               <SearchBar onSearch={handleSearch} placeholder="" />
             </div>
           </div>
-
           {loading ? (
             <div className="flex justify-center">
               <Loading />
@@ -127,6 +81,11 @@ const Notice: React.FC = () => {
           ) : (
             <>
               <BoardList items={noticeData.items} boardType="notice" />
+              {userrole?.userRole === "ADMIN" && (
+                <div className="flex h-10 justify-end items-center pt-4">
+                  <WriteButton boardType="notice" />
+                </div>
+              )}
             </>
           )}
         </div>

@@ -59,7 +59,9 @@ const BoardItemComponent: React.FC<BoardItemProps> = ({ item, boardType }) => {
     <tr className="border-b border-gray-300 hover:bg-gray-100">
       <td className="py-2 px-2">
         <Link
-          to={`/community/${boardType}/post/${item.boardId}`}
+          to={`/community/${boardType}/post/${
+            boardType === "notice" ? item.noticeId : item.boardId
+          }`}
           className="flex items-center pl-1"
           title={item.title}
         >
