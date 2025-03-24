@@ -13,8 +13,8 @@ const Signup: React.FC = () => {
     submitSignup,
     nameCheckState,
     checkName,
-    emailCheckState, // 이메일 중복 확인 상태 추가
-    checkEmail, // 이메일 중복 확인 함수 추가
+    emailCheckState,
+    checkEmail,
     mailVerificationState,
     sendVerification,
     setMailVerified,
@@ -30,8 +30,9 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  const [prevMail, setPrevMail] = useState(""); // 이전 이메일 저장용
-  const [isPasswordValid, setIsPasswordValid] = useState(false); // 비밀번호 유효성 상태 추가
+  const [prevMail, setPrevMail] = useState("");
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isEmailBeingVerified, setIsEmailBeingVerified] = useState(false); // 이메일 검증 진행 상태
 
   // 비밀번호 유효성 검사
   useEffect(() => {
@@ -112,15 +113,26 @@ const Signup: React.FC = () => {
       return;
     }
 
-    // 먼저 이메일 중복 체크를 수행
-    const isAvailable = await checkEmail(mail);
+    // 먼저 모달을 열고
+    setIsVerificationModalOpen(true);
+    setIsEmailBeingVerified(true);
 
-    // 이메일이 사용 가능하면 인증 코드 발송
-    if (isAvailable) {
-      const isSent = await sendVerification(mail);
-      if (isSent) {
-        setIsVerificationModalOpen(true);
+    try {
+      // 이메일 중복 체크
+      const isAvailable = await checkEmail(mail);
+
+      // 이메일이 사용 가능하면 인증 코드 발송
+      if (isAvailable) {
+        await sendVerification(mail);
+      } else {
+        // 이메일이 사용 불가능하면 모달 닫기 (필요시)
+        // setIsVerificationModalOpen(false);
       }
+    } catch (error) {
+      console.error("이메일 검증 에러:", error);
+      // 에러 처리 (모달 내부에서 처리할 수 있음)
+    } finally {
+      setIsEmailBeingVerified(false);
     }
   };
 
@@ -217,8 +229,7 @@ const Signup: React.FC = () => {
                 } rounded focus:outline-none focus:border-bit-main pr-24`}
               />
               <div className="absolute right-1 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-sm font-medium">
-                {emailCheckState.isLoading ||
-                mailVerificationState.isLoading ? (
+                {emailCheckState.isLoading || isEmailBeingVerified ? (
                   <span className="text-comment-text">처리 중...</span>
                 ) : mailVerificationState.isVerified ? (
                   <div className="flex items-center text-green-600 font-medium">
@@ -380,6 +391,7 @@ const Signup: React.FC = () => {
           mail={mail}
           onClose={() => setIsVerificationModalOpen(false)}
           onComplete={handleVerificationComplete}
+          isInitializing={isEmailBeingVerified}
         />
       )}
     </div>
