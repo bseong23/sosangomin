@@ -80,7 +80,7 @@ const Header: React.FC = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`cursor-pointer hover:text-blue-800 text-[#4B5563] ${
+            className={`cursor-pointer hover:text-blue-900 text-comment ${
               isPathActive(location.pathname, item.path) ? "font-extrabold" : ""
             }`}
           >
@@ -97,7 +97,7 @@ const Header: React.FC = () => {
         ) : (
           <Link
             to="/login"
-            className="flex items-center justify-center bg-[#16125D] text-white px-3 py-4 rounded-md hover:bg-blue-800 w-29 h-10"
+            className="flex items-center justify-center bg-bit-main text-white px-3 py-4 rounded-md hover:bg-blue-900 w-29 h-10"
           >
             로그인
           </Link>

@@ -16,7 +16,7 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({ onAnalyze }) => {
 
   return (
     <button
-      className="bg-bit-main text-white py-3 px-10 rounded-md hover:bg-indigo-800 transition duration-200 font-medium"
+      className="bg-bit-main text-white py-3 px-10 rounded-md hover:bg-blue-900 transition duration-200 font-medium"
       onClick={handleAnalysis}
     >
       분석하기
