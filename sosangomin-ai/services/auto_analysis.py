@@ -360,10 +360,26 @@ class AutoAnalysisService:
             # KMeans 클러스터링 수행
             kmeans = KMeans(n_clusters=best_k, random_state=42, n_init=10)
             final_df['Cluster'] = kmeans.fit_predict(X_scaled)
-            cluster_data = final_df.to_dict(orient="records")
 
-            # 클러스터별 통계 요약 # TODO: 범주형 변수때문에 통계 요약을 보낼지 고민해보기
-            # cluster_summary = df_clustered.groupby("Cluster").mean().reset_index().to_dict(orient="records")
+            # 클러스터별 통계 요약 + 대표 상품 추출 # TODO: 범주형 변수때문에 통계 요약을 보낼지 고민해보기
+            cluster_summary_df = final_df.groupby("Cluster").agg({
+                    "매출": "mean",
+                    "수량": "mean",
+                    "단가": "mean"
+                }).reset_index()
+            
+            representative_items = (
+                final_df.groupby("Cluster")
+                .apply(lambda x: x.sort_values("매출", ascending=False)["상품 명칭"].head(3).tolist())
+                .reset_index()
+                .rename(columns={0: "representative_items"})
+            )
+            cluster_summary = pd.merge(cluster_summary_df, representative_items, on="Cluster")
+            cluster_output = cluster_summary.to_dict(orient="records")
+
+            # 클러스터링 결과 데이터
+            clusters = final_df[['상품 명칭', 'Cluster']].to_dict(orient="records")
+            clusters_full = final_df.to_dict(orient="records")
 
             # OpenAI API를 활용하여 클러스터링 분석 요청
             # openai_analysis = analyze_clusters_json(cluster_data)
@@ -371,9 +387,11 @@ class AutoAnalysisService:
             return {
                 "message": "상품 클러스터링 완료",
                 "optimal_k": best_k,
-                "clusters": cluster_data,
-                # "openai_analysis": openai_analysis
+                "clusters": clusters,
+                "cluster_summary": cluster_output,
+                "clusters_full": clusters_full,
             }
+        
         except Exception as e:
             return {"error": str(e)}
 

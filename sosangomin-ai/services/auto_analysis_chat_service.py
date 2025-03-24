@@ -117,19 +117,47 @@ class AutoAnalysisChatService:
         try:
             clusters = cluster_result.get("clusters", [])
             optimal_k = cluster_result.get("optimal_k", "알 수 없음")
+            cluster_summary = cluster_result.get("cluster_summary", {})
             preview = clusters[:5]
 
             prompt = f"""
-            다음은 상품을 비슷한 특징끼리 묶은 클러스터링 분석 결과입니다.
-            총 {optimal_k}개의 그룹으로 나뉘었고, 일부 예시는 다음과 같습니다:
-            {json.dumps(preview, ensure_ascii=False, indent=2)} ... (외 {len(clusters)-5}개)
+            당신은 소상공인을 위한 데이터 분석 도우미입니다. 아래는 가게 상품을 판매 데이터 기반으로 유사한 성격끼리 묶은 클러스터링 결과입니다.
 
-            이 결과를 바탕으로 다음 내용을 포함해 설명해 주세요:
-            1. 상품들이 어떤 기준으로 묶였는지 직관적으로 설명
-            2. 각 그룹의 특징을 짧고 알기 쉽게 소개
-            3. 이 결과를 장사에 어떻게 활용하면 좋은지 구체적인 아이디어 제시
+            총 {optimal_k}개의 그룹으로 나뉘었고, 각 그룹에 대한 통계 요약은 다음과 같습니다:
 
-            분석 용어나 통계 용어는 최대한 피하고, 장사를 처음 하는 사람도 이해할 수 있도록 설명해 주세요.
+            {json.dumps(cluster_summary, ensure_ascii=False, indent=2)}
+
+            각 그룹에 대해 다음 정보를 사장님이 이해하기 쉽게 요약해 주세요:
+
+            1. 어떤 기준으로 상품이 묶였는지 전체적으로 설명
+            2. 각 그룹의 대표적인 특징을 짧게 설명 (예: 자주 팔리는 저가 메뉴, 이익이 높은 고가 상품 등)
+            3. 이 결과를 진열, 마케팅, 세트 구성 등에 어떻게 활용하면 좋을지 팁 제시
+
+            📦 응답은 아래 형식으로 JSON으로 작성해 주세요:
+
+            ```json
+            {{
+            "summary": "한두 문장으로 전체 요약",
+            "group_insight": "상품들이 어떤 기준으로 묶였는지 설명",
+            "group_characteristics": [
+                {{
+                "group_id": 0,
+                "group_name": "그룹 이름",
+                "description": "0번 그룹의 설명",
+                "representative_items": ["품목1", "품목2", "품목3"]
+                }},
+                {{
+                "group_id": 1,
+                "group_name": "그룹 이름",
+                "description": "1번 그룹의 설명",
+                "representative_items": ["품목4", "품목5", "품목6"]
+                }}
+                // 동일하게 2, 3, ... 그룹에 대한 정보 추가
+            ],
+            "recommendation": "사장님께 도움이 될만한 제안 (진열, 세트 구성 등)"
+            }}
+            ```
+            ※ 통계 용어는 피하고, 쉽고 직관적인 말로 설명해 주세요. 
             """
 
             response = self.client.messages.create(
