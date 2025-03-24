@@ -2,10 +2,17 @@ import React, { useState, useEffect } from "react";
 import { MailVerificationModalProps } from "@/features/auth/types/auth";
 import { useSignup } from "@/features/auth/hooks/useSignup";
 
-const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
+// 타입 정의 확장
+interface ExtendedMailVerificationModalProps
+  extends MailVerificationModalProps {
+  isInitializing?: boolean; // 초기화 상태 추가
+}
+
+const EmailVerificationModal: React.FC<ExtendedMailVerificationModalProps> = ({
   mail,
   onClose,
-  onComplete
+  onComplete,
+  isInitializing = false
 }) => {
   // 커스텀 훅 사용
   const { sendVerification, verifyCode, mailVerificationState } = useSignup();
@@ -15,6 +22,7 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [initializing, setInitializing] = useState(isInitializing); // 초기화 상태 관리
 
   // 인증번호 입력란 참조 생성 (자동 포커스용)
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -32,25 +40,43 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
       });
     }, 1000);
 
-    // 인풋에 포커스
-    if (inputRef.current) {
+    // 인풋에 포커스 (초기화 중이 아닐 때만)
+    if (inputRef.current && !initializing) {
       inputRef.current.focus();
     }
 
     // 컴포넌트 언마운트 시 타이머 정리
     return () => clearInterval(interval);
-  }, [mail]);
+  }, [mail, initializing]);
 
-  // mailVerificationState.isVerified 상태 변화 감지
+  // isInitializing prop이 변경될 때 업데이트
   useEffect(() => {
-    // 명시적으로 console.log로 상태 확인 (디버깅용, 나중에 제거 가능)
-    console.log("인증 상태 변경:", mailVerificationState.isVerified);
+    setInitializing(isInitializing);
+  }, [isInitializing]);
 
+  // mailVerificationState 변화 감지
+  useEffect(() => {
+    // 로딩이 끝나면 초기화 상태를 해제
+    if (initializing && !mailVerificationState.isLoading) {
+      setInitializing(false);
+
+      // 초기화 후 에러가 있으면 표시
+      if (mailVerificationState.error) {
+        setError(mailVerificationState.error);
+      }
+
+      // 초기화 후 인증 코드 입력란에 포커스
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
+
+    // 인증 성공 시
     if (mailVerificationState.isVerified) {
       console.log("인증 성공 - isSuccess를 true로 설정");
       setIsSuccess(true);
     }
-  }, [mailVerificationState.isVerified]);
+  }, [mailVerificationState, initializing]);
 
   // 성공 메시지 후 자동 닫기
   useEffect(() => {
@@ -101,7 +127,6 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
       const success = await verifyCode(mail, parseInt(verificationCode));
 
       if (success) {
-        // 직접 성공 상태 설정 (useEffect에 의존하지 않고)
         console.log(
           "인증 성공 - handleVerify에서 직접 isSuccess를 true로 설정"
         );
@@ -120,15 +145,11 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
 
   // 배경 클릭시 처리 함수
   const handleBackdropClick = () => {
-    // 인증 성공 상태일 때는 배경 클릭을 무시
-    if (!isSuccess) {
+    // 초기화 중이거나 인증 성공 상태일 때는 배경 클릭을 무시
+    if (!initializing && !isSuccess) {
       onClose();
     }
   };
-
-  // 디버깅을 위해 상태 확인
-  console.log("렌더링 시 isSuccess 상태:", isSuccess);
-  console.log("렌더링 시 mailVerificationState:", mailVerificationState);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -143,8 +164,8 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-comment">이메일 인증</h2>
 
-          {/* 인증 성공시 X 버튼 숨김 - 두 가지 조건 모두 확인 */}
-          {!(isSuccess || mailVerificationState.isVerified) && (
+          {/* 초기화 중이거나 인증 성공 시 X 버튼 숨김 */}
+          {!(initializing || isSuccess || mailVerificationState.isVerified) && (
             <button
               onClick={onClose}
               className="text-comment-text hover:text-comment"
@@ -190,6 +211,35 @@ const EmailVerificationModal: React.FC<MailVerificationModalProps> = ({
               인증이 완료되었습니다
             </h3>
             <p className="text-comment-text">회원가입을 계속 진행해주세요.</p>
+          </div>
+        ) : initializing ? (
+          <div className="py-8 text-center">
+            <div className="flex justify-center mb-4">
+              <svg
+                className="w-10 h-10 text-bit-main animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-comment mb-2">
+              이메일 인증 준비 중...
+            </h3>
+            <p className="text-comment-text">잠시만 기다려주세요.</p>
           </div>
         ) : (
           <>
