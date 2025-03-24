@@ -1,4 +1,5 @@
 import UpdateComingSoon from "@/components/common/UpdateComingSoon";
+// import Loading from "@/components/common/Loading";
 
 const MainPage = () => {
   return (
