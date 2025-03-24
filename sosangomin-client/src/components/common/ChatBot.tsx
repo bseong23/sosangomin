@@ -108,7 +108,7 @@ const ChatBot: React.FC = () => {
             </div>
           )}
 
-          <div className="p-4">
+          {/* <div className="p-4">
             <div className="flex items-center border border-gray-200 rounded-full overflow-hidden">
               <input
                 type="text"
@@ -136,6 +136,42 @@ const ChatBot: React.FC = () => {
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
               </button>
+            </div>
+          </div> */}
+          <div className="p-4">
+            <div className="border border-gray-200 rounded-full overflow-hidden">
+              <div className="flex items-center w-full">
+                <div className="flex-grow">
+                  <input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                    className="w-full p-3 outline-none text-gray-700 bg-transparent"
+                    placeholder="질문을 입력하세요..."
+                  />
+                </div>
+                <div className="w-12 flex-none">
+                  <button
+                    onClick={() => handleSendMessage()}
+                    className="text-indigo-900 p-2 w-full h-full flex items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
