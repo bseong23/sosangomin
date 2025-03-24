@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { sendChatMessage } from "@/api/chatApi";
 import { ChatRequest, ChatResponse } from "@/types/chat";
 import chatbot from "@/assets/chatbot.png";
@@ -11,11 +11,45 @@ const ChatBot: React.FC = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [userId] = useState(1); // 실제 사용 시 인증 정보에서 가져오세요
-  // const [showImage, setShowImage] = useState(true);
-  // const [animating, setAnimating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const chatContentRef = useRef<HTMLDivElement>(null); // 스크롤 자동 하단으로 이동
 
-  const toggleChat = () => setIsOpen(!isOpen);
+  const toggleChat = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  // 메시지 추가 시 하단으로 자동 스크롤
+  useEffect(() => {
+    if (chatContentRef.current && messages.length > 0) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // 외부 클릭 감지를 위한 이벤트 리스너
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // 챗봇 창이 열려있고, 클릭 타겟이 챗봇 창 외부이고, 토글 버튼도 아닐 때만 닫기
+      if (
+        isOpen &&
+        chatRef.current &&
+        !chatRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     // 3초마다 플립 애니메이션 실행
@@ -28,10 +62,11 @@ const ChatBot: React.FC = () => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isLoading) return;
 
     const newMessage = inputMessage;
     setInputMessage("");
+    setIsLoading(true);
 
     // 사용자 메시지 추가
     setMessages((prev) => [...prev, { text: newMessage, isBot: false }]);
@@ -65,18 +100,47 @@ const ChatBot: React.FC = () => {
           isBot: true
         }
       ]);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const closeChat = () => {
+    setIsOpen(false);
   };
 
   return (
     <div className="fixed bottom-6 right-4  md:bottom-6 md:right-6 lg:bottom-6 lg:right-8  z-50">
       {isOpen && (
-        <div className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[7rem] right-0">
+        <div
+          ref={chatRef}
+          className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[7rem] right-0"
+        >
           <div className="bg-white p-4 border-b border-border flex justify-between items-center">
             <div className="flex items-center">
               <div className="text-navy-500 mr-2"></div>
               <span className="font-semibold text-lg">고미니</span>
             </div>
+            {/* X 버튼 추가 */}
+            <button
+              onClick={closeChat}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
 
           {messages.length === 0 && (
@@ -92,7 +156,10 @@ const ChatBot: React.FC = () => {
           )}
 
           {messages.length > 0 && (
-            <div className="flex-1 p-3 md:p-4 overflow-y-auto">
+            <div
+              ref={chatContentRef}
+              className="flex-1 p-3 md:p-4 overflow-y-auto"
+            >
               {messages.map((msg, index) => (
                 <div
                   key={index}
@@ -105,39 +172,27 @@ const ChatBot: React.FC = () => {
                   {msg.text}
                 </div>
               ))}
+              {/* 로딩 표시 */}
+              {isLoading && (
+                <div className="flex items-center self-start mb-3 p-2">
+                  <div className="flex space-x-1">
+                    <div
+                      className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                      style={{ animationDelay: "0s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.4s" }}
+                    ></div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
-
-          {/* <div className="p-4">
-            <div className="flex items-center border border-gray-200 rounded-full overflow-hidden">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                className="flex-1 p-3 outline-none text-gray-700 bg-transparent"
-                placeholder="질문을 입력하세요..."
-              />
-              <button
-                onClick={() => handleSendMessage()}
-                className="text-indigo-900 p-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
-          </div> */}
           <div className="p-4">
             <div className="border border-gray-200 rounded-full overflow-hidden">
               <div className="flex items-center w-full">
@@ -149,12 +204,15 @@ const ChatBot: React.FC = () => {
                     onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                     className="w-full p-3 outline-none text-gray-700 bg-transparent"
                     placeholder="질문을 입력하세요..."
+                    disabled={isLoading} // 로딩 중 입력 비활성화
                   />
                 </div>
                 <div className="w-12 flex-none">
                   <button
                     onClick={() => handleSendMessage()}
-                    className="text-indigo-900 p-2 w-full h-full flex items-center justify-center"
+                    className={`text-indigo-900 p-2 w-full h-full flex items-center justify-center ${
+                      isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`} // 로딩 중 버튼 비활성화
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -178,6 +236,7 @@ const ChatBot: React.FC = () => {
       )}
 
       <button
+        ref={buttonRef}
         onClick={toggleChat}
         className="w-16 h-16 md:w-18 md:h-18 lg:w-22 lg:h-22 flex bg-bit-main border border-gray-200 shadow-3xl rounded-full shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] items-center justify-center overflow-hidden cursor-pointer"
       >
