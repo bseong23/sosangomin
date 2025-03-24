@@ -5,7 +5,7 @@
 
 @theme {
   /* 색상 설정 */
-  --color-bit-main: #16125d; /* 비트 및 메인색 */
+  --color-bit-main: #16125d; /* 버튼 및 메인색 */
   --color-basic-white: #ffffff; /* 기본 흰색 */
   --color-border: #bebebe; /* 테두리색 */
   --color-comment-text: #8d8d8d; /* 작은 코멘트 텍스트 */
