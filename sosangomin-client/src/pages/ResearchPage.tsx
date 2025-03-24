@@ -3,10 +3,8 @@ import AnalysisDashboard from "@/features/analysis/components/dashboard/Analysis
 
 const ResearchPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 mt-10 py-6">
-        <AnalysisDashboard />
-      </div>
+    <div className="min-h-screen bg-white p-6">
+      <AnalysisDashboard />
     </div>
   );
 };
