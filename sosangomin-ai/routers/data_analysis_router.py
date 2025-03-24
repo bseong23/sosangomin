@@ -21,8 +21,10 @@ from services.automl import (
 
 router = APIRouter(
     prefix="/api/data-analysis",
-    tags=["데이터 분석"]
+    tags=["데이터 분석"],
+    responses={404: {"description": "찾을 수 없음"}},
 )
+
 
 TEMP_DIR = "temp_files"
 os.makedirs(TEMP_DIR, exist_ok=True)
