@@ -173,7 +173,7 @@ class Store(Base):
     longitude = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-
+    
 class SubwayStation(Base):
     __tablename__ = "subway_stations"
 
