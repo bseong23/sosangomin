@@ -55,7 +55,11 @@ const Layout: React.FC = () => {
           ) : (
             // 일반 페이지 레이아웃
             <main className="flex w-full">
-              <div className="w-full min-h-screen mx-auto px-4">
+              <div
+                className={`w-full min-h-screen mx-auto ${
+                  isMainPage ? "" : "px-4"
+                }`}
+              >
                 <Outlet />
               </div>
             </main>

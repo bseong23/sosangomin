@@ -1,10 +1,14 @@
-import UpdateComingSoon from "@/components/common/UpdateComingSoon";
-// import Loading from "@/components/common/Loading";
+import React from "react";
+import HeroSection from "@/components/main/HeroSection";
+import FeatureSection from "@/components/main/FeatureSection";
+import CTASection from "@/components/main/CTASection";
 
 const MainPage = () => {
   return (
-    <div className="mt-10">
-      <UpdateComingSoon />{" "}
+    <div>
+      <HeroSection />
+      <FeatureSection />
+      <CTASection />
     </div>
   );
 };
