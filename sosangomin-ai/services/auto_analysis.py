@@ -7,13 +7,13 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from bson import ObjectId
-import holidays  
-from prophet import Prophet
+import holidays  #type: ignore
+from prophet import Prophet #type: ignore
 from pmdarima import auto_arima
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, silhouette_score
-from weather_service import weather_service
+from services.weather_service import weather_service
 
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
