@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
-from db_models import WorkingPopulation  # 가상의 Population 테이블 (행정동, 인구, 가구 수 저장용)
+from db_models import Population  # 가상의 Population 테이블 (행정동, 인구, 가구 수 저장용)
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,6 @@ class WorkingPopulationService:
         """직장인구 데이터 수집 및 DB 저장"""
         from database.connector import database_instance as mariadb
         db = mariadb.pre_session()
-        total_saved = 0
 
         try:
             logger.info("직장인구 데이터 업데이트 시작")
@@ -61,64 +60,71 @@ class WorkingPopulationService:
                 
                 for row in rows:
                     try:
-                        stdr_yyqu_cd = row.get("STDR_YYQU_CD")
                         adstrd_cd_nm=row.get("ADSTRD_CD_NM")
                         
-                        # 중복 체크
-                        existing = db.query(WorkingPopulation).filter(
-                            WorkingPopulation.stdr_yyqu_cd == stdr_yyqu_cd,
-                            WorkingPopulation.adstrd_cd_nm == adstrd_cd_nm                            
+                        # 기존 유동인구 테이블에서 dong_name으로 검색
+                        existing = db.query(Population).filter(
+                            Population.dong_name == adstrd_cd_nm                            
                         ).first()
-                        if existing:
-                            logger.debug(f"직장 인구 호출 중 중복 행정동이 존재합니다 : {adstrd_cd_nm}")
-                            continue
+
+                        if not existing:
+                            continue  # 유동인구 테이블에 해당 동이 없으면 skip
                         
-                        # 새 데이터 생성
-                        population = WorkingPopulation(
-                            stdr_yyqu_cd=stdr_yyqu_cd,
-                            adstrd_cd_nm=adstrd_cd_nm.strip(),
-                            # population_type='직장인구',
+                         # 성별-연령 컬럼명 매핑
+                        age_gender_map = {
+                            "male_10_wrpop": "MAG_10_WRC_POPLTN_CO",
+                            "male_20_wrpop": "MAG_20_WRC_POPLTN_CO",
+                            "male_30_wrpop": "MAG_30_WRC_POPLTN_CO",
+                            "male_40_wrpop": "MAG_40_WRC_POPLTN_CO",
+                            "male_50_wrpop": "MAG_50_WRC_POPLTN_CO",
+                            "male_60_wrpop": "MAG_60_ABOVE_WRC_POPLTN_CO",
+                            "female_10_wrpop": "FAG_10_WRC_POPLTN_CO",
+                            "female_20_wrpop": "FAG_20_WRC_POPLTN_CO",
+                            "female_30_wrpop": "FAG_30_WRC_POPLTN_CO",
+                            "female_40_wrpop": "FAG_40_WRC_POPLTN_CO",
+                            "female_50_wrpop": "FAG_50_WRC_POPLTN_CO",
+                            "female_60_wrpop": "FAG_60_ABOVE_WRC_POPLTN_CO",
+                        }
 
-                            # 총 인구
-                            tot_wrpop=(row.get("TOT_WRC_POPLTN_CO")),
-                            ml_wrpop=(row.get("ML_WRC_POPLTN_CO")),
-                            fml_wrpop=(row.get("FML_WRC_POPLTN_CO")),
+                        key_to_korean = {
+                            "male_10_wrpop": "남성 10대",
+                            "male_20_wrpop": "남성 20대",
+                            "male_30_wrpop": "남성 30대",
+                            "male_40_wrpop": "남성 40대",
+                            "male_50_wrpop": "남성 50대",
+                            "male_60_wrpop": "남성 60대 이상",
+                            "female_10_wrpop": "여성 10대",
+                            "female_20_wrpop": "여성 20대",
+                            "female_30_wrpop": "여성 30대",
+                            "female_40_wrpop": "여성 40대",
+                            "female_50_wrpop": "여성 50대",
+                            "female_60_wrpop": "여성 60대 이상",
+                        }
 
-                            # 연령대별 직장인구
-                            age_10_wrpop=(row.get("AGRDE_10_WRC_POPLTN_CO")),
-                            age_20_wrpop=(row.get("AGRDE_20_WRC_POPLTN_CO")),
-                            age_30_wrpop=(row.get("AGRDE_30_WRC_POPLTN_CO")),
-                            age_40_wrpop=(row.get("AGRDE_40_WRC_POPLTN_CO")),
-                            age_50_wrpop=(row.get("AGRDE_50_WRC_POPLTN_CO")),
-                            age_60_wrpop=(row.get("AGRDE_60_ABOVE_WRC_POPLTN_CO")),
+                        # 총 직장인구 저장
+                        existing.tot_wrpop = int(float(row.get("TOT_WRC_POPLTN_CO") or 0))
 
-                            # 남성 연령대별 직장인구
-                            male_10_wrpop=(row.get("MAG_10_WRC_POPLTN_CO")),
-                            male_20_wrpop=(row.get("MAG_20_WRC_POPLTN_CO")),
-                            male_30_wrpop=(row.get("MAG_30_WRC_POPLTN_CO")),
-                            male_40_wrpop=(row.get("MAG_40_WRC_POPLTN_CO")),
-                            male_50_wrpop=(row.get("MAG_50_WRC_POPLTN_CO")),
-                            male_60_wrpop=(row.get("MAG_60_ABOVE_WRC_POPLTN_CO")),
+                        # 성연령 인구 저장
+                        age_gender_values = {}
+                        for key, api_field in age_gender_map.items():
+                            value = int(float(row.get(api_field) or 0))
+                            setattr(existing, key, value)
+                            age_gender_values[key] = value
 
-                            # 여성 연령대별 직장인구
-                            female_10_wrpop=(row.get("FAG_10_WRC_POPLTN_CO")),
-                            female_20_wrpop=(row.get("FAG_20_WRC_POPLTN_CO")),
-                            female_30_wrpop=(row.get("FAG_30_WRC_POPLTN_CO")),
-                            female_40_wrpop=(row.get("FAG_40_WRC_POPLTN_CO")),
-                            female_50_wrpop=(row.get("FAG_50_WRC_POPLTN_CO")),
-                            female_60_wrpop=(row.get("FAG_60_ABOVE_WRC_POPLTN_CO")),
+                        # 최다/최소 성연령 저장
+                        dominant_key = max(age_gender_values, key=age_gender_values.get)
+                        minor_key = min(age_gender_values, key=age_gender_values.get)
+                        existing.dominant_age_gender_wrpop = key_to_korean[dominant_key]
+                        existing.minor_age_gender_wrpop = key_to_korean[minor_key]
 
-                            created_at=datetime.now()
-                        )
-
-                        db.add(population)
-                        total_saved += 1
+                        existing.created_at = datetime.now()
+ 
                     except Exception as e:
-                        logger.warning(f"직장 인구 데이터 저장 실패 : {e}")
+                        logger.warning(f"직장 인구 업데이트 실패: {e}")
 
                 db.commit()
-                logger.info(f"직장 인구 데이터 저장 완료 : {total_saved}건 저장됨.")
-                return 
+                logger.info(f"직장 인구 데이터 저장 완료")
+                return
 
         except Exception as e:
             db.rollback()
@@ -127,9 +133,9 @@ class WorkingPopulationService:
         finally:
             db.close()
 
-    def get_recent_population(self, db: Session, limit: int = 100) -> List[WorkingPopulation]:
+    def get_recent_population(self, db: Session, limit: int = 100) -> List[Population]:
         """최근 직장인구 데이터 조회"""
-        return db.query(WorkingPopulation).order_by(WorkingPopulation.created_at.desc()).limit(limit).all()
+        return db.query(Population).order_by(Population.created_at.desc()).limit(limit).all()
 
 
 # ✅ 서비스 인스턴스 생성

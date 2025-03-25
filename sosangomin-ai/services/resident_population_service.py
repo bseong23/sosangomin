@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
-from db_models import ResidentPopulation  # 가상의 Population 테이블 (행정동, 인구, 가구 수 저장용)
+from db_models import Population 
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,6 @@ class ResidentPopulationService:
         """상주인구 데이터 수집 및 DB 저장"""
         from database.connector import database_instance as mariadb
         db = mariadb.pre_session()
-        total_saved = 0
 
         try:
             logger.info("상주인구 데이터 업데이트 시작")
@@ -56,68 +55,76 @@ class ResidentPopulationService:
                 
                 rows = data[self.resident_pop_service].get("row", [])
                 if not rows:
-                    logger.warning("가져올 데이터가 없습니다.")
+                    logger.warning("가져올 상주 인구 데이터가 없습니다.")
                     return 0
                 
                 for row in rows:
                     try:
-                        stdr_yyqu_cd = row.get("STDR_YYQU_CD")
                         adstrd_cd_nm=row.get("ADSTRD_CD_NM")
                         
-                        # 중복 체크
-                        existing = db.query(ResidentPopulation).filter(
-                            ResidentPopulation.stdr_yyqu_cd == stdr_yyqu_cd,
-                            ResidentPopulation.adstrd_cd_nm == adstrd_cd_nm                            
+                        # 기존 유동인구 테이블에서 dong_name으로 검색
+                        existing = db.query(Population).filter(
+                            Population.dong_name == adstrd_cd_nm                            
                         ).first()
-                        if existing:
-                            logger.debug(f"상주 인구 호출 중 중복 행정동이 존재합니다 : {adstrd_cd_nm}")
-                            continue
-                        
-                        # 새 데이터 생성
-                        population = ResidentPopulation(
-                            stdr_yyqu_cd=stdr_yyqu_cd,
-                            adstrd_cd_nm=adstrd_cd_nm.strip(),
-                            # population_type='상주인구',
 
-                            # 총 인구
-                            tot_repop=(row.get("TOT_REPOP_CO")),
-                            ml_repop=(row.get("ML_REPOP_CO")),
-                            fml_repop=(row.get("FML_REPOP_CO")),
+                        if not existing:
+                            continue  # 유동인구 테이블에 해당 동이 없으면 skip
 
-                            # 연령대별 상주인구
-                            age_10_repop=(row.get("AGRDE_10_REPOP_CO")),
-                            age_20_repop=(row.get("AGRDE_20_REPOP_CO")),
-                            age_30_repop=(row.get("AGRDE_30_REPOP_CO")),
-                            age_40_repop=(row.get("AGRDE_40_REPOP_CO")),
-                            age_50_repop=(row.get("AGRDE_50_REPOP_CO")),
-                            age_60_repop=(row.get("AGRDE_60_ABOVE_REPOP_CO")),
+                        # 성별-연령 컬럼명 매핑 (영문 key → API 필드명)
+                        age_gender_map = {
+                            "male_10_repop": "MAG_10_REPOP_CO",
+                            "male_20_repop": "MAG_20_REPOP_CO",
+                            "male_30_repop": "MAG_30_REPOP_CO",
+                            "male_40_repop": "MAG_40_REPOP_CO",
+                            "male_50_repop": "MAG_50_REPOP_CO",
+                            "male_60_repop": "MAG_60_ABOVE_REPOP_CO",
+                            "female_10_repop": "FAG_10_REPOP_CO",
+                            "female_20_repop": "FAG_20_REPOP_CO",
+                            "female_30_repop": "FAG_30_REPOP_CO",
+                            "female_40_repop": "FAG_40_REPOP_CO",
+                            "female_50_repop": "FAG_50_REPOP_CO",
+                            "female_60_repop": "FAG_60_ABOVE_REPOP_CO",
+                        }
 
-                            # 남성 연령대별 상주인구
-                            male_10_repop=(row.get("MAG_10_REPOP_CO")),
-                            male_20_repop=(row.get("MAG_20_REPOP_CO")),
-                            male_30_repop=(row.get("MAG_30_REPOP_CO")),
-                            male_40_repop=(row.get("MAG_40_REPOP_CO")),
-                            male_50_repop=(row.get("MAG_50_REPOP_CO")),
-                            male_60_repop=(row.get("MAG_60_ABOVE_REPOP_CO")),
+                        # 한글 매핑
+                        key_to_korean = {
+                            "male_10_repop": "남성 10대",
+                            "male_20_repop": "남성 20대",
+                            "male_30_repop": "남성 30대",
+                            "male_40_repop": "남성 40대",
+                            "male_50_repop": "남성 50대",
+                            "male_60_repop": "남성 60대 이상",
+                            "female_10_repop": "여성 10대",
+                            "female_20_repop": "여성 20대",
+                            "female_30_repop": "여성 30대",
+                            "female_40_repop": "여성 40대",
+                            "female_50_repop": "여성 50대",
+                            "female_60_repop": "여성 60대 이상",
+                        }
 
-                            # 여성 연령대별 상주인구
-                            female_10_repop=(row.get("FAG_10_REPOP_CO")),
-                            female_20_repop=(row.get("FAG_20_REPOP_CO")),
-                            female_30_repop=(row.get("FAG_30_REPOP_CO")),
-                            female_40_repop=(row.get("FAG_40_REPOP_CO")),
-                            female_50_repop=(row.get("FAG_50_REPOP_CO")),
-                            female_60_repop=(row.get("FAG_60_ABOVE_REPOP_CO")),
+                        # 총 상주 인구 저장
+                        existing.tot_repop = int(float(row.get("TOT_REPOP_CO") or 0))
 
-                            created_at=datetime.now()
-                        )
+                        # 성연령 인구 저장
+                        age_gender_values = {}
+                        for key, api_field in age_gender_map.items():
+                            value = int(float(row.get(api_field) or 0))
+                            setattr(existing, key, value)
+                            age_gender_values[key] = value
 
-                        db.add(population)
-                        total_saved += 1
+                        # 최다/최소 성연령 저장
+                        dominant_key = max(age_gender_values, key=age_gender_values.get)
+                        minor_key = min(age_gender_values, key=age_gender_values.get)
+                        existing.dominant_age_gender_repop = key_to_korean[dominant_key]
+                        existing.minor_age_gender_repop = key_to_korean[minor_key]
+
+                        existing.created_at = datetime.now()
+
                     except Exception as e:
-                        logger.warning(f"상주 인구 데이터 저장 실패 : {e}")
+                        print(f"상주 인구 업데이트 실패: {e}")
 
                 db.commit()
-                logger.info(f"상주 인구 데이터 저장 완료 : {total_saved}건 저장됨.")
+                logger.info(f"상주 인구 데이터 저장 완료")
                 return 
 
         except Exception as e:
@@ -127,9 +134,9 @@ class ResidentPopulationService:
         finally:
             db.close()
 
-    def get_recent_population(self, db: Session, limit: int = 100) -> List[ResidentPopulation]:
+    def get_recent_population(self, db: Session, limit: int = 100) -> List[Population]:
         """최근 상주인구 데이터 조회"""
-        return db.query(ResidentPopulation).order_by(ResidentPopulation.created_at.desc()).limit(limit).all()
+        return db.query(Population).order_by(Population.created_at.desc()).limit(limit).all()
 
 
 # ✅ 서비스 인스턴스 생성
