@@ -1,5 +1,5 @@
-// Board.tsx
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BoardListResponse, BoardParams } from "@/features/board/types/board";
 import {
   fetchBoardList,
@@ -13,6 +13,7 @@ import Loading from "@/components/common/Loading";
 import Banner from "@/features/board/components/boards/Banner";
 
 const Board: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [boardData, setBoardData] = useState<BoardListResponse>({
     items: [],
     totalCount: 0,
@@ -21,26 +22,39 @@ const Board: React.FC = () => {
   });
 
   const [params, setParams] = useState<BoardParams>({
-    page: 1,
+    page: Number(searchParams.get("page")) || 1,
     limit: 10,
-    search: ""
+    search: searchParams.get("search") || ""
   });
 
   const [loading, setLoading] = useState(false);
 
+  // URL 파라미터가 변경될 때 params 상태 업데이트
+  useEffect(() => {
+    const page = Number(searchParams.get("page")) || 1;
+    const search = searchParams.get("search") || "";
+
+    setParams({
+      page,
+      limit: 10,
+      search
+    });
+  }, [searchParams]);
+
+  // params가 변경될 때 데이터 불러오기
   useEffect(() => {
     const getBoardList = async () => {
       setLoading(true);
       try {
         const [listResponse, totalPages] = await Promise.all([
-          fetchBoardList(params.page),
-          fetchBoardPageCount()
+          fetchBoardList(params.page), // search 파라미터도 전달
+          fetchBoardPageCount() // search 파라미터도 전달
         ]);
 
         setBoardData({
-          items: listResponse, // listResponse 자체가 items 배열입니다.
-          totalCount: listResponse.length, // 배열의 길이를 totalCount로 사용
-          currentPage: params.page, // 현재 페이지는 params에서 가져옵니다.
+          items: listResponse,
+          totalCount: listResponse.length,
+          currentPage: params.page,
           totalPages: totalPages
         });
       } catch (error) {
@@ -51,14 +65,21 @@ const Board: React.FC = () => {
     };
 
     getBoardList();
-  }, [params.page]);
+  }, [params.page, params.search]); // search 파라미터도 의존성에 추가
 
   const handlePageChange = (page: number) => {
-    setParams((prev) => ({ ...prev, page }));
+    setSearchParams({
+      page: page.toString(),
+      search: params.search || ""
+    });
+    window.scrollTo(0, 0);
   };
 
   const handleSearch = (keyword: string) => {
-    setParams((prev) => ({ ...prev, page: 1, search: keyword }));
+    setSearchParams({
+      page: "1",
+      search: keyword
+    });
   };
 
   return (
