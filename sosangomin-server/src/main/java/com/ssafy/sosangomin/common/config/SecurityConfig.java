@@ -56,7 +56,8 @@ public class SecurityConfig {
                                 "/api/board/page_count",
                                 "/api/comment/{boardId}",
                                 "/api/notice/page/{pageNum}",
-                                "api/notice/page_count"
+                                "api/notice/page_count",
+                                "/api/proxy/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/notice/{noticeId}").permitAll()
