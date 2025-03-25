@@ -11,6 +11,7 @@ from bson import ObjectId
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
 from services.auto_analysis import AutoAnalysisService
+from services.auto_analysis_chat_service import autoanalysis_chat_service
 from services.eda_chat_service import eda_chat_service
 
 logger = logging.getLogger(__name__)
@@ -84,94 +85,221 @@ class EdaService:
             
         return chart_data
     
-    async def perform_eda(self,store_id, source_id):
-        """데이터소스에 대한 EDA를 수행하고 결과를 MongoDB에 저장"""
+    async def perform_eda(self, store_id, source_ids, pos_type="키움"):
+        """여러 데이터소스에 대한 EDA 및 자동 분석을 수행하고 결과를 MongoDB에 저장"""
         try:
             data_sources = mongo_instance.get_collection("DataSources")
-            source = data_sources.find_one({"_id": ObjectId(source_id)})
+            analysis_results = mongo_instance.get_collection("AnalysisResults")
             
-            if not source:
-                raise ValueError(f"ID가 {source_id}인 데이터소스를 찾을 수 없습니다.")
+            preprocessed_data = []
+            local_files = []
             
-            s3_key = source.get("file_path")
-            if not s3_key:
-                raise ValueError("파일 경로 정보가 없습니다.")
-            
-            filename = source.get("original_filename")
-            if not filename:
-                filename = s3_key.split("/")[-1]
+            for source_id in source_ids:
+                source = data_sources.find_one({"_id": ObjectId(source_id), "store_id": store_id, "status": "active"})
                 
-            temp_path = os.path.join(self.temp_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}")
-            
-            local_path = await download_file_from_s3(s3_key, temp_path)
-            
-            try:
-                file_ext = os.path.splitext(filename)[1].lower()
-                if file_ext == '.xlsx' or file_ext == '.xls':
-                    df = pd.read_excel(local_path, header=2)
-                elif file_ext == '.csv':
-                    df = pd.read_csv(local_path, header=2)
-                else:
-                    raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
-
-                df = AutoAnalysisService.preprocess_data(df)
-
-                chart_data = self.generate_chart_data(df)
+                if not source:
+                    raise ValueError(f"ID가 {source_id}인 유효한 데이터소스를 찾을 수 없습니다.")
                 
-                result_data = {}
-                for chart_type, data in chart_data.items():
-                    if not data:  
-                        continue
+                s3_key = source.get("file_path")
+                if not s3_key:
+                    raise ValueError(f"소스 {source_id}의 파일 경로 정보가 없습니다.")
+                
+                filename = source.get("original_filename") or s3_key.split("/")[-1]
                     
-                    summary = await eda_chat_service.generate_chart_summary(chart_type, data)
+                temp_path = os.path.join(self.temp_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}")
+                
+                local_path = await download_file_from_s3(s3_key, temp_path)
+                local_files.append(local_path)
+                
+                try:
+                    file_ext = os.path.splitext(filename)[1].lower()
+                    if file_ext == '.xlsx' or file_ext == '.xls':
+                        df = pd.read_excel(local_path, header=2)
+                    elif file_ext == '.csv':
+                        df = pd.read_csv(local_path, header=2)
+                    else:
+                        raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
+
+                    df = await AutoAnalysisService().preprocess_data(df, pos_type)
                     
-                    result_data[chart_type] = {
-                        "data": data,
-                        "summary": summary
-                    }
+                    df['source_id'] = source_id
+                    
+                    preprocessed_data.append(df)
+                    
+                except Exception as e:
+                    raise ValueError(f"파일 {filename} 처리 중 오류 발생: {str(e)}")
+            
+            if not preprocessed_data:
+                raise ValueError("처리할 유효한 데이터 소스가 없습니다.")
+            
+            combined_df = pd.concat(preprocessed_data, ignore_index=True)
+            
+            chart_data = self.generate_chart_data(combined_df)
+            
+            eda_result_data = {}
+            for chart_type, data in chart_data.items():
+                if not data:  
+                    continue
                 
-                overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
+                summary = await eda_chat_service.generate_chart_summary(chart_type, data)
                 
-                analysis_results = mongo_instance.get_collection("AnalysisResults")
-                
-                result_doc = {
-                    "_id": ObjectId(),
-                    'store_id': store_id,
-                    "source_id": ObjectId(source_id),
-                    "analysis_type": "eda",  
-                    "created_at": datetime.now(),
-                    "status": "completed",
-                    "result_data": result_data,  
-                    "summary": overall_summary   
+                eda_result_data[chart_type] = {
+                    "data": data,
+                    "summary": summary
                 }
-                
-                result_id = analysis_results.insert_one(result_doc).inserted_id
-                
-                data_sources.update_one(
-                    {"_id": ObjectId(source_id)},
-                    {"$set": {"last_analyzed": datetime.now()}}
-                )
-                
-                return {
-                    "status": "success",
-                    'store_id': store_id,
-                    "message": "EDA 분석이 완료되었습니다.",
-                    "analysis_id": str(result_id),
-                    "source_id": source_id,
-                    "result_data": result_data,
+            
+            overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
+            
+            predict_result = await AutoAnalysisService().predict_next_30_sales(combined_df)
+            cluster_result = await AutoAnalysisService().cluster_items(combined_df)
+            
+            predict_summary = await autoanalysis_chat_service.generate_sales_predict_summary(predict_result)
+            cluster_summary = await autoanalysis_chat_service.generate_cluster_summary(cluster_result)
+            
+            result_doc = {
+                "_id": ObjectId(),
+                "store_id": store_id,
+                "source_ids": [ObjectId(sid) for sid in source_ids],
+                "analysis_type": "combined_analysis",  
+                "created_at": datetime.now(),
+                "status": "completed",
+                "eda_result": {
+                    "result_data": eda_result_data,
                     "summary": overall_summary
+                },
+                "auto_analysis_results": {
+                    "predict": predict_result,
+                    "cluster": cluster_result,
+                    "summaries": {
+                        "predict_summary": predict_summary,
+                        "cluster_summary": cluster_summary
+                    }
                 }
-                
-            finally:
-                if os.path.exists(local_path):
-                    os.remove(local_path)
-        
+            }
+            
+            result_id = analysis_results.insert_one(result_doc).inserted_id
+            
+            data_sources.update_many(
+                {"_id": {"$in": [ObjectId(sid) for sid in source_ids]}},
+                {"$set": {"last_analyzed": datetime.now()}}
+            )
+            
+            return {
+                "status": "success",
+                "store_id": store_id,
+                "message": "종합 분석이 완료되었습니다.",
+                "analysis_id": str(result_id),
+                "source_ids": source_ids,
+                "eda_results": {
+                    "result_data": eda_result_data,
+                    "summary": overall_summary
+                },
+                "auto_analysis_results": {
+                    "predict": predict_result,
+                    "cluster": cluster_result,
+                    "summaries": {
+                        "predict_summary": predict_summary,
+                        "cluster_summary": cluster_summary
+                    }
+                }
+            }
+            
         except Exception as e:
-            logger.error(f"EDA 분석 중 오류: {str(e)}")
-            raise ValueError(f"EDA 분석에 실패했습니다: {str(e)}")
+            logger.error(f"종합 분석 중 오류: {str(e)}")
+            raise ValueError(f"종합 분석에 실패했습니다: {str(e)}")
+        
+        finally:
+            for path in local_files:
+                if os.path.exists(path):
+                    os.remove(path)
+    # async def perform_eda(self,store_id, source_id):
+    #     """데이터소스에 대한 EDA를 수행하고 결과를 MongoDB에 저장"""
+    #     try:
+    #         data_sources = mongo_instance.get_collection("DataSources")
+    #         source = data_sources.find_one({"_id": ObjectId(source_id)})
+            
+    #         if not source:
+    #             raise ValueError(f"ID가 {source_id}인 데이터소스를 찾을 수 없습니다.")
+            
+    #         s3_key = source.get("file_path")
+    #         if not s3_key:
+    #             raise ValueError("파일 경로 정보가 없습니다.")
+            
+    #         filename = source.get("original_filename")
+    #         if not filename:
+    #             filename = s3_key.split("/")[-1]
+                
+    #         temp_path = os.path.join(self.temp_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}")
+            
+    #         local_path = await download_file_from_s3(s3_key, temp_path)
+            
+    #         try:
+    #             file_ext = os.path.splitext(filename)[1].lower()
+    #             if file_ext == '.xlsx' or file_ext == '.xls':
+    #                 df = pd.read_excel(local_path, header=2)
+    #             elif file_ext == '.csv':
+    #                 df = pd.read_csv(local_path, header=2)
+    #             else:
+    #                 raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
+
+    #             df = AutoAnalysisService.preprocess_data(df)
+
+    #             chart_data = self.generate_chart_data(df)
+                
+    #             result_data = {}
+    #             for chart_type, data in chart_data.items():
+    #                 if not data:  
+    #                     continue
+                    
+    #                 summary = await eda_chat_service.generate_chart_summary(chart_type, data)
+                    
+    #                 result_data[chart_type] = {
+    #                     "data": data,
+    #                     "summary": summary
+    #                 }
+                
+    #             overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
+                
+    #             analysis_results = mongo_instance.get_collection("AnalysisResults")
+                
+    #             result_doc = {
+    #                 "_id": ObjectId(),
+    #                 'store_id': store_id,
+    #                 "source_id": ObjectId(source_id),
+    #                 "analysis_type": "eda",  
+    #                 "created_at": datetime.now(),
+    #                 "status": "completed",
+    #                 "result_data": result_data,  
+    #                 "summary": overall_summary   
+    #             }
+                
+    #             result_id = analysis_results.insert_one(result_doc).inserted_id
+                
+    #             data_sources.update_one(
+    #                 {"_id": ObjectId(source_id)},
+    #                 {"$set": {"last_analyzed": datetime.now()}}
+    #             )
+                
+    #             return {
+    #                 "status": "success",
+    #                 'store_id': store_id,
+    #                 "message": "EDA 분석이 완료되었습니다.",
+    #                 "analysis_id": str(result_id),
+    #                 "source_id": source_id,
+    #                 "result_data": result_data,
+    #                 "summary": overall_summary
+    #             }
+                
+    #         finally:
+    #             if os.path.exists(local_path):
+    #                 os.remove(local_path)
+        
+    #     except Exception as e:
+    #         logger.error(f"EDA 분석 중 오류: {str(e)}")
+    #         raise ValueError(f"EDA 분석에 실패했습니다: {str(e)}")
     
     async def get_eda_result(self, analysis_id):
-        """특정 EDA 결과를 조회"""
+        """특정 분석 결과를 조회"""
         try:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             result = analysis_results.find_one({
@@ -195,7 +323,7 @@ class EdaService:
             raise ValueError(f"EDA 결과 조회에 실패했습니다: {str(e)}")
     
     async def get_eda_results_by_source(self, source_id):
-        """특정 데이터소스의 모든 EDA 결과를 조회"""
+        """특정 데이터소스의 모든 분석석 결과를 조회"""
         try:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             cursor = analysis_results.find({
