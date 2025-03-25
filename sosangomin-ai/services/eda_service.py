@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
-from services.auto_analysis import preprocess_data  
+from services.auto_analysis import AutoAnalysisService
 from services.eda_chat_service import eda_chat_service
 
 logger = logging.getLogger(__name__)
@@ -114,7 +114,7 @@ class EdaService:
                 else:
                     raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
 
-                df = preprocess_data(df)
+                df = AutoAnalysisService.preprocess_data(df)
 
                 chart_data = self.generate_chart_data(df)
                 
