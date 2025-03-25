@@ -4,6 +4,7 @@ import FilePreview from "./FilePreview";
 import AnalysisButton from "./AnalysisButton";
 import InfoModal from "./InfoModal";
 import PosTypeSelector from "./PosTypeSelector";
+import DataLoadingModal from "@/components/modal/DataLoadingModal/index.tsx";
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
 import PosData2 from "@/assets/POS_data_2.webp";
@@ -11,8 +12,12 @@ import PosData2 from "@/assets/POS_data_2.webp";
 const MainContent: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
   const [selectedPosType, setSelectedPosType] = useState<string>("토스");
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+
+  // 개발 테스트용 로딩 시간 (밀리초)
+  const loadingTime = 5000; // 5초 (테스트용으로 단축)
 
   const handleFileUpload = (files: FileList): void => {
     // FileList를 배열로 변환하여 기존 파일에 추가
@@ -38,6 +43,57 @@ const MainContent: React.FC = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const openDataModal = () => {
+    setIsDataModalOpen(true);
+  };
+
+  // 분석 완료 콜백 함수 - 단순히 모달 닫기 및 상태 초기화
+  const handleAnalysisComplete = () => {
+    setIsDataModalOpen(false);
+    setIsAnalyzing(false);
+  };
+
+  // 분석 시작 함수
+  const startAnalysis = () => {
+    setIsAnalyzing(true);
+    openDataModal();
+
+    // 분석 데이터 객체
+    const analysisData = {
+      posType: selectedPosType,
+      files: uploadedFiles,
+      fileCount: uploadedFiles.length,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log("분석 시작:", analysisData);
+
+    // 실제 API 호출을 시뮬레이션 (예시)
+    setTimeout(() => {
+      console.log("분석 완료:", analysisData);
+      setIsAnalyzing(false);
+    }, loadingTime);
+
+    // 실제 환경에서는 아래와 같이 API 호출
+    /*
+    const formData = new FormData();
+    uploadedFiles.forEach((file, index) => {
+      formData.append(`file-${index}`, file);
+    });
+    formData.append('posType', selectedPosType);
+    
+    axios.post('/api/analyze-receipts', formData)
+      .then(response => {
+        console.log("분석 완료:", response.data);
+        setIsAnalyzing(false);
+      })
+      .catch(error => {
+        console.error("분석 중 오류:", error);
+        setIsAnalyzing(false);
+      });
+    */
   };
 
   // POS 타입에 따른 모달 내용을 결정하는 함수
@@ -223,21 +279,7 @@ const MainContent: React.FC = () => {
 
         <div className="flex justify-center mt-6 mb-6">
           <AnalysisButton
-            onAnalyze={() => {
-              setIsAnalyzing(true);
-
-              console.log("분석 데이터:", {
-                posType: selectedPosType,
-                files: uploadedFiles,
-                fileCount: uploadedFiles.length,
-                timestamp: new Date().toISOString()
-              });
-
-              setTimeout(() => {
-                console.log("분석 완료!");
-                setIsAnalyzing(false);
-              }, 2000);
-            }}
+            onAnalyze={startAnalysis}
             isLoading={isAnalyzing}
             disabled={uploadedFiles.length === 0}
           />
@@ -250,6 +292,15 @@ const MainContent: React.FC = () => {
         onClose={closeModal}
         title={`${selectedPosType} 영수증 출력 방법`}
         content={modalContent}
+      />
+
+      {/* 데이터 로딩 모달 (퀴즈 게임 포함) */}
+      <DataLoadingModal
+        isOpen={isDataModalOpen}
+        fileCount={uploadedFiles.length}
+        posType={selectedPosType}
+        isLoading={isAnalyzing}
+        onLoadingComplete={handleAnalysisComplete}
       />
     </div>
   );
