@@ -112,7 +112,7 @@ class EdaChatService:
             
             response = self.client.messages.create(
                 model="claude-3-7-sonnet-20250219",
-                max_tokens=1000,
+                max_tokens=1200,
                 temperature=0.2,
                 system=self.system_prompt + additional_instructions,
                 messages=[

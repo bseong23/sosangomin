@@ -15,6 +15,7 @@ router = APIRouter(
 class StoreRegisterRequest(BaseModel):
     user_id: int
     store_name: str
+    pos_type: str
 
 @router.post("/register")
 async def register_store_by_name(request: StoreRegisterRequest):
@@ -30,7 +31,8 @@ async def register_store_by_name(request: StoreRegisterRequest):
             
         result = await simple_store_service.register_store_by_name(
             user_id=request.user_id,
-            store_name=request.store_name
+            store_name=request.store_name,
+            pos_type=request.pos_type
         )
         
         if result.get("status") == "error":
