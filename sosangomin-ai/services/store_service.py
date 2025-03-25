@@ -39,7 +39,7 @@ class SimpleStoreService:
         
         self.naver_search_url = "https://openapi.naver.com/v1/search/local.json"
     
-    async def register_store_by_name(self, user_id: int, store_name: str) -> Dict[str, Any]:
+    async def register_store_by_name(self, user_id: int, store_name: str, pos_type: str) -> Dict[str, Any]:
         """
         가게 이름으로 검색하여 첫 번째 결과를 DB에 등록
         
@@ -79,7 +79,7 @@ class SimpleStoreService:
                 "longitude": search_result.get("longitude")
             }
             
-            result = await self._save_store_to_db(user_id, store_info)
+            result = await self._save_store_to_db(user_id, store_info, pos_type)
             return result
             
         except Exception as e:
@@ -235,7 +235,7 @@ class SimpleStoreService:
         
         return clean_text.strip()
     
-    async def _save_store_to_db(self, user_id: int, store_info: Dict[str, Any]) -> Dict[str, Any]:
+    async def _save_store_to_db(self, user_id: int, store_info: Dict[str, Any], pos_type: str) -> Dict[str, Any]:
         """가게 정보를 DB에 저장"""
         db_session = database_instance.pre_session()
         
@@ -274,7 +274,8 @@ class SimpleStoreService:
                 latitude=store_info.get("latitude"),
                 longitude=store_info.get("longitude"),
                 created_at=current_time,
-                updated_at=current_time
+                updated_at=current_time,
+                pos_type=pos_type
             )
             
             db_session.add(new_store)

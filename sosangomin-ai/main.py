@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 # 라우터 
-from routers import chat_router, news_router, data_analysis_router, s3_router, data_router, eda_router, review_router, store_router
+from routers import chat_router, news_router, data_analysis_router, s3_router, data_router, eda_router, review_router, store_router, competitor_router
 
 # 스케줄러 
 from schedulers.news_scheduler import start_news_scheduler
@@ -49,6 +49,8 @@ app.include_router(data_router.router)
 app.include_router(eda_router.router)
 app.include_router(review_router.router)
 app.include_router(store_router.router)
+app.include_router(competitor_router.router)
+
 
 @app.get("/")
 def read_root():
@@ -73,5 +75,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
     
-    # 개발 환경에서 실행
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
