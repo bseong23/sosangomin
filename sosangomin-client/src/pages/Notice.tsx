@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BoardListResponse, BoardParams } from "@/features/board/types/board";
 import {
   fetchNoticeList,
@@ -15,6 +16,7 @@ import useAuthStore from "@/store/useAuthStore";
 const Notice: React.FC = () => {
   const userInfo = useAuthStore();
   const userrole = userInfo.userInfo;
+  const [searchParams, setSearchParams] = useSearchParams();
   const [noticeData, setNoticeData] = useState<BoardListResponse>({
     items: [],
     totalCount: 0,
@@ -27,6 +29,17 @@ const Notice: React.FC = () => {
     search: ""
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const page = Number(searchParams.get("page")) || 1;
+    const search = searchParams.get("search") || "";
+
+    setParams({
+      page,
+      limit: 10,
+      search
+    });
+  }, [searchParams]);
 
   useEffect(() => {
     // API 연결 대신 더미 데이터를 사용
@@ -55,11 +68,17 @@ const Notice: React.FC = () => {
   }, [params.page]);
 
   const handlePageChange = (page: number) => {
-    setParams((prev) => ({ ...prev, page }));
+    setSearchParams({
+      page: page.toString(),
+      search: params.search || ""
+    });
   };
 
   const handleSearch = (keyword: string) => {
-    setParams((prev) => ({ ...prev, page: 1, search: keyword }));
+    setSearchParams({
+      page: "1",
+      search: keyword
+    });
   };
 
   return (
