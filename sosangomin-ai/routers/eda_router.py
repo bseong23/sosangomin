@@ -2,9 +2,9 @@
 
 from fastapi import APIRouter, HTTPException, Path, Query, Form
 import logging
-from typing import Optional
+from typing import Optional, List
 from bson import ObjectId
-
+from pydantic import BaseModel
 from services.eda_service import eda_service
 
 # 로거 설정
@@ -17,22 +17,64 @@ router = APIRouter(
     responses={404: {"description": "찾을 수 없음"}},
 )
 
-@router.post("/analyze/{source_id}")
-async def analyze_data(
-    store_id: int = Form(...),
-    source_id: str = Path(..., description="데이터소스 ID")
-):
+class AnalyzeDataRequest(BaseModel):
+    store_id: int
+    source_ids: List[str]
+
+class CombinedAnalysisRequest(BaseModel):
+    store_id: int
+    source_ids: List[str]
+    pos_type: str = "키움"  
+
+@router.post("/analyze/combined")
+async def perform_combined_analysis(request: CombinedAnalysisRequest):
     """
-    특정 데이터소스에 대한 EDA를 수행
+    EDA, 예측, 클러스터링을 포함한 종합 분석을 수행합니다.
     """
     try:
-        try:
-            ObjectId(source_id)
-        except:
-            raise HTTPException(status_code=400, detail="유효하지 않은 데이터소스 ID입니다.")
+        for sid in request.source_ids:
+            try:
+                ObjectId(sid)
+            except Exception:
+                raise HTTPException(status_code=400, detail=f"유효하지 않은 source_id: {sid}")
         
-        result = await eda_service.perform_eda(store_id, source_id)
+        result = await eda_service.perform_eda(
+            request.store_id, 
+            request.source_ids, 
+            request.pos_type
+        )
+        
         return result
+    
+    except ValueError as e:
+        logger.error(f"종합 분석 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"종합 분석 중 예기치 않은 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"종합 분석 중 오류가 발생했습니다: {str(e)}")
+
+@router.post("/analyze")  
+async def analyze_data(request: AnalyzeDataRequest):
+    """
+    여러 데이터소스에 대한 EDA를 수행
+    """
+    try:
+        store_id = request.store_id
+        source_ids = request.source_ids
+        
+        results = []
+        
+        for source_id in source_ids:
+            result = await eda_service.perform_eda(store_id, source_id)
+            results.append({
+                "source_id": source_id,
+                "result": result
+            })
+        
+        return {
+            "count": len(results),
+            "results": results
+        }
     except ValueError as e:
         logger.error(f"EDA 분석 중 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
