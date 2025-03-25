@@ -189,12 +189,14 @@ const NoticeDetail: React.FC = () => {
         {/* 구분선 */}
         <hr className="my-3 sm:my-4 border-border" />
 
-        {/* 게시글 내용 */}
+        {/* 공지사항 내용 */}
         <div className="my-4 sm:my-5 lg:my-6">
-          <div className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-sm">
+          <div className="min-h-[150px] sm:min-h-[300px] lg:min-h-[350px] text-sm">
             {notice.content}
           </div>
         </div>
+        {/* 구분선 */}
+        <hr className="my-4 border-border" />
       </div>
     </div>
   );
