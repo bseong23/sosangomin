@@ -74,7 +74,7 @@ const FeatureSection: React.FC = () => {
     // 각 카드의 시작 지점과 완료 지점 계산
     const startY = index * sectionHeight;
     const midY = startY + windowHeight; // 중간 지점 (카드가 완전히 올라온 상태)
-    const endY = startY + sectionHeight; // 다음 카드가 시작되는 지점
+    // const endY = startY + sectionHeight; // 다음 카드가 시작되는 지점
 
     // 현재 카드의 진행 상태 계산 (0~1)
     const rawProgress = (scrollY - startY) / windowHeight;
