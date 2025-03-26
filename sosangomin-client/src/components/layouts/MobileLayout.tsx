@@ -44,11 +44,7 @@ const MobileLayout: React.FC = () => {
       )}
 
       {/* Map 페이지, Main 페이지에서는 px-5 패딩 제거 */}
-      <main
-        className={`w-full mx-auto mt-1 ${
-          isMapPage || isMainPage ? "" : "px-5"
-        }`}
-      >
+      <main className={`w-full mx-auto`}>
         <Outlet />
       </main>
       {showChatBot && <ChatBot />}

@@ -14,14 +14,13 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartData }) => {
   // 차트 옵션 설정
   const options: ChartOptions<"doughnut"> = {
-    // "Doughnut"에서 "doughnut"으로 수정 (소문자)
     responsive: true, // 창 크기에 따라 그래프 크기 조절
     plugins: {
       legend: {
         position: "top" // 범례 위치
       },
       title: {
-        display: true
+        display: false
       }
     },
     cutout: "50%" // 도넛 차트의 중앙 구멍 크기 설정 (기본값은 '50%')
