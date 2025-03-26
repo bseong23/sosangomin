@@ -1,42 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ex_data from "@/assets/ex_data.png";
+import ex_map from "@/assets/ex_map.png";
+import ex_review from "@/assets/ex_review.png";
 
 const features = [
   {
-    image: "src/assets/ex_data.png",
+    image: ex_data,
     bg: "bg-[#FFFEE0]",
-    title: "간편한 매출 분석과 경영 인사이트",
+    title: "매출 데이터로 심층 분석하기",
     description:
-      "복잡한 데이터 분석 없이도 쉽게 매출 현황과 개선점을 파악할 수 있어요.",
-    link: "/data-analysis/upload",
-    icon: "📊"
+      "매출 데이터만 등록하면 쉽게 매출 현황과 개선점을 파악할 수 있어요.",
+    link: "/data-analysis/upload"
   },
   {
-    image: "src/assets/ex_map.png",
+    image: ex_map,
     bg: "bg-[#F0F8FF]",
-    title: "상권 분석과 경쟁점 비교",
-    description:
-      "주변 상권 정보와 경쟁점을 분석하여 자신의 위치를 객관적으로 파악할 수 있어요.",
-    link: "/map",
-    icon: "🗺️"
+    title: "리뷰 분석을 통해 경쟁력 강화하기",
+    description: "우리 가게 리뷰 분석을 통해 고객의 마음을 읽을 수 있어요.",
+    link: "/map"
   },
   {
-    image: "src/assets/ex_review.png",
+    image: ex_review,
     bg: "bg-[#F0FFF0]",
-    title: "맞춤형 운영 전략 추천",
+    title: "상권 분석으로 고객 확보하기",
     description:
-      "데이터 기반으로 가게 운영에 필요한 맞춤형 전략을 추천해드립니다.",
-    link: "/result",
-    icon: "🔍"
-  },
-  {
-    image: "src/assets/ex_swot.png",
-    bg: "bg-[#f9d8ed]",
-    title: "최종 리포트 제공",
-    description:
-      "분석한 모든 내용을 기반으로 SWOT 형식의 리포트를 제공합니다다.",
-    link: "/result",
-    icon: "🔍"
+      "우리 지역에서 얼마나 많은 고객을 확보할 수 있는지 확인해 보세요.",
+    link: "/result"
   }
 ];
 
@@ -66,76 +56,45 @@ const FeatureSection: React.FC = () => {
     };
   }, []);
 
-  // 각 카드의 스크롤 구간을 명확하게 분리
   const sectionHeight = windowHeight * 2;
   const totalSectionHeight = sectionHeight * features.length;
 
   const getCardClasses = (index: number): React.CSSProperties => {
-    // 각 카드의 시작 지점과 완료 지점 계산
     const startY = index * sectionHeight;
-    const midY = startY + windowHeight; // 중간 지점 (카드가 완전히 올라온 상태)
-    // const endY = startY + sectionHeight; // 다음 카드가 시작되는 지점
-
-    // 현재 카드의 진행 상태 계산 (0~1)
+    const midY = startY + windowHeight;
     const rawProgress = (scrollY - startY) / windowHeight;
     const progress = Math.max(0, Math.min(1, rawProgress));
-
-    // 모든 카드가 동일한 초기 위치 (화면 아래쪽)에서 시작
-    const initialTranslateY = 300; // 화면 아래에서 시작하는 값
+    const initialTranslateY = 300;
     const translateY = initialTranslateY * (1 - progress);
     const scale = 0.9 + progress * 0.1;
-    // 각 카드가 동일한 위치에서 시작하여 위로 올라오는 효과
-    // 초기 translateY 값을 모든 카드에 동일하게 적용
-    // const initialTranslateY = 200; // 화면 아래에서 시작하는 값
-    // const translateY =
-    //   progress < 0 ? initialTranslateY : initialTranslateY * (1 - progress);
-    // const scale = 0.9 + progress * 0.1;
 
-    // 카드가 보이는지 여부 결정 (이전 카드가 완전히 올라온 후에만 등장)
     let visibilityValue: "visible" | "hidden" = "visible";
     let opacity = 1;
 
-    // 자신의 구간이 아직 시작되지 않았을 때는 숨김 처리
     if (scrollY < startY) {
       visibilityValue = "hidden";
       opacity = 0;
     }
 
-    // 이전 카드가 완전히 올라온 이후에만 등장 (windowHeight 기준)
-    // if (index > 0 && scrollY < index * sectionHeight - windowHeight) {
-    //   visibilityValue = "hidden";
-    //   opacity = 0;
-    // }
     if (index > 0 && scrollY < startY - windowHeight * 0.3) {
       visibilityValue = "hidden";
       opacity = 0;
     }
 
-    // 스택 위치 계산 (고정된 이후)
     const stackIndex = features.length - index - 1;
     const stackOffset = stackIndex * (cardHeight * (1 - overlapRatio));
-
-    // 카드가 고정된 이후 위치 조정
     let finalTranslateY = translateY;
+
     if (scrollY > midY) {
-      // 카드가 자리를 잡은 후 스택 형태로 배치
       finalTranslateY = -stackOffset;
     }
-
-    // 카드가 화면에 등장할 때 같은 위치에서 시작해서 올라오도록 수정
-
-    // 카드가 고정된 이후 (midY를 넘어선 이후)에는 스택 형태로 배치
-    // if (scrollY > midY) {
-    //   // 각 카드마다 적절한 간격으로 스택되도록 함
-    //   finalTranslateY = -stackOffset;
-    // }
 
     return {
       transform: `translateY(${finalTranslateY}px) scale(${scale})`,
       visibility: visibilityValue,
       opacity,
       transition: "all 0.3s ease-out",
-      zIndex: features.length + index, // 나중에 등장하는 카드가 위에 오도록 z-index 조정
+      zIndex: features.length + index,
       top: `${stackOffset}px`,
       height: `${cardHeight}px`
     };
@@ -143,7 +102,55 @@ const FeatureSection: React.FC = () => {
 
   return (
     <div className="relative" style={{ height: `${totalSectionHeight}px` }}>
-      <div className="sticky top-0 h-screen flex items-center justify-center">
+      {/* ✅ 상단 소개 섹션 */}
+      <div className="flex flex-col pt-40 items-center h-screen bg-white text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug mb-16">
+          소상고민으로 <br className="md:hidden" />
+          이런 액션이 가능합니다.
+        </h2>
+
+        {/* ✅ 기능 동그라미 4개 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl w-full pt-10">
+          {[
+            "매출 데이터로 심층 분석",
+            "리뷰 분석으로 경쟁력 강화",
+            "상권 분석으로 고객 확보",
+            "종합 분석"
+          ].map((text, i) => {
+            const mainColor = i % 2 === 0 ? "#16125D" : "#004ba6";
+
+            return (
+              <div
+                key={i}
+                className="relative flex items-center justify-center"
+              >
+                {/* 흐린 큰 동그라미 (배경) */}
+                <div
+                  className="absolute rounded-full opacity-10"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    backgroundColor: mainColor,
+                    zIndex: 0
+                  }}
+                />
+                {/* 진한 메인 동그라미 (텍스트 들어가는 부분) */}
+                <div
+                  className="relative flex items-center justify-center text-white text-sm font-semibold text-center rounded-full w-40 h-40 p-6 z-10 shadow-md"
+                  style={{
+                    backgroundColor: mainColor
+                  }}
+                >
+                  {text}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 카드 영역 */}
+      <div className="sticky top-0 h-screen flex items-center justify-center bg-white">
         <div
           className="relative w-full max-w-4xl"
           style={{ height: `${cardHeight}px` }}
@@ -153,31 +160,32 @@ const FeatureSection: React.FC = () => {
             return (
               <div
                 key={i}
-                className={`absolute left-0 w-full overflow-hidden rounded-2xl shadow-xl border border-opacity-5 border-black ${feature.bg} transition-all duration-300`}
+                className={`absolute left-0 w-full overflow-hidden rounded-2xl shadow-xl border border-opacity-5 border-border ${feature.bg} transition-all duration-300`}
                 style={cardStyle}
               >
                 <div className="p-8 h-full">
                   <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl mr-3 shadow-sm">
-                      {feature.icon}
-                    </div>
                     <h3 className="text-xl font-bold">{feature.title}</h3>
                   </div>
-                  <p className="mb-6 text-gray-700">{feature.description}</p>
-                  <div className="bg-white rounded-xl overflow-hidden mb-6 p-2 shadow border border-gray-200">
-                    <img
-                      src={feature.image}
-                      alt={feature.title}
-                      className="w-full h-auto object-contain rounded max-h-48"
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Link
-                      to={feature.link}
-                      className="bg-black text-white font-medium px-6 py-2 rounded-full hover:bg-gray-800 transition-colors duration-300"
-                    >
-                      자세히 알아보기
-                    </Link>
+                  <div className="flex flex-1 gap-6 items-center">
+                    <div className="flex-1 text-gray-700">
+                      <p className="mb-6">{feature.description}</p>
+                      <div className="bg-white rounded-xl overflow-hidden mb-6 p-2 shadow border border-gray-200">
+                        <img
+                          src={feature.image}
+                          alt={feature.title}
+                          className="w-full h-auto object-contain max-h-48 mx-auto"
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <Link
+                          to={feature.link}
+                          className="bg-black text-white font-medium px-6 py-2 rounded-full hover:bg-gray-800 transition-colors duration-300"
+                        >
+                          자세히 알아보기
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
