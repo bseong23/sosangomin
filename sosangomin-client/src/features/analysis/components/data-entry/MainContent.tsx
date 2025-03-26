@@ -5,60 +5,78 @@ import AnalysisButton from "./AnalysisButton";
 import InfoModal from "./InfoModal";
 import PosTypeSelector from "./PosTypeSelector";
 import DataLoadingModal from "@/components/modal/DataLoadingModal/index.tsx";
+import useFileModalStore from "@/store/modalStore";
+import useNavigateWithReset from "@/components/common/useNavigateWidthReset"; // 커스텀 훅 import
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
 import PosData2 from "@/assets/POS_data_2.webp";
 
 const MainContent: React.FC = () => {
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
+  // 커스텀 네비게이션 훅 사용
+  const navigateWithReset = useNavigateWithReset();
+
+  // Zustand 스토어에서 필요한 상태와 액션 가져오기
+  const {
+    uploadedFiles,
+    isModalOpen,
+    isLoading,
+    fileCount,
+    // posType,
+    addFiles,
+    removeFile,
+    // clearFiles,
+    openModal,
+    closeModal,
+    setLoading,
+    setFileData
+    // resetAfterAnalysis
+  } = useFileModalStore();
+
+  // 로컬 상태는 최소화
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedPosType, setSelectedPosType] = useState<string>("토스");
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   // 개발 테스트용 로딩 시간 (밀리초)
   const loadingTime = 5000; // 5초 (테스트용으로 단축)
 
   const handleFileUpload = (files: FileList): void => {
-    // FileList를 배열로 변환하여 기존 파일에 추가
-    const newFiles = Array.from(files);
-    setUploadedFiles([...uploadedFiles, ...newFiles]);
+    addFiles(Array.from(files));
   };
 
   const handleRemoveFile = (index: number): void => {
-    const updatedFiles = [...uploadedFiles];
-    updatedFiles.splice(index, 1);
-    setUploadedFiles(updatedFiles);
+    removeFile(uploadedFiles[index].name);
   };
 
   const handlePosTypeSelect = (posType: string): void => {
     setSelectedPosType(posType);
+    setFileData(uploadedFiles.length, posType);
     console.log(`선택된 POS 타입: ${posType}`);
   };
 
-  const openModal = () => {
+  const openInfoModal = () => {
     console.log(`'${selectedPosType}' 영수증 출력 방법 모달 열기`);
-    setIsModalOpen(true);
+    setIsInfoModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeInfoModal = () => {
+    setIsInfoModalOpen(false);
   };
 
-  const openDataModal = () => {
-    setIsDataModalOpen(true);
-  };
-
-  // 분석 완료 콜백 함수 - 단순히 모달 닫기 및 상태 초기화
+  // 분석 완료 콜백 함수 - 모달 닫기 후 결과 페이지로 이동 (상태 초기화 포함)
   const handleAnalysisComplete = () => {
-    setIsDataModalOpen(false);
-    setIsAnalyzing(false);
+    closeModal();
+
+    // 분석 완료 후 일정 시간 후에 결과 페이지로 이동 (상태 초기화 포함)
+    setTimeout(() => {
+      navigateWithReset("/results"); // 또는 원하는 결과 페이지 경로
+    }, 500); // 약간의 지연을 두어 UI가 업데이트된 후 이동
   };
 
   // 분석 시작 함수
   const startAnalysis = () => {
-    setIsAnalyzing(true);
-    openDataModal();
+    setLoading(true);
+    setFileData(uploadedFiles.length, selectedPosType);
+    openModal();
 
     // 분석 데이터 객체
     const analysisData = {
@@ -73,27 +91,8 @@ const MainContent: React.FC = () => {
     // 실제 API 호출을 시뮬레이션 (예시)
     setTimeout(() => {
       console.log("분석 완료:", analysisData);
-      setIsAnalyzing(false);
+      setLoading(false);
     }, loadingTime);
-
-    // 실제 환경에서는 아래와 같이 API 호출
-    /*
-    const formData = new FormData();
-    uploadedFiles.forEach((file, index) => {
-      formData.append(`file-${index}`, file);
-    });
-    formData.append('posType', selectedPosType);
-    
-    axios.post('/api/analyze-receipts', formData)
-      .then(response => {
-        console.log("분석 완료:", response.data);
-        setIsAnalyzing(false);
-      })
-      .catch(error => {
-        console.error("분석 중 오류:", error);
-        setIsAnalyzing(false);
-      });
-    */
   };
 
   // POS 타입에 따른 모달 내용을 결정하는 함수
@@ -245,7 +244,7 @@ const MainContent: React.FC = () => {
               영수증 파일 등록하기
             </h1>
             <button
-              onClick={openModal}
+              onClick={openInfoModal}
               className="ml-2 bg-bit-main text-white rounded-full w-7 h-7 inline-flex items-center justify-center text-base shadow-lg hover:bg-blue-900 focus:outline-none"
               aria-label="영수증 파일 등록 안내"
             >
@@ -253,7 +252,7 @@ const MainContent: React.FC = () => {
             </button>
           </div>
 
-          {/* 모바일에서 가운데 정렬, sm 이상에서는 오른쪽 정렬 */}
+          {/* POS 타입 선택기 */}
           <div className="flex items-center justify-center sm:justify-end">
             <span className="mr-2 text-sm font-medium text-gray-700">
               POS 타입:
@@ -272,7 +271,17 @@ const MainContent: React.FC = () => {
 
           {uploadedFiles.length > 0 && (
             <div className="mt-6">
-              <FilePreview files={uploadedFiles} onRemove={handleRemoveFile} />
+              <FilePreview
+                files={uploadedFiles.map((fileInfo) => {
+                  // FileInfo를 File 객체로 변환하기 위한 더미 File 객체
+                  // 실제로는 File 객체의 속성만 사용한다면 이 방식으로도 동작함
+                  return new File([""], fileInfo.name, {
+                    type: fileInfo.type,
+                    lastModified: fileInfo.lastModified
+                  });
+                })}
+                onRemove={handleRemoveFile}
+              />
             </div>
           )}
         </div>
@@ -280,7 +289,7 @@ const MainContent: React.FC = () => {
         <div className="flex justify-center mt-6 mb-6">
           <AnalysisButton
             onAnalyze={startAnalysis}
-            isLoading={isAnalyzing}
+            isLoading={isLoading}
             disabled={uploadedFiles.length === 0}
           />
         </div>
@@ -288,18 +297,18 @@ const MainContent: React.FC = () => {
 
       {/* 정보 모달 */}
       <InfoModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
+        isOpen={isInfoModalOpen}
+        onClose={closeInfoModal}
         title={`${selectedPosType} 영수증 출력 방법`}
         content={modalContent}
       />
 
       {/* 데이터 로딩 모달 (퀴즈 게임 포함) */}
       <DataLoadingModal
-        isOpen={isDataModalOpen}
-        fileCount={uploadedFiles.length}
+        isOpen={isModalOpen}
+        fileCount={fileCount}
         posType={selectedPosType}
-        isLoading={isAnalyzing}
+        isLoading={isLoading}
         onLoadingComplete={handleAnalysisComplete}
       />
     </div>

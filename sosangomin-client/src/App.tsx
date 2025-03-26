@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Layout from "@/components/layouts/Layout";
 import MobileLayout from "@/components/layouts/MobileLayout";
-import ScrollToTop from "@/components/common/ScrollToTop"; // 새로 추가한 컴포넌트
+import ScrollToTop from "@/components/common/ScrollToTop";
+import RouterChangeDetector from "./components/common/RouterChangeDetector";
 
 // 인증 및 사용자 관련 페이지
 import LoginPage from "@/pages/LoginPage";
@@ -49,6 +50,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <RouterChangeDetector />
       <ScrollToTop /> {/* 여기에 ScrollToTop 컴포넌트 추가 */}
       <Routes>
         <Route element={<AppLayout />}>

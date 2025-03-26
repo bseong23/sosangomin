@@ -36,7 +36,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ files, onRemove }) => {
 
         return (
           <div
-            key={index}
+            key={file.name + file.lastModified}
             className="relative flex flex-col items-center justify-center w-30 h-30 p-2 rounded-lg shadow-md border border-gray-300 bg-white"
           >
             {/* 파일 아이콘 */}
