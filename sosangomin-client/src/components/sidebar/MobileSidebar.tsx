@@ -5,11 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/useAuthStore";
 import { getAccessToken, clearAuthData } from "@/features/auth/api/userStorage";
 import profileImage from "@/assets/profileImage.svg";
-
-interface SidebarProps {
-  isOpen: boolean;
-  toggleSidebar?: () => void;
-}
+import { SidebarProps } from "@/types/sidebar";
 
 const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
@@ -182,14 +178,7 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           </Link>
         </div>
       ) : (
-        <div className="px-4 py-3">
-          {/* <Link
-            to="/login"
-            className="block w-full text-center py-2 bg-[#16125D] text-white rounded-md hover:bg-blue-800 transition-colors"
-          >
-            로그인
-          </Link> */}
-        </div>
+        <div className="px-4 py-3"></div>
       )}
 
       <div className="px-4 py-10 flex-grow">

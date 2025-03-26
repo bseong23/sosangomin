@@ -80,7 +80,7 @@ const Header: React.FC = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`cursor-pointer hover:text-blue-900 text-comment ${
+            className={`cursor-pointer hover:text-blue-900 text-[#4B5563] ${
               isPathActive(location.pathname, item.path) ? "font-extrabold" : ""
             }`}
           >

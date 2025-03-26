@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "@/api/axios";
 import { getUserInfo, getAccessToken } from "@/features/auth/api/userStorage";
 
 const BASE_URL = import.meta.env.VITE_API_SERVER_URL;
@@ -9,9 +9,12 @@ export const fetchComments = async (boardId: string) => {
     const userInfo = getUserInfo();
     const userId = userInfo ? userInfo.userId : null;
 
-    const response = await axios.get(`${BASE_URL}/api/comment/${boardId}`, {
-      params: userId ? { userId } : {}
-    });
+    const response = await axiosInstance.get(
+      `${BASE_URL}/api/comment/${boardId}`,
+      {
+        params: userId ? { userId } : {}
+      }
+    );
 
     return response.data;
   } catch (error) {
@@ -29,7 +32,7 @@ export const addComment = async (boardId: string, content: string) => {
       throw new Error("로그인이 필요합니다.");
     }
 
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${BASE_URL}/api/comment/${boardId}`,
       { content },
       {
@@ -62,7 +65,7 @@ export const updateComment = async (commentId: number, content: string) => {
       token
     });
 
-    const response = await axios.patch(
+    const response = await axiosInstance.patch(
       `${BASE_URL}/api/comment/${commentId}`,
       { content },
       {
@@ -100,7 +103,7 @@ export const deleteComment = async (commentId: number) => {
       token
     });
 
-    const response = await axios.delete(
+    const response = await axiosInstance.delete(
       `${BASE_URL}/api/comment/${commentId}`,
       {
         headers: {
@@ -128,7 +131,7 @@ export const addReply = async (
   content: string
 ) => {
   try {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies`,
       { content }
     );
@@ -146,7 +149,7 @@ export const updateReply = async (
   content: string
 ) => {
   try {
-    const response = await axios.put(
+    const response = await axiosInstance.put(
       `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies/${replyId}`,
       { content }
     );
@@ -163,7 +166,7 @@ export const deleteReply = async (
   replyId: number
 ) => {
   try {
-    const response = await axios.delete(
+    const response = await axiosInstance.delete(
       `${BASE_URL}/community/board/${boardId}/comments/${commentId}/replies/${replyId}`
     );
     return response.data;

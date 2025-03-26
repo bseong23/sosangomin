@@ -1,5 +1,4 @@
 import axiosInstance from "@/api/axios";
-import axios from "axios";
 import { BoardItem, PageCountResponse } from "@/features/board/types/board";
 import { getAccessToken } from "@/features/auth/api/userStorage";
 
@@ -7,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_SERVER_URL;
 
 export const fetchBoardList = async (pageNum: number): Promise<BoardItem[]> => {
   try {
-    const response = await axios.get<BoardItem[]>(
+    const response = await axiosInstance.get<BoardItem[]>(
       `${BASE_URL}/api/board/page/${pageNum}`
     );
     return response.data;
@@ -20,7 +19,7 @@ export const fetchBoardList = async (pageNum: number): Promise<BoardItem[]> => {
 export const fetchBoardPageCount = async (): Promise<number> => {
   try {
     // 카테고리 정보를 쿼리 파라미터로 전달
-    const response = await axios.get<PageCountResponse>(
+    const response = await axiosInstance.get<PageCountResponse>(
       `${BASE_URL}/api/board/page_count`
     );
     return response.data.pageCount;
@@ -49,7 +48,9 @@ export const createBoardPost = async (data: {
 // 게시글 단일 조회
 export const fetchBoardPost = async (boardId: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/board/${boardId}`);
+    const response = await axiosInstance.get(
+      `${BASE_URL}/api/board/${boardId}`
+    );
     return response.data;
   } catch (error) {
     console.error("게시글 조회 실패:", error);
@@ -61,7 +62,7 @@ export const fetchBoardPost = async (boardId: string) => {
 export const verifyBoardPost = async (boardId: string) => {
   try {
     const token = getAccessToken();
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${BASE_URL}/api/board/${boardId}/verify`,
       {
         headers: {
@@ -86,11 +87,15 @@ export const updateBoardPost = async (
 ) => {
   try {
     const token = getAccessToken();
-    const response = await axios.put(`${BASE_URL}/api/board/${boardId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await axiosInstance.put(
+      `${BASE_URL}/api/board/${boardId}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
     return response.data;
   } catch (error) {
     console.error("게시글 수정 실패:", error);
@@ -102,11 +107,14 @@ export const updateBoardPost = async (
 export const deleteBoardPost = async (boardId: string) => {
   try {
     const token = getAccessToken();
-    const response = await axios.delete(`${BASE_URL}/api/board/${boardId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await axiosInstance.delete(
+      `${BASE_URL}/api/board/${boardId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
     return response.data;
   } catch (error) {
     console.error("게시글 삭제 실패:", error);

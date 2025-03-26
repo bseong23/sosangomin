@@ -1,11 +1,10 @@
 // newsApi.ts 파일 수정
-import axios from "axios";
 import {
   NewsParams,
   NewsListResponse,
   NewsPageCountResponse
 } from "@/features/board/types/news";
-
+import axiosInstance from "@/api/axios";
 import { NewsItem } from "@/features/board/types/news";
 
 const API_URL = import.meta.env.VITE_API_SERVER_URL || "";
@@ -18,7 +17,7 @@ export const fetchNewsList = async (
     const { page = 1, category = "all", ...otherParams } = params;
 
     // URL 경로에 페이지 번호 포함, 카테고리는 쿼리 파라미터로 전달
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_URL}/api/news/page/${page}?category=${category}`,
       { params: otherParams }
     );
@@ -35,7 +34,7 @@ export const fetchNewsPageCount = async (
 ): Promise<number> => {
   try {
     // 카테고리 정보를 쿼리 파라미터로 전달
-    const response = await axios.get<NewsPageCountResponse>(
+    const response = await axiosInstance.get<NewsPageCountResponse>(
       `${API_URL}/api/news/page_count?category=${category}`
     );
     return response.data.pageCount;
