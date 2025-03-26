@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import SearchableMap from "./SearchableMap";
+import useStoreModalStore from "@/store/storeModalStore";
 
 interface StoreModalProps {
-  onClose: () => void;
-  onSubmit?: (storeData: StoreData) => void; // 제출 핸들러 추가
+  onSubmit?: (storeData: StoreData) => void;
 }
 
 interface LocationInfo {
@@ -20,24 +20,30 @@ interface StoreData {
   location: LocationInfo | null;
 }
 
-const StoreModal: React.FC<StoreModalProps> = ({ onClose, onSubmit }) => {
-  const [storeName, setStoreName] = useState<string>("");
-  const [businessNumber, setBusinessNumber] = useState<string>("");
-  const [storeDescription, setStoreDescription] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(
-    null
-  );
-  const [currentStep, setCurrentStep] = useState<number>(1);
+const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
+  const {
+    isOpen,
+    currentStep,
+    storeName,
+    businessNumber,
+    storeDescription,
+    selectedLocation,
+    closeModal,
+    setCurrentStep,
+    setStoreName,
+    setBusinessNumber,
+    setStoreDescription,
+    setSelectedLocation,
+    resetModalData
+  } = useStoreModalStore();
 
   // 매장 위치 선택 핸들러
   const handleSelectLocation = (location: LocationInfo) => {
     setSelectedLocation(location);
-    setStoreName(location.name); // 선택한 장소 이름을 가게 이름으로 자동 설정
   };
 
   // 이전 단계로 돌아가기
   const goToPreviousStep = () => {
-    // 선택된 가게 정보는 유지하면서 단계만 이동
     setCurrentStep(1);
   };
 
@@ -258,11 +264,15 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose, onSubmit }) => {
           onSubmit(storeData);
         }
 
-        // 모달 닫기
-        onClose();
+        // 모달 닫기 및 데이터 리셋
+        closeModal();
+        resetModalData();
       }
     }
   };
+
+  // 모달이 닫힌 상태면 렌더링하지 않음
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -270,7 +280,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose, onSubmit }) => {
         <div className="flex justify-between items-center bg-bit-main p-4 border-b">
           <h2 className="text-lg font-bold text-white">가게 등록</h2>
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="text-white hover:scale-110 transform transition-transform"
             aria-label="닫기"
           >
@@ -327,7 +337,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onClose, onSubmit }) => {
 
             <button
               type="button"
-              onClick={onClose}
+              onClick={closeModal}
               className="bg-gray-200 text-gray-800 px-3 py-1 rounded mr-2 hover:bg-gray-300 text-sm"
             >
               취소

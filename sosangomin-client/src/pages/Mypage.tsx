@@ -1,19 +1,11 @@
-import { useState } from "react";
 import UserInfo from "@/features/auth/components/mypage/UserInfo";
 import StoreModal from "@/components/modal/StoreModal";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
+import useStoreModalStore from "@/store/storeModalStore";
 
 const MyPage: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { userProfile } = useUserProfile();
-
-  const openModal = (): void => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = (): void => {
-    setIsModalOpen(false);
-  };
+  const { openModal } = useStoreModalStore();
 
   return (
     <div className="min-h-screen max-w-[1000px] mx-auto md:p-6 p-4 space-y-5">
@@ -33,7 +25,7 @@ const MyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 가게 등록 섹션 (기존 코드) */}
+      {/* 가게 등록 섹션 */}
       <div className="mt-8 px-4">
         <div className="flex gap-6 items-center justify-between">
           <h3 className="text-lg font-medium">내가 등록한 가게</h3>
@@ -43,7 +35,7 @@ const MyPage: React.FC = () => {
           >
             가게 등록하기
           </button>
-          {isModalOpen && <StoreModal onClose={closeModal} />}
+          <StoreModal />
         </div>
       </div>
     </div>
