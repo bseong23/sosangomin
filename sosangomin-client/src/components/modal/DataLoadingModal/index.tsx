@@ -1,10 +1,10 @@
-// /components/modal/DataLoadingModal/index.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataLoadingModalProps, Quiz } from "./types";
 import LoadingScreen from "./LoadingScreen";
 import CompletionScreen from "./CompletionScreen";
 import QuizGame from "./QuizGame";
+import useFileModalStore from "@/store/modalStore";
 
 // 요식업 소상공인을 위한 퀴즈 목록
 const quizzes: Quiz[] = [
@@ -125,27 +125,46 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   // 라우팅을 위한 useNavigate 훅 사용
   const navigate = useNavigate();
 
-  // 게임 관련 상태
-  const [gameActive, setGameActive] = useState<boolean>(false);
-  const [currentQuizIndex, setCurrentQuizIndex] = useState<number>(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [showAnswer, setShowAnswer] = useState<boolean>(false);
-  const [score, setScore] = useState<number>(0);
-  const [quizEnded, setQuizEnded] = useState<boolean>(false);
+  // zustand 스토어에서 상태와 액션 가져오기
+  const {
+    gameActive,
+    selectedQuizzes,
+    currentQuizIndex,
+    selectedOption,
+    showAnswer,
+    score,
+    quizEnded,
+    showCompletionNotice,
+    analysisCompleted,
 
-  // 분석 완료 알림 표시
-  const [showCompletionNotice, setShowCompletionNotice] =
-    useState<boolean>(false);
+    initGame,
+    selectOption,
+    nextQuiz,
+    resetGame,
+    setAnalysisCompleted,
+    completeLoading
+  } = useFileModalStore();
 
   // 이전 로딩 상태와 모달 상태를 기억하기 위한 ref
   const prevIsLoadingRef = useRef<boolean>(true);
   const prevIsOpenRef = useRef<boolean>(false);
 
-  // 분석 완료 여부를 추적하는 상태
-  const [analysisCompleted, setAnalysisCompleted] = useState<boolean>(false);
+  // 모달 참조 추가
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // 선택된 퀴즈 목록
-  const [selectedQuizzes, setSelectedQuizzes] = useState<Quiz[]>([]);
+  // 화면 크기 변경 이벤트 처리 추가
+  useEffect(() => {
+    const handleResize = () => {
+      // 화면 크기 변경 시 상태 유지를 위한 코드
+      console.log("윈도우 크기가 변경되었지만 모달과 파일 상태는 유지됩니다.");
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // 모달 닫기 및 리서치 페이지로 이동
   const handleViewResults = () => {
@@ -159,9 +178,11 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   // 퀴즈 계속하기
   const handleContinueQuiz = () => {
     if (!gameActive) {
-      initGame();
+      // zustand의 initGame 액션 사용
+      initGame(quizzes);
     }
-    setShowCompletionNotice(false);
+    // useState 사용 대신 zustand 액션 필요 - completeLoading 호출
+    completeLoading();
   };
 
   // 모달이 닫힐 때 네비게이션 수행
@@ -189,72 +210,77 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
 
     // 이전 모달 상태 업데이트
     prevIsOpenRef.current = isOpen;
-  }, [isOpen, analysisCompleted]);
+  }, [
+    isOpen,
+    analysisCompleted,
+    navigate,
+    posType,
+    fileCount,
+    gameActive,
+    score,
+    selectedQuizzes
+  ]);
 
   // 로딩 상태 변경 감지
   useEffect(() => {
     // 이전에 로딩 중이었고 현재 로딩이 완료되었을 때
     if (prevIsLoadingRef.current && !isLoading) {
-      // 로딩 완료 알림 표시
-      setShowCompletionNotice(true);
+      // 로딩 완료 알림 표시 - useState 대신 zustand 액션 사용
+      completeLoading();
     }
 
     // 이전 로딩 상태 업데이트
     prevIsLoadingRef.current = isLoading;
-  }, [isLoading]);
-
-  // 게임 초기화
-  const initGame = () => {
-    // 최대 10개의 퀴즈만 무작위로 선택
-    const shuffled = [...quizzes].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 10);
-    setSelectedQuizzes(selected);
-
-    setGameActive(true);
-    setCurrentQuizIndex(0);
-    setSelectedOption(null);
-    setShowAnswer(false);
-    setScore(0);
-    setQuizEnded(false);
-  };
+  }, [isLoading, completeLoading]);
 
   // 옵션 선택 처리
   const handleOptionSelect = (optionIndex: number) => {
-    if (showAnswer) return; // 이미 답을 확인한 경우 선택 불가
-
-    setSelectedOption(optionIndex);
-    setShowAnswer(true);
-
-    if (optionIndex === selectedQuizzes[currentQuizIndex].correctAnswer) {
-      setScore(score + 1);
-    }
+    // zustand의 selectOption 액션 사용
+    selectOption(optionIndex);
   };
 
   // 다음 문제로 넘어가기
   const handleNextQuiz = () => {
-    if (currentQuizIndex < selectedQuizzes.length - 1) {
-      setCurrentQuizIndex(currentQuizIndex + 1);
-      setSelectedOption(null);
-      setShowAnswer(false);
-    } else {
-      setQuizEnded(true);
-    }
+    // zustand의 nextQuiz 액션 사용
+    nextQuiz();
   };
 
   // 모달이 닫힐 때 게임 상태 초기화
   useEffect(() => {
     if (!isOpen) {
-      setGameActive(false);
-      setShowCompletionNotice(false);
+      // zustand의 resetGame 액션 사용
+      resetGame();
     }
-  }, [isOpen]);
+  }, [isOpen, resetGame]);
 
   // 퀴즈 게임 초기화
   useEffect(() => {
     if (gameActive && selectedQuizzes.length === 0) {
-      initGame();
+      // zustand의 initGame 액션 사용
+      initGame(quizzes);
     }
-  }, [gameActive]);
+  }, [gameActive, selectedQuizzes.length, initGame]);
+
+  // 모달 외부 클릭 시 닫기 처리 (단, 로딩 중이 아닐 때만)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        !isLoading
+      ) {
+        onLoadingComplete();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, isLoading, onLoadingComplete]);
 
   if (!isOpen) return null;
 
@@ -276,7 +302,7 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
         <LoadingScreen
           fileCount={fileCount}
           posType={posType}
-          onStartQuiz={initGame}
+          onStartQuiz={() => initGame(quizzes)}
         />
       );
     }
@@ -294,7 +320,7 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
           isLoading={isLoading}
           onOptionSelect={handleOptionSelect}
           onNextQuiz={handleNextQuiz}
-          onRestartQuiz={initGame}
+          onRestartQuiz={() => initGame(quizzes)}
           onViewResults={handleViewResults}
         />
       );
@@ -305,14 +331,17 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
       <LoadingScreen
         fileCount={fileCount}
         posType={posType}
-        onStartQuiz={initGame}
+        onStartQuiz={() => initGame(quizzes)}
       />
     );
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-white rounded-md shadow-xl w-full max-w-md mx-4 relative">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-md shadow-xl w-full max-w-md mx-4 relative"
+      >
         {/* 닫기 버튼 - 더 잘 보이도록 수정 */}
         <button
           onClick={() => {

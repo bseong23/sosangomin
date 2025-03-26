@@ -1,6 +1,7 @@
+import React from "react";
 import MainContent from "@/features/analysis/components/data-entry/MainContent";
 
-const DataUploadPage = () => {
+const DataUploadPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto p-6">
