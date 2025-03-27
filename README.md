@@ -6,11 +6,11 @@
 
 ## 주요 화면
 
-![대시보드 화면](./src/assets//README/main.png)
+![대시보드 화면](sosangomin-client/src/assets/README/main.png)
 _대시보드 화면 설명_
-![리뷰 화면](./src/assets/README/review.png)
+![리뷰 화면](sosangomin-client/src/assets/README/review.png)
 _리뷰 화면 설명_
-![지도 화면](./src/assets/README/map.png)
+![지도 화면](sosangomin-client/src/assets/README/map.png)
 _지도 화면 설명_
 
 ## 기술 스택
@@ -163,15 +163,15 @@ const useAuthStore = create<AuthState>()(
       // 사용자 정보 업데이트
       updateUserInfo: (updates) =>
         set((state) => ({
-          userInfo: state.userInfo ? { ...state.userInfo, ...updates } : null
+          userInfo: state.userInfo ? { ...state.userInfo, ...updates } : null,
         })),
 
       // 사용자 정보 제거 (로그아웃)
-      clearUserInfo: () => set({ userInfo: null, isAuthenticated: false })
+      clearUserInfo: () => set({ userInfo: null, isAuthenticated: false }),
     }),
     {
       name: "auth-storage", // 로컬스토리지에 저장될 키 이름
-      partialize: (state) => ({ userInfo: state.userInfo }) // 저장할 부분 상태 선택
+      partialize: (state) => ({ userInfo: state.userInfo }), // 저장할 부분 상태 선택
     }
   )
 );
@@ -195,8 +195,8 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // 요청 인터셉터 - 모든 요청에 토큰 추가
