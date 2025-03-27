@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.proxy.analysis.docs;
 
+import com.ssafy.sosangomin.api.proxy.analysis.dto.AnalysisResponse;
 import com.ssafy.sosangomin.api.proxy.analysis.dto.CombinedAnalysisRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,15 +25,38 @@ public interface AnalysisSwagger {
                     @ApiResponse(
                             responseCode = "200",
                             description = "분석 성공",
-                            content = @Content(mediaType = "application/json")
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = AnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"종합 분석 처리 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"종합 분석 처리 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -47,19 +71,52 @@ public interface AnalysisSwagger {
                     @ApiResponse(
                             responseCode = "200",
                             description = "조회 성공",
-                            content = @Content(mediaType = "application/json")
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = AnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "분석 결과를 찾을 수 없음"
+                            description = "분석 결과를 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"분석 결과를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -75,19 +132,52 @@ public interface AnalysisSwagger {
                     @ApiResponse(
                             responseCode = "200",
                             description = "조회 성공",
-                            content = @Content(mediaType = "application/json")
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = AnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "분석 결과를 찾을 수 없음"
+                            description = "분석 결과를 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"최신 분석 결과를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"최신 분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"최신 분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )

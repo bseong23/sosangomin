@@ -19,15 +19,13 @@ public class AnalysisProxyController implements AnalysisSwagger {
 
     private final AnalysisProxyService analysisProxyService;
 
-    @Override
-    @PostMapping("")
+    @PostMapping
     public Mono<ResponseEntity<Object>> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request) {
         log.info("Received combined analysis request: {}", request);
         return analysisProxyService.analyzeCombinedData(request)
                 .map(ResponseEntity::ok);
     }
 
-    @Override
     @GetMapping("/{analysisId}")
     public Mono<ResponseEntity<Object>> getAnalysisResult(@PathVariable String analysisId) {
         log.info("Received analysis result request for ID: {}", analysisId);
@@ -35,7 +33,7 @@ public class AnalysisProxyController implements AnalysisSwagger {
                 .map(ResponseEntity::ok);
     }
 
-    @Override
+
     @GetMapping("/latest")
     public Mono<ResponseEntity<Object>> getLatestAnalysisResult(@RequestParam String sourceId) {
         log.info("Received latest analysis result request for source ID: {}", sourceId);

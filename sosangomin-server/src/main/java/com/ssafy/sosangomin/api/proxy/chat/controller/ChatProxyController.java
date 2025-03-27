@@ -22,7 +22,6 @@ public class ChatProxyController implements ChatSwagger {
 
     private final ChatProxyService chatProxyService;
 
-    @Override
     @PostMapping
     public Mono<ChatResponse> chat(@RequestBody ChatRequest request) {
         log.info("Received chat request: {}", request);

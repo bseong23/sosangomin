@@ -1,6 +1,8 @@
 package com.ssafy.sosangomin.api.proxy.review.docs;
 
 import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisRequest;
+import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisResponse;
+import com.ssafy.sosangomin.api.proxy.review.dto.StoreReviewsListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,15 +24,39 @@ public interface ReviewSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "분석 성공"
+                            description = "분석 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ReviewAnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"리뷰 분석 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"리뷰 분석 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -44,15 +70,39 @@ public interface ReviewSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "조회 성공"
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = StoreReviewsListResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"매장 리뷰 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"매장 리뷰 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -61,21 +111,45 @@ public interface ReviewSwagger {
 
     @Operation(
             summary = "리뷰 분석 결과 조회",
-            description = "분석 결과 ID를 기반으로.분석 결과를 조회합니다"
+            description = "분석 결과 ID를 기반으로 분석 결과를 조회합니다"
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "조회 성공"
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ReviewAnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "분석 결과를 찾을 수 없음"
+                            description = "분석 결과를 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"리뷰 분석 결과를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"리뷰 분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )

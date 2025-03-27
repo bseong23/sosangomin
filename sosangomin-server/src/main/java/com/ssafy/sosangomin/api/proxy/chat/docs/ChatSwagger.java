@@ -28,11 +28,45 @@ public interface ChatSwagger {
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"챗봇 서비스 처리 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "찾을 수 없음"
+                            description = "찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"챗봇 서비스를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"잘못된 요청입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )

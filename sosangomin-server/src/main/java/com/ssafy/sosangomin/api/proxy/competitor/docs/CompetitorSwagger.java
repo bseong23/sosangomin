@@ -1,6 +1,8 @@
 package com.ssafy.sosangomin.api.proxy.competitor.docs;
 
 import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisRequest;
+import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisResponse;
+import com.ssafy.sosangomin.api.proxy.competitor.dto.StoreComparisonListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,15 +24,39 @@ public interface CompetitorSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "조회 성공"
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = StoreComparisonListResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"매장 비교 분석 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"경쟁사 비교 분석 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"내부 서버 오류\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
@@ -45,15 +71,39 @@ public interface CompetitorSwagger {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "분석 성공"
+                            description = "분석 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = CompetitorAnalysisResponse.class)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "잘못된 요청"
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"경쟁사 분석 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"경쟁사 정보를 찾을 수 없습니다\"\n" +
+                                                    "}"
+                                    )
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "서버 오류"
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"경쟁사 분석 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
                     )
             }
     )
