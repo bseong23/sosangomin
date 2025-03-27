@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from database.mongo_connector import mongo_instance
 from services.s3_service import download_file_from_s3
-from services.auto_analysis import AutoAnalysisService
+from services.auto_analysis import autoanalysis_service
 from services.auto_analysis_chat_service import autoanalysis_chat_service
 from services.eda_chat_service import eda_chat_service
 
@@ -23,11 +23,12 @@ class EdaService:
     
     def generate_chart_data(self, df):
         """Chart.js에 적합한 데이터 구조 생성"""
+
         chart_data = {}
         
         # 1. 기본 통계량 계산
-        total_sales = df['총매출'].sum() if '총매출' in df.columns else 0
-        avg_transaction = df['총매출'].mean() if '총매출' in df.columns else 0
+        total_sales = df['매출'].sum() if '매출' in df.columns else 0
+        avg_transaction = df['매출'].mean() if '매출' in df.columns else 0
         total_transactions = len(df)
         unique_products = df['상품 명칭'].nunique() if '상품 명칭' in df.columns else 0
         
@@ -40,49 +41,100 @@ class EdaService:
         }
         
         # 2. 요일별 매출
-        if '요일' in df.columns and '총매출' in df.columns:
-            weekday_sales_dict = df.groupby('요일')['총매출'].sum().to_dict()
+        if '요일' in df.columns and '매출' in df.columns:
+            day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            
+            available_days = df['요일'].unique().tolist()
+            logger.info(f"데이터에 존재하는 요일: {available_days}")
+            
+            weekday_sales = df.groupby('요일')['매출'].sum()
+            
+            weekday_sales_dict = {day: float(weekday_sales[day]) if day in weekday_sales else 0 for day in day_order}
             chart_data["weekday_sales"] = weekday_sales_dict
         
         # 3. 시간대별 매출
-        if '시간대' in df.columns and '총매출' in df.columns:
-            time_period_dict = df.groupby('시간대')['총매출'].sum().to_dict()
+        if '시간대' in df.columns and '매출' in df.columns:
+            time_period_dict = df.groupby('시간대')['매출'].sum().to_dict()
             chart_data["time_period_sales"] = time_period_dict
         
         # 4. 시간별 매출
-        if '시' in df.columns and '총매출' in df.columns:
-            hourly_dict = df.groupby('시')['총매출'].sum().to_dict()
+        if '시' in df.columns and '매출' in df.columns:
+            hourly_dict = df.groupby('시')['매출'].sum().to_dict()
             chart_data["hourly_sales"] = {str(k): float(v) for k, v in hourly_dict.items()}
         
         # 5. 상위 상품
-        if '상품 명칭' in df.columns and '총매출' in df.columns:
-            top_products_dict = df.groupby('상품 명칭')['총매출'].sum().sort_values(ascending=False).head(5).to_dict()
+        if '상품 명칭' in df.columns and '매출' in df.columns:
+            top_products_dict = df.groupby('상품 명칭')['매출'].sum().sort_values(ascending=False).head(5).to_dict()
             chart_data["top_products"] = top_products_dict
         
         # 6. 평일/휴일 매출
-        if '공휴일' in df.columns and '총매출' in df.columns:
-            holiday_dict = df.groupby('공휴일')['총매출'].sum().to_dict()
+        if '공휴일' in df.columns and '매출' in df.columns:
+            holiday_dict = df.groupby('공휴일')['매출'].sum().to_dict()
             chart_data["holiday_sales"] = holiday_dict
         
         # 7. 계절별 매출
-        if '계절' in df.columns and '총매출' in df.columns:
-            season_dict = df.groupby('계절')['총매출'].sum().to_dict()
+        if '계절' in df.columns and '매출' in df.columns:
+            season_dict = df.groupby('계절')['매출'].sum().to_dict()
             chart_data["season_sales"] = season_dict
         
-        # 8. 일자별 매출
-        if all(col in df.columns for col in ['년', '월', '일']) and '총매출' in df.columns:
-            try:
-                df['날짜'] = pd.to_datetime(df[['년', '월', '일']])
-                daily_dict = df.groupby(df['날짜'].dt.date)['총매출'].sum().to_dict()
-                chart_data["daily_sales"] = {str(k): float(v) for k, v in daily_dict.items()}
-            except:
-                pass
-        
         # 9. 고객당 평균 매출
-        if '고객 수' in df.columns and '총매출' in df.columns and df['고객 수'].sum() > 0:
-            customer_avg = df['총매출'].sum() / df['고객 수'].sum()
+        if '고객 수' in df.columns and '매출' in df.columns and df['고객 수'].sum() > 0:
+            customer_avg = df['매출'].sum() / df['고객 수'].sum()
             chart_data["basic_stats"]["customer_avg"] = float(customer_avg)
+        
+        # 11. 날씨와 매출의 상관관계
+        if all(col in df.columns for col in ['매출', '기온', '강수량', '습도']):
+            # 기온별 매출 분석 (5도 단위로 구간화)
+            df['기온_구간'] = (df['기온'] // 5) * 5
+            temp_sales_dict = df.groupby('기온_구간')['매출'].sum().to_dict()
+            chart_data["temperature_sales"] = {f"{int(k)}~{int(k)+5}°C": float(v) for k, v in temp_sales_dict.items()}
             
+            # 강수량 유무에 따른 매출 분석
+            df['비_여부'] = df['강수량'].apply(lambda x: '비/눈' if x > 0 else '맑음')
+            rain_sales_dict = df.groupby('비_여부')['매출'].sum().to_dict()
+            chart_data["weather_sales"] = rain_sales_dict
+        
+        # 12. 요일 + 시간대 교차 분석
+        if all(col in df.columns for col in ['요일', '시간대', '매출']):
+            cross_dict = df.pivot_table(index='요일', columns='시간대', values='매출', aggfunc='sum').fillna(0).to_dict()
+            chart_data["weekday_time_sales"] = {k: {str(inner_k): float(inner_v) for inner_k, inner_v in v.items()} 
+                                            for k, v in cross_dict.items()}
+        
+        # 13. 월별 매출 추세
+        if '월' in df.columns and '매출' in df.columns:
+            month_order = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+            monthly_sales = df.groupby('월')['매출'].sum()
+            monthly_dict = {month: float(monthly_sales[month]) if month in monthly_sales else 0 for month in month_order}
+            chart_data["monthly_sales"] = monthly_dict
+        
+        # 14. 상품별 판매 비중
+        if '상품 명칭' in df.columns and '수량' in df.columns:
+            product_qty = df.groupby('상품 명칭')['수량'].sum()
+            total_qty = product_qty.sum()
+            
+            # 상위 10개 품목과 기타로 분류
+            top_products = product_qty.sort_values(ascending=False).head(10)
+            others = pd.Series([product_qty.sum() - top_products.sum()], index=['기타 상품'])
+            
+            product_share = pd.concat([top_products, others]) / total_qty * 100
+            product_share_dict = product_share.to_dict()
+            chart_data["product_share"] = {str(k): float(v) for k, v in product_share_dict.items()}
+        
+        # 15. 구매 금액대별 거래 건수
+        if '매출' in df.columns:
+            # 거래별 합계를 계산 (같은 전표 번호끼리 합산)
+            if '전표 번호' in df.columns:
+                transaction_amounts = df.groupby('전표 번호')['매출'].sum()
+                
+                # 금액대별 분류
+                bins = [0, 10000, 20000, 30000, 50000, 100000, float('inf')]
+                labels = ['1만원 미만', '1~2만원', '2~3만원', '3~5만원', '5~10만원', '10만원 이상']
+                
+                transaction_ranges = pd.cut(transaction_amounts, bins=bins, labels=labels)
+                transaction_counts = transaction_ranges.value_counts().to_dict()
+                
+                chart_data["transaction_amounts"] = {str(k): int(v) for k, v in transaction_counts.items()}
+        
         return chart_data
     
     async def perform_eda(self, store_id, source_ids, pos_type="키움"):
@@ -120,8 +172,11 @@ class EdaService:
                     else:
                         raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
 
-                    df = await AutoAnalysisService().preprocess_data(df, pos_type)
-                    
+            
+                    df = await autoanalysis_service.preprocess_data(df, pos_type)
+                    logger.info(f"전처리 완료: 행 수={df.shape[0]}, 열 수={df.shape[1]}")
+                    logger.info(f"전처리 후 열: {df.columns.tolist()}")
+                    logger.info(f"'매출' 열 존재 여부: {'매출' in df.columns}")
                     df['source_id'] = source_id
                     
                     preprocessed_data.append(df)
@@ -133,7 +188,7 @@ class EdaService:
                 raise ValueError("처리할 유효한 데이터 소스가 없습니다.")
             
             combined_df = pd.concat(preprocessed_data, ignore_index=True)
-            
+            print(combined_df)
             chart_data = self.generate_chart_data(combined_df)
             
             eda_result_data = {}
@@ -150,8 +205,8 @@ class EdaService:
             
             overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
             
-            predict_result = await AutoAnalysisService().predict_next_30_sales(combined_df)
-            cluster_result = await AutoAnalysisService().cluster_items(combined_df)
+            predict_result = await autoanalysis_service.predict_next_30_sales(combined_df)
+            cluster_result = await autoanalysis_service.cluster_items(combined_df)
             
             predict_summary = await autoanalysis_chat_service.generate_sales_predict_summary(predict_result)
             cluster_summary = await autoanalysis_chat_service.generate_cluster_summary(cluster_result)

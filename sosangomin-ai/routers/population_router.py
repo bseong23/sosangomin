@@ -4,7 +4,7 @@ from database.connector import database_instance as mariadb
 from db_models import Population
 from typing import List
 import logging
-from database import get_db
+# from database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -52,50 +52,50 @@ async def get_population_by_dong(
     finally:
         db.close()
 
-@router.get("/resident-only")
-def get_resident_data(db: Session = Depends(get_db)):
-    # 상주 인구 관련 데이터만 조회
-    repop_columns = [
-        col for col in Population.__table__.columns
-        if "repop" in col.name
-    ]
+# @router.get("/resident-only")
+# def get_resident_data(db: Session = Depends(get_db)):
+#     # 상주 인구 관련 데이터만 조회
+#     repop_columns = [
+#         col for col in Population.__table__.columns
+#         if "repop" in col.name
+#     ]
 
-    # dong_name도 추가로 포함
-    repop_columns.insert(0, Population.dong_name)
+#     # dong_name도 추가로 포함
+#     repop_columns.insert(0, Population.dong_name)
 
-    # 쿼리 실행
-    result = db.query(*repop_columns).filter(Population.tot_repop != None).all()
+#     # 쿼리 실행
+#     result = db.query(*repop_columns).filter(Population.tot_repop != None).all()
 
-    return result
+#     return result
 
-@router.get("/working-only")
-def get_working_data(db: Session = Depends(get_db)):
-    # 직장 인구 관련 데이터만 조회
-    wrpop_columns = [
-        col for col in Population.__table__.columns
-        if "wrpop" in col.name
-    ]
+# @router.get("/working-only")
+# def get_working_data(db: Session = Depends(get_db)):
+#     # 직장 인구 관련 데이터만 조회
+#     wrpop_columns = [
+#         col for col in Population.__table__.columns
+#         if "wrpop" in col.name
+#     ]
 
-    # dong_name도 추가로 포함
-    wrpop_columns.insert(0, Population.dong_name)
+#     # dong_name도 추가로 포함
+#     wrpop_columns.insert(0, Population.dong_name)
 
-    # 쿼리 실행
-    result = db.query(*wrpop_columns).filter(Population.tot_wrpop != None).all()
+#     # 쿼리 실행
+#     result = db.query(*wrpop_columns).filter(Population.tot_wrpop != None).all()
 
-    return result
+#     return result
 
-@router.get("/floating-only")
-def get_floating_data(db: Session = Depends(get_db)):
-    # 유동 인구 관련 데이터만 조회
-    fpop_columns = [
-        col for col in Population.__table__.columns
-        if "fpop" in col.name
-    ]
+# @router.get("/floating-only")
+# def get_floating_data(db: Session = Depends(get_db)):
+#     # 유동 인구 관련 데이터만 조회
+#     fpop_columns = [
+#         col for col in Population.__table__.columns
+#         if "fpop" in col.name
+#     ]
 
-    # dong_name도 추가로 포함
-    fpop_columns.insert(0, Population.dong_name)
+#     # dong_name도 추가로 포함
+#     fpop_columns.insert(0, Population.dong_name)
 
-    # 쿼리 실행
-    result = db.query(*fpop_columns).filter(Population.tot_fpop != None).all()
+#     # 쿼리 실행
+#     result = db.query(*fpop_columns).filter(Population.tot_fpop != None).all()
 
-    return result
+#     return result
