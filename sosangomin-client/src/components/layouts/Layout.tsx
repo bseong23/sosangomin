@@ -3,6 +3,7 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import Sidebar from "@/components/sidebar/Sidebar";
 import ChatBot from "@/components/common/ChatBot";
+import TopButton from "@/components/common/TopButton";
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -37,6 +38,8 @@ const Layout: React.FC = () => {
   // ChatBot 표시 여부 결정 - 지도 페이지에서는 표시하지 않음
   const showChatBot = !isMapPage;
 
+  const showTopButton = !isMapPage;
+
   return (
     <div className="flex flex-col">
       {showHeader && (
@@ -64,6 +67,7 @@ const Layout: React.FC = () => {
               </div>
             </main>
           )}
+          {showTopButton && <TopButton />}
           {showChatBot && <ChatBot />}
           {showFooter && <Footer />}
         </div>

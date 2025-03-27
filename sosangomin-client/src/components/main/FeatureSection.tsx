@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ex_data from "@/assets/ex_data.png";
 import ex_map from "@/assets/ex_map.png";
 import ex_review from "@/assets/ex_review.png";
+import ex_swot from "@/assets/ex_swot.png";
 
 const features = [
   {
@@ -37,120 +38,73 @@ const FeatureSection: React.FC = () => {
   const hasPassedIntro = useRef(false);
 
   const handleWheel = (e: WheelEvent) => {
-    // 스로틀링 적용 중이면 무시
     if (isThrottled.current) return;
 
     const introHeight = introRef.current?.offsetHeight || 0;
     const currentScroll = window.scrollY;
     const windowHeight = window.innerHeight;
 
-    // 인트로 섹션을 완전히 지나갔는지 확인
-    if (currentScroll < introHeight) {
-      // 인트로 섹션 내에 있으면 기본 스크롤 동작 허용
-      return;
-    }
+    if (currentScroll < introHeight) return;
 
-    // 슬라이드 섹션 내에 있을 때
     if (
       currentScroll >= introHeight &&
       currentScroll < introHeight + numOfPages * windowHeight
     ) {
-      // 인트로를 지나간 직후 hasPassedIntro를 true로 설정
       if (!hasPassedIntro.current) {
         hasPassedIntro.current = true;
         setCurrentSlide(0);
       }
 
-      // 첫 번째 슬라이드에 대한 특별 처리 - 스크롤 범위를 더 넓게 설정
+      // ⭐ step1 → step2
       if (currentSlide === 0) {
-        // 첫 번째 슬라이드에서는 스크롤 양이 더 많아야 다음 슬라이드로 넘어감
-        // 첫 번째 슬라이드의 끝 부분에 도달했는지 확인
-        const firstSlideEndThreshold = introHeight + windowHeight * 1.5; // 50% 더 스크롤해야 넘어감
-
+        const firstSlideEndThreshold = introHeight + windowHeight * 1.5;
         if (e.deltaY > 0 && currentScroll >= firstSlideEndThreshold) {
           e.preventDefault();
           isThrottled.current = true;
-
-          setTimeout(() => {
-            isThrottled.current = false;
-          }, 1000);
-
-          setCurrentSlide(1); // 두 번째 슬라이드로 이동
-        } else if (e.deltaY > 0) {
-          // 아직 첫 번째 슬라이드 끝에 도달하지 않았으면 스크롤만 허용
-          return;
-        } else if (e.deltaY < 0) {
-          // 위로 스크롤할 때 인트로 쪽으로 돌아가는 것 허용
-          return;
-        }
-      }
-      // 세 번째 슬라이드(인덱스 2)에 대한 특별 처리
-      else if (currentSlide === 2) {
-        // 세 번째 슬라이드의 끝 부분에 도달했는지 확인
-        const thirdSlideEndThreshold =
-          introHeight + windowHeight * 1.5 + windowHeight * 2; // 두 번째 슬라이드 이후 50% 더 스크롤해야 넘어감
-
-        if (e.deltaY > 0 && currentScroll >= thirdSlideEndThreshold) {
-          e.preventDefault();
-          isThrottled.current = true;
-
-          setTimeout(() => {
-            isThrottled.current = false;
-          }, 1000);
-
-          // 마지막 슬라이드로 이동
-          if (currentSlide < numOfPages - 1) {
-            setCurrentSlide(currentSlide + 1);
-          }
-        } else if (e.deltaY > 0) {
-          // 아직 세 번째 슬라이드 끝에 도달하지 않았으면 스크롤만 허용
-          return;
-        } else if (e.deltaY < 0) {
-          // 위로 스크롤 - 일반적인 슬라이드 이동 처리
-          e.preventDefault();
-          isThrottled.current = true;
-
-          setTimeout(() => {
-            isThrottled.current = false;
-          }, 1000);
-
-          setCurrentSlide((prev) => prev - 1);
-        }
-      } else {
-        // 두 번째 슬라이드는 기존 로직 적용
-        if (e.deltaY > 0) {
-          // 아래로 스크롤
-          if (currentSlide < numOfPages - 1) {
-            e.preventDefault();
-            isThrottled.current = true;
-
-            setTimeout(() => {
-              isThrottled.current = false;
-            }, 1000);
-
-            setCurrentSlide((prev) => prev + 1);
-          }
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(1);
         } else {
-          // 위로 스크롤
-          if (currentSlide > 0) {
-            e.preventDefault();
-            isThrottled.current = true;
-
-            setTimeout(() => {
-              isThrottled.current = false;
-            }, 1000);
-
-            setCurrentSlide((prev) => prev - 1);
-          }
+          return;
         }
       }
-    } else if (currentScroll >= introHeight + numOfPages * windowHeight) {
-      // 슬라이드 섹션을 모두 지나갔을 때 기본 스크롤 동작 허용
-      return;
+
+      // ⭐ step2 → step3 (스크롤 많이 해야 넘어감)
+      else if (currentSlide === 1) {
+        const secondSlideEndThreshold =
+          introHeight + windowHeight * 1.5 + windowHeight * 1.5;
+        if (e.deltaY > 0 && currentScroll >= secondSlideEndThreshold) {
+          e.preventDefault();
+          isThrottled.current = true;
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(2);
+        } else if (e.deltaY < 0) {
+          e.preventDefault();
+          isThrottled.current = true;
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(0);
+        } else {
+          return;
+        }
+      }
+
+      // ⭐ step3
+      else if (currentSlide === 2) {
+        const thirdSlideEndThreshold =
+          introHeight + windowHeight * 1.5 + windowHeight * 3;
+        if (e.deltaY > 0 && currentScroll >= thirdSlideEndThreshold) {
+          return; // 자연 스크롤 허용
+        } else if (e.deltaY < 0) {
+          e.preventDefault();
+          isThrottled.current = true;
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(1);
+        } else {
+          return;
+        }
+      }
     }
   };
 
-  // 스크롤 위치에 따라 현재 슬라이드 업데이트
   const handleScroll = () => {
     if (!introRef.current) return;
 
@@ -158,56 +112,25 @@ const FeatureSection: React.FC = () => {
     const currentScroll = window.scrollY;
     const windowHeight = window.innerHeight;
 
-    // 인트로 섹션을 지나갔는지 확인
     if (currentScroll >= introHeight) {
       if (!hasPassedIntro.current) {
         hasPassedIntro.current = true;
         setCurrentSlide(0);
       }
 
-      // 슬라이드 영역 내에서 스크롤 위치에 따라 현재 슬라이드 계산
-      if (currentScroll < introHeight + numOfPages * windowHeight) {
-        // 첫 번째 슬라이드 영역 (1.5배 확장된 영역)
-        const firstSlideEndPos = introHeight + windowHeight * 1.5;
+      const firstSlideEndPos = introHeight + windowHeight * 1.5;
 
-        if (currentScroll < firstSlideEndPos) {
-          if (currentSlide !== 0) {
-            setCurrentSlide(0);
-          }
-        }
-        // 두 번째 슬라이드 영역 (일반 크기)
-        else if (currentScroll < firstSlideEndPos + windowHeight) {
-          if (currentSlide !== 1) {
-            setCurrentSlide(1);
-          }
-        }
-        // 세 번째 슬라이드 영역 (1.5배 확장된 영역)
-        else if (
-          currentScroll <
-          firstSlideEndPos + windowHeight + windowHeight * 1.5
-        ) {
-          if (currentSlide !== 2) {
-            setCurrentSlide(2);
-          }
-        }
-        // 그 이후 슬라이드 영역
-        else {
-          const remainingScroll =
-            currentScroll -
-            (firstSlideEndPos + windowHeight + windowHeight * 1.5);
-          const remainingSlideIndex =
-            3 + Math.floor(remainingScroll / windowHeight);
-
-          if (
-            remainingSlideIndex !== currentSlide &&
-            remainingSlideIndex < numOfPages
-          ) {
-            setCurrentSlide(remainingSlideIndex);
-          }
-        }
+      if (currentScroll < firstSlideEndPos) {
+        if (currentSlide !== 0) setCurrentSlide(0);
+      } else if (currentScroll < firstSlideEndPos + windowHeight) {
+        if (currentSlide !== 1) setCurrentSlide(1);
+      } else if (
+        currentScroll <
+        firstSlideEndPos + windowHeight + windowHeight * 1.5
+      ) {
+        if (currentSlide !== 2) setCurrentSlide(2);
       }
     } else {
-      // 인트로 섹션 내에 있을 때는 hasPassedIntro를 false로 리셋
       hasPassedIntro.current = false;
     }
   };
@@ -215,8 +138,6 @@ const FeatureSection: React.FC = () => {
   useEffect(() => {
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("scroll", handleScroll);
-
-    // 컴포넌트 마운트 시 스크롤 위치 확인
     handleScroll();
 
     return () => {
@@ -227,7 +148,7 @@ const FeatureSection: React.FC = () => {
 
   return (
     <div className="relative" ref={featureSectionRef}>
-      {/* 1. 인트로 */}
+      {/* 인트로 */}
       <section
         ref={introRef}
         className="h-screen bg-white flex flex-col items-center justify-center text-center z-10 relative"
@@ -277,13 +198,12 @@ const FeatureSection: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. 슬라이드 (스크롤 영역 확보용 래퍼) */}
+      {/* 슬라이드 섹션 */}
       <section
         ref={slideWrapperRef}
-        style={{ height: `${numOfPages * 100}vh` }}
+        style={{ height: `${numOfPages * 120}vh` }}
         className="relative z-10"
       >
-        {/* 실제 sticky 슬라이드 */}
         <div className="sticky top-0 w-screen h-screen bg-white overflow-hidden z-10">
           <div
             className="flex h-full transition-transform duration-700 ease-in-out"
@@ -339,6 +259,32 @@ const FeatureSection: React.FC = () => {
                 aria-label={`슬라이드 ${i + 1}로 이동`}
               />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 4 */}
+      <section className="w-screen h-screen flex items-center justify-center px-8 bg-white">
+        <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
+          <div className="w-full md:w-1/2 space-y-4">
+            <h4 className="text-xs text-gray-500 font-semibold">STEP 4</h4>
+            <h3 className="text-3xl font-bold text-gray-900">종합 분석</h3>
+            <p className="text-gray-700 text-base">
+              SWOT 분석에 기반한 우리 매장 최종 분석 결과를 확인해 보세요.
+            </p>
+            <Link
+              to="/"
+              className="inline-block text-yellow-500 font-semibold text-sm mt-4 hover:underline"
+            >
+              자세히 알아보기 →
+            </Link>
+          </div>
+          <div className="w-full md:w-1/2 flex justify-center mt-8 md:mt-0">
+            <img
+              src={ex_swot}
+              alt="최종리포트"
+              className="max-h-[400px] object-contain"
+            />
           </div>
         </div>
       </section>
