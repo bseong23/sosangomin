@@ -225,7 +225,7 @@ class FinalReportService:
             try:
                 store_result = await store_service.get_store(store_id)
                 if store_result.get("status") == "success":
-                    store_info = store_result.get("store")
+                    store_info = store_result.get("store_info")
             except Exception as e:
                 logger.warning(f"매장 정보를 가져오지 못했습니다 (ID: {store_id}): {str(e)}")
             
@@ -286,7 +286,7 @@ class FinalReportService:
         
         if store_info:
             prompt += f"""
-            - 매장명: {store_info.get('name', '정보 없음')}
+            - 매장명: {store_info.get('store_name', '정보 없음')}
             - 주소: {store_info.get('address', '정보 없음')}
             - 업종: {store_info.get('category', '정보 없음')}
             """

@@ -115,7 +115,7 @@ async def get_comparison_result(comparison_id: str = Path(..., description="비�
         logger.error(f"비교 분석 결과 조회 중 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=f"비교 분석 결과 조회 중 오류가 발생했습니다: {str(e)}") 
 
-@router.get("/comparisons/{store_id}")
+@router.get("/{store_id}")
 async def get_store_comparison_list(
     store_id: int = Path(..., description="매장 ID")
 ):
