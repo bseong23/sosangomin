@@ -309,4 +309,60 @@ class SimpleStoreService:
         finally:
             db_session.close()
 
+    async def get_store(self, store_id: int, user_id: Optional[int] = None) -> Dict[str, Any]:
+        """
+        DB에서 가게 정보를 조회
+        
+        Args:
+            store_id: 가게 ID
+            user_id: 사용자 ID (선택적)
+            
+        Returns:
+            Dict: 가게 정보
+        """
+        db_session = database_instance.pre_session()
+        
+        try:
+            query = db_session.query(Store).filter(Store.store_id == store_id)
+            
+            if user_id is not None:
+                query = query.filter(Store.user_id == user_id)
+                
+            store = query.first()
+            
+            if not store:
+                return {
+                    "status": "error",
+                    "message": "해당 ID의 가게를 찾을 수 없습니다."
+                }
+            
+            return {
+                "status": "success",
+                "store_info": {
+                    "store_id": store.store_id,
+                    "user_id": store.user_id,
+                    "store_name": store.store_name,
+                    "address": store.address,
+                    "place_id": store.place_id,
+                    "phone": store.phone,
+                    "category": store.category,
+                    "review_count": store.review_count,
+                    "business_hours": store.business_hours,
+                    "latitude": store.latitude,
+                    "longitude": store.longitude,
+                    "pos_type": store.pos_type,
+                    "created_at": store.created_at,
+                    "updated_at": store.updated_at
+                }
+            }
+                
+        except Exception as e:
+            logger.error(f"가게 정보 조회 중 오류: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"가게 정보 조회 중 오류가 발생했습니다: {str(e)}"
+            }
+        finally:
+            db_session.close()
+
 simple_store_service = SimpleStoreService()
