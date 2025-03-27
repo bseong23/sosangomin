@@ -1,7 +1,7 @@
 package com.ssafy.sosangomin.api.proxy.chat.docs;
 
-import com.ssafy.sosangomin.api.proxy.chat.controller.ChatProxyController.ChatRequest;
-import com.ssafy.sosangomin.api.proxy.chat.controller.ChatProxyController.ChatResponse;
+import com.ssafy.sosangomin.api.proxy.chat.dto.ChatRequest;
+import com.ssafy.sosangomin.api.proxy.chat.dto.ChatResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,8 +1,10 @@
 package com.ssafy.sosangomin.api.proxy.analysis.docs;
 
+import com.ssafy.sosangomin.api.proxy.analysis.dto.CombinedAnalysisRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
-import com.ssafy.sosangomin.api.proxy.analysis.controller.AnalysisProxyController.CombinedAnalysisRequest;
+
 public interface AnalysisSwagger {
 
     @Operation(

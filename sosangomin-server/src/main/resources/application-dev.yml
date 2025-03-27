@@ -75,3 +75,6 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+fastapi:
+  base-url: ${FASTAPI_URL:http://localhost:8000}

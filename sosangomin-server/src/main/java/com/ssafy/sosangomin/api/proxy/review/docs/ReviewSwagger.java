@@ -1,6 +1,6 @@
 package com.ssafy.sosangomin.api.proxy.review.docs;
 
-import com.ssafy.sosangomin.api.proxy.review.controller.ReviewProxyController.ReviewAnalysisRequest;
+import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
