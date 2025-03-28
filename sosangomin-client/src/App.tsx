@@ -100,7 +100,7 @@ const App: React.FC = () => {
           <Route path="/review/store" element={<ReviewStore />} />
           <Route path="/review/compare" element={<ReviewCompare />} />
 
-          {/* 결과 및 서비스 소개 관련 라우트 */}
+          {/* 종합보고소 및 서비스 소개 관련 라우트 */}
           <Route path="/result" element={<ResultPage />} />
           <Route
             path="/service"

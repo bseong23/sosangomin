@@ -64,7 +64,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         />
         <div className="flex flex-col items-center pl-[12px]">
           <p className="flex text-[#4B5563]">환영합니다</p>
-          <p className="flex text-[#4B5563">{userName}님</p>
+          <p className="flex text-comment">{userName}님</p>
         </div>
       </div>
 
