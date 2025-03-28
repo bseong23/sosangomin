@@ -1,10 +1,10 @@
 FROM python:3.11-slim
 
 RUN apt-get update && \
-    apt-get install -y openjdk-21-jdk
+    apt-get install -y openjdk-17-jdk
 
 # JAVA_HOME 설정
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$PATH:$JAVA_HOME/bin
 
 # 최적화 설정
