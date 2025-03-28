@@ -25,6 +25,12 @@ const features = [
     description:
       "우리 지역에서 얼마나 많은 고객을 확보할 수 있는지 확인해 보세요.",
     link: "/result"
+  },
+  {
+    image: ex_swot,
+    title: "종합 분석",
+    description: "SWOT 분석에 기반한 우리 매장 최종 분석 결과를 확인해 보세요.",
+    link: "/"
   }
 ];
 
@@ -92,7 +98,10 @@ const FeatureSection: React.FC = () => {
         const thirdSlideEndThreshold =
           introHeight + windowHeight * 1.5 + windowHeight * 3;
         if (e.deltaY > 0 && currentScroll >= thirdSlideEndThreshold) {
-          return; // 자연 스크롤 허용
+          e.preventDefault();
+          isThrottled.current = true;
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(3);
         } else if (e.deltaY < 0) {
           e.preventDefault();
           isThrottled.current = true;
@@ -100,6 +109,15 @@ const FeatureSection: React.FC = () => {
           setCurrentSlide(1);
         } else {
           return;
+        }
+      }
+      // ⭐ step4
+      else if (currentSlide === 3) {
+        if (e.deltaY < 0) {
+          e.preventDefault();
+          isThrottled.current = true;
+          setTimeout(() => (isThrottled.current = false), 1000);
+          setCurrentSlide(2); // step3로 돌아가기
         }
       }
     }
@@ -129,6 +147,8 @@ const FeatureSection: React.FC = () => {
         firstSlideEndPos + windowHeight + windowHeight * 1.5
       ) {
         if (currentSlide !== 2) setCurrentSlide(2);
+      } else {
+        if (currentSlide !== 3) setCurrentSlide(3);
       }
     } else {
       hasPassedIntro.current = false;
@@ -264,7 +284,7 @@ const FeatureSection: React.FC = () => {
       </section>
 
       {/* STEP 4 */}
-      <section className="w-screen h-screen flex items-center justify-center px-8 bg-white">
+      {/* <section className="w-screen h-screen flex items-center justify-center px-8 bg-white">
         <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
           <div className="w-full md:w-1/2 space-y-4">
             <h4 className="text-xs text-gray-500 font-semibold">STEP 4</h4>
@@ -287,7 +307,7 @@ const FeatureSection: React.FC = () => {
             />
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

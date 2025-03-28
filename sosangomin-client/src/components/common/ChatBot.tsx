@@ -114,7 +114,7 @@ const ChatBot: React.FC = () => {
       {isOpen && (
         <div
           ref={chatRef}
-          className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[7rem] right-0"
+          className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[6rem] right-0"
         >
           <div className="bg-white p-4 border-b border-border flex justify-between items-center">
             <div className="flex items-center">
@@ -238,7 +238,7 @@ const ChatBot: React.FC = () => {
       <button
         ref={buttonRef}
         onClick={toggleChat}
-        className="w-16 h-16 md:w-18 md:h-18 lg:w-22 lg:h-22 flex bg-bit-main border border-gray-200 shadow-3xl rounded-full shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] items-center justify-center overflow-hidden cursor-pointer"
+        className="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 flex bg-gray-50 border border-gray-200 shadow-3xl rounded-full shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] items-center justify-center overflow-hidden cursor-pointer"
       >
         {/* 내용물 컨테이너 (perspective 적용) */}
         <div className="perspective-500 w-22 h-22 flex items-center justify-center">
@@ -252,12 +252,12 @@ const ChatBot: React.FC = () => {
           >
             {/* 앞면 (이미지) */}
             <div className="absolute w-full h-full flex items-center justify-center backface-hidden">
-              <img src={chatbot} alt="chatbot" className="w-[80%]" />
+              <img src={chatbot} alt="chatbot" className="w-[100%]" />
             </div>
 
             {/* 뒷면 (텍스트) */}
             <div className="absolute w-full h-full flex items-center justify-center backface-hidden rotate-x-180">
-              <span className="text-white text-xl font-bold">챗봇</span>
+              <span className="text-bit-main text-xl font-bold">챗봇</span>
             </div>
           </div>
         </div>
