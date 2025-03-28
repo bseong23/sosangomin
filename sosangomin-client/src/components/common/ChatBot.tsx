@@ -16,9 +16,18 @@ const ChatBot: React.FC = () => {
   const chatRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const chatContentRef = useRef<HTMLDivElement>(null); // 스크롤 자동 하단으로 이동
+  const inputRef = useRef<HTMLInputElement>(null); // 입력 필드 참조 추가
 
   const toggleChat = () => {
-    setIsOpen((prev) => !prev);
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+
+    // 챗봇이 열리면 배경 스크롤 방지, 닫히면 스크롤 복원
+    if (newIsOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
   };
 
   // 메시지 추가 시 하단으로 자동 스크롤
@@ -42,6 +51,8 @@ const ChatBot: React.FC = () => {
         !buttonRef.current.contains(target)
       ) {
         setIsOpen(false);
+        // 외부 클릭으로 닫을 때도 스크롤 복원
+        document.body.style.overflow = "";
       }
     };
 
@@ -61,8 +72,30 @@ const ChatBot: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // 컴포넌트 언마운트 시 body 스타일 복원
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  // 챗봇 창이 열릴 때 입력 필드에 포커스
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // 약간의 지연을 두어 DOM이 완전히 렌더링된 후 포커스
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    // 이미 로딩 중이거나 메시지가 비어있으면 처리하지 않음
+    if (isLoading || !inputMessage.trim()) return;
+
+    // 포커스 유지를 위해 입력 요소 저장
+    const inputElement = inputRef.current;
+    // 이미 위에서 체크했으므로 여기서는 제거
 
     const newMessage = inputMessage;
     setInputMessage("");
@@ -102,11 +135,32 @@ const ChatBot: React.FC = () => {
       ]);
     } finally {
       setIsLoading(false);
+
+      // 메시지 전송 후 입력 필드에 포커스 - 다양한 방법 시도
+      setTimeout(() => {
+        if (inputElement) {
+          inputElement.focus();
+
+          // 추가적인 방법: 대체 포커스 기법
+          try {
+            // 필드 선택 시도
+            inputElement.select();
+            // 클릭 이벤트 시뮬레이션
+            inputElement.click();
+          } catch (e) {
+            console.error("포커스 시도 중 오류:", e);
+          }
+        } else if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
     }
   };
 
   const closeChat = () => {
     setIsOpen(false);
+    // 챗봇 닫을 때 배경 스크롤 복원
+    document.body.style.overflow = "";
   };
 
   return (
@@ -161,15 +215,20 @@ const ChatBot: React.FC = () => {
               className="flex-1 p-3 md:p-4 overflow-y-auto"
             >
               {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`mb-3 p-3 rounded-2xl text-sm ${
-                    msg.isBot
-                      ? "bg-gray-100 self-start mr-12"
-                      : "bg-indigo-900 text-white self-end ml-12"
-                  }`}
-                >
-                  {msg.text}
+                <div key={index} className="w-full flex mb-3">
+                  <div
+                    className={`p-3 rounded-2xl text-sm break-words overflow-hidden max-w-[80%] ${
+                      msg.isBot
+                        ? "bg-gray-100 mr-auto"
+                        : "bg-indigo-900 text-white ml-auto"
+                    }`}
+                    style={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word"
+                    }}
+                  >
+                    {msg.text}
+                  </div>
                 </div>
               ))}
               {/* 로딩 표시 */}
@@ -198,6 +257,7 @@ const ChatBot: React.FC = () => {
               <div className="flex items-center w-full">
                 <div className="flex-grow">
                   <input
+                    ref={inputRef}
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
