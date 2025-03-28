@@ -10,7 +10,7 @@ public record StoreReviewsListResponse(
         @JsonProperty("store_id")
         int storeId,
 
-        @Schema(description = "매장 이름", example = "카페 브라운")
+        @Schema(description = "매장 이름", example = "착한명태조리고")
         @JsonProperty("store_name")
         String storeName,
 

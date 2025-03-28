@@ -34,8 +34,8 @@ public interface ChatSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"챗봇 서비스 처리 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"챗팅 처리 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_CHAT_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )
@@ -49,7 +49,7 @@ public interface ChatSwagger {
                                             type = "object",
                                             example = "{\n" +
                                                     "  \"error\": \"챗봇 서비스를 찾을 수 없습니다\",\n" +
-                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "  \"message\": \"ERR_CHATBOT_SERVICE_NOT_FOUND\"\n" +
                                                     "}"
                                     )
                             )
@@ -62,8 +62,8 @@ public interface ChatSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"잘못된 요청입니다\",\n" +
-                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "  \"error\": \"잘못된 채팅 요청입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_CHAT_REQUEST\"\n" +
                                                     "}"
                                     )
                             )

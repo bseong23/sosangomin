@@ -38,8 +38,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"종합 분석 처리 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "  \"error\": \"유효하지 않은 데이터소스 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_SOURCE_ID\"\n" +
                                                     "}"
                                     )
                             )
@@ -52,8 +52,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"종합 분석 처리 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"종합 분석 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_ANALYSIS_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )
@@ -85,7 +85,7 @@ public interface AnalysisSwagger {
                                             type = "object",
                                             example = "{\n" +
                                                     "  \"error\": \"분석 결과를 찾을 수 없습니다\",\n" +
-                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "  \"message\": \"ERR_ANALYSIS_RESULT_NOT_FOUND\"\n" +
                                                     "}"
                                     )
                             )
@@ -98,7 +98,7 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"error\": \"유효하지 않은 분석 결과 ID입니다\",\n" +
                                                     "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
                                                     "}"
                                     )
@@ -112,8 +112,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"분석 결과 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"EDA 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_ANALYSIS_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )
@@ -145,8 +145,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"최신 분석 결과를 찾을 수 없습니다\",\n" +
-                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "  \"error\": \"데이터소스에 대한 EDA 결과가 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_LATEST_RESULT_NOT_FOUND\"\n" +
                                                     "}"
                                     )
                             )
@@ -159,8 +159,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"최신 분석 결과 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
+                                                    "  \"error\": \"유효하지 않은 데이터소스 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_SOURCE_ID\"\n" +
                                                     "}"
                                     )
                             )
@@ -173,8 +173,8 @@ public interface AnalysisSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"최신 분석 결과 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"최근 EDA 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_ANALYSIS_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )

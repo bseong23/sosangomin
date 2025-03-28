@@ -30,4 +30,10 @@ public class CompetitorProxyController implements CompetitorSwagger {
         log.info("Received one-click competitor analysis request: {}", request);
         return competitorProxyService.oneClickAnalyzeCompetitor(request);
     }
+
+    @GetMapping("/comparison/{comparisonId}")
+    public Mono<ResponseEntity<Object>> getComparisonResult(@PathVariable String comparisonId) {
+        log.info("Received comparison result request for comparison ID: {}", comparisonId);
+        return competitorProxyService.getComparisonResult(comparisonId);
+    }
 }

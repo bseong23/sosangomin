@@ -38,8 +38,8 @@ public interface ReviewSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"리뷰 분석 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INVALID_REQUEST_FIELD\"\n" +
+                                                    "  \"error\": \"유효하지 않은 리뷰 분석 요청입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_REVIEW_REQUEST\"\n" +
                                                     "}"
                                     )
                             )
@@ -53,7 +53,7 @@ public interface ReviewSwagger {
                                             type = "object",
                                             example = "{\n" +
                                                     "  \"error\": \"리뷰 분석 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "  \"message\": \"ERR_REVIEW_ANALYSIS_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )
@@ -84,8 +84,8 @@ public interface ReviewSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"매장 리뷰 목록 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INVALID_QUERY_PARAMETER\"\n" +
+                                                    "  \"error\": \"유효하지 않은 매장 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_STORE_ID\"\n" +
                                                     "}"
                                     )
                             )
@@ -98,8 +98,8 @@ public interface ReviewSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"매장 리뷰 목록 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_ENCRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"매장 리뷰 분석 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_REVIEW_LIST_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )
@@ -132,7 +132,21 @@ public interface ReviewSwagger {
                                             type = "object",
                                             example = "{\n" +
                                                     "  \"error\": \"리뷰 분석 결과를 찾을 수 없습니다\",\n" +
-                                                    "  \"message\": \"ERR_NOT_RESOURCE\"\n" +
+                                                    "  \"message\": \"ERR_REVIEW_ANALYSIS_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"유효하지 않은 분석 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_ANALYSIS_ID\"\n" +
                                                     "}"
                                     )
                             )
@@ -145,8 +159,8 @@ public interface ReviewSwagger {
                                     schema = @Schema(
                                             type = "object",
                                             example = "{\n" +
-                                                    "  \"error\": \"리뷰 분석 결과 조회 중 오류가 발생했습니다\",\n" +
-                                                    "  \"message\": \"ERR_INTERNAL_SERVER_DECRYPTION_ERROR\"\n" +
+                                                    "  \"error\": \"분석 결과 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_REVIEW_RESULT_PROCESSING_ERROR\"\n" +
                                                     "}"
                                     )
                             )

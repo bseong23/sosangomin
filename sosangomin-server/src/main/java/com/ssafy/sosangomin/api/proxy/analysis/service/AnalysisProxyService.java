@@ -1,14 +1,15 @@
 package com.ssafy.sosangomin.api.proxy.analysis.service;
 
 import com.ssafy.sosangomin.api.proxy.analysis.dto.CombinedAnalysisRequest;
+import com.ssafy.sosangomin.common.exception.BadRequestException;
 import com.ssafy.sosangomin.common.exception.ErrorMessage;
+import com.ssafy.sosangomin.common.exception.InternalServerException;
+import com.ssafy.sosangomin.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -26,7 +27,22 @@ public class AnalysisProxyService {
                         response -> response.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from FastAPI combined analysis: {}", errorBody);
-                                    return Mono.error(new RuntimeException(ErrorMessage.ERR_INTERNAL_SERVER_ENCRYPTION_ERROR.name()));
+
+                                    if (response.statusCode().is4xxClientError()) {
+                                        // 400 에러 처리
+                                        if (errorBody.contains("유효하지 않은 source_id")) {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_SOURCE_ID));
+                                        } else {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_REQUEST_FIELD));
+                                        }
+                                    } else {
+                                        // 500 에러 처리
+                                        if (errorBody.contains("종합 분석 중 오류가 발생했습니다")) {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_ANALYSIS_PROCESSING_ERROR));
+                                        } else {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_ANALYZE_BAD_REQUEST));
+                                        }
+                                    }
                                 })
                 )
                 .bodyToMono(Object.class);
@@ -41,7 +57,25 @@ public class AnalysisProxyService {
                         response -> response.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from FastAPI get result: {}", errorBody);
-                                    return Mono.error(new RuntimeException(ErrorMessage.ERR_NOT_RESOURCE.name()));
+
+                                    if (response.statusCode().value() == 404) {
+                                        // 404 에러 - 리소스 없음
+                                        return Mono.error(new NotFoundException(ErrorMessage.ERR_ANALYSIS_RESULT_NOT_FOUND));
+                                    } else if (response.statusCode().is4xxClientError()) {
+                                        // 400 에러 - 잘못된 요청
+                                        if (errorBody.contains("유효하지 않은 분석 결과 ID")) {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_QUERY_PARAMETER));
+                                        } else {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_REQUEST_FIELD));
+                                        }
+                                    } else {
+                                        // 500 에러 - 서버 오류
+                                        if (errorBody.contains("EDA 결과 조회 중 오류")) {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_ANALYSIS_PROCESSING_ERROR));
+                                        } else {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_DECRYPTION_ERROR));
+                                        }
+                                    }
                                 })
                 )
                 .bodyToMono(Object.class);
@@ -59,7 +93,29 @@ public class AnalysisProxyService {
                         response -> response.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("Error from FastAPI get latest: {}", errorBody);
-                                    return Mono.error(new RuntimeException(ErrorMessage.ERR_INTERNAL_SERVER_DECRYPTION_ERROR.name()));
+
+                                    if (response.statusCode().value() == 404) {
+                                        // 404 에러 - 리소스 없음
+                                        if (errorBody.contains("데이터소스") && errorBody.contains("EDA 결과가 없습니다")) {
+                                            return Mono.error(new NotFoundException(ErrorMessage.ERR_LATEST_RESULT_NOT_FOUND));
+                                        } else {
+                                            return Mono.error(new NotFoundException(ErrorMessage.ERR_NOT_RESOURCE));
+                                        }
+                                    } else if (response.statusCode().is4xxClientError()) {
+                                        // 400 에러 - 잘못된 요청
+                                        if (errorBody.contains("유효하지 않은 데이터소스 ID")) {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_SOURCE_ID));
+                                        } else {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_QUERY_PARAMETER));
+                                        }
+                                    } else {
+                                        // 500 에러 - 서버 오류
+                                        if (errorBody.contains("최근 EDA 결과 조회 중 오류")) {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_ANALYSIS_PROCESSING_ERROR));
+                                        } else {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_DECRYPTION_ERROR));
+                                        }
+                                    }
                                 })
                 )
                 .bodyToMono(Object.class);
