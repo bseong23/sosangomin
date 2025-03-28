@@ -5,7 +5,6 @@ export const loadKakaoMapScript = (appKey: string): Promise<void> => {
       resolve();
       return;
     }
-
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&libraries=services&autoload=false`;
@@ -20,7 +19,6 @@ export const loadKakaoMapScript = (appKey: string): Promise<void> => {
     document.head.appendChild(script);
   });
 };
-
 // 주소로 좌표 검색
 export const getCoordinatesByAddress = (
   address: string
@@ -93,28 +91,6 @@ export const searchLocation = (
   });
 };
 
-// 인구 데이터 가져오기
-// export const fetchPopulationData = async (): Promise<Map<string, number>> => {
-//   try {
-//     // 여기에 실제 API 호출 코드 작성
-//     // 예: const response = await fetch('인구데이터API주소');
-//     // const data = await response.json();
-
-//     // 결과를 행정동 코드/이름을 키로 하는 Map으로 변환
-//     const populationMap = new Map<string, number>();
-
-//     // 예시 데이터 처리
-//     // data.forEach(item => {
-//     //   populationMap.set(item.adm_cd, item.population);
-//     // });
-
-//     return populationMap;
-//   } catch (error) {
-//     console.error("인구 데이터 가져오기 실패:", error);
-//     return new Map();
-//   }
-// };
-
 // mapApi.ts 파일에 추가
 import workingPopData from "@/assets/residentpop.json";
 
@@ -158,6 +134,10 @@ export const displayGeoJsonPolygon = (
     populationData?: Map<string, number>;
     getColorByPopulation?: (population: number) => string;
     fitBounds?: boolean;
+    onPolygonClick?: (
+      adminName: string,
+      center: { lat: number; lng: number }
+    ) => void; // 클릭 이벤트 핸들러 추가
   }
 ) => {
   if (!map || !geoJsonData) return;
@@ -203,6 +183,8 @@ export const displayGeoJsonPolygon = (
 
     // 다각형 경로 생성
     let paths: any[] = [];
+    let polygonCenter = { lat: 0, lng: 0 };
+    let pointCount = 0;
 
     if (feature.geometry.type === "MultiPolygon") {
       // 다중 다각형 처리
@@ -214,8 +196,13 @@ export const displayGeoJsonPolygon = (
           );
           paths.push(path);
 
-          // 경계 확장
-          path.forEach((latLng: any) => bounds.extend(latLng));
+          // 경계 확장 및 중심점 계산을 위한 좌표 합산
+          path.forEach((latLng: any) => {
+            bounds.extend(latLng);
+            polygonCenter.lat += latLng.getLat();
+            polygonCenter.lng += latLng.getLng();
+            pointCount++;
+          });
         });
       });
     } else if (feature.geometry.type === "Polygon") {
@@ -226,9 +213,20 @@ export const displayGeoJsonPolygon = (
         );
         paths.push(path);
 
-        // 경계 확장
-        path.forEach((latLng: any) => bounds.extend(latLng));
+        // 경계 확장 및 중심점 계산을 위한 좌표 합산
+        path.forEach((latLng: any) => {
+          bounds.extend(latLng);
+          polygonCenter.lat += latLng.getLat();
+          polygonCenter.lng += latLng.getLng();
+          pointCount++;
+        });
       });
+    }
+
+    // 중심점 계산
+    if (pointCount > 0) {
+      polygonCenter.lat /= pointCount;
+      polygonCenter.lng /= pointCount;
     }
 
     // 다각형 생성 및 지도에 추가
@@ -290,10 +288,49 @@ export const displayGeoJsonPolygon = (
       // 툴팁 제거
       customOverlay.setMap(null);
     });
-  });
 
-  // 모든 폴리곤이 보이도록 지도 범위 설정
-  if (options.fitBounds) {
-    map.setBounds(bounds);
-  }
+    // 폴리곤 클릭 이벤트 추가
+    window.kakao.maps.event.addListener(polygon, "click", function () {
+      // 폴리곤 클릭 시 콜백 함수 호출
+      if (options.onPolygonClick) {
+        options.onPolygonClick(simpleName, polygonCenter);
+      }
+
+      // 클릭한 폴리곤 강조 표시
+      polygon.setOptions({
+        fillOpacity: defaultStyle.fillOpacity + 0.3,
+        strokeWeight: defaultStyle.strokeWeight + 1
+      });
+
+      // 일정 시간 후 스타일 복원
+      setTimeout(() => {
+        polygon.setOptions({
+          fillOpacity: defaultStyle.fillOpacity,
+          strokeWeight: defaultStyle.strokeWeight
+        });
+      }, 1500);
+    });
+  });
 };
+
+// 인구 데이터 가져오기
+// export const fetchPopulationData = async (): Promise<Map<string, number>> => {
+//   try {
+//     // 여기에 실제 API 호출 코드 작성
+//     // 예: const response = await fetch('인구데이터API주소');
+//     // const data = await response.json();
+
+//     // 결과를 행정동 코드/이름을 키로 하는 Map으로 변환
+//     const populationMap = new Map<string, number>();
+
+//     // 예시 데이터 처리
+//     // data.forEach(item => {
+//     //   populationMap.set(item.adm_cd, item.population);
+//     // });
+
+//     return populationMap;
+//   } catch (error) {
+//     console.error("인구 데이터 가져오기 실패:", error);
+//     return new Map();
+//   }
+// };

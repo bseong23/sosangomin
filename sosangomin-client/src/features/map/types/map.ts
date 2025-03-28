@@ -9,6 +9,7 @@ export interface MapProps {
   minLevel?: number; // 최대 줌인 레벨 추가
   maxLevel?: number; // 최대 줌아웃 레벨 추가
   markers?: Marker[];
+  onPolygonSelect?: (adminName: string) => void;
 }
 
 export interface Marker {
@@ -21,8 +22,9 @@ export interface Marker {
 }
 
 export interface MapSidebarProps {
-  onSearch?: (address: string) => void;
-  onClose?: () => void;
+  onSearch: (address: string) => void;
+  onClose: () => void;
+  selectedAdminName?: string | null;
 }
 
 export interface KakaoMapAPI {

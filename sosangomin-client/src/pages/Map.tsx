@@ -12,7 +12,9 @@ const MapPage: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showLegend, setShowLegend] = useState(true); // 초기값을 true로 변경
   const [isMobile, setIsMobile] = useState(false);
-
+  const [selectedAdminName, setSelectedAdminName] = useState<string | null>(
+    null
+  ); // 선택된 행정동 이름 상태 추가
   // 모바일 화면 감지
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)");
@@ -68,6 +70,15 @@ const MapPage: React.FC = () => {
     setShowSidebar(!showSidebar);
   };
 
+  // 폴리곤 선택 핸들러
+  const handlePolygonSelect = (adminName: string) => {
+    setSelectedAdminName(adminName);
+    // 모바일에서 폴리곤 선택 시 사이드바 자동 표시 (선택 사항)
+    if (isMobile && !showSidebar) {
+      setShowSidebar(true);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full relative">
       {/* 맵 컴포넌트 */}
@@ -76,11 +87,10 @@ const MapPage: React.FC = () => {
           width="100%"
           height="calc(100vh - 73px)"
           center={center}
-          level={3}
-          minLevel={1}
-          maxLevel={6}
+          level={6}
           markers={markers}
           geoJsonData={seoulDistrictsData}
+          onPolygonSelect={handlePolygonSelect} // 폴리곤 선택 콜백 전달
         />
       </div>
 
@@ -108,9 +118,13 @@ const MapPage: React.FC = () => {
         </button>
       )}
 
-      {/* 사이드바 컴포넌트 */}
+      {/* 사이드바 컴포넌트 - 선택된 행정동 이름 전달 */}
       {showSidebar && (
-        <MapSidebar onClose={toggleSidebar} onSearch={handleSearch} />
+        <MapSidebar
+          onClose={toggleSidebar}
+          onSearch={handleSearch}
+          selectedAdminName={selectedAdminName} // 선택된 행정동 이름 전달
+        />
       )}
 
       {/* 색상 범례 컴포넌트 */}

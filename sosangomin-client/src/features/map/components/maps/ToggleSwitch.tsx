@@ -26,7 +26,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
       {options.map((option) => (
         <button
           key={option}
-          className={`px-4 py-2 text-sm font-medium flex-1 transition-all duration-200 ${
+          className={`px-4 py-2 text-xs font-base flex-1 ${
             selected === option
               ? "bg-bit-main text-white"
               : "text-gray-700 hover:bg-gray-100"
