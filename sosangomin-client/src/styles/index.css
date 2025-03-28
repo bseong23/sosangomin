@@ -20,6 +20,7 @@ html,
 body {
   font-family: var(--font-main);
   font-weight: 400; /* Regular 가중치 */
+  overflow-x: clip;
 }
 
 /* Tailwind 기본 텍스트 클래스 재정의 */

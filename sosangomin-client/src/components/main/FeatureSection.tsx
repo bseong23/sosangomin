@@ -235,7 +235,7 @@ const FeatureSection: React.FC = () => {
             {features.map((feature, i) => (
               <div
                 key={i}
-                className="w-screen h-screen flex items-center justify-center flex-shrink-0 px-8 bg-white"
+                className="w-screen h-screen flex items-center justify-center px-8 bg-white"
               >
                 <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
                   <div className="w-full md:w-1/2 space-y-4">
