@@ -6,6 +6,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+RUN pip install --upgrade pip
+
 # 의존성 파일 복사 및 설치 (캐시 활용을 위해 분리)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
