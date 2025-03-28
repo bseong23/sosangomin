@@ -3,3 +3,4 @@ spring:
     name: sosangomin
   profiles:
     active: local
+
