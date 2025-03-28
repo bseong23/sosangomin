@@ -11,20 +11,20 @@ const features = [
     title: "매출 데이터로 심층 분석하기",
     description:
       "매출 데이터만 등록하면 쉽게 매출 현황과 개선점을 파악할 수 있어요.",
-    link: "/data-analysis/upload"
+    link: "/service_data"
   },
   {
     image: ex_review,
     title: "리뷰 분석을 통해 경쟁력 강화하기",
     description: "우리 가게 리뷰 분석을 통해 고객의 마음을 읽을 수 있어요.",
-    link: "/map"
+    link: "/service_review"
   },
   {
     image: ex_map,
     title: "상권 분석으로 고객 확보하기",
     description:
       "우리 지역에서 얼마나 많은 고객을 확보할 수 있는지 확인해 보세요.",
-    link: "/result"
+    link: "/service_map"
   },
   {
     image: ex_swot,
