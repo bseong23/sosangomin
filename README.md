@@ -132,7 +132,6 @@
 - **분석 엔진**: 파이썬 기반 데이터 분석 및 머신러닝 모델
 - **크롤링 엔진**: Selenium 및 BeautifulSoup을 활용한 웹 크롤링 서비스
 - **스토리지**: AWS S3 기반 데이터 스토리지
-- **태스크 큐**: 백그라운드 작업 처리를 위한 비동기 태스크 큐
 - **캐싱 시스템**: 성능 최적화를 위한 메모리 캐싱
 
 ### 기술 스택
@@ -143,7 +142,7 @@
 - **자연어 처리**: KoNLPy(한국어)
 - **웹 크롤링**: Selenium, BeautifulSoup
 - **클라우드 스토리지**: AWS S3
-- **컨테이너화**: Docker, Docker Compose, Jenkins
+- **컨테이너화**: Docker, Jenkins
 - **API 통합**: 네이버 검색 API, Claude API, 공공 API
 
 ## API 상세 설명
@@ -213,7 +212,7 @@ API는 다음과 같은 주요 섹션으로 구성되어 있습니다:
 
 1. 저장소 클론
    ```bash
-   git clone https://github.com/yourusername/small-business-analytics.git
+   git clone ...
    cd small-business-analytics
    ```
 
