@@ -7,6 +7,7 @@
 2. [Stack](#Stack)
 3. [주요 기능](#주요-기능)
 4. [프로젝트 구성](#프로젝트-구성)
+5. [포팅메뉴얼](#포팅메뉴얼)
 
 ## API
 [![Swagger API Documentation](https://img.shields.io/badge/Swagger-API%20Docs-brightgreen?style=for-the-badge&logo=swagger)](https://apidev.sosangomin.com/swagger-ui/index.html#/)
@@ -210,4 +211,49 @@
  ┃ ┣ 📂templates
  ┃ ┣ 📜application-dev.yml
  ┃ ┗ 📜application.yml
+```
+
+## 포팅메뉴얼
+
+### 필요한 환경변수
+
+```
+DB_DRIVER_CLASS_NAME
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+KAKAO_CLIENT_ID
+ENCRYPT_SECRET_KEY
+JWT_SECRET
+FRONTEND_URL
+GOOGLE_EMAIL
+GOOGLE_PASSWORD
+S3_ACCESS_KEY
+S3_SECRET_KEY
+S3_BUCKET_NAME
+REDIS_SERVER_IP
+```
+
+### 컨테이너 실행
+
+- `Dockerfile`이 위치한 디렉토리에서 명령어 실행행
+
+```bash
+docker run -d --name ${env.DOCKER_IMG_NAME} \\
+    -e DB_DRIVER_CLASS_NAME=${env.DB_DRIVER_CLASS_NAME} \\
+    -e DB_URL=${env.DB_URL} \\
+    -e DB_USERNAME=${env.DB_USERNAME} \\
+    -e DB_PASSWORD=${env.DB_PASSWORD} \\
+    -e KAKAO_CLIENT_ID=${env.KAKAO_CLIENT_ID} \\
+    -e ENCRYPT_SECRET_KEY=${env.ENCRYPT_SECRET_KEY} \\
+    -e JWT_SECRET=${env.JWT_SECRET} \\
+    -e FRONTEND_URL=${env.FRONTEND_URL} \\
+    -e GOOGLE_EMAIL=${env.GOOGLE_EMAIL} \\
+    -e GOOGLE_PASSWORD=${env.GOOGLE_PASSWORD} \\
+    -e S3_ACCESS_KEY=${env.S3_ACCESS_KEY} \\
+    -e S3_SECRET_KEY=${env.S3_SECRET_KEY} \\
+    -e S3_BUCKET_NAME=${env.S3_BUCKET_NAME} \\
+    -e REDIS_SERVER_IP=${env.REDIS_SERVER_IP} \\
+    -p 8080:8080 \\
+    ${env.DOCKER_IMG_NAME}:latest
 ```
