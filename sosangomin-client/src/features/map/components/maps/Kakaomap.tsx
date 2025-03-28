@@ -11,11 +11,12 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   width,
   height,
   center = { lat: 37.501, lng: 127.039 }, // 서울 시청 기본값
-  level = 3,
+  level = 6,
   minLevel = 1,
-  maxLevel = 14,
+  maxLevel = 6,
   markers = [],
-  geoJsonData // GeoJSON 데이터 prop
+  geoJsonData, // GeoJSON 데이터 prop
+  onPolygonSelect
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
@@ -114,14 +115,34 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       const map = new window.kakao.maps.Map(mapRef.current, options);
 
-      // ✅ 최대 줌아웃(최소 레벨) 설정
-      map.setMinLevel(1); // 원하는 값으로 설정 (1~14 범위)
-      map.setMaxLevel(6);
+      // 최대 줌아웃(최소 레벨) 설정
+      map.setMinLevel(minLevel);
+      map.setMaxLevel(maxLevel);
 
       setMapInstance(map);
+
+      // 맵 로드 완료 콜백 호출
     }
   }, [isLoading, error, level, minLevel, maxLevel, center, userLocation]);
 
+  // 폴리곤 클릭 핸들러
+  const handlePolygonClick = (
+    AdminName: string,
+    polygonCenter: { lat: number; lng: number }
+  ) => {
+    // 맵 중심 이동
+    if (mapInstance) {
+      mapInstance.setCenter(
+        new window.kakao.maps.LatLng(polygonCenter.lat, polygonCenter.lng)
+      );
+      mapInstance.setLevel(5); // 적절한 줌 레벨로 설정
+
+      // 부모 컴포넌트로 선택된 행정동 이름 전달
+      if (onPolygonSelect) {
+        onPolygonSelect(AdminName);
+      }
+    }
+  };
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
     if (mapInstance && geoJsonData && populationData.size > 0) {
@@ -133,27 +154,20 @@ const Kakaomap: React.FC<KakaomapProps> = ({
         fillOpacity: 0.2, // 투명도 조정 (더 선명하게)
         populationData: populationData,
         getColorByPopulation: getColorByPopulation, // 인구 기반 색상 함수 전달
-        fitBounds: false
+        fitBounds: false,
+        onPolygonClick: handlePolygonClick // 폴리곤 클릭 핸들러 전달
       });
     } else if (mapInstance && geoJsonData) {
       // 인구 데이터가 없는 경우 기본 색상으로 표시
       displayGeoJsonPolygon(mapInstance, geoJsonData, {
         strokeColor: "#FF0000",
         fillColor: "#FF8888",
-        fillOpacity: 0.2
+        fillOpacity: 0.2,
+        onPolygonClick: handlePolygonClick // 폴리곤 클릭 핸들러 전달
       });
     }
   }, [mapInstance, geoJsonData, populationData]);
 
-  // useEffect(() => {
-  //   if (mapInstance) {
-  //     // 중심 위치 업데이트
-  //     mapInstance.setCenter(
-  //       new window.kakao.maps.LatLng(center.lat, center.lng),
-  //       console.log("시작", center.lat, center.lng, level)
-  //     );
-  //   }
-  // }, [mapInstance, center]);
   // 마커 생성 및 업데이트
   useEffect(() => {
     if (mapInstance && markers.length > 0) {
@@ -211,7 +225,6 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       // 모든 마커가 보이도록 지도 범위 재설정
       if (markers.length > 0) {
         mapInstance.setBounds(bounds);
-        // setTimeout(() => mapInstance.setLevel(3), 500); // 레벨 강제 설정
       }
     } else if (mapInstance && markers.length === 0 && userLocation) {
       // 마커가 없고 사용자 위치가 있으면 사용자 위치 마커 다시 표시

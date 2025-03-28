@@ -4,28 +4,14 @@ import Analysismap from "@/features/map/components/maps/Analysismap";
 import Recommendmap from "@/features/map/components/maps/Recommendmap";
 import ToggleSwitch from "@/features/map/components/maps/ToggleSwitch";
 
-const MapSidebar: React.FC<MapSidebarProps> = ({ onSearch, onClose }) => {
+const MapSidebar: React.FC<MapSidebarProps> = ({
+  onSearch,
+  onClose,
+  selectedAdminName
+}) => {
   const [activeTab, setActiveTab] = useState<"상권분석" | "입지추천">(
     "상권분석"
   );
-
-  const [searchAddress, setSearchAddress] = useState<string>("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault(); // 폼 제출 기본 동작 방지
-    if (searchAddress.trim() && onSearch) {
-      onSearch(searchAddress);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault(); // 엔터 키 기본 동작 방지
-      if (searchAddress.trim() && onSearch) {
-        onSearch(searchAddress);
-      }
-    }
-  };
 
   const handleTabChange = (selected: string) => {
     setActiveTab(selected as "상권분석" | "입지추천");
@@ -54,42 +40,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({ onSearch, onClose }) => {
           />
         </svg>
       </button>
-
-      {/* 위치 찾기 섹션 */}
-      <div className="pt-2 px-10">
-        <form onSubmit={handleSearch} className="relative">
-          <input
-            type="text"
-            className="w-full border border-gray-300 rounded-md py-2 px-4 pr-10"
-            placeholder="주소를 입력하세요"
-            value={searchAddress}
-            onChange={(e) => setSearchAddress(e.target.value)}
-            onKeyDown={handleKeyPress}
-          />
-          <button
-            type="button"
-            onClick={handleSearch}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                stroke="#4B5563"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </form>
-      </div>
-      <div className="p-4">
+      <div className="px-15 pt-10">
         <ToggleSwitch
           options={["상권분석", "입지추천"]}
           defaultSelected="상권분석"
@@ -97,9 +48,13 @@ const MapSidebar: React.FC<MapSidebarProps> = ({ onSearch, onClose }) => {
         />
       </div>
 
-      <div className="h-[calc(100%-150px)] overflow-y-auto">
+      <div className="h-[calc(100%-100px)] overflow-y-auto">
         {activeTab === "상권분석" ? (
-          <Analysismap onSearch={onSearch} onClose={onClose} />
+          <Analysismap
+            onSearch={onSearch}
+            onClose={onClose}
+            selectedAdminName={selectedAdminName}
+          />
         ) : (
           <Recommendmap />
         )}

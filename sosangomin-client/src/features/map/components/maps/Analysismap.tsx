@@ -3,7 +3,7 @@ import { MapSidebarProps } from "@/features/map/types/map";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import BarChart from "@/components/chart/BarChart";
 
-const Analysismap: React.FC<MapSidebarProps> = () => {
+const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [chartData] = React.useState({
@@ -79,7 +79,8 @@ const Analysismap: React.FC<MapSidebarProps> = () => {
     >
       {/* 헤더 섹션 */}
       <div className="mb-6 relative flex-shrink-0">
-        <h2 className="text-xl font-bold">내 주변 상권은?</h2>
+        <h2 className="text-lg font-bold">내 주변 상권은?</h2>
+        <div>{selectedAdminName}</div>
       </div>
 
       {/* 인구 분포도 섹션 */}
