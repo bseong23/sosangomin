@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Spring
+  spring-app:
+    build:
+      context: ./sosangomin-server
+      dockerfile: Dockerfile
+    container_name: spring-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_DRIVER_CLASS_NAME=${DB_DRIVER_CLASS_NAME}
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+      - ENCRYPT_SECRET_KEY=${ENCRYPT_SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - GOOGLE_EMAIL=${GOOGLE_EMAIL}
+      - GOOGLE_PASSWORD=${GOOGLE_PASSWORD}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - REDIS_SERVER_IP=${REDIS_SERVER_IP}
+    networks:
+      - sosangomin-network
+
+  # FastAPI
+  fastapi-app:
+    build:
+      context: ./sosangomin-ai
+      dockerfile: Dockerfile
+    container_name: fastapi-service
+    ports:
+      - "8000:8000"
+    environment:
+      - MARIA_DB_USER=${MARIA_DB_USER}
+      - MARIA_DB_HOST=${MARIA_DB_HOST}
+      - MARIA_DB_PASSWORD=${MARIA_DB_PASSWORD}
+      - MARIA_DB_PORT=${MARIA_DB_PORT}
+      - MARIA_DB_SCHEMA=${MARIA_DB_SCHEMA}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_DB=${MONGO_DB}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CHROME_WEBDRIVER_PATH=${CHROME_WEBDRIVER_PATH}
+      - KMA_SERVICE_KEY=${KMA_SERVICE_KEY}
+      - SEOUL_POPULATION_API_KEY=${SEOUL_POPULATION_API_KEY}
+      - RESIDENT_POPULATION_API_KEY=${RESIDENT_POPULATION_API_KEY}
+      - WORKING_POPULATION_API_KEY=${WORKING_POPULATION_API_KEY}
+      - BUS_API_KEY=${BUS_API_KEY}
+      - SUBWAY_API_KEY=${SUBWAY_API_KEY}
+    networks:
+      - sosangomin-network
+
+networks:
+  sosangomin-network:
+    driver: bridge
