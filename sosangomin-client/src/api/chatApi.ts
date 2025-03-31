@@ -1,5 +1,5 @@
 // src/api/chatApi.ts
-import { ChatRequest, ChatResponse, ErrorResponse } from "@/types/chat";
+import { ChatRequest, ChatResponse, ErrorResponse } from "@/types/chatbot";
 import axiosInstance from "@/api/axios";
 import { AxiosError } from "axios";
 
