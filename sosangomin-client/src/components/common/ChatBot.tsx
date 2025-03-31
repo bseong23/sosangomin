@@ -2,15 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import { sendChatMessage } from "@/api/chatApi";
 import { ChatRequest, ChatResponse } from "@/types/chat";
 import chatbot from "@/assets/chatbot.png";
+import useAuthStore from "@/store/useAuthStore"; // 반드시 가져와야함
 
 const ChatBot: React.FC = () => {
+  const { userInfo } = useAuthStore();
+  const userId = userInfo?.userId || null;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<
     Array<{ text: string; isBot: boolean }>
   >([]);
   const [inputMessage, setInputMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [userId] = useState(1); // 실제 사용 시 인증 정보에서 가져오세요
   const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -104,11 +106,16 @@ const ChatBot: React.FC = () => {
     // 사용자 메시지 추가
     setMessages((prev) => [...prev, { text: newMessage, isBot: false }]);
 
+    if (!userId) {
+      alert("로그인 후 이용해주세요");
+      return;
+    }
+
     // API 요청
     const request: ChatRequest = {
       user_id: userId,
       message: newMessage,
-      session_id: sessionId
+      session_id: sessionId || null
     };
 
     try {

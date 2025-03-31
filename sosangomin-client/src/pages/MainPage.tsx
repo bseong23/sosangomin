@@ -1,7 +1,7 @@
 // import React from "react";
-import HeroSection from "@/components/main/HeroSection";
-import FeatureSection from "@/components/main/FeatureSection";
-import CTASection from "@/components/main/CTASection";
+import HeroSection from "@/features/main/HeroSection";
+import FeatureSection from "@/features/main/FeatureSection";
+import CTASection from "@/features/main/CTASection";
 
 const MainPage = () => {
   return (
