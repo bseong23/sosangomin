@@ -4,7 +4,7 @@ import React from "react";
 import BarChart from "@/components/chart/BarChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import WordCloud from "./WordCloud";
-import { ReviewDashBoardProps } from "@/features/review/types/Review";
+import { ReviewDashBoardProps } from "@/features/review/types/review";
 
 const ReviewDashBoard: React.FC<ReviewDashBoardProps> = ({
   analysisData,

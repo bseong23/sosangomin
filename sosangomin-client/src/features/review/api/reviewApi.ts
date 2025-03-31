@@ -6,7 +6,7 @@ import {
   StoreReviewAnalyses,
   ErrorResponse,
   ApiResponse
-} from "@/features/review/types/Review";
+} from "@/features/review/types/review";
 
 /**
  * 새로운 리뷰 분석 요청

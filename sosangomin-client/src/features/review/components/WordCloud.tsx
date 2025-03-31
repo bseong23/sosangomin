@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { WordCloudProps, WordPosition } from "@/features/review/types/Review";
+import { WordCloudProps, WordPosition } from "@/features/review/types/review";
 
 const WordCloud: React.FC<WordCloudProps> = ({
   words = {},

@@ -11,7 +11,7 @@ import {
   ReviewAnalysisResult,
   ReviewAnalysisSummary,
   ErrorResponse
-} from "@/features/review/types/Review";
+} from "@/features/review/types/review";
 
 interface UseReviewAnalysisReturn {
   loading: boolean;

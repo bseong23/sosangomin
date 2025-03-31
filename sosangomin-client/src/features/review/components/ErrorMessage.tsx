@@ -1,7 +1,7 @@
 // src/features/review/components/ErrorMessage.tsx
 
 import React from "react";
-import { ErrorMessageProps } from "@/features/review/types/Review";
+import { ErrorMessageProps } from "@/features/review/types/review";
 
 /**
  * 리뷰 분석 오류 메시지 컴포넌트
