@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { LoginResponse } from "@/features/auth/types/auth";
+import useChatStore from "./useChatStore";
 
 // 인증 스토어 상태 타입
 interface AuthState {
@@ -30,7 +31,13 @@ const useAuthStore = create<AuthState>()(
         })),
 
       // 사용자 정보 제거 (로그아웃)
-      clearUserInfo: () => set({ userInfo: null, isAuthenticated: false })
+      clearUserInfo: () => {
+        // 챗봇 대화 초기화
+        const clearChat = useChatStore.getState().clearMessages;
+        clearChat();
+        // 사용자 정보 초기화
+        set({ userInfo: null, isAuthenticated: false });
+      }
     }),
     {
       name: "auth-storage", // 로컬스토리지에 저장될 키 이름

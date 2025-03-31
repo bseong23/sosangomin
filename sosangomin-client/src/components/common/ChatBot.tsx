@@ -1,24 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { sendChatMessage } from "@/api/chatApi";
-import { ChatRequest, ChatResponse } from "@/types/chat";
 import chatbot from "@/assets/chatbot.png";
-import useAuthStore from "@/store/useAuthStore"; // 반드시 가져와야함
+import useAuthStore from "@/store/useAuthStore";
+import useChatStore from "@/store/useChatStore";
 
 const ChatBot: React.FC = () => {
   const { userInfo } = useAuthStore();
   const userId = userInfo?.userId || null;
+
+  // Zustand 챗봇 스토어 사용
+  const { messages, isLoading, sendMessage } = useChatStore();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<
-    Array<{ text: string; isBot: boolean }>
-  >([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+
   const chatRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const chatContentRef = useRef<HTMLDivElement>(null); // 스크롤 자동 하단으로 이동
-  const inputRef = useRef<HTMLInputElement>(null); // 입력 필드 참조 추가
+  const chatContentRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleChat = () => {
     const newIsOpen = !isOpen;
@@ -28,6 +27,7 @@ const ChatBot: React.FC = () => {
     if (newIsOpen) {
       document.body.style.overflow = "hidden";
     } else {
+      setInputMessage("");
       document.body.style.overflow = "";
     }
   };
@@ -54,6 +54,7 @@ const ChatBot: React.FC = () => {
       ) {
         setIsOpen(false);
         // 외부 클릭으로 닫을 때도 스크롤 복원
+        setInputMessage("");
         document.body.style.overflow = "";
       }
     };
@@ -91,82 +92,51 @@ const ChatBot: React.FC = () => {
     }
   }, [isOpen]);
 
+  // textarea 높이 자동 조절
+  useEffect(() => {
+    const adjustHeight = () => {
+      const textarea = inputRef.current;
+      if (!textarea) return;
+
+      // 높이 초기화
+      textarea.style.height = "auto";
+
+      // 스크롤 높이에 맞게 조정 (최대 높이 제한은 CSS에서 처리)
+      const newHeight = Math.min(textarea.scrollHeight, 80); // 최대 80px
+      textarea.style.height = `${newHeight}px`;
+    };
+
+    // 입력값 변경 시 높이 조절
+    adjustHeight();
+  }, [inputMessage]);
+
   const handleSendMessage = async () => {
     // 이미 로딩 중이거나 메시지가 비어있으면 처리하지 않음
     if (isLoading || !inputMessage.trim()) return;
-
-    // 포커스 유지를 위해 입력 요소 저장
-    const inputElement = inputRef.current;
-    // 이미 위에서 체크했으므로 여기서는 제거
-
-    const newMessage = inputMessage;
-    setInputMessage("");
-    setIsLoading(true);
-
-    // 사용자 메시지 추가
-    setMessages((prev) => [...prev, { text: newMessage, isBot: false }]);
 
     if (!userId) {
       alert("로그인 후 이용해주세요");
       return;
     }
 
-    // API 요청
-    const request: ChatRequest = {
-      user_id: userId,
-      message: newMessage,
-      session_id: sessionId || null
-    };
+    const newMessage = inputMessage;
+    setInputMessage("");
 
-    try {
-      const response: ChatResponse = await sendChatMessage(request);
+    // Zustand 스토어의 sendMessage 함수 사용
+    await sendMessage(userId, newMessage);
 
-      // 세션 ID 업데이트
-      if (response.session_id) {
-        setSessionId(response.session_id);
+    // 전송 후 입력 필드에 포커스
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
       }
-
-      // 봇 응답 추가
-      setMessages((prev) => [
-        ...prev,
-        { text: response.bot_message, isBot: true }
-      ]);
-    } catch (error) {
-      console.error("채팅 오류:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "채팅 처리 중 오류가 발생했습니다.",
-          isBot: true
-        }
-      ]);
-    } finally {
-      setIsLoading(false);
-
-      // 메시지 전송 후 입력 필드에 포커스 - 다양한 방법 시도
-      setTimeout(() => {
-        if (inputElement) {
-          inputElement.focus();
-
-          // 추가적인 방법: 대체 포커스 기법
-          try {
-            // 필드 선택 시도
-            inputElement.select();
-            // 클릭 이벤트 시뮬레이션
-            inputElement.click();
-          } catch (e) {
-            console.error("포커스 시도 중 오류:", e);
-          }
-        } else if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 100);
-    }
+    }, 100);
   };
 
   const closeChat = () => {
     setIsOpen(false);
     // 챗봇 닫을 때 배경 스크롤 복원
+    setInputMessage("");
     document.body.style.overflow = "";
   };
 
@@ -223,6 +193,13 @@ const ChatBot: React.FC = () => {
             >
               {messages.map((msg, index) => (
                 <div key={index} className="w-full flex mb-3">
+                  {msg.isBot && (
+                    <img
+                      src={chatbot}
+                      alt="chatbot"
+                      className="w-15 h-15 mr-2 rounded-full self-start"
+                    />
+                  )}
                   <div
                     className={`p-3 rounded-2xl text-sm break-words overflow-hidden max-w-[80%] ${
                       msg.isBot
@@ -231,7 +208,8 @@ const ChatBot: React.FC = () => {
                     }`}
                     style={{
                       wordBreak: "break-word",
-                      overflowWrap: "break-word"
+                      overflowWrap: "break-word",
+                      whiteSpace: "pre-wrap" // 줄바꿈 유지
                     }}
                   >
                     {msg.text}
@@ -263,20 +241,26 @@ const ChatBot: React.FC = () => {
             <div className="border border-gray-200 rounded-full overflow-hidden">
               <div className="flex items-center w-full">
                 <div className="flex-grow">
-                  <input
-                    ref={inputRef}
-                    type="text"
+                  <textarea
+                    ref={inputRef as React.RefObject<HTMLTextAreaElement>}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                    className="w-full p-3 outline-none text-gray-700 bg-transparent"
+                    onKeyDown={(e) => {
+                      // Enter 키만 눌렀을 때 메시지 전송
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault(); // 기본 줄바꿈 동작 방지
+                        handleSendMessage();
+                      }
+                    }}
+                    className="w-full p-3 outline-none text-gray-700 bg-transparent resize-none max-h-20 min-h-[45px]"
                     placeholder="질문을 입력하세요..."
                     disabled={isLoading} // 로딩 중 입력 비활성화
+                    rows={1}
                   />
                 </div>
                 <div className="w-12 flex-none">
                   <button
-                    onClick={() => handleSendMessage()}
+                    onClick={handleSendMessage}
                     className={`text-indigo-900 p-2 w-full h-full flex items-center justify-center ${
                       isLoading ? "opacity-50 cursor-not-allowed" : ""
                     }`} // 로딩 중 버튼 비활성화
