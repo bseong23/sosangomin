@@ -12,7 +12,6 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
       - DB_DRIVER_CLASS_NAME=${DB_DRIVER_CLASS_NAME}
       - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
@@ -27,6 +26,7 @@ services:
       - S3_SECRET_KEY=${S3_SECRET_KEY}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
       - REDIS_SERVER_IP=${REDIS_SERVER_IP}
+      - FASTAPI_URL=${FASTAPI_URL}
     networks:
       - sosangomin-network
 
