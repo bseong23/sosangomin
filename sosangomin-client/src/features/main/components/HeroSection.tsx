@@ -3,24 +3,14 @@
 import React, { useState, useEffect } from "react";
 import ex_analyze from "@/assets/ex_analyze.png";
 
-// 전역 스타일 정의를 위한 스타일 시트 추가 (컴포넌트 외부에 추가)
-// App.css나 global.css에 다음 코드 추가 필요:
-// @keyframes float {
-//   0% { transform: translateY(0px); }
-//   50% { transform: translateY(-15px); }
-//   100% { transform: translateY(0px); }
-// }
-
 const HeroSection: React.FC = () => {
   const [showText, setShowText] = useState(false);
   const [floatImage, setFloatImage] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
-      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
     };
 
     handleResize(); // 초기 실행

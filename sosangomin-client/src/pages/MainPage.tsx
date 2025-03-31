@@ -1,26 +1,9 @@
-// // import React from "react";
-// import HeroSection from "@/features/main/HeroSection";
-// import FeatureSection from "@/features/main/FeatureSection";
-// import CTASection from "@/features/main/CTASection";
-
-// const MainPage = () => {
-//   return (
-//     <div>
-//       <HeroSection />
-//       <FeatureSection />
-//       <CTASection />
-//     </div>
-//   );
-// };
-
-// export default MainPage;
-
 import React, { useEffect, useState } from "react";
 import HeroSection from "@/features/main/components/HeroSection";
 import FeatureSection from "@/features/main/components/FeatureSection";
 import CTASection from "@/features/main/components/CTASection";
 
-const MainPage = () => {
+const MainPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
