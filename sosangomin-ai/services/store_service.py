@@ -12,7 +12,7 @@ from database.connector import database_instance
 from bs4 import BeautifulSoup
 from urllib.parse import urlencode, quote_plus
 from db_models import Store
-
+from sqlalchemy import or_
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -127,7 +127,6 @@ class SimpleStoreService:
                 "store_name": self._clean_text(item.get("title", "")),
                 "address": self._clean_text(item.get("address", "")),
                 "road_address": self._clean_text(item.get("roadAddress", "")),
-                "phone": item.get("telephone", ""),
                 "category": item.get("category", ""),
                 "place_id": place_id,
                 "place_url": item.get("link", ""),
@@ -240,15 +239,40 @@ class SimpleStoreService:
         db_session = database_instance.pre_session()
         
         try:
-            existing_store = db_session.query(Store).filter(
-                Store.place_id == store_info.get("place_id"), 
-                Store.user_id == user_id
-            ).first()
+            query_conditions = []
+            
+            if store_info.get("place_id"):
+                query_conditions.append(
+                    (Store.place_id == store_info.get("place_id")) & 
+                    (Store.user_id == user_id)
+                )
+            
+            if store_info.get("business_number"):
+                query_conditions.append(
+                    (Store.business_number == store_info.get("business_number")) & 
+                    (Store.user_id == user_id)
+                )
+            
+            existing_store = None
+            if query_conditions:
+                existing_store = db_session.query(Store).filter(
+                    or_(*query_conditions)
+                ).first()
             
             if existing_store:
+                if store_info.get("business_number") and not existing_store.business_number:
+                    existing_store.business_number = store_info.get("business_number")
+                    existing_store.is_verified = True
+                
+                if store_info.get("place_id") and not existing_store.place_id:
+                    existing_store.place_id = store_info.get("place_id")
+                
+                existing_store.updated_at = datetime.now()
+                db_session.commit()
+                
                 return {
                     "status": "success",
-                    "message": "이미 등록된 가게입니다. 기존 정보를 반환합니다.",
+                    "message": "이미 등록된 가게입니다. 정보가 업데이트되었습니다.",
                     "store_id": existing_store.store_id,
                     "store_info": {
                         "store_id": existing_store.store_id,
@@ -256,23 +280,26 @@ class SimpleStoreService:
                         "address": existing_store.address,
                         "place_id": existing_store.place_id,
                         "category": existing_store.category,
-                        "phone": existing_store.phone
+                        "business_number": existing_store.business_number,
+                        "is_verified": existing_store.is_verified
                     }
                 }
             
             current_time = datetime.now()
+            
+            is_verified = bool(store_info.get("business_number"))
             
             new_store = Store(
                 user_id=user_id,
                 store_name=store_info.get("store_name"),
                 address=store_info.get("address") or store_info.get("road_address", ""),
                 place_id=store_info.get("place_id"),
-                phone=store_info.get("phone", ""),
                 category=store_info.get("category", ""),
                 review_count=0,
-                business_hours="",
                 latitude=store_info.get("latitude"),
                 longitude=store_info.get("longitude"),
+                business_number=store_info.get("business_number"),
+                is_verified=is_verified,
                 created_at=current_time,
                 updated_at=current_time,
                 pos_type=pos_type
@@ -295,7 +322,8 @@ class SimpleStoreService:
                     "address": store_info.get("address"),
                     "place_id": store_info.get("place_id"),
                     "category": store_info.get("category"),
-                    "phone": store_info.get("phone")
+                    "business_number": store_info.get("business_number"),
+                    "is_verified": is_verified
                 }
             }
             
@@ -344,10 +372,8 @@ class SimpleStoreService:
                     "store_name": store.store_name,
                     "address": store.address,
                     "place_id": store.place_id,
-                    "phone": store.phone,
                     "category": store.category,
                     "review_count": store.review_count,
-                    "business_hours": store.business_hours,
                     "latitude": store.latitude,
                     "longitude": store.longitude,
                     "pos_type": store.pos_type,
@@ -355,6 +381,7 @@ class SimpleStoreService:
                     "updated_at": store.updated_at
                 }
             }
+        
                 
         except Exception as e:
             logger.error(f"가게 정보 조회 중 오류: {str(e)}")
@@ -364,5 +391,77 @@ class SimpleStoreService:
             }
         finally:
             db_session.close()
+
+    async def register_store_with_business_number(self, user_id: int, store_name: str, business_number: str, pos_type: str) -> Dict[str, Any]:
+        """
+        사업자등록번호 검증 후 가게 등록
+        
+        Args:
+            user_id: 사용자 ID
+            store_name: 가게 이름
+            business_number: 사업자등록번호
+            pos_type: POS 유형
+            
+        Returns:
+            Dict: 등록 결과
+        """
+        try:
+            from services.business_verification_service import business_verification_service
+            verification_result = await business_verification_service.verify_business_number(business_number)
+            
+            if not verification_result.get("valid"):
+                return {
+                    "status": "error",
+                    "message": f"유효하지 않은 사업자등록번호입니다: {verification_result.get('message')}",
+                    "verification_result": verification_result
+                }
+            
+            search_result = await self._search_naver_store(store_name)
+            
+            store_info = {}
+            
+            if search_result:
+                place_id = search_result.get("place_id")
+                
+                if not place_id or place_id == search_result.get("place_url"):
+                    search_query = f"{search_result['store_name']} {search_result['address']}"
+                    place_id = await self._get_place_id_with_selenium(search_query)
+                    
+                    if place_id:
+                        search_result["place_id"] = place_id
+                        logger.info(f"Selenium으로 place_id 추출 성공: {place_id}")
+                
+                store_info = {
+                    "store_name": search_result.get("store_name", store_name),
+                    "address": search_result.get("address", ""),
+                    "place_id": search_result.get("place_id", ""),
+                    "category": search_result.get("category", ""),
+                    "latitude": search_result.get("latitude"),
+                    "longitude": search_result.get("longitude")
+                }
+            else:
+                store_info = {
+                    "store_name": store_name,
+                    "address": "",
+                    "place_id": "",
+                    "category": "",
+                    "latitude": None,
+                    "longitude": None
+                }
+            
+            store_info["business_number"] = business_number
+            
+            result = await self._save_store_to_db(user_id, store_info, pos_type)
+            
+            result["verification_result"] = verification_result
+            
+            return result
+                
+        except Exception as e:
+            logger.error(f"사업자번호 검증 후 가게 등록 중 오류: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"가게 등록 중 오류가 발생했습니다: {str(e)}"
+            }
 
 simple_store_service = SimpleStoreService()
