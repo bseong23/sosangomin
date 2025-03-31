@@ -91,7 +91,7 @@ const BarChart: React.FC<BarChartProps> = ({
           text: xAxisLabel // X축 레이블 텍스트
         },
         grid: {
-          display: gridLines // X축 그리드 라인 표시 여부
+          color: "transparent" // 그리드 색상 설정 (투명)
         }
       },
       y: {
@@ -102,7 +102,7 @@ const BarChart: React.FC<BarChartProps> = ({
           text: yAxisLabel // Y축 레이블 텍스트
         },
         grid: {
-          display: gridLines // Y축 그리드 라인 표시 여부
+          color: "transparent" // 그리드 색상 설정 (투명)
         }
       }
     },
