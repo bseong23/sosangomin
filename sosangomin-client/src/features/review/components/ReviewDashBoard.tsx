@@ -1,13 +1,17 @@
+// src/features/review/components/ReviewDashBoard.tsx
+
 import React from "react";
 import BarChart from "@/components/chart/BarChart";
-// import PieChart from "@/components/chart/PieChart";
-// import LineChart from "@/components/chart/LineChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import WordCloud from "./WordCloud";
+import { ReviewDashBoardProps } from "@/features/review/types/review";
 
-const ReviewDashBoard: React.FC = () => {
-  // 감정 분석 데이터
-  const sentimentData = {
+const ReviewDashBoard: React.FC<ReviewDashBoardProps> = ({
+  analysisData,
+  onRequestAnalysis
+}) => {
+  // 기본 데이터 (API 응답이 없을 경우 사용)
+  const defaultSentimentData = {
     labels: ["긍정", "중립", "부정"],
     datasets: [
       {
@@ -28,8 +32,7 @@ const ReviewDashBoard: React.FC = () => {
     ]
   };
 
-  // 카테고리별 긍정 리뷰 데이터
-  const categoryData = {
+  const defaultCategoryData = {
     labels: ["음식", "서비스", "가격", "위생", "분위기"],
     datasets: [
       {
@@ -42,8 +45,7 @@ const ReviewDashBoard: React.FC = () => {
     ]
   };
 
-  // 키워드 빈도 데이터 (상위 15개)
-  const keywordData = {
+  const defaultKeywordData = {
     labels: [
       "명태",
       "조림",
@@ -72,8 +74,7 @@ const ReviewDashBoard: React.FC = () => {
     ]
   };
 
-  // 긍정적 감정 표현 단어 데이터 (상위 10개)
-  const positiveSentimentWords = {
+  const defaultPositiveSentimentWords = {
     labels: [
       "맛있게",
       "친절하시고",
@@ -96,7 +97,9 @@ const ReviewDashBoard: React.FC = () => {
       }
     ]
   };
-  const data = {
+
+  // 기본 워드 클라우드 데이터
+  const defaultWordCloudData = {
     positive_words: {
       명태: 60,
       보기: 41,
@@ -125,6 +128,64 @@ const ReviewDashBoard: React.FC = () => {
     }
   };
 
+  // API 응답에서 데이터 추출 (있을 경우)
+  const sentimentData = analysisData?.sentiment_distribution
+    ? {
+        labels: ["긍정", "중립", "부정"],
+        datasets: [
+          {
+            label: "감정 분포",
+            data: [
+              analysisData.sentiment_distribution.positive || 0,
+              analysisData.sentiment_distribution.neutral || 0,
+              analysisData.sentiment_distribution.negative || 0
+            ],
+            backgroundColor: [
+              "rgba(54, 162, 235, 0.7)",
+              "rgba(255, 206, 86, 0.7)",
+              "rgba(255, 99, 132, 0.7)"
+            ],
+            borderColor: [
+              "rgba(54, 162, 235, 1)",
+              "rgba(255, 206, 86, 1)",
+              "rgba(255, 99, 132, 1)"
+            ],
+            borderWidth: 1
+          }
+        ]
+      }
+    : defaultSentimentData;
+
+  // 워드 클라우드 데이터 추출
+  const wordCloudData = analysisData?.word_cloud_data || defaultWordCloudData;
+
+  // 감정 분포 백분율 계산
+  const calculatePercentages = () => {
+    if (analysisData?.sentiment_distribution) {
+      const {
+        positive = 0,
+        neutral = 0,
+        negative = 0
+      } = analysisData.sentiment_distribution;
+      const total = positive + neutral + negative || 1; // 0으로 나누기 방지
+
+      return {
+        positive: ((positive / total) * 100).toFixed(1),
+        neutral: ((neutral / total) * 100).toFixed(1),
+        negative: ((negative / total) * 100).toFixed(1)
+      };
+    }
+
+    // 기본값
+    return {
+      positive: "86.7",
+      neutral: "3.3",
+      negative: "10.0"
+    };
+  };
+
+  const percentages = calculatePercentages();
+
   return (
     <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
       {/* 헤더 섹션 */}
@@ -135,7 +196,10 @@ const ReviewDashBoard: React.FC = () => {
             <span className="text-xl text-blue-400">손님들이 생각</span>
             하는 우리 가게는?
           </h3>
-          <button className="btn bg-bit-main text-white p-3 rounded-lg hover:bg-blue-900 cursor-pointer text-xs">
+          <button
+            onClick={onRequestAnalysis}
+            className="btn bg-bit-main text-white p-3 rounded-lg hover:bg-blue-900 cursor-pointer text-xs"
+          >
             리뷰 분석하기
           </button>
         </div>
@@ -144,7 +208,7 @@ const ReviewDashBoard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* 긍정 워드클라우드 */}
           <WordCloud
-            words={data.positive_words}
+            words={wordCloudData.positive_words}
             title="긍정적 키워드"
             colors={{ primary: "#1E40AF", secondary: "#3056D3" }}
             maxWords={15}
@@ -152,7 +216,7 @@ const ReviewDashBoard: React.FC = () => {
 
           {/* 부정 워드클라우드 */}
           <WordCloud
-            words={data.negative_words}
+            words={wordCloudData.negative_words}
             title="부정적 키워드"
             colors={{ primary: "#B91C1C", secondary: "#EF4444" }}
             maxWords={15}
@@ -163,15 +227,21 @@ const ReviewDashBoard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
             <p className="text-sm text-comment-text">긍정 리뷰 비율</p>
-            <p className="text-2xl font-bold text-blue-500">86.7%</p>
+            <p className="text-2xl font-bold text-blue-500">
+              {percentages.positive}%
+            </p>
           </div>
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
             <p className="text-sm text-comment-text">중립 리뷰 비율</p>
-            <p className="text-2xl font-bold text-green-600">3.3%</p>
+            <p className="text-2xl font-bold text-green-600">
+              {percentages.neutral}%
+            </p>
           </div>
           <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
             <p className="text-sm text-comment-text">부정 리뷰 비율</p>
-            <p className="text-2xl font-bold text-red-600">10.0%</p>
+            <p className="text-2xl font-bold text-red-600">
+              {percentages.negative}%
+            </p>
           </div>
         </div>
       </div>
@@ -196,8 +266,14 @@ const ReviewDashBoard: React.FC = () => {
             카테고리별 긍정 리뷰 수
           </h2>
           <BarChart
-            labels={categoryData.labels}
-            datasets={categoryData.datasets}
+            labels={
+              analysisData?.insights?.category_data?.labels ||
+              defaultCategoryData.labels
+            }
+            datasets={
+              analysisData?.insights?.category_data?.datasets ||
+              defaultCategoryData.datasets
+            }
             height={300}
             title=""
             xAxisLabel="카테고리"
@@ -212,8 +288,14 @@ const ReviewDashBoard: React.FC = () => {
           주요 키워드 빈도 (상위 15개)
         </h2>
         <BarChart
-          labels={keywordData.labels}
-          datasets={keywordData.datasets}
+          labels={
+            analysisData?.insights?.keyword_data?.labels ||
+            defaultKeywordData.labels
+          }
+          datasets={
+            analysisData?.insights?.keyword_data?.datasets ||
+            defaultKeywordData.datasets
+          }
           height={400}
           horizontal={true}
           title=""
@@ -230,8 +312,14 @@ const ReviewDashBoard: React.FC = () => {
           긍정적 감정 표현 단어 (상위 10개)
         </h2>
         <BarChart
-          labels={positiveSentimentWords.labels}
-          datasets={positiveSentimentWords.datasets}
+          labels={
+            analysisData?.insights?.positive_sentiment_words?.labels ||
+            defaultPositiveSentimentWords.labels
+          }
+          datasets={
+            analysisData?.insights?.positive_sentiment_words?.datasets ||
+            defaultPositiveSentimentWords.datasets
+          }
           height={350}
           horizontal={true}
           title=""
@@ -253,23 +341,31 @@ const ReviewDashBoard: React.FC = () => {
               고객들이 가장 만족하는 점
             </h3>
             <ul className="list-disc pl-5 text-sm text-comment space-y-2">
-              <li>
-                명태 조림의 맛: 리뷰에서 많은 고객들이 명태 조림의 맛에 대해
-                매우 긍정적으로 평가했습니다. 쫄깃하고 부드러운 식감, 매콤한
-                양념 등이 호평받고 있습니다.
-              </li>
-              <li>
-                푸짐한 양: 소자 메뉴로도 많은 양의 명태 조림을 제공하고 있어
-                고객들의 만족도가 높습니다.
-              </li>
-              <li>
-                친절한 서비스: 매장 직원들의 친절한 서비스가 고객 만족도를
-                높이는 요인으로 나타났습니다.
-              </li>
-              <li>
-                깔끔한 분위기: 깨끗하고 새로운 매장 분위기 역시 고객들의 만족을
-                이끌어내고 있습니다.
-              </li>
+              {analysisData?.insights?.satisfaction_points ? (
+                analysisData.insights.satisfaction_points.map(
+                  (point: string, idx: number) => <li key={idx}>{point}</li>
+                )
+              ) : (
+                <>
+                  <li>
+                    명태 조림의 맛: 리뷰에서 많은 고객들이 명태 조림의 맛에 대해
+                    매우 긍정적으로 평가했습니다. 쫄깃하고 부드러운 식감, 매콤한
+                    양념 등이 호평받고 있습니다.
+                  </li>
+                  <li>
+                    푸짐한 양: 소자 메뉴로도 많은 양의 명태 조림을 제공하고 있어
+                    고객들의 만족도가 높습니다.
+                  </li>
+                  <li>
+                    친절한 서비스: 매장 직원들의 친절한 서비스가 고객 만족도를
+                    높이는 요인으로 나타났습니다.
+                  </li>
+                  <li>
+                    깔끔한 분위기: 깨끗하고 새로운 매장 분위기 역시 고객들의
+                    만족을 이끌어내고 있습니다.
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -279,14 +375,23 @@ const ReviewDashBoard: React.FC = () => {
               개선이 필요한 부분
             </h3>
             <ul className="list-disc pl-5 text-sm text-comment space-y-2">
-              <li>
-                매운맛 조절: 일부 고객들이 매운맛이 너무 강하다고 지적했습니다.
-                선호도에 따른 매운맛 조절이 필요할 것으로 보입니다.
-              </li>
-              <li>
-                공기밥 가격: 공기밥이 별도 요금으로 책정되어 있어 일부 고객들의
-                불만을 사고 있습니다.
-              </li>
+              {analysisData?.insights?.improvement_points ? (
+                analysisData.insights.improvement_points.map(
+                  (point: string, idx: number) => <li key={idx}>{point}</li>
+                )
+              ) : (
+                <>
+                  <li>
+                    매운맛 조절: 일부 고객들이 매운맛이 너무 강하다고
+                    지적했습니다. 선호도에 따른 매운맛 조절이 필요할 것으로
+                    보입니다.
+                  </li>
+                  <li>
+                    공기밥 가격: 공기밥이 별도 요금으로 책정되어 있어 일부
+                    고객들의 불만을 사고 있습니다.
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -296,23 +401,31 @@ const ReviewDashBoard: React.FC = () => {
               추천 운영 개선사항
             </h3>
             <ul className="list-disc pl-5 text-sm text-comment space-y-2">
-              <li>
-                {" "}
-                매운맛 옵션 제공: 매운맛을 선호하는 고객과 그렇지 않은 고객들의
-                needs를 충족시키기 위해 매운맛 옵션을 제공하는 것이 좋겠습니다.
-              </li>
-              <li>
-                공기밥 무료 제공: 고객 만족도 제고를 위해 공기밥 무료 제공을
-                고려해볼 수 있습니다.
-              </li>
-              <li>
-                신메뉴 개발: 고객들의 다양한 입맛을 충족시키기 위해 새로운 메뉴
-                개발도 검토해볼 필요가 있습니다.
-              </li>
-              <li>
-                친절 서비스 교육: 직원들의 친절 서비스 교육을 통해 고객 만족도를
-                지속적으로 높일 수 있습니다.
-              </li>
+              {analysisData?.insights?.recommendations ? (
+                analysisData.insights.recommendations.map(
+                  (point: string, idx: number) => <li key={idx}>{point}</li>
+                )
+              ) : (
+                <>
+                  <li>
+                    매운맛 옵션 제공: 매운맛을 선호하는 고객과 그렇지 않은
+                    고객들의 needs를 충족시키기 위해 매운맛 옵션을 제공하는 것이
+                    좋겠습니다.
+                  </li>
+                  <li>
+                    공기밥 무료 제공: 고객 만족도 제고를 위해 공기밥 무료 제공을
+                    고려해볼 수 있습니다.
+                  </li>
+                  <li>
+                    신메뉴 개발: 고객들의 다양한 입맛을 충족시키기 위해 새로운
+                    메뉴 개발도 검토해볼 필요가 있습니다.
+                  </li>
+                  <li>
+                    친절 서비스 교육: 직원들의 친절 서비스 교육을 통해 고객
+                    만족도를 지속적으로 높일 수 있습니다.
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>

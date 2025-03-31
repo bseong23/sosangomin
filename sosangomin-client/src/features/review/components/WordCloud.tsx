@@ -1,24 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-
-interface WordCloudProps {
-  words: Record<string, number>;
-  title?: string;
-  colors?: {
-    primary: string;
-    secondary: string;
-  };
-  maxWords?: number;
-  height?: string;
-}
-
-interface WordPosition {
-  x: number;
-  y: number;
-  fontSize: number;
-  opacity: number;
-  delay: number;
-}
+import { WordCloudProps, WordPosition } from "@/features/review/types/review";
 
 const WordCloud: React.FC<WordCloudProps> = ({
   words = {},

@@ -574,8 +574,6 @@ const FeatureSection: React.FC = () => {
     }
   };
 
-  const dummyHeight = window.innerHeight;
-
   return (
     <div className="relative" ref={featureSectionRef}>
       {/* 인트로 */}
