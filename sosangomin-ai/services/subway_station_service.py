@@ -26,11 +26,13 @@ class SubwayStationService:
             url = f"{self.base_url}/{self.subway_api_key}/json/{self.service_name}/1/1000/"
             logger.info(f"지하철역 API 호출 URL: {url}")
             
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
                 response.raise_for_status()
                 return await response.json()
         except Exception as e:
-            logger.error(f"지하철역 API 호출 중 오류 발생 : {e}")
+            import traceback
+            error_traceback = traceback.format_exc()
+            logger.error(f"API 호출 중 오류 발생: {str(e)}\n{error_traceback}")
             return {"error": str(e)}
 
     async def update_station_data(self):
