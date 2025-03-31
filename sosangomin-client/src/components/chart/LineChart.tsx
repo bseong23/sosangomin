@@ -1,5 +1,3 @@
-// src/components/LineChart.tsx
-
 import React from "react";
 import {
   Chart as ChartJS,
@@ -12,7 +10,6 @@ import {
   Legend
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { LineChartProps } from "@/types/chart";
 
 // Chart.js에 필요한 컴포넌트 등록
 ChartJS.register(
@@ -25,78 +22,145 @@ ChartJS.register(
   Legend
 );
 
+// 타입 정의
+interface LineChartProps {
+  title?: string;
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    tension?: number;
+    pointRadius?: number;
+    pointHoverRadius?: number;
+    borderWidth?: number;
+    fill?: boolean;
+  }[];
+  yAxisTitle?: string;
+}
+
 /**
- * LineChart 컴포넌트
- *
- * @component
- * @example
- * // 기본 사용법
- * const labels = ["월요일", "화요일", "수요일", "목요일", "금요일"];
- * const datasets = [
- *   {
- *     label: "일일 매출",
- *     data: [120, 145, 138, 156, 210],
- *     borderColor: "rgb(255, 99, 132)",
- *     backgroundColor: "rgba(255, 99, 132, 0.5)",
- *     tension: 0.3  // 선의 곡률 (0: 직선, 1: 최대 곡률)
- *   }
- * ];
- *
- * <LineChart
- *   title="매출 현황"
- *   labels={labels}
- *   datasets={datasets}
- *   yAxisTitle="금액 (만원)"
- * />
- *
- * @param {Object} props
- * @param {string} [props.title="Line Chart"] - 차트 상단에 표시될 제목
- * @param {string[]} props.labels - X축에 표시될 레이블 배열
- * @param {Object[]} props.datasets - 차트에 표시될 데이터셋 배열
- * @param {string} props.datasets[].label - 데이터셋 이름
- * @param {number[]} props.datasets[].data - 데이터 포인트 배열
- * @param {string} props.datasets[].borderColor - 선 색상
- * @param {string} props.datasets[].backgroundColor - 영역 채우기 색상
- * @param {number} [props.datasets[].tension] - 선의 곡률 (0-1)
- * @param {string} [props.yAxisTitle] - Y축 제목
- * @returns {JSX.Element} 라인 차트 컴포넌트
+ * 재사용 가능한 라인 차트 컴포넌트
  */
 const LineChart: React.FC<LineChartProps> = ({
-  title = "Line Chart",
+  title = "",
   labels,
   datasets,
   yAxisTitle
 }) => {
-  // 차트 옵션 설정
+  // 차트 옵션
   const options = {
-    responsive: true, // 반응형 차트 설정
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top" as const // 범례 위치
+        position: "top" as const,
+        labels: {
+          font: {
+            size: 12
+          },
+          boxWidth: 15,
+          padding: 15
+        }
       },
       title: {
-        display: !!title, // title이 있을 경우에만 표시
-        text: title
+        display: !!title,
+        text: title,
+        font: {
+          size: 16,
+          weight: "bold" as const
+        },
+        padding: 20
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 10,
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label +=
+                new Intl.NumberFormat("ko-KR").format(context.parsed.y) + "원";
+            }
+            return label;
+          }
+        }
       }
     },
     scales: {
+      x: {
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)"
+        },
+        ticks: {
+          font: {
+            size: 12
+          },
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 10
+        }
+      },
       y: {
-        beginAtZero: true, // Y축 0부터 시작
+        beginAtZero: true,
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)"
+        },
+        ticks: {
+          font: {
+            size: 12
+          },
+          callback: function (value: number) {
+            return new Intl.NumberFormat("ko-KR").format(value) + "원";
+          }
+        },
         title: {
-          display: !!yAxisTitle, // yAxisTitle이 있을 경우에만 표시
-          text: yAxisTitle
+          display: !!yAxisTitle,
+          text: yAxisTitle,
+          font: {
+            size: 13
+          },
+          padding: {
+            bottom: 10
+          }
         }
       }
+    },
+    interaction: {
+      mode: "index" as const,
+      intersect: false
+    },
+    animation: {
+      duration: 1000
     }
   };
 
-  // 차트 데이터 구성
+  // 차트 데이터
   const data = {
     labels,
     datasets
   };
 
-  return <Line options={options} data={data} />;
+  return (
+    <div style={{ width: "100%", height: "100%", minHeight: "300px" }}>
+      <Line
+        // @ts-ignore
+        options={options}
+        // @ts-ignore
+        data={data}
+      />
+    </div>
+  );
 };
 
 export default LineChart;

@@ -11,7 +11,7 @@ import { useAnalysisData } from "../../hooks/useAnalysisData";
 // import { useAnalysisPolling } from '@/features/analysis';
 // import { useLocation } from 'react-router-dom';
 
-const AlternateLayoutDashboard: React.FC = () => {
+const AnalysisDashboard: React.FC = () => {
   const { data, loading, error } = useAnalysisData();
 
   // TODO: 백엔드 API 연동 시 주석 해제
@@ -77,6 +77,8 @@ const AlternateLayoutDashboard: React.FC = () => {
     customer_avg: 47278.523489932886
   };
 
+  const basicStatsSummary = data?.result_data?.basic_stats?.summary || "";
+
   // 요일별 매출 데이터
   const weekdaySales = data?.result_data?.weekday_sales?.data || {
     Saturday: 3264000,
@@ -85,6 +87,8 @@ const AlternateLayoutDashboard: React.FC = () => {
     Tuesday: 1836000,
     Wednesday: 2637000
   };
+
+  const weekdaySalesSummary = data?.result_data?.weekday_sales?.summary || "";
 
   const weekdaySalesLabels = Object.keys(weekdaySales).map((day) => {
     const koreanDays: { [key: string]: string } = {
@@ -121,6 +125,8 @@ const AlternateLayoutDashboard: React.FC = () => {
     "20": 2155000
   };
 
+  const hourlySalesSummary = data?.result_data?.hourly_sales?.summary || "";
+
   const hourlySalesLabels = Object.keys(hourlySales).map((hour) => `${hour}시`);
   const hourlySalesDatasets = [
     {
@@ -140,6 +146,8 @@ const AlternateLayoutDashboard: React.FC = () => {
     "조림점심특선(중)": 1321000,
     "매콤명태조림(소)": 975000
   };
+
+  const topProductsSummary = data?.result_data?.top_products?.summary || "";
 
   const topProductsLabels = Object.keys(topProducts);
   const topProductsDatasets = [
@@ -163,6 +171,9 @@ const AlternateLayoutDashboard: React.FC = () => {
     저녁: 8553000,
     점심: 5510000
   };
+
+  const timePeriodSalesSummary =
+    data?.result_data?.time_period_sales?.summary || "";
 
   const timePeriodData = {
     labels: Object.keys(timePeriodSales),
@@ -191,6 +202,8 @@ const AlternateLayoutDashboard: React.FC = () => {
     휴일: 6967000
   };
 
+  const holidaySalesSummary = data?.result_data?.holiday_sales?.summary || "";
+
   const holidaySalesData = {
     labels: Object.keys(holidaySales),
     datasets: [
@@ -203,6 +216,16 @@ const AlternateLayoutDashboard: React.FC = () => {
       }
     ]
   };
+
+  // 시즌 매출 데이터
+  const seasonSales = data?.result_data?.season_sales?.data || {
+    봄: 14089000
+  };
+
+  const seasonSalesSummary = data?.result_data?.season_sales?.summary || "";
+
+  // 전체 요약
+  const overallSummary = data?.summary || "";
 
   // Legend 항목 생성 함수
   const formatLegendItems = (data: Record<string, number>) => {
@@ -227,48 +250,33 @@ const AlternateLayoutDashboard: React.FC = () => {
   const timePeriodLegendItems = formatLegendItems(timePeriodSales);
   const holidaySalesLegendItems = formatLegendItems(holidaySales);
 
-  // TODO: 백엔드 API 연동 시 주석 해제
-  // // API 응답에서 데이터를 처리하는 함수들
-  // const processAnalysisData = (apiData: any) => {
-  //   // 이 함수에서 API 응답 데이터를 대시보드에 맞게 변환합니다
-  //   // 예: apiData.eda_result, apiData.summaries 등에서 필요한 데이터 추출
-  //
-  //   // 시간별 매출 데이터 추출 예시
-  //   const extractedHourlySales = apiData?.eda_result?.hourly_sales || {};
-  //
-  //   // 요일별 매출 데이터 추출 예시
-  //   const extractedWeekdaySales = apiData?.eda_result?.weekday_sales || {};
-  //
-  //   // 기본 통계 데이터 추출 예시
-  //   const extractedBasicStats = {
-  //     total_sales: apiData?.summaries?.total_sales || 0,
-  //     avg_transaction: apiData?.summaries?.avg_transaction || 0,
-  //     total_transactions: apiData?.summaries?.total_transactions || 0,
-  //     unique_products: apiData?.summaries?.unique_products || 0
-  //   };
-  //
-  //   // 처리된 데이터 반환
-  //   return {
-  //     basicStats: extractedBasicStats,
-  //     hourlySales: extractedHourlySales,
-  //     weekdaySales: extractedWeekdaySales,
-  //     // ... 기타 필요한 데이터
-  //   };
-  // };
-
-  // // 실제 API 데이터가 있을 경우 처리된 데이터를 사용
-  // const processedData = currentAnalysis ? processAnalysisData(currentAnalysis) : null;
-
-  // // 처리된 API 데이터가 있으면 사용하고, 없으면 기존 데이터 사용
-  // const displayData = processedData || {
-  //   basicStats, weekdaySales, hourlySales, topProducts, timePeriodSales, holidaySales
-  // };
+  // 요약 텍스트 축약 함수
+  const truncateSummary = (summary: string, maxLength: number = 300) => {
+    if (!summary) return "";
+    return summary.length > maxLength
+      ? summary.substring(0, maxLength) + "..."
+      : summary;
+  };
 
   return (
-    <div className="bg-white">
+    <div>
       <div className="max-w-[1200px] mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-bold text-gray-800">지금 우리 가게는?</h1>
+          <h1 className="text-2xl font-bold text-comment">지금 우리 가게는?</h1>
+          <div className="text-sm text-comment-text">
+            최근 분석 일자:{" "}
+            {/* {new Date(data.created_at.$date).toLocaleDateString("ko-KR")} */}
+          </div>
+        </div>
+
+        {/* 전체 요약 섹션 */}
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold mb-3 text-comment">핵심 요약</h2>
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-comment">
+              {truncateSummary(overallSummary, 500)}
+            </p>
+          </div>
         </div>
 
         {/* 기본 통계 카드 */}
@@ -277,7 +285,7 @@ const AlternateLayoutDashboard: React.FC = () => {
             title="총 매출"
             value={basicStats.total_sales}
             subValue={`${basicStats.total_transactions}건의 거래`}
-            colorClass="text-blue-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="평균 거래 금액"
@@ -287,196 +295,284 @@ const AlternateLayoutDashboard: React.FC = () => {
             subValue={`고객당 평균 ₩${Math.round(
               basicStats.customer_avg
             ).toLocaleString("ko-KR")}`}
-            colorClass="text-green-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="총 거래 건수"
             value={`${basicStats.total_transactions}건`}
             subValue={`${basicStats.unique_products}개 고유 제품`}
-            colorClass="text-purple-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="시즌 매출"
             value={`봄 ₩${basicStats.total_sales.toLocaleString("ko-KR")}`}
             subValue="계절별 분석"
-            colorClass="text-amber-500"
+            colorClass="text-bit-main"
           />
         </div>
 
-        {/* 첫 번째 행 - 시간별 매출 (왼쪽 70%) + 다음달 예상 (오른쪽 30%) */}
-        <div className="flex flex-col lg:flex-row mb-6 gap-6">
-          <div className="w-full lg:w-[70%] bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">
-              우리 가게 시간별 매출액
+        {/* 기본 통계 요약 */}
+        <div className="bg-basic-white p-4 rounded-lg shadow-md mb-6">
+          <p className="text-sm text-comment">
+            {truncateSummary(basicStatsSummary)}
+          </p>
+        </div>
+
+        {/* 시간별 매출 */}
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            우리 가게 시간별 매출액
+          </h2>
+          <div
+            className="mb-4"
+            style={{ width: "100%", height: "350px", overflow: "hidden" }}
+          >
+            <LineChart
+              title=""
+              labels={hourlySalesLabels}
+              datasets={hourlySalesDatasets}
+              yAxisTitle="금액 (원)"
+            />
+          </div>
+          <div className="mt-2 mb-2">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                데이터 분석
+              </h3>
+              <p className="text-sm text-comment-text">
+                {truncateSummary(hourlySalesSummary)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 인기 메뉴 랭킹 */}
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            인기 메뉴 랭킹
+          </h2>
+          <div
+            className="mb-4"
+            style={{ width: "100%", height: "350px", overflow: "hidden" }}
+          >
+            <BarChart
+              labels={topProductsLabels}
+              datasets={topProductsDatasets}
+              horizontal={true}
+              yAxisLabel="금액 (원)"
+            />
+          </div>
+          <div className="mt-2 mb-2">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                메뉴 매출 분석
+              </h3>
+              <p className="text-sm text-comment-text">
+                {truncateSummary(topProductsSummary)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 요일별 매출 현황 */}
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            요일별 매출 현황
+          </h2>
+          <div
+            className="mb-4"
+            style={{ width: "100%", height: "350px", overflow: "hidden" }}
+          >
+            <BarChart
+              labels={weekdaySalesLabels}
+              datasets={weekdaySalesDatasets}
+            />
+          </div>
+          <div className="mt-2 mb-2">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                요일별 분석
+              </h3>
+              <p className="text-sm text-comment-text">
+                {truncateSummary(weekdaySalesSummary)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 평일/휴일 매출 비율 & 시간대별 매출 분석 */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              평일/휴일 매출 비율
             </h2>
-            <div className="h-90">
-              <LineChart
-                title=""
-                labels={hourlySalesLabels}
-                datasets={hourlySalesDatasets}
-                yAxisTitle="금액 (원)"
-              />
-            </div>
-          </div>
-          <div className="w-full lg:w-[30%] bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">다음달 예상 매출액</h2>
-            <div className="p-4 bg-blue-50 rounded-lg h-60 flex flex-col justify-center">
-              <p className="text-center text-blue-700 font-medium mb-2">
-                다음 달 예상 매출액은
-              </p>
-              <p className="text-center text-blue-800 text-2xl font-bold mb-2">
-                약 ₩15,800,000원
-              </p>
-              <p className="text-center text-blue-600 text-sm">
-                이상적인 부성장 그래프를 그리고 있으니 유지하는 것 목표로
-                해봐요!
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 두 번째 행 - 상위 제품 (왼쪽 70%) + 매출 요약 (오른쪽 30%) */}
-        <div className="flex flex-col lg:flex-row mb-6 gap-6">
-          <div className="w-full lg:w-[70%] order-1 lg:order-1 bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">인기 메뉴 랭킹</h2>
-            <div className="h-60">
-              <BarChart
-                labels={topProductsLabels}
-                datasets={topProductsDatasets}
-                height={250}
-                horizontal={true}
-                yAxisLabel="금액 (원)"
-              />
-            </div>
-          </div>
-          <div className="w-full lg:w-[30%] order-2 lg:order-2 bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">메뉴 매출 분석</h2>
-            <div className="p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                공기밥이 3,025,000원으로 가장 높은 매출을 기록했으며, 이는 전체
-                매출의 약 21.5%입니다.
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                소주와 조림점심특선이 각각 2위와 3위를 차지했습니다.
-              </p>
-              <p className="text-sm text-gray-700">
-                상위 5개 제품이 전체 매출의 약 60%를 차지합니다.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 세 번째 행 - 요일별 매출 (왼쪽 70%) + 요약 (오른쪽 30%) */}
-        <div className="flex flex-col lg:flex-row mb-6 gap-6">
-          <div className="w-full lg:w-[30%] bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">요일별 분석</h2>
-            <div className="p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                일요일이 3,703,000원으로 가장 높은 매출을 기록했습니다.
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                주말(토, 일)에 전체 매출의 약 49.5%가 발생했습니다.
-              </p>
-              <p className="text-sm text-gray-700">
-                화요일이 1,836,000원으로 가장 낮은 매출을 보였습니다.
-              </p>
-            </div>
-          </div>
-          <div className="w-full lg:w-[70%] bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">요일별 매출 현황</h2>
-            <div className="h-60">
-              <BarChart
-                labels={weekdaySalesLabels}
-                datasets={weekdaySalesDatasets}
-                height={240}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 네 번째 행 - 평일/휴일 매출 (왼쪽 70%) + 시간대별 분석 (오른쪽 30%) */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="w-full lg:w-[70%] order-1 lg:order-1 bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">평일/휴일 매출 비율</h2>
-            <div className="flex items-center justify-between">
-              <div className="w-1/2 h-full">
+            <div
+              className="flex justify-center items-center mb-4"
+              style={{ height: "220px" }}
+            >
+              <div style={{ width: "200px", height: "200px" }}>
                 <DoughnutChart chartData={holidaySalesData} />
               </div>
-              <div className="w-1/2 px-4">
+            </div>
+            <div className="mt-2">
+              <div className="grid grid-cols-2 gap-2 mb-2">
                 {holidaySalesLegendItems.map((item, idx) => (
-                  <div className="mb-3" key={idx}>
-                    <div className="flex items-center">
-                      <div
-                        className={`w-4 h-4 ${item.color} mr-2 rounded-sm`}
-                      ></div>
-                      <div className="text-sm">
-                        {item.label}: {item.value}
-                      </div>
+                  <div
+                    className="flex items-center px-2 py-1 bg-gray-50 rounded"
+                    key={idx}
+                  >
+                    <div
+                      className={`w-3 h-3 ${item.color} mr-2 rounded-sm`}
+                    ></div>
+                    <div className="text-xs text-comment-text">
+                      {item.label}: {item.value}
                     </div>
                   </div>
                 ))}
-                <p className="text-sm text-gray-600 mt-2">
-                  평일과 휴일 매출이 비슷한 수준으로 균형적인 분포를 보입니다.
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-comment-text">
+                  {truncateSummary(holidaySalesSummary, 150)}
                 </p>
               </div>
             </div>
           </div>
-          <div className="w-full lg:w-[30%] order-2 lg:order-2 bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">시간대별 매출 분석</h2>
-            <div className="p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                저녁 시간대 매출이 8,553,000원으로 전체의 60.7%를 차지합니다.
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                점심 시간대 매출은 5,510,000원(39.1%)입니다.
-              </p>
-              <p className="text-sm text-gray-700">
-                19시에 최고 매출 3,603,000원을 기록했습니다.
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* 다섯 번째 행 - 시간대별 매출 (왼쪽 70%) + 분석 (오른쪽 30%) */}
-        <div className="flex flex-col lg:flex-row mt-6 gap-6">
-          <div className="w-full lg:w-[30%] bg-white p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">영업 전략 제안</h2>
-            <div className="p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                저녁 시간대 매출 비중이 높으므로 저녁 메뉴 다양화를
-                고려해보세요.
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                주말 매출이 높은 점을 활용하여 주말 특별 메뉴나 이벤트를
-                추가해보세요.
-              </p>
-              <p className="text-sm text-gray-700">
-                화요일 매출 증대를 위한 '화요일 특가' 프로모션을 고려해보세요.
-              </p>
-            </div>
-          </div>
-          <div className="w-full lg:w-[70%]  bg-white p-10 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-2">
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
               식사 시간대별 매출 비율
             </h2>
-            <div className="flex items-center justify-between">
-              <div className="w-1/2 px-4">
+            <div
+              className="flex justify-center items-center mb-4"
+              style={{ height: "220px" }}
+            >
+              <div style={{ width: "200px", height: "200px" }}>
+                <PieChart chartData={timePeriodData} />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="grid grid-cols-2 gap-2 mb-2">
                 {timePeriodLegendItems.map((item, idx) => (
-                  <div className="mb-3" key={idx}>
-                    <div className="flex items-center">
-                      <div
-                        className={`w-4 h-4 ${item.color} mr-2 rounded-sm`}
-                      ></div>
-                      <div className="text-sm">
-                        {item.label}: {item.value}
-                      </div>
+                  <div
+                    className="flex items-center px-2 py-1 bg-gray-50 rounded"
+                    key={idx}
+                  >
+                    <div
+                      className={`w-3 h-3 ${item.color} mr-2 rounded-sm`}
+                    ></div>
+                    <div className="text-xs text-comment-text">
+                      {item.label}: {item.value}
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="w-1/2 h-full">
-                <PieChart chartData={timePeriodData} />
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-comment-text">
+                  {truncateSummary(timePeriodSalesSummary, 150)}
+                </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 시즌 매출 & 영업 전략 제안 */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              시즌별 매출 분석
+            </h2>
+            <div className="p-4 mb-4">
+              {Object.entries(seasonSales).map(([season, amount], idx) => (
+                <div key={idx} className="mb-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="font-medium text-comment">{season}</span>
+                    <span className="text-comment">
+                      ₩{amount.toLocaleString("ko-KR")}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-bit-main h-2.5 rounded-full w-full"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-comment-text">
+                {truncateSummary(seasonSalesSummary, 200)}
+              </p>
+            </div>
+          </div>
+
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              영업 전략 제안
+            </h2>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
+                    1
+                  </div>
+                  <p className="text-sm text-comment">
+                    주말(토,일) 매출 강세를 활용한 주말 특별 메뉴나 이벤트
+                    기획을 고려해보세요.
+                  </p>
+                </li>
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
+                    2
+                  </div>
+                  <p className="text-sm text-comment">
+                    저녁 시간대(특히 19시) 매출이 가장 높으므로, 저녁 시간
+                    서비스 품질 향상과 메뉴 다양화에 집중하세요.
+                  </p>
+                </li>
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
+                    3
+                  </div>
+                  <p className="text-sm text-comment">
+                    화요일 매출 증대를 위한 '화요일 특가' 프로모션이나 마케팅
+                    활동을 고려해보세요.
+                  </p>
+                </li>
+                <li className="flex items-start">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
+                    4
+                  </div>
+                  <p className="text-sm text-comment">
+                    매출이 낮은 오후 시간대(특히 15-16시)에 특별 할인이나 세트
+                    메뉴를 도입해보세요.
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* 다음달 예상 매출 */}
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            다음달 예상 매출액
+          </h2>
+          <div className="p-8 bg-blue-50 rounded-lg flex flex-col items-center justify-center">
+            <div className="w-full max-w-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-comment">이번달 매출</span>
+                <span className="font-medium text-comment">₩14,089,000</span>
+              </div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-comment">예상 성장률</span>
+                <span className="text-green-600 font-medium">+12.1%</span>
+              </div>
+              <div className="bg-basic-white p-6 rounded-lg shadow text-center mb-4">
+                <p className="text-comment-text mb-2">다음달 예상 매출액</p>
+                <p className="text-bit-main text-3xl font-bold">₩15,800,000</p>
+              </div>
+              <p className="text-center text-sm text-comment-text">
+                이상적인 성장 그래프를 그리고 있으니 현재 전략을 유지하는 것을
+                목표로 해보세요!
+              </p>
             </div>
           </div>
         </div>
@@ -485,4 +581,4 @@ const AlternateLayoutDashboard: React.FC = () => {
   );
 };
 
-export default AlternateLayoutDashboard;
+export default AnalysisDashboard;
