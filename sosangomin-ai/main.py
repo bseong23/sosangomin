@@ -59,14 +59,19 @@ def read_root():
 
 @app.on_event("startup")
 async def startup_event():
-    start_news_scheduler()
-    logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
+    is_main_process = int(os.environ.get("GUNICORN_WORKER_ID", "0")) == 0
+    
+    if is_main_process:
+        start_news_scheduler()
+        logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
 
-    start_population_scheduler()
-    logger.info("상주/직장 인구 스케줄링 완료")
+        start_population_scheduler()
+        logger.info("상주/직장 인구 스케줄링 완료")
 
-    start_subway_station_scheduler()
-    logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+        start_subway_station_scheduler()
+        logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+    else:
+        logger.info(f"워커 프로세스 {os.environ.get('GUNICORN_WORKER_ID')} 시작됨. 스케줄러는 메인 프로세스에서만 실행됩니다.")
 
 @app.on_event("shutdown")
 async def shutdown_event():
