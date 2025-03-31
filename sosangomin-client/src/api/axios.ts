@@ -28,32 +28,32 @@ axiosInstance.interceptors.request.use(
 );
 
 // 응답 인터셉터 - 유효하지 않은 토큰 처리
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    //     // if (error.response?.status === 401) {
-    //     //   // 로컬 스토리지 데이터 삭제
-    //     //   clearAuthData();
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   async (error: AxiosError) => {
+//     //     // if (error.response?.status === 401) {
+//     //     //   // 로컬 스토리지 데이터 삭제
+//     //     //   clearAuthData();
 
-    //     //   // Zustand 스토어 직접 접근
-    //     //   useAuthStore.getState().clearUserInfo();
+//     //     //   // Zustand 스토어 직접 접근
+//     //     //   useAuthStore.getState().clearUserInfo();
 
-    //     //   // 로그인 페이지로 리다이렉트
-    //     //   window.location.href = "/login";
-    //     // }
+//     //     //   // 로그인 페이지로 리다이렉트
+//     //     //   window.location.href = "/login";
+//     //     // }
 
-    if (error.code === "ERR_NETWORK" || !error.response) {
-      clearAuthData();
+//     if (error.code === "ERR_NETWORK" || !error.response) {
+//       clearAuthData();
 
-      useAuthStore.getState().clearUserInfo();
+//       useAuthStore.getState().clearUserInfo();
 
-      window.location.href = "/login";
+//       window.location.href = "/login";
 
-      console.log("네트워크 에러 발생:", error.message);
-    }
+//       console.log("네트워크 에러 발생:", error.message);
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default axiosInstance;
