@@ -18,7 +18,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   };
 
   return (
-    <div className="absolute max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:h-[80%] md:top-9 md:left-8 md:h-[90%] md:w-88 bg-white shadow-lg rounded-lg z-20 font-inter">
+    <div className="absolute max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:h-[80%] md:top-9 md:left-8 md:h-[90%] md:w-88 bg-white shadow-lg rounded-lg z-20">
       {/* 닫기 버튼 */}
       <button
         onClick={onClose}

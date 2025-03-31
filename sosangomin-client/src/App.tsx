@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import Layout from "@/components/layouts/Layout";
 import MobileLayout from "@/components/layouts/MobileLayout";
@@ -37,6 +42,11 @@ import ServiceReview from "@/pages/ServiceReview";
 import ServiceMap from "@/pages/ServiceMap";
 import NoticePostEditPage from "./pages/NoticePostEditPage";
 
+const PrivateRoute = ({ element }: { element: any }) => {
+  const isLoggedIn = Boolean(localStorage.getItem("accessToken")); // 토큰 여부 확인
+  return isLoggedIn ? element : <Navigate to="/login" />;
+};
+
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1280);
 
@@ -68,7 +78,10 @@ const App: React.FC = () => {
           />
           <Route path="/signup" element={<SignupPages />} />
           <Route path="/password" element={<ResetPasswordPage />} />
-          <Route path="/mypage" element={<MyPage />} />
+          <Route
+            path="/mypage"
+            element={<PrivateRoute element={<MyPage />} />}
+          />
 
           {/* 커뮤니티 관련 라우트 */}
           <Route path="/community/notice" element={<Notice />} />
@@ -76,18 +89,24 @@ const App: React.FC = () => {
             path="/community/notice/post/:noticeId"
             element={<NoticePostDetailPage />}
           />
-          <Route path="/community/notice/write" element={<NoticePost />} />
+          <Route
+            path="/community/notice/write"
+            element={<PrivateRoute element={<NoticePost />} />}
+          />
           <Route
             path="/community/notice/edit/:noticeId"
-            element={<NoticePostEditPage />}
+            element={<PrivateRoute element={<NoticePostEditPage />} />}
           />
 
           <Route path="/community/news" element={<News />} />
           <Route path="/community/board" element={<Board />} />
-          <Route path="/community/board/write" element={<WritePost />} />
+          <Route
+            path="/community/board/write"
+            element={<PrivateRoute element={<WritePost />} />}
+          />
           <Route
             path="/community/board/edit/:boardId"
-            element={<BoardPostEditPage />}
+            element={<PrivateRoute element={<BoardPostEditPage />} />}
           />
           <Route
             path="/community/board/post/:boardId"
@@ -95,16 +114,31 @@ const App: React.FC = () => {
           />
 
           {/* 데이터 분석 관련 라우트 */}
-          <Route path="/data-analysis/upload" element={<DataUploadPage />} />
-          <Route path="/data-analysis/research" element={<ResearchPage />} />
-          <Route path="/map" element={<Map />} />
+          <Route
+            path="/data-analysis/upload"
+            element={<PrivateRoute element={<DataUploadPage />} />}
+          />
+          <Route
+            path="/data-analysis/research"
+            element={<PrivateRoute element={<ResearchPage />} />}
+          />
+          <Route path="/map" element={<PrivateRoute element={<Map />} />} />
 
           {/* 리뷰 관련 라우트 */}
-          <Route path="/review/store" element={<ReviewStore />} />
-          <Route path="/review/compare" element={<ReviewCompare />} />
+          <Route
+            path="/review/store"
+            element={<PrivateRoute element={<ReviewStore />} />}
+          />
+          <Route
+            path="/review/compare"
+            element={<PrivateRoute element={<ReviewCompare />} />}
+          />
 
           {/* 종합보고소 및 서비스 소개 관련 라우트 */}
-          <Route path="/result" element={<ResultPage />} />
+          <Route
+            path="/result"
+            element={<PrivateRoute element={<ResultPage />} />}
+          />
           <Route path="/service_data" element={<ServiceData />} />
           <Route path="/service_review" element={<ServiceReview />} />
           <Route path="/service_map" element={<ServiceMap />} />

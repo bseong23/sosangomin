@@ -1,10 +1,12 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { MapSidebarProps } from "@/features/map/types/map";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import BarChart from "@/components/chart/BarChart";
+import AnalysisModal from "@/features/map/components/maps/AnalysisModal";
 
 const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [chartData] = React.useState({
     labels: ["10대", "20대", "30대", "40대", "50대 이상"],
@@ -43,14 +45,24 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
     }
   ];
 
+  // 모달 열기 함수
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // 모달 닫기 함수
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   // 컨테이너 크기 조정을 위한 useEffect
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (containerRef.current) {
-        // 필요한 경우 컨테이너 크기 조정 로직
         const parentHeight =
-          containerRef.current.parentElement?.clientHeight || 0;
-        containerRef.current.style.maxHeight = `${parentHeight - 20}px`; // 여백 고려
+          containerRef.current.parentElement?.clientHeight ||
+          window.innerHeight;
+        containerRef.current.style.maxHeight = `${parentHeight - 20}px`;
       }
     });
 
@@ -68,24 +80,26 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
   return (
     <div
       ref={containerRef}
-      className="p-6 overflow-y-auto"
-      style={{
-        maxHeight: "calc(100vh - 73px)", // 헤더 높이(73px) 고려
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 0, // flex 컨테이너 내에서 스크롤 가능하게 함
-        minWidth: 0
-      }}
+      className="p-5 overflow-y-auto flex flex-col max-h-[calc(100vh-73px)] min-h-0 min-w-0"
     >
       {/* 헤더 섹션 */}
-      <div className="mb-6 relative flex-shrink-0">
-        <h2 className="text-lg font-bold">내 주변 상권은?</h2>
-        <div>{selectedAdminName}</div>
+      <div className="mb-4 flex-shrink-0">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-bold">내 주변 상권은?</h2>
+          <button
+            onClick={openModal}
+            className="px-3 py-1 text-sm text-gray-600 hover:text-blue-900 cursor-pointer"
+          >
+            상세 보기
+          </button>
+        </div>
       </div>
 
       {/* 인구 분포도 섹션 */}
       <div className="mb-6 flex-shrink-0">
-        <h3 className="text-lg font-semibold mb-2">인구 분포도</h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold">인구 분포도</h3>
+        </div>
         <div className="w-full h-full">
           <DoughnutChart chartData={chartData} />
         </div>
@@ -93,7 +107,9 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
 
       {/* 상권 분포도 섹션 */}
       <div className="mb-6 flex-shrink-0">
-        <h3 className="text-lg font-semibold mb-2">상권 분포도</h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold">상권 분포도</h3>
+        </div>
         <BarChart
           labels={barLabels}
           datasets={barDatasets}
@@ -106,6 +122,13 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
           animation={true}
         />
       </div>
+
+      {/* 모달 컴포넌트 */}
+      <AnalysisModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedAdminName={selectedAdminName as string | undefined}
+      />
     </div>
   );
 };

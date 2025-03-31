@@ -13,7 +13,7 @@ const MapPage: React.FC = () => {
   const [showLegend, setShowLegend] = useState(true); // 초기값을 true로 변경
   const [isMobile, setIsMobile] = useState(false);
   const [selectedAdminName, setSelectedAdminName] = useState<string | null>(
-    null
+    "역삼2동"
   ); // 선택된 행정동 이름 상태 추가
   // 모바일 화면 감지
   useEffect(() => {

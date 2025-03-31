@@ -43,7 +43,7 @@ const Layout: React.FC = () => {
   return (
     <div className="flex flex-col">
       {showHeader && (
-        <div className="fixed top-0 left-0 w-full z-50">
+        <div className="fixed top-0 left-0 w-full z-48">
           <Header />
         </div>
       )}
