@@ -79,4 +79,4 @@ cloud:
       auto: false
 
 fastapi:
-  base-url: ${FASTAPI_URL:http://localhost:8000}
+  base-url: ${FASTAPI_URL}
