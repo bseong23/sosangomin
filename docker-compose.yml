@@ -3,8 +3,6 @@ version: '3.8'
 services:
   # Spring
   spring-app:
-    env_file:
-      - ./env/spring-app.env
     build:
       context: ./sosangomin-server
       dockerfile: Dockerfile
@@ -32,8 +30,6 @@ services:
 
   # FastAPI
   fastapi-app:
-    env_file:
-      - ./env/fastapi-app.env
     build:
       context: ./sosangomin-ai
       dockerfile: Dockerfile
