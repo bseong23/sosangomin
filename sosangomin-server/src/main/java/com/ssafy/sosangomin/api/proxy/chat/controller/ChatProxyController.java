@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.security.Principal;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/proxy/chat")
@@ -23,8 +25,9 @@ public class ChatProxyController implements ChatSwagger {
     private final ChatProxyService chatProxyService;
 
     @PostMapping
-    public Mono<ChatResponse> chat(@RequestBody ChatRequest request) {
+    public ChatResponse chat(@RequestBody ChatRequest request, Principal principal) {
+        Long userId = Long.parseLong(principal.getName());
         log.info("Received chat request: {}", request);
-        return chatProxyService.processChatRequest(request);
+        return chatProxyService.processChatRequest(request, userId).block();
     }
 }

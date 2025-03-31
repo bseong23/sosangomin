@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Mono;
 
+import java.security.Principal;
+
 public interface ChatSwagger {
 
     @Operation(
@@ -70,5 +72,5 @@ public interface ChatSwagger {
                     )
             }
     )
-    Mono<ChatResponse> chat(@RequestBody ChatRequest request);
+    ChatResponse chat(@RequestBody ChatRequest request, Principal principal);
 }

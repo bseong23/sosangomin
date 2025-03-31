@@ -75,7 +75,7 @@ public interface CompetitorSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getStoreComparisonList(
+    ResponseEntity<Object> getStoreComparisonList(
             @Parameter(description = "매장 ID") @PathVariable int storeId);
 
     @Operation(
@@ -122,7 +122,7 @@ public interface CompetitorSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> oneClickAnalyzeCompetitor(@RequestBody CompetitorAnalysisRequest request);
+    ResponseEntity<Object> oneClickAnalyzeCompetitor(@RequestBody CompetitorAnalysisRequest request);
 
     @Operation(
             summary = "비교 분석 결과 조회",
@@ -182,6 +182,6 @@ public interface CompetitorSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getComparisonResult(
+    ResponseEntity<Object> getComparisonResult(
             @Parameter(description = "비교 분석 결과 ID") @PathVariable String comparisonId);
 }

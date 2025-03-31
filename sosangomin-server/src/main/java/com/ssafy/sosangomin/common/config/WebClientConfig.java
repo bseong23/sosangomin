@@ -1,4 +1,4 @@
-package com.ssafy.sosangomin.config;
+package com.ssafy.sosangomin.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -60,7 +60,7 @@ public interface AnalysisSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request);
+    ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request);
 
     @Operation(
             summary = "분석 결과 조회",
@@ -120,8 +120,55 @@ public interface AnalysisSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getAnalysisResult(
+    ResponseEntity<Object> getAnalysisResult(
             @Parameter(description = "분석 결과 ID") @PathVariable String analysisId);
+
+    @Operation(
+            summary = "데이터소스별 분석 결과 목록 조회",
+            description = "특정 데이터소스의 모든 분석 결과를 조회합니다"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Object.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"유효하지 않은 데이터소스 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_SOURCE_ID\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"EDA 결과 목록 조회 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_ANALYSIS_RESULTS_LIST_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<Object> getAnalysisResultsBySource(
+            @Parameter(description = "데이터소스 ID") @RequestParam String sourceId);
 
     @Operation(
             summary = "최신 분석 결과 조회",
@@ -181,6 +228,6 @@ public interface AnalysisSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getLatestAnalysisResult(
+    ResponseEntity<Object> getLatestAnalysisResult(
             @Parameter(description = "데이터소스 ID") @RequestParam String sourceId);
 }

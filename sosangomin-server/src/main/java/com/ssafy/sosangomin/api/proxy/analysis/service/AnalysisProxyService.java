@@ -81,6 +81,37 @@ public class AnalysisProxyService {
                 .bodyToMono(Object.class);
     }
 
+    public Mono<Object> getAnalysisResultsBySource(String sourceId) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/eda/results")
+                        .queryParam("source_id", sourceId)
+                        .build())
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("Error from FastAPI get results by source: {}", errorBody);
+
+                                    if (response.statusCode().is4xxClientError()) {
+                                        if (errorBody.contains("유효하지 않은 데이터소스 ID")) {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_SOURCE_ID));
+                                        } else {
+                                            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_QUERY_PARAMETER));
+                                        }
+                                    } else {
+                                        if (errorBody.contains("EDA 결과 목록 조회 중 오류")) {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_ANALYSIS_RESULTS_LIST_ERROR));
+                                        } else {
+                                            return Mono.error(new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_DECRYPTION_ERROR));
+                                        }
+                                    }
+                                })
+                )
+                .bodyToMono(Object.class);
+    }
+
     public Mono<Object> getLatestAnalysisResult(String sourceId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder

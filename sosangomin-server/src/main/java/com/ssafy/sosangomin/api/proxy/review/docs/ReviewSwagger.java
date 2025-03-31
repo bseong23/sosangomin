@@ -60,7 +60,7 @@ public interface ReviewSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest request);
+    ResponseEntity<Object> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest request);
 
     @Operation(
             summary = "매장 리뷰 분석 목록 조회",
@@ -106,7 +106,7 @@ public interface ReviewSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getStoreReviewsList(
+    ResponseEntity<Object> getStoreReviewsList(
             @Parameter(description = "매장 ID") @PathVariable int storeId);
 
     @Operation(
@@ -167,6 +167,6 @@ public interface ReviewSwagger {
                     )
             }
     )
-    Mono<ResponseEntity<Object>> getReviewAnalysis(
+    ResponseEntity<Object> getReviewAnalysis(
             @Parameter(description = "분석 결과 ID") @PathVariable String analysisId);
 }

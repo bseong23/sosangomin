@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,10 +23,18 @@ public class ChatProxyService {
 
     private final WebClient webClient;
 
-    public Mono<ChatResponse> processChatRequest(ChatRequest request) {
+    public Mono<ChatResponse> processChatRequest(ChatRequest request, Long userId) {
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("user_id", userId);
+        requestBody.put("message", request.message());
+        Optional.ofNullable(request.sessionId())
+                .ifPresent(sessionId -> requestBody.put("session_id", sessionId));
+        requestBody.put("store_id", request.storeId());
+
         return webClient.post()
                 .uri("/api/chat")
-                .bodyValue(request)
+                .bodyValue(requestBody)
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),
