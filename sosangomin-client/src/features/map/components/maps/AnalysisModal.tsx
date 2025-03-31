@@ -1,12 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AnalysisModalProps } from "@/features/map/types/map";
 import { createPortal } from "react-dom";
+
+// 탭별 컴포넌트 import
+import PopulationTab from "@/features/map/components/maps/PopulationTab ";
+import BusinessTab from "@/features/map/components/maps/BusinessTab ";
+import EtcTab from "@/features/map/components/maps/EtcTab ";
+
 const AnalysisModal: React.FC<AnalysisModalProps> = ({
   isOpen,
   onClose,
-  title,
   selectedAdminName
 }) => {
+  const [activeTab, setActiveTab] = useState<"인구" | "상권" | "기타">("인구");
+
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -14,24 +21,60 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscKey);
-      document.body.style.overflow = "hidden"; // 스크롤 방지
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscKey);
-      document.body.style.overflow = "auto"; // 원래 상태로 복구
+      document.body.style.overflow = "auto";
     };
   }, [isOpen, onClose]);
+
+  // 현재 활성화된 탭에 따라 다른 컴포넌트를 렌더링
+  const renderContent = () => {
+    switch (activeTab) {
+      case "인구":
+        return <PopulationTab selectedAdminName={selectedAdminName} />;
+      case "상권":
+        return <BusinessTab selectedAdminName={selectedAdminName} />;
+      case "기타":
+        return <EtcTab selectedAdminName={selectedAdminName} />;
+      default:
+        return null;
+    }
+  };
 
   if (!isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-white h-[80%] w-[90%] rounded-lg shadow-xl overflow-hidden">
+      {/* 모달 컨테이너 */}
+      <div className="bg-white h-[80%] w-[90%] mx-auto rounded-lg shadow-xl overflow-hidden">
+        {/* 모달 헤더 */}
         <div className="flex justify-between items-center border-b px-6 py-4">
-          {selectedAdminName && (
+          {/* 선택된 지역 이름 */}
+          <div className="flex items-center gap-4">
             <p className="font-medium">{selectedAdminName}</p>
-          )}
+
+            {/* 탭 버튼 */}
+            <div className="flex gap-2">
+              {(["인구", "상권", "기타"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-lg ${
+                    activeTab === tab
+                      ? "bg-bit-main text-white"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 닫기 버튼 */}
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -52,8 +95,10 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
             </svg>
           </button>
         </div>
-        <div className="px-6 py-4">
-          <p>인구 분포 상세 정보를 여기에 표시합니다.</p>
+
+        {/* 모달 본문 */}
+        <div className="px-6 py-4 h-[calc(100%-80px)] overflow-y-auto">
+          {renderContent()}
         </div>
       </div>
     </div>,

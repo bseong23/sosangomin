@@ -67,3 +67,7 @@ export interface ModalProps {
 export interface AnalysisModalProps extends ModalProps {
   selectedAdminName?: string;
 }
+
+export interface TabProps {
+  selectedAdminName?: string;
+}

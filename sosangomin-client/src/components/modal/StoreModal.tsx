@@ -1,24 +1,7 @@
 import React from "react";
 import SearchableMap from "./SearchableMap";
 import useStoreModalStore from "@/store/storeModalStore";
-
-interface StoreModalProps {
-  onSubmit?: (storeData: StoreData) => void;
-}
-
-interface LocationInfo {
-  address: string;
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-interface StoreData {
-  name: string;
-  description: string;
-  businessNumber: string;
-  location: LocationInfo | null;
-}
+import { StoreModalProps, LocationInfo } from "@/types/store";
 
 const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
   const {

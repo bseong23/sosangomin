@@ -127,7 +127,6 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
       <AnalysisModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title="인구 분포 상세 정보"
         selectedAdminName={selectedAdminName as string | undefined}
       />
     </div>
