@@ -165,15 +165,15 @@ class Store(Base):
     store_name = Column(String(255), nullable=False)
     address = Column(String(255), nullable=False)
     place_id = Column(String(100), nullable=False)
-    phone = Column(String(20))
     category = Column(String(100))
     review_count = Column(Integer)
-    business_hours = Column(Text)
     latitude = Column(Float)
     longitude = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    post_type = Column(String(255))
+    pos_type = Column(String(255))
+    business_number = Column(String(12), nullable=True, comment="사업자등록번호")
+    is_verified = Column(Boolean, default=False, nullable=False, comment="사업자번호 인증 여부")
     
 class SubwayStation(Base):
     __tablename__ = "subway_stations"

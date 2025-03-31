@@ -382,8 +382,7 @@ class EdaService:
         try:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             cursor = analysis_results.find({
-                "source_id": ObjectId(source_id),
-                "analysis_type": "eda"  
+                "source_id": ObjectId(source_id)
             }).sort("created_at", -1)
             
             results = []
