@@ -13,7 +13,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Zustand 스토어에서 유저 정보 가져오기
-  const userInfo = useAuthStore((state) => state.userInfo);
+  const { userInfo, clearUserInfo } = useAuthStore();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -39,6 +39,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   // 로그아웃 처리
   const handleLogout = () => {
     clearAuthData();
+    clearUserInfo();
     window.location.href = "/";
   };
 

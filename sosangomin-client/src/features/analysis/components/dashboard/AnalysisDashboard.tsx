@@ -6,8 +6,55 @@ import PieChart from "@/components/chart/PieChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import { useAnalysisData } from "../../hooks/useAnalysisData";
 
+// TODO: 백엔드 API 연동 시 주석 해제
+// import { useAnalysisStore } from '@/features/analysis';
+// import { useAnalysisPolling } from '@/features/analysis';
+// import { useLocation } from 'react-router-dom';
+
 const AlternateLayoutDashboard: React.FC = () => {
   const { data, loading, error } = useAnalysisData();
+
+  // TODO: 백엔드 API 연동 시 주석 해제
+  // const location = useLocation();
+  // const { currentAnalysis, isLoading: analysisLoading, error: analysisError, fetchAnalysisResult } = useAnalysisStore();
+
+  // 라우팅으로 전달받은 분석 ID가 있는지 확인
+  // useEffect(() => {
+  //   // URL 쿼리 파라미터나 state에서 분석 ID 가져오기
+  //   const searchParams = new URLSearchParams(location.search);
+  //   const analysisId = searchParams.get('analysis_id') ||
+  //                     (location.state && location.state.analysisId);
+  //
+  //   if (analysisId) {
+  //     // 분석 결과 조회
+  //     fetchAnalysisResult(analysisId);
+  //   }
+  // }, [location, fetchAnalysisResult]);
+
+  // 폴링을 통한 분석 상태 확인 (백엔드 API 연동 시 주석 해제)
+  // const { analysisState, startPolling } = useAnalysisPolling(
+  //   location.state?.analysisId,
+  //   { pollingInterval: 3000, maxAttempts: 100 }
+  // );
+
+  // 분석 ID가 있으면 폴링 시작
+  // useEffect(() => {
+  //   const analysisId = location.state?.analysisId;
+  //   if (analysisId) {
+  //     startPolling();
+  //   }
+  // }, [location.state, startPolling]);
+
+  // TODO: 백엔드 API 연동 시 replace
+  // const loadingState = loading;
+  // const errorState = error;
+  // const dataState = data;
+
+  // TODO: 백엔드 API 연동 시 주석 해제
+  // // 폴링 또는 단일 요청의 결과를 사용
+  // const loadingState = analysisState.isLoading || analysisLoading;
+  // const errorState = analysisState.error || analysisError;
+  // const dataState = analysisState.data || currentAnalysis;
 
   if (loading)
     return (
@@ -179,6 +226,43 @@ const AlternateLayoutDashboard: React.FC = () => {
 
   const timePeriodLegendItems = formatLegendItems(timePeriodSales);
   const holidaySalesLegendItems = formatLegendItems(holidaySales);
+
+  // TODO: 백엔드 API 연동 시 주석 해제
+  // // API 응답에서 데이터를 처리하는 함수들
+  // const processAnalysisData = (apiData: any) => {
+  //   // 이 함수에서 API 응답 데이터를 대시보드에 맞게 변환합니다
+  //   // 예: apiData.eda_result, apiData.summaries 등에서 필요한 데이터 추출
+  //
+  //   // 시간별 매출 데이터 추출 예시
+  //   const extractedHourlySales = apiData?.eda_result?.hourly_sales || {};
+  //
+  //   // 요일별 매출 데이터 추출 예시
+  //   const extractedWeekdaySales = apiData?.eda_result?.weekday_sales || {};
+  //
+  //   // 기본 통계 데이터 추출 예시
+  //   const extractedBasicStats = {
+  //     total_sales: apiData?.summaries?.total_sales || 0,
+  //     avg_transaction: apiData?.summaries?.avg_transaction || 0,
+  //     total_transactions: apiData?.summaries?.total_transactions || 0,
+  //     unique_products: apiData?.summaries?.unique_products || 0
+  //   };
+  //
+  //   // 처리된 데이터 반환
+  //   return {
+  //     basicStats: extractedBasicStats,
+  //     hourlySales: extractedHourlySales,
+  //     weekdaySales: extractedWeekdaySales,
+  //     // ... 기타 필요한 데이터
+  //   };
+  // };
+
+  // // 실제 API 데이터가 있을 경우 처리된 데이터를 사용
+  // const processedData = currentAnalysis ? processAnalysisData(currentAnalysis) : null;
+
+  // // 처리된 API 데이터가 있으면 사용하고, 없으면 기존 데이터 사용
+  // const displayData = processedData || {
+  //   basicStats, weekdaySales, hourlySales, topProducts, timePeriodSales, holidaySales
+  // };
 
   return (
     <div className="bg-white">

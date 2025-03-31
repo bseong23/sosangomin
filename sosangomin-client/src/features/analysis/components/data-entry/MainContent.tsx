@@ -6,15 +6,17 @@ import InfoModal from "./InfoModal";
 import PosTypeSelector from "./PosTypeSelector";
 import DataLoadingModal from "@/components/modal/DataLoadingModal/index.tsx";
 import useFileModalStore from "@/store/modalStore";
-import useNavigateWithReset from "@/components/common/useNavigateWidthReset"; // 커스텀 훅 import
+
+// 분석 API 연동 관련 import
+// TODO: 백엔드 API 연동 시 주석 해제
+// import { useAnalysisStore } from '@/features/analysis';
+// import { AnalysisRequest } from '@/features/analysis';
+
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
 import PosData2 from "@/assets/POS_data_2.webp";
 
 const MainContent: React.FC = () => {
-  // 커스텀 네비게이션 훅 사용
-  const navigateWithReset = useNavigateWithReset();
-
   // Zustand 스토어에서 필요한 상태와 액션 가져오기
   const {
     uploadedFiles,
@@ -32,29 +34,68 @@ const MainContent: React.FC = () => {
     // resetAfterAnalysis
   } = useFileModalStore();
 
+  // Analysis Store 사용 (백엔드 연동 시 주석 해제)
+  // TODO: 백엔드 API 연동 시 주석 해제
+  // const {
+  //   requestAnalysis,
+  //   currentAnalysis,
+  //   isLoading: isAnalysisLoading,
+  //   error: analysisError
+  // } = useAnalysisStore();
+
   // 로컬 상태는 최소화
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedPosType, setSelectedPosType] = useState<string>("토스");
+
+  // 업로드된 파일의 소스 ID 저장 (백엔드 연동 시 주석 해제)
+  // TODO: 백엔드 API 연동 시 주석 해제
+  // const [sourceIds, setSourceIds] = useState<string[]>([]);
 
   // 개발 테스트용 로딩 시간 (밀리초)
   const loadingTime = 5000; // 5초 (테스트용으로 단축)
 
   const handleFileUpload = (files: FileList): void => {
     addFiles(Array.from(files));
+
+    // TODO: 백엔드 API 연동 시 주석 해제
+    // 여기서 파일을 서버에 업로드하고 sourceId를 받아올 수 있습니다.
+    // const uploadFileToServer = async (file: File) => {
+    //   // 파일 업로드 API 호출 (가정)
+    //   // const response = await uploadFile(file);
+    //   // return response.sourceId;
+    //
+    //   // 임시로 고유 ID 생성
+    //   return `source_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // };
+    //
+    // // 파일마다 업로드 후 sourceId 저장
+    // Promise.all(Array.from(files).map(uploadFileToServer))
+    //   .then(ids => {
+    //     setSourceIds(prev => [...prev, ...ids]);
+    //   })
+    //   .catch(error => {
+    //     console.error("파일 업로드 실패:", error);
+    //   });
   };
 
   const handleRemoveFile = (index: number): void => {
     removeFile(uploadedFiles[index].name);
+
+    // TODO: 백엔드 API 연동 시 주석 해제
+    // // sourceIds도 함께 제거
+    // setSourceIds(prev => {
+    //   const newIds = [...prev];
+    //   newIds.splice(index, 1);
+    //   return newIds;
+    // });
   };
 
   const handlePosTypeSelect = (posType: string): void => {
     setSelectedPosType(posType);
     setFileData(uploadedFiles.length, posType);
-    console.log(`선택된 POS 타입: ${posType}`);
   };
 
   const openInfoModal = () => {
-    console.log(`'${selectedPosType}' 영수증 출력 방법 모달 열기`);
     setIsInfoModalOpen(true);
   };
 
@@ -65,11 +106,7 @@ const MainContent: React.FC = () => {
   // 분석 완료 콜백 함수 - 모달 닫기 후 결과 페이지로 이동 (상태 초기화 포함)
   const handleAnalysisComplete = () => {
     closeModal();
-
-    // 분석 완료 후 일정 시간 후에 결과 페이지로 이동 (상태 초기화 포함)
-    setTimeout(() => {
-      navigateWithReset("/results"); // 또는 원하는 결과 페이지 경로
-    }, 500); // 약간의 지연을 두어 UI가 업데이트된 후 이동
+    // 리다이렉트 코드 제거 (DataLoadingModal에서 이미 처리함)
   };
 
   // 분석 시작 함수
@@ -88,11 +125,47 @@ const MainContent: React.FC = () => {
 
     console.log("분석 시작:", analysisData);
 
+    // TODO: 백엔드 API 연동 시 replace
     // 실제 API 호출을 시뮬레이션 (예시)
     setTimeout(() => {
       console.log("분석 완료:", analysisData);
       setLoading(false);
     }, loadingTime);
+
+    // TODO: 백엔드 API 연동 시 주석 해제
+    // // 실제 API 호출
+    // if (sourceIds.length > 0) {
+    //   const analysisRequest: AnalysisRequest = {
+    //     store_id: 1, // 현재 선택된 스토어 ID (컨텍스트에서 가져오거나 상태로 관리)
+    //     source_ids: sourceIds,
+    //     pos_type: selectedPosType
+    //   };
+    //
+    //   // 분석 요청 보내기
+    //   requestAnalysis(analysisRequest)
+    //     .then(analysisId => {
+    //       if (analysisId) {
+    //         console.log("분석 요청 성공, ID:", analysisId);
+    //
+    //         // 분석이 완료되면 로딩 상태 종료
+    //         // Note: 실제로는 useAnalysisPolling을 사용하여 상태를 확인하고
+    //         // 완료되면 setLoading(false) 호출하는 것이 좋습니다.
+    //         setTimeout(() => {
+    //           setLoading(false);
+    //         }, 5000); // 테스트를 위한 임의의 시간
+    //       } else {
+    //         console.error("분석 요청 실패");
+    //         setLoading(false);
+    //       }
+    //     })
+    //     .catch(error => {
+    //       console.error("분석 API 오류:", error);
+    //       setLoading(false);
+    //     });
+    // } else {
+    //   console.error("소스 ID가 없습니다");
+    //   setLoading(false);
+    // }
   };
 
   // POS 타입에 따른 모달 내용을 결정하는 함수

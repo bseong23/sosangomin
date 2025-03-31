@@ -1,5 +1,4 @@
 // src/features/analysis/components/DistributionCard.tsx
-
 import React from "react";
 import PieChart from "@/components/chart/PieChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
