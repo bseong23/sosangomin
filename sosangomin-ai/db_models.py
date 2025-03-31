@@ -314,3 +314,40 @@ class Population(Base):
 
     # 등록 일시
     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
+
+
+class StoreCategories(Base):
+    __tablename__ = "store_categories"
+
+    store_statistic_id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # 날짜 기준
+    year = Column(Integer, nullable=False)
+    quarter = Column(Integer, nullable=False)
+
+    # 지역 정보
+    district_name = Column(String(50))        # 자치구
+    region_name = Column(String(100))         # 행정동
+    industry_name = Column(String(100))       # 업종명
+    main_category = Column(String(50))        # 대분류
+
+    # 점포 관련 수치
+    store_count = Column(Integer)
+    main_category_total = Column(Integer)
+
+    open_rate = Column(Float)
+    open_store_count = Column(Integer)
+    close_rate = Column(Float)
+    close_store_count = Column(Integer)
+
+    # 상권 변화 지표 관련
+    ta_change_index = Column(String(2), nullable=True)                    # TRDAR_CHNGE_IX
+    ta_change_index_name = Column(String(100), nullable=True)         # TRDAR_CHNGE_IX_NM
+
+    open_sales_month_avg = Column(Float, nullable=True)               # OPR_SALE_MT_AVRG
+    close_sales_month_avg = Column(Float, nullable=True)             # CLS_SALE_MT_AVRG
+    seoul_open_sales_month_avg = Column(Float, nullable=True)         # SU_OPR_SALE_MT_AVRG
+    seoul_close_sales_month_avg = Column(Float, nullable=True)       # SU_CLS_SALE_MT_AVRG
+
+    created_at = Column(DateTime, default=datetime.datetime.now())
+    updated_at = Column(DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now())
