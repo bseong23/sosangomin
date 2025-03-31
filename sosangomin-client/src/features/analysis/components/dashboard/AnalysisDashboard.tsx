@@ -259,25 +259,21 @@ const AnalysisDashboard: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50">
+    <div>
       <div className="max-w-[1200px] mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            지금 우리 가게는?
-          </h1>
-          <div className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-comment">지금 우리 가게는?</h1>
+          <div className="text-sm text-comment-text">
             최근 분석 일자:{" "}
             {/* {new Date(data.created_at.$date).toLocaleDateString("ko-KR")} */}
           </div>
         </div>
 
         {/* 전체 요약 섹션 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-3 text-gray-800">
-            핵심 요약
-          </h2>
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold mb-3 text-comment">핵심 요약</h2>
           <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-gray-700">
+            <p className="text-comment">
               {truncateSummary(overallSummary, 500)}
             </p>
           </div>
@@ -289,7 +285,7 @@ const AnalysisDashboard: React.FC = () => {
             title="총 매출"
             value={basicStats.total_sales}
             subValue={`${basicStats.total_transactions}건의 거래`}
-            colorClass="text-blue-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="평균 거래 금액"
@@ -299,32 +295,32 @@ const AnalysisDashboard: React.FC = () => {
             subValue={`고객당 평균 ₩${Math.round(
               basicStats.customer_avg
             ).toLocaleString("ko-KR")}`}
-            colorClass="text-green-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="총 거래 건수"
             value={`${basicStats.total_transactions}건`}
             subValue={`${basicStats.unique_products}개 고유 제품`}
-            colorClass="text-purple-500"
+            colorClass="text-bit-main"
           />
           <StatsCard
             title="시즌 매출"
             value={`봄 ₩${basicStats.total_sales.toLocaleString("ko-KR")}`}
             subValue="계절별 분석"
-            colorClass="text-amber-500"
+            colorClass="text-bit-main"
           />
         </div>
 
         {/* 기본 통계 요약 */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-          <p className="text-sm text-gray-700">
+        <div className="bg-basic-white p-4 rounded-lg shadow-md mb-6">
+          <p className="text-sm text-comment">
             {truncateSummary(basicStatsSummary)}
           </p>
         </div>
 
         {/* 시간별 매출 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-lg font-semibold mb-4">
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
             우리 가게 시간별 매출액
           </h2>
           <div
@@ -340,8 +336,10 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <div className="mt-2 mb-2">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium mb-2 text-gray-700">데이터 분석</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                데이터 분석
+              </h3>
+              <p className="text-sm text-comment-text">
                 {truncateSummary(hourlySalesSummary)}
               </p>
             </div>
@@ -349,8 +347,10 @@ const AnalysisDashboard: React.FC = () => {
         </div>
 
         {/* 인기 메뉴 랭킹 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-lg font-semibold mb-4">인기 메뉴 랭킹</h2>
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            인기 메뉴 랭킹
+          </h2>
           <div
             className="mb-4"
             style={{ width: "100%", height: "350px", overflow: "hidden" }}
@@ -364,8 +364,10 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <div className="mt-2 mb-2">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium mb-2 text-gray-700">메뉴 매출 분석</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                메뉴 매출 분석
+              </h3>
+              <p className="text-sm text-comment-text">
                 {truncateSummary(topProductsSummary)}
               </p>
             </div>
@@ -373,8 +375,10 @@ const AnalysisDashboard: React.FC = () => {
         </div>
 
         {/* 요일별 매출 현황 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-lg font-semibold mb-4">요일별 매출 현황</h2>
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            요일별 매출 현황
+          </h2>
           <div
             className="mb-4"
             style={{ width: "100%", height: "350px", overflow: "hidden" }}
@@ -386,8 +390,10 @@ const AnalysisDashboard: React.FC = () => {
           </div>
           <div className="mt-2 mb-2">
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium mb-2 text-gray-700">요일별 분석</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-base font-medium mb-2 text-comment">
+                요일별 분석
+              </h3>
+              <p className="text-sm text-comment-text">
                 {truncateSummary(weekdaySalesSummary)}
               </p>
             </div>
@@ -396,8 +402,10 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 평일/휴일 매출 비율 & 시간대별 매출 분석 */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">평일/휴일 매출 비율</h2>
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              평일/휴일 매출 비율
+            </h2>
             <div
               className="flex justify-center items-center mb-4"
               style={{ height: "220px" }}
@@ -416,22 +424,22 @@ const AnalysisDashboard: React.FC = () => {
                     <div
                       className={`w-3 h-3 ${item.color} mr-2 rounded-sm`}
                     ></div>
-                    <div className="text-xs">
+                    <div className="text-xs text-comment-text">
                       {item.label}: {item.value}
                     </div>
                   </div>
                 ))}
               </div>
               <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-comment-text">
                   {truncateSummary(holidaySalesSummary, 150)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
               식사 시간대별 매출 비율
             </h2>
             <div
@@ -452,14 +460,14 @@ const AnalysisDashboard: React.FC = () => {
                     <div
                       className={`w-3 h-3 ${item.color} mr-2 rounded-sm`}
                     ></div>
-                    <div className="text-xs">
+                    <div className="text-xs text-comment-text">
                       {item.label}: {item.value}
                     </div>
                   </div>
                 ))}
               </div>
               <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-comment-text">
                   {truncateSummary(timePeriodSalesSummary, 150)}
                 </p>
               </div>
@@ -469,64 +477,70 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 시즌 매출 & 영업 전략 제안 */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">시즌별 매출 분석</h2>
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              시즌별 매출 분석
+            </h2>
             <div className="p-4 mb-4">
               {Object.entries(seasonSales).map(([season, amount], idx) => (
                 <div key={idx} className="mb-3">
                   <div className="flex justify-between mb-1">
-                    <span className="font-medium">{season}</span>
-                    <span>₩{amount.toLocaleString("ko-KR")}</span>
+                    <span className="font-medium text-comment">{season}</span>
+                    <span className="text-comment">
+                      ₩{amount.toLocaleString("ko-KR")}
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div className="bg-blue-600 h-2.5 rounded-full w-full"></div>
+                    <div className="bg-bit-main h-2.5 rounded-full w-full"></div>
                   </div>
                 </div>
               ))}
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-comment-text">
                 {truncateSummary(seasonSalesSummary, 200)}
               </p>
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">영업 전략 제안</h2>
+          <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold mb-4 text-comment">
+              영업 전략 제안
+            </h2>
             <div className="p-4 bg-blue-50 rounded-lg">
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2 mt-0.5">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
                     1
                   </div>
-                  <p className="text-sm">
+                  <p className="text-sm text-comment">
                     주말(토,일) 매출 강세를 활용한 주말 특별 메뉴나 이벤트
                     기획을 고려해보세요.
                   </p>
                 </li>
                 <li className="flex items-start">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2 mt-0.5">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
                     2
                   </div>
-                  <p className="text-sm">
+                  <p className="text-sm text-comment">
                     저녁 시간대(특히 19시) 매출이 가장 높으므로, 저녁 시간
                     서비스 품질 향상과 메뉴 다양화에 집중하세요.
                   </p>
                 </li>
                 <li className="flex items-start">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2 mt-0.5">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
                     3
                   </div>
-                  <p className="text-sm">
+                  <p className="text-sm text-comment">
                     화요일 매출 증대를 위한 '화요일 특가' 프로모션이나 마케팅
                     활동을 고려해보세요.
                   </p>
                 </li>
                 <li className="flex items-start">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2 mt-0.5">
+                  <div className="flex-shrink-0 w-5 h-5 bg-bit-main rounded-full flex items-center justify-center text-basic-white font-bold mr-2 mt-0.5">
                     4
                   </div>
-                  <p className="text-sm">
+                  <p className="text-sm text-comment">
                     매출이 낮은 오후 시간대(특히 15-16시)에 특별 할인이나 세트
                     메뉴를 도입해보세요.
                   </p>
@@ -537,23 +551,25 @@ const AnalysisDashboard: React.FC = () => {
         </div>
 
         {/* 다음달 예상 매출 */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-lg font-semibold mb-4">다음달 예상 매출액</h2>
+        <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-comment">
+            다음달 예상 매출액
+          </h2>
           <div className="p-8 bg-blue-50 rounded-lg flex flex-col items-center justify-center">
             <div className="w-full max-w-md">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-700">이번달 매출</span>
-                <span className="font-medium">₩14,089,000</span>
+                <span className="text-comment">이번달 매출</span>
+                <span className="font-medium text-comment">₩14,089,000</span>
               </div>
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700">예상 성장률</span>
+                <span className="text-comment">예상 성장률</span>
                 <span className="text-green-600 font-medium">+12.1%</span>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow text-center mb-4">
-                <p className="text-gray-600 mb-2">다음달 예상 매출액</p>
-                <p className="text-blue-700 text-3xl font-bold">₩15,800,000</p>
+              <div className="bg-basic-white p-6 rounded-lg shadow text-center mb-4">
+                <p className="text-comment-text mb-2">다음달 예상 매출액</p>
+                <p className="text-bit-main text-3xl font-bold">₩15,800,000</p>
               </div>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-comment-text">
                 이상적인 성장 그래프를 그리고 있으니 현재 전략을 유지하는 것을
                 목표로 해보세요!
               </p>
