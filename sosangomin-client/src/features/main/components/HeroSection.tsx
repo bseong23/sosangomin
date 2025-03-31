@@ -86,14 +86,14 @@ const HeroSection: React.FC = () => {
               <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-10 opacity-90 max-w-md">
                 매출 증대와 운영 효율화를 지금 바로 경험하세요!
               </p>
-              <div>
+              {/* <div>
                 <a
                   href="#start"
                   className="bg-white text-indigo-950 font-bold py-2 px-6 sm:py-3 sm:px-8 rounded-lg shadow-lg hover:bg-opacity-90 transition duration-300 inline-block"
                 >
                   무료로 시작하기
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
 

@@ -30,17 +30,25 @@ const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
 
         <div className="max-w-md sm:max-w-3xl md:max-w-5xl w-full mx-auto">
           {isMobile || isTablet ? (
-            // ✅ 모바일/태블릿용 (가로 정렬 + 중앙정렬)
-            <div className="w-full flex flex-col items-center px-4 sm:px-6 md:px-8 mt-6 mb-10 space-y-8">
+            // 모바일/태블릿용 (세로 정렬 - 일렬로 나란히)
+            <div className="w-full flex flex-col items-center space-y-12 px-4 sm:px-6 md:px-8 mt-8 mb-10">
               {features.map((item, i) => (
-                <div key={i} className="inline-flex items-center space-x-4">
+                <div
+                  key={i}
+                  className="flex flex-row items-center space-x-6 w-full max-w-md bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg"
+                >
                   {/* Step Number */}
-                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-bit-main text-white text-xl sm:text-2xl font-bold shadow-md">
+                  <div
+                    className="flex items-center justify-center flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-full text-white text-2xl sm:text-3xl font-bold shadow-md transition-transform duration-300 hover:scale-105"
+                    style={{
+                      backgroundColor: i % 2 === 0 ? "#16125D" : "#004ba6"
+                    }}
+                  >
                     {i + 1}
                   </div>
 
                   {/* Step Text */}
-                  <p className="text-base sm:text-lg font-medium text-gray-800 text-left whitespace-nowrap">
+                  <p className="text-md sm:text-lg md:text-xl font-medium text-gray-800">
                     {item.shortTitle}
                   </p>
                 </div>
