@@ -20,20 +20,20 @@ public class CompetitorProxyController implements CompetitorSwagger {
     private final CompetitorProxyService competitorProxyService;
 
     @GetMapping("/{storeId}")
-    public Mono<ResponseEntity<Object>> getStoreComparisonList(@PathVariable int storeId) {
+    public ResponseEntity<Object> getStoreComparisonList(@PathVariable int storeId) {
         log.info("Received store comparison list request for store ID: {}", storeId);
-        return competitorProxyService.getStoreComparisonList(storeId);
+        return competitorProxyService.getStoreComparisonList(storeId).block();
     }
 
     @PostMapping("/analysis")
-    public Mono<ResponseEntity<Object>> oneClickAnalyzeCompetitor(@RequestBody CompetitorAnalysisRequest request) {
+    public ResponseEntity<Object> oneClickAnalyzeCompetitor(@RequestBody CompetitorAnalysisRequest request) {
         log.info("Received one-click competitor analysis request: {}", request);
-        return competitorProxyService.oneClickAnalyzeCompetitor(request);
+        return competitorProxyService.oneClickAnalyzeCompetitor(request).block();
     }
 
     @GetMapping("/comparison/{comparisonId}")
-    public Mono<ResponseEntity<Object>> getComparisonResult(@PathVariable String comparisonId) {
+    public ResponseEntity<Object> getComparisonResult(@PathVariable String comparisonId) {
         log.info("Received comparison result request for comparison ID: {}", comparisonId);
-        return competitorProxyService.getComparisonResult(comparisonId);
+        return competitorProxyService.getComparisonResult(comparisonId).block();
     }
 }

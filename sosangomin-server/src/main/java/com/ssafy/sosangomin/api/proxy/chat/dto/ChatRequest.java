@@ -6,10 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 public record ChatRequest(
-        @Schema(description = "사용자 ID", required = true, example = "1")
-        @NotNull
-        @JsonProperty("user_id")
-        int userId,
 
         @Schema(description = "채팅 메시지", required = true, example = "안녕하세요, 질문이 있어요")
         @NotNull

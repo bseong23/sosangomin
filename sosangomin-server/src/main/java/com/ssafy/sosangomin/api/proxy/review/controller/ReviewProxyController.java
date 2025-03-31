@@ -20,20 +20,20 @@ public class ReviewProxyController implements ReviewSwagger {
     private final ReviewProxyService reviewProxyService;
 
     @PostMapping
-    public Mono<ResponseEntity<Object>> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest request) {
+    public ResponseEntity<Object> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest request) {
         log.info("Received review analysis request: {}", request);
-        return reviewProxyService.analyzeStoreReviews(request);
+        return reviewProxyService.analyzeStoreReviews(request).block();
     }
 
     @GetMapping("/store/{storeId}")
-    public Mono<ResponseEntity<Object>> getStoreReviewsList(@PathVariable int storeId) {
+    public ResponseEntity<Object> getStoreReviewsList(@PathVariable int storeId) {
         log.info("Received store reviews list request for store ID: {}", storeId);
-        return reviewProxyService.getStoreReviewsList(storeId);
+        return reviewProxyService.getStoreReviewsList(storeId).block();
     }
 
     @GetMapping("/analysis/{analysisId}")
-    public Mono<ResponseEntity<Object>> getReviewAnalysis(@PathVariable String analysisId) {
+    public ResponseEntity<Object> getReviewAnalysis(@PathVariable String analysisId) {
         log.info("Received review analysis request for analysis ID: {}", analysisId);
-        return reviewProxyService.getReviewAnalysis(analysisId);
+        return reviewProxyService.getReviewAnalysis(analysisId).block();
     }
 }

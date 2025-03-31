@@ -20,24 +20,30 @@ public class AnalysisProxyController implements AnalysisSwagger {
     private final AnalysisProxyService analysisProxyService;
 
     @PostMapping
-    public Mono<ResponseEntity<Object>> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request) {
+    public ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request) {
         log.info("Received combined analysis request: {}", request);
         return analysisProxyService.analyzeCombinedData(request)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok).block();
     }
 
     @GetMapping("/{analysisId}")
-    public Mono<ResponseEntity<Object>> getAnalysisResult(@PathVariable String analysisId) {
+    public ResponseEntity<Object> getAnalysisResult(@PathVariable String analysisId) {
         log.info("Received analysis result request for ID: {}", analysisId);
         return analysisProxyService.getAnalysisResult(analysisId)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok).block();
     }
 
+    @GetMapping("/source")
+    public ResponseEntity<Object> getAnalysisResultsBySource(@RequestParam String sourceId) {
+        log.info("Received analysis results list request for source ID: {}", sourceId);
+        return analysisProxyService.getAnalysisResultsBySource(sourceId)
+                .map(ResponseEntity::ok).block();
+    }
 
     @GetMapping("/latest")
-    public Mono<ResponseEntity<Object>> getLatestAnalysisResult(@RequestParam String sourceId) {
+    public ResponseEntity<Object> getLatestAnalysisResult(@RequestParam String sourceId) {
         log.info("Received latest analysis result request for source ID: {}", sourceId);
         return analysisProxyService.getLatestAnalysisResult(sourceId)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok).block();
     }
 }
