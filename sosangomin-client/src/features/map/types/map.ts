@@ -57,3 +57,13 @@ export interface ColorLegendProps {
   position?: "top-right" | "bottom-right" | "top-left" | "bottom-left";
   title?: string;
 }
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  selectedAdminName?: string;
+}
+export interface AnalysisModalProps extends ModalProps {
+  selectedAdminName?: string;
+}
