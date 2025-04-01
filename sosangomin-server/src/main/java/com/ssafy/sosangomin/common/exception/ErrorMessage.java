@@ -32,6 +32,7 @@ public enum ErrorMessage {
     ERR_USER_BOARD_NOT_MATCH,
     ERR_USER_COMMENT_NOT_MATCH,
     ERR_NOT_ALLOWD_USER,
+    ERR_USER_STORE_NOT_MATCH,
 
     /**
      * /** 404 NOT_FOUND
