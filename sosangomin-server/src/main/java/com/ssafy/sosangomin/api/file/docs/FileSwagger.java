@@ -51,8 +51,7 @@ public interface FileSwagger {
     ResponseEntity<?> uploadFiles(
             @RequestParam List<MultipartFile> files,
             @Parameter(name = "storeId", description = "암호화된 가게 id(pk)", schema = @Schema(type = "string"))
-//            @DecryptedId @RequestParam Long storeId,
-            @RequestParam Long storeId,
+            @DecryptedId @RequestParam Long storeId,
             @Parameter(description = "시작 월 (YYYY-MM 형식)") @RequestParam String startMonth,
             @Parameter(description = "종료 월 (YYYY-MM 형식)") @RequestParam String endMonth,
             Principal principal
