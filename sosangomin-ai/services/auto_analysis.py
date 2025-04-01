@@ -20,6 +20,7 @@ from services.s3_service import download_file_from_s3
 from services.auto_analysis_chat_service import autoanalysis_chat_service
 
 # 우선 키움 페이 포스기 데이터를 기준으로 작성하였음.
+os.environ["LOKY_MAX_CPU_COUNT"] = "8"
 logger = logging.getLogger(__name__)
 
 class AutoAnalysisService: 
@@ -55,38 +56,17 @@ class AutoAnalysisService:
 
     def validate_and_normalize_pos(self, df: pd.DataFrame, pos_type: str) -> pd.DataFrame:
         """POS 데이터의 형식 검증 및 표준 컬럼명으로 통일"""
-
-        pos_map = self.pos_col.get(pos_type)
-        if not pos_map:
-            raise ValueError(f"지원하지 않는 POS 유형입니다: {pos_type}")
+        pos_map = self.pos_col[pos_type]
+        required_cols = list(pos_map.values())
 
         # 필수 컬럼 존재 여부 확인
-        required_cols = list(pos_map.values())
         missing = [col for col in required_cols if col not in df.columns]
         if missing:
-            raise ValueError(f"필수 컬럼 누락: {missing}")
-
-        # 행 수 너무 적으면 비정상 파일 가능성
-        if df.shape[0] < 5:
-            raise ValueError(f"행 수가 너무 적습니다: {df.shape[0]}행")
-
-        # 상품명 다양성 검사
-        product_col = pos_map["product"]
-        if df[product_col].nunique() <= 1:
-            raise ValueError(f"상품명이 1개 이하입니다. ({product_col})")
-
-        # 날짜 형식 확인
-        try:
-            pd.to_datetime(df[pos_map["datetime"]])
-        except Exception:
-            raise ValueError(f"'{pos_map['datetime']}' 컬럼이 날짜 형식이 아닙니다.")
-
-        # 수량, 단가 숫자형 확인
-        for key in ["qty", "price"]:
-            col = pos_map[key]
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                raise ValueError(f"'{col}' 컬럼이 숫자형이 아닙니다.")
-
+            raise ValueError(
+                f"'{pos_type}' POS 형식으로 분석을 시도했으나, 필수 컬럼 {missing} 이(가) 존재하지 않습니다. "
+                "선택한 POS 유형이 실제 데이터와 다르거나, 업로드된 파일이 POS 형식이 아닐 수 있습니다. "
+                "파일을 다시 확인해주세요."
+            )
         # 표준 컬럼명으로 통일
         df = df.rename(columns={
             pos_map["datetime"]: "매출 일시",
@@ -95,13 +75,26 @@ class AutoAnalysisService:
             pos_map["product"]: "상품 명칭"
         })
 
+        # 숫자형 변환
+        df['수량'] = pd.to_numeric(df['수량'], errors='coerce')
+        df['단가'] = pd.to_numeric(df['단가'], errors='coerce')
+        
+        # 날짜 형식 확인
+        df['매출 일시'] = pd.to_datetime(df['매출 일시'], format="%Y-%m-%d %H:%M:%S", errors='coerce')
+        
+        # 행 수 너무 적으면 비정상 파일 가능성
+        if df.shape[0] < 5:
+            raise ValueError(f"행 수가 너무 적습니다: {df.shape[0]}행")
+
+        # 상품명 다양성 검사
+        if df['상품 명칭'].nunique() <= 1:
+            raise ValueError(f"상품명이 1개 이하입니다.")
+
         return df
 
     async def preprocess_data(self, df: pd.DataFrame, pos_type: str = "키움") -> pd.DataFrame:
         """데이터 전처리 및 시간 변수 생성"""
         try:
-            # 파일 형식 확인
-            df = self.validate_and_normalize_pos(df, pos_type)
 
             # TODO: 결제 수단 이용할건지?
             if pos_type == "키움":
@@ -138,9 +131,16 @@ class AutoAnalysisService:
                 df.columns = new_columns
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
                 df = df.loc[:, df.nunique() > 1]  
+                
+                # 매출 변수명 통일
+                df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in df.columns]
             
-            elif pos_type == "토스":
-                df['매출'] = df['수량'] * df['단가']
+            # 파일 형식 확인
+            df = self.validate_and_normalize_pos(df, pos_type)
+
+            if pos_type == "토스":
+                df['매출'] = df['단가']
+                df['단가'] = df['매출'] / df['수량']
                 df = df.drop(index=0).reset_index(drop=True)
                 df = (
                     df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
@@ -149,6 +149,9 @@ class AutoAnalysisService:
                     .T.drop_duplicates().T    # 중복 열 제거
                 )
 
+            if df['수량'].isna().any():
+                raise ValueError("'수량' 컬럼에 숫자로 변환할 수 없는 값이 포함되어 있습니다.")
+        
             # 파생변수 생성
             kr_holidays = holidays.KR()
 
@@ -192,13 +195,13 @@ class AutoAnalysisService:
 
 
             # df.drop('매출 일시', axis=1, inplace=True)
-            merged_df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in merged_df.columns]
+            # merged_df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in merged_df.columns]
 
             return merged_df
         
         except Exception as e:
-            return {"message": "데이터 전처리 중 오류 발생",
-                    "error": str(e)}
+            logger.error(f"데이터 전처리 중 오류 발생: {str(e)}")
+            raise ValueError(f"데이터 전처리 실패: {str(e)}")
 
     def find_best_k(self, data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> int:
         """Silhouette Score로 최적 k 찾기"""
@@ -240,7 +243,7 @@ class AutoAnalysisService:
 
         return elbow_point
 
-    async def predict_next_30_sales(self, df: pd.DataFrame, model_type="Prophet"): # predict_next_30_sales(temp_file: str):
+    async def predict_next_30_sales(self, df: pd.DataFrame, model_type="Prophet"):
         """향후 30일 매출 예측"""
         try:
             # 날짜, 매출만 추출
@@ -253,114 +256,71 @@ class AutoAnalysisService:
 
             # 누락된 날짜 채우기
             date_range = pd.date_range(daily_sales_df['날짜'].min(), daily_sales_df['날짜'].max(), freq='D')
-            daily_sales_df = daily_sales_df.set_index('날짜').reindex(date_range, fill_value=1000).rename_axis('날짜').reset_index()
-
+            daily_sales_df = daily_sales_df.set_index('날짜').reindex(date_range, fill_value=daily_sales_df['매출'].mean()).rename_axis('날짜').reset_index()
+           
             # 요일 변수 추가 (One-Hot Encoding)
-            # daily_sales_df['요일'] = daily_sales_df['날짜'].dt.day_name()
-            # enc = OneHotEncoder(sparse_output=False, drop='first') 
-            # weekday_encoded = enc.fit_transform(daily_sales_df[['요일']])
-            # weekday_df = pd.DataFrame(weekday_encoded, columns=enc.get_feature_names_out(['요일']))
-            # daily_sales_df = pd.concat([daily_sales_df, weekday_df], axis=1).drop(columns=['요일'])
-
-            # # 공휴일 변수 추가
-            # kr_holidays = holidays.KR()
-            # daily_sales_df['공휴일'] = daily_sales_df['날짜'].apply(lambda x: 1 if x in kr_holidays else 0)
+            daily_sales_df['요일'] = daily_sales_df['날짜'].dt.dayofweek  # 월=0~일=6
+            kr_holidays = holidays.KR()
+            daily_sales_df['공휴일'] = daily_sales_df['날짜'].apply(lambda x: 1 if x in kr_holidays else 0)
 
             # 학습 데이터 분할 (성능 평가용)
             train_df = daily_sales_df.iloc[:-30]  # 학습 데이터
             test_df = daily_sales_df.iloc[-30:]   # 테스트 데이터 (성능 평가용)
 
+            # 결측치 제거 (테스트셋 기준)
+            train_df = train_df.dropna(subset=['매출'])
+
             ### 모델 학습 & 성능 평가 ###
-            if model_type.lower() == "prophet":
-                df_prophet = train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
-                test_df_prophet = test_df.rename(columns={'날짜': 'ds'})
+            df_prophet = train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
+            test_df_prophet = test_df.rename(columns={'날짜': 'ds'})
 
-                model = Prophet()
-                # model = Prophet(yearly_seasonality=True, weekly_seasonality=True) # seasonality_mode='multiplicative')
-                
-                # 추가 요인 반영
-                # for col in weekday_df.columns: 
-                #     model.add_regressor(col)
-                # model.add_regressor('공휴일')
+            model = Prophet()
+            model.add_country_holidays(country_name='KOR')
+            model.add_regressor('요일')
+            model.add_regressor('공휴일')
 
-                model.fit(df_prophet)
+            model.fit(df_prophet)
 
-                # 성능 평가용 예측 (마지막 30일)
-                test_future = test_df_prophet.copy()
-                predict_test = model.predict(test_future)
-                test_predictions = predict_test[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
-                
-                # 성능 평가 (MAPE, RMSE)
-                y_true = test_df['매출'].values
-                y_pred = test_predictions.loc[test_predictions['날짜'].isin(test_df['날짜'])]['예측 매출'].values
-                mape_score = mean_absolute_percentage_error(y_true, y_pred)
-                rmse_score = mean_squared_error(y_true, y_pred) ** 0.5 
+            # 성능 평가용 예측 (마지막 30일)
+            predict_test = model.predict(test_df_prophet)
+            test_predictions = predict_test[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
+            
+            # 성능 평가 (MAPE, RMSE)
+            y_true = test_df['매출'].values
+            y_pred = test_predictions.loc[test_predictions['날짜'].isin(test_df['날짜'])]['예측 매출'].values
+            mape_score = mean_absolute_percentage_error(y_true, y_pred)
+            rmse_score = mean_squared_error(y_true, y_pred) ** 0.5 
 
-            elif model_type.lower() == "autoarima":
-                train_data = train_df.set_index('날짜')['매출']
-                test_data = test_df.set_index('날짜')['매출']
-
-                model = auto_arima(train_data, seasonal=False, stepwise=True, trace=True)
-                predict_test = model.predict(n_periods=30)
-
-                # 성능 평가 (MAPE, RMSE)
-                y_true = test_data.values
-                y_pred = predict_test
-                mape_score = mean_absolute_percentage_error(y_true, y_pred)
-                rmse_score = mean_squared_error(y_true, y_pred) ** 0.5 
-
-            else:
-                raise ValueError("지원되지 않는 모델 유형입니다. 'Prophet' 또는 'AutoARIMA'를 선택하세요.")
 
             ### 모든 데이터 사용하여 30일 예측 ###
-            full_train_df = daily_sales_df.copy()  # 모든 데이터를 학습에 사용
-
-            if model_type.lower() == "prophet":
-                full_df_prophet = full_train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
-                
-                final_model = Prophet()
-                # final_model = Prophet(yearly_seasonality=True, weekly_seasonality=True) # seasonality_mode='multiplicative')
-                # for col in weekday_df.columns:
-                #     final_model.add_regressor(col)
-                # final_model.add_regressor('공휴일')
-
-                final_model.fit(full_df_prophet)
-
-                # 향후 30일 예측
-                future = final_model.make_future_dataframe(periods=30)
-                # future['요일'] = future['ds'].dt.day_name()
-                # weekday_encoded_future = enc.transform(future[['요일']]) 
-                # weekday_df_future = pd.DataFrame(weekday_encoded_future, columns=enc.get_feature_names_out(['요일']))
-                # future = pd.concat([future, weekday_df_future], axis=1).drop(columns=['요일'])
-                # future['공휴일'] = future['ds'].apply(lambda x: 1 if x in kr_holidays else 0) 
-
-                final_predict = final_model.predict(future)
-                predict_df = final_predict[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
-                # last_train_date = full_df_prophet['ds'].max()
-                # predict_df = predict_df[predict_df['날짜'] > last_train_date]
-
-                seasonal_effects = final_predict[['ds', 'trend']] #, 'yearly', 'weekly']]
-                seasonal_effects = seasonal_effects.rename(columns={'ds': '날짜'})
-                
+            full_train_df = daily_sales_df.copy()
+            full_df_prophet = full_train_df.rename(columns={'날짜': 'ds', '매출': 'y'})
             
-            elif model_type.lower() == "autoarima":
-                full_train_data = full_train_df.set_index('날짜')['매출']
+            final_model = Prophet()
+            final_model.add_country_holidays(country_name='KOR')
+            final_model.add_regressor('요일')
+            final_model.add_regressor('공휴일')
 
-                final_model = auto_arima(full_train_data, seasonal=False, stepwise=True, trace=True)
-                final_predict = final_model.predict(n_periods=30)
+            final_model.fit(full_df_prophet)
 
-                # 최종 예측 데이터프레임 생성
-                predict_df = pd.DataFrame({
-                    '날짜': pd.date_range(start=full_train_df['날짜'].max() + pd.Timedelta(days=1), periods=30, freq='D'),
-                    '예측 매출': final_predict
-                })
+            # 향후 30일 예측
+            future = final_model.make_future_dataframe(periods=30)
+            future['요일'] = future['ds'].dt.dayofweek
+            future['공휴일'] = future['ds'].apply(lambda x: 1 if x in kr_holidays else 0)
+        
+            final_predict = final_model.predict(future)
+            predict_df = final_predict[['ds', 'yhat']].rename(columns={'ds': '날짜', 'yhat': '예측 매출'})
 
+            seasonal_effects = final_predict[['ds', 'trend']] #, 'yearly', 'weekly']]
+            seasonal_effects = seasonal_effects.rename(columns={'ds': '날짜'})
+                
             # 날짜 형식 변환
             predict_df['날짜'] = predict_df['날짜'].dt.strftime('%Y%m%d')
             predict_df['예측 매출'] = predict_df['예측 매출'].round(2)
 
             # 예측 전 30일 실제 매출 데이터
-            recent_30_df = predict_df.iloc[-60:-30]
+            recent_30_df = daily_sales_df.tail(30)[['날짜', '매출']].copy()
+            recent_30_df['날짜'] = recent_30_df['날짜'].dt.strftime('%Y%m%d')
 
             # 예측 마지막 30일만 분리
             forecast_30 = predict_df.tail(30)
@@ -369,6 +329,11 @@ class AutoAnalysisService:
             total_sales = forecast_30["예측 매출"].sum()
             max_row = forecast_30.loc[forecast_30["예측 매출"].idxmax()]
             min_row = forecast_30.loc[forecast_30["예측 매출"].idxmin()]
+
+            print('================= 실제 데이터 ===================')
+            print(recent_30_df)
+            print('================= 예측 데이터 ===================')
+            print(forecast_30)
 
             return {
                 "message": "향후 30일 매출 예측 완료",
@@ -395,7 +360,7 @@ class AutoAnalysisService:
                     "rmse": round(rmse_score, 4)
                 },
 
-                "seasonal_trend": seasonal_effects.to_dict(orient='records')  # trend column은 그대로
+                "seasonal_trend": seasonal_effects.to_dict(orient='records') 
             }
         except Exception as e:
             return {"error": str(e)}
@@ -448,9 +413,6 @@ class AutoAnalysisService:
             clusters = final_df[['상품 명칭', 'Cluster']].to_dict(orient="records")
             clusters_full = final_df.to_dict(orient="records")
 
-            # OpenAI API를 활용하여 클러스터링 분석 요청
-            # openai_analysis = analyze_clusters_json(cluster_data)
-
             return {
                 "message": "상품 클러스터링 완료",
                 "optimal_k": best_k,
@@ -462,24 +424,29 @@ class AutoAnalysisService:
         except Exception as e:
             return {"error": str(e)}
 
-    async def perform_analyze_local(self, local_file_paths: list, store_id: int = 9999):
+    async def perform_analyze_local(self, local_file_paths: list, store_id: int = 9999, pos_type: str = "키움"):
         """
         로컬 엑셀 파일 리스트를 받아서 S3 없이 자동 분석 수행 (테스트용)
         """
         try:
+            if pos_type not in self.pos_col:
+                raise ValueError(f"지원하지 않는 POS 유형입니다: {pos_type}")
+            
             preprocessed_data = []
 
             for path in local_file_paths:
                 script_dir = os.path.dirname(os.path.abspath(__file__))  
                 path = os.path.join(script_dir, path)
-                df = await self.read_file(path)
-                df = await self.preprocess_data(df)
+                df = await self.read_file(path, pos_type)
+                df = await self.preprocess_data(df, pos_type)
                 preprocessed_data.append(df)
 
             combined_df = pd.concat(preprocessed_data, ignore_index=True)
 
             # 예측 & 클러스터링
             predict_result = await self.predict_next_30_sales(combined_df)
+            print("=============== 예측 결과 =============")
+            print(predict_result)
             cluster_result = await self.cluster_items(combined_df)
 
             # 요약
@@ -507,6 +474,9 @@ class AutoAnalysisService:
     async def perform_analyze(self, store_id, source_ids, pos_type):
         """여러 source_id의 파일을 분석하여 예측 + 클러스터링 결과를 반환 및 저장"""
         try:
+            if pos_type not in self.pos_col:
+                raise ValueError(f"지원하지 않는 POS 유형입니다: {pos_type}")
+            
             data_sources = mongo_instance.get_collection("DataSources")
             analysis_results = mongo_instance.get_collection("AnalysisResults")
 
@@ -589,8 +559,8 @@ class AutoAnalysisService:
             }
 
         except Exception as e:
-            logger.error(f"pos 데이터 분석 중 오류 발생: {str(e)}")
-            raise ValueError(f"pos 데이터 분석 실패: {str(e)}")
+            logger.error(f"POS 데이터 분석 중 오류 발생: {str(e)}")
+            raise ValueError(f"POS 데이터 분석 실패: {str(e)}")
 
         finally:
             for path in local_files:
@@ -612,11 +582,12 @@ async def test_local_auto_analysis():
 
     # 테스트할 로컬 파일 리스트
     local_file_paths = [
-        "영수증 내역(1월~).xlsx"
+        "토스포스.xlsx"
     ]
+    pos_type = "토스"
     
 
-    result = await service.perform_analyze_local(local_file_paths)
+    result = await service.perform_analyze_local(local_file_paths=local_file_paths, pos_type=pos_type)
     
     print("✅ 자동 분석 수행 완료")
     print("🔸 예측 요약:", result["summaries"]["predict_summary"])
