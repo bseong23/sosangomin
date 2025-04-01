@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.proxy.analysis.controller;
 import com.ssafy.sosangomin.api.proxy.analysis.docs.AnalysisSwagger;
 import com.ssafy.sosangomin.api.proxy.analysis.dto.CombinedAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.analysis.service.AnalysisProxyService;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

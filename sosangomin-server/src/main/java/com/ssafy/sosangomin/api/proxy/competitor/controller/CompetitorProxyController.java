@@ -2,6 +2,8 @@ package com.ssafy.sosangomin.api.proxy.competitor.controller;
 
 import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.competitor.service.CompetitorProxyService;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
