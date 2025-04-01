@@ -168,6 +168,7 @@ export interface BarChartDataset {
   hoverBorderWidth?: number; // 마우스 오버 시 테두리 두께
   barPercentage?: number; // 막대 너비 비율 (0~1)
   categoryPercentage?: number; // 카테고리 너비 비율 (0~1)
+  options?: any;
 }
 
 // BarChart 컴포넌트 Props 타입 정의

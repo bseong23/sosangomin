@@ -9,13 +9,13 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
     currentStep,
     storeName,
     businessNumber,
-    storeDescription,
     selectedLocation,
+    selectedCategory,
     closeModal,
     setCurrentStep,
     setStoreName,
     setBusinessNumber,
-    setStoreDescription,
+    setSelectedCategory,
     setSelectedLocation,
     resetModalData
   } = useStoreModalStore();
@@ -178,20 +178,44 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
               <p className="text-xs text-gray-500 mt-1">형식: 000-00-00000</p>
             </div>
 
+            {/* 외식업 카테고리 선택 */}
             <div>
               <label
-                htmlFor="storeDescription"
+                htmlFor="categorySelect"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                가게 설명
+                외식업 카테고리 <span className="text-red-500">*</span>
               </label>
-              <textarea
-                id="storeDescription"
-                value={storeDescription}
-                onChange={(e) => setStoreDescription(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-bit-main"
-                rows={3} // 줄 수 감소
-              />
+              <select
+                id="categorySelect"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-bit-main bg-white"
+              >
+                {/* 기본값 */}
+                <option value="" disabled>
+                  카테고리를 선택하세요
+                </option>
+
+                {/* 외식업 목록 */}
+                {[
+                  "한식음식점",
+                  "중식음식점",
+                  "일식음식점",
+                  "양식음식점",
+                  "제과점",
+                  "패스트푸드점",
+                  "치킨전문점",
+                  "분식전문점",
+                  "호프-간이주점",
+                  "커피-음료",
+                  "반찬가게"
+                ].map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         );
@@ -214,7 +238,9 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
       const businessNumberPattern = /^\d{3}-\d{2}-\d{5}$/;
       const isValidBusinessNumber = businessNumberPattern.test(businessNumber);
 
-      const isValid = !!storeName.trim() && isValidBusinessNumber;
+      // 모든 필수 항목이 입력되었는지 확인
+      const isValid =
+        !!storeName.trim() && isValidBusinessNumber && !!selectedCategory;
       return {
         text: "가게 등록",
         isValid
@@ -223,7 +249,7 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
   };
 
   const buttonConfig = getButtonConfig();
-
+  const { saveStoreData } = useStoreModalStore();
   const handleSubmit = () => {
     if (buttonConfig.isValid) {
       if (currentStep === 1) {
@@ -234,17 +260,12 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
         }
       } else {
         // 최종 제출 처리
-        const storeData = {
-          name: storeName,
-          description: storeDescription,
-          businessNumber: businessNumber,
-          location: selectedLocation
-        };
-        console.log("등록할 가게 정보:", storeData);
+        saveStoreData();
+
+        console.log("등록할 가게 정보:");
 
         // onSubmit 콜백이 제공된 경우 호출
         if (onSubmit) {
-          onSubmit(storeData);
         }
 
         // 모달 닫기 및 데이터 리셋

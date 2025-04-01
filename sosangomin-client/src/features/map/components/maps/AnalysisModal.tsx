@@ -6,13 +6,96 @@ import { createPortal } from "react-dom";
 import PopulationTab from "@/features/map/components/maps/PopulationTab ";
 import BusinessTab from "@/features/map/components/maps/BusinessTab ";
 import EtcTab from "@/features/map/components/maps/EtcTab ";
+const dummyPopulationData = {
+  resident_pop: {
+    성별_연령별_상주인구: {
+      male_10: 150,
+      male_20: 1200,
+      male_30: 1000,
+      male_40: 900,
+      male_50: 800,
+      male_60: 600,
+      female_10: 160,
+      female_20: 1300,
+      female_30: 1100,
+      female_40: 950,
+      female_50: 850,
+      female_60: 650
+    },
+    총_상주인구: 10960,
+    서울시_평균_상주인구: 9875.3,
+    가장_많은_성별_연령대: { 구분: "여성 20대", 인구수: 1300 }
+  },
+  working_pop: {
+    성별_연령별_직장인구: {
+      male_10: 30,
+      male_20: 500,
+      male_30: 800,
+      male_40: 900,
+      male_50: 600,
+      male_60: 200,
+      female_10: 25,
+      female_20: 550,
+      female_30: 850,
+      female_40: 700,
+      female_50: 500,
+      female_60: 180
+    },
+    총_직장인구: 5835,
+    서울시_평균_직장인구: 5240.1,
+    가장_많은_성별_연령대: { 구분: "여성 20대", 인구수: 850 }
+  },
+  floating_pop: {
+    성별_연령별_유동인구: {
+      male_10: 300,
+      male_20: 1100,
+      male_30: 950,
+      male_40: 800,
+      male_50: 650,
+      male_60: 400,
+      female_10: 350,
+      female_20: 1150,
+      female_30: 980,
+      female_40: 820,
+      female_50: 700,
+      female_60: 420
+    },
+    총_유동인구: 9620,
+    서울시_평균_유동인구: 9102.4,
+    가장_많은_성별_연령대: { 구분: "여성 20대", 인구수: 1150 },
+    요일별_유동인구: {
+      monday: 1100,
+      tuesday: 1150,
+      wednesday: 1200,
+      thursday: 1180,
+      friday: 1300,
+      saturday: 1700,
+      sunday: 1690
+    },
+    가장_많은_요일: "saturday",
+    가장_적은_요일: "monday",
+    평일_평균_유동인구: 1186.0,
+    주말_평균_유동인구: 1695.0,
+    시간대별_유동인구: {
+      심야: 400,
+      이른아침: 800,
+      오전: 1100,
+      오후: 1300,
+      퇴근시간: 1450,
+      저녁: 1500,
+      밤: 1200
+    },
+    가장_많은_시간대: "저녁",
+    가장_적은_시간대: "심야"
+  }
+};
 
 const AnalysisModal: React.FC<AnalysisModalProps> = ({
   isOpen,
   onClose,
   selectedAdminName
 }) => {
-  const [activeTab, setActiveTab] = useState<"인구" | "상권" | "기타">("인구");
+  const [activeTab, setActiveTab] = useState<"인구" | "업종" | "매출">("인구");
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -34,10 +117,15 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
   const renderContent = () => {
     switch (activeTab) {
       case "인구":
-        return <PopulationTab selectedAdminName={selectedAdminName} />;
-      case "상권":
+        return (
+          <PopulationTab
+            selectedAdminName={selectedAdminName}
+            populationData={dummyPopulationData}
+          />
+        );
+      case "업종":
         return <BusinessTab selectedAdminName={selectedAdminName} />;
-      case "기타":
+      case "매출":
         return <EtcTab selectedAdminName={selectedAdminName} />;
       default:
         return null;
@@ -58,7 +146,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
             {/* 탭 버튼 */}
             <div className="flex gap-2">
-              {(["인구", "상권", "기타"] as const).map((tab) => (
+              {(["인구", "업종", "매출"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}

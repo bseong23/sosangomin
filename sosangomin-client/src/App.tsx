@@ -122,7 +122,7 @@ const App: React.FC = () => {
             path="/data-analysis/research"
             element={<PrivateRoute element={<ResearchPage />} />}
           />
-          <Route path="/map" element={<PrivateRoute element={<Map />} />} />
+          <Route path="/map" element={<Map />} />
 
           {/* 리뷰 관련 라우트 */}
           <Route
