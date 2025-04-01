@@ -340,7 +340,7 @@ class AutoAnalysisService:
 
                 "previous_30_days": recent_30_df.to_dict(orient='records'), # 예측 전 30일 실제 매출 데이터 (날짜, 매출)
 
-                "predictions": forecast_30.to_dict(orient='records'),  # 날짜별 예측값 (LLM이 추세 파악 가능)
+                "predictions": forecast_30.to_dict(orient='records'),  
 
                 "summary": {
                     "total_sales": float(total_sales),
@@ -410,7 +410,14 @@ class AutoAnalysisService:
             cluster_output = cluster_summary.to_dict(orient="records")
 
             # 클러스터링 결과 데이터
-            clusters = final_df[['상품 명칭', 'Cluster']].to_dict(orient="records")
+            clusters_dict = (
+                final_df.groupby("Cluster")["상품 명칭"]
+                .apply(list)
+                .to_dict()
+            )
+            # key를 "cluster0", "cluster1", ... 형식으로 변환
+            clusters = {f"cluster{cluster_id}": items for cluster_id, items in clusters_dict.items()}
+
             clusters_full = final_df.to_dict(orient="records")
 
             return {
@@ -418,7 +425,7 @@ class AutoAnalysisService:
                 "optimal_k": best_k,
                 "clusters": clusters,
                 "cluster_summary": cluster_output,
-                "clusters_full": clusters_full,
+                "clusters_full": final_df.to_dict(orient="records"),
             }
         
         except Exception as e:
