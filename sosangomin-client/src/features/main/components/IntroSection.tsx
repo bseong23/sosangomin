@@ -1,6 +1,6 @@
 // src/features/main/IntroSection.tsx
 
-import React, { useEffect, useState, forwardRef } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { IntroSectionProps } from "../types/mainsection";
 
 const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
