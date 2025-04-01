@@ -1,5 +1,7 @@
 package com.ssafy.sosangomin.common.filter;
 
+import com.ssafy.sosangomin.common.exception.BadRequestException;
+import com.ssafy.sosangomin.common.exception.ErrorMessage;
 import com.ssafy.sosangomin.common.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,6 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             String jwtToken = detachBearer(token);
+
+            if (!jwtTokenUtil.validateToken(jwtToken)) {
+                throw new BadRequestException(ErrorMessage.ERR_INVALID_TOKEN);
+            }
 
             if (StringUtils.hasText(jwtToken) && jwtTokenUtil.validateToken(jwtToken)) {
 
