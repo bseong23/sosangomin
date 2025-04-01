@@ -27,6 +27,9 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
+    mongodb:
+      uri: ${MONGO_URI}
+
   security:
     oauth2:
       client:
