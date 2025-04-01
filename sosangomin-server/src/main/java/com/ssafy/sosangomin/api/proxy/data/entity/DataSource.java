@@ -1,4 +1,4 @@
-package com.ssafy.sosangomin.api.proxy.data.dto;
+package com.ssafy.sosangomin.api.proxy.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;

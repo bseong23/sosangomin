@@ -2,6 +2,8 @@ package com.ssafy.sosangomin.api.proxy.competitor.controller;
 
 import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.competitor.service.CompetitorProxyService;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,17 +20,25 @@ import com.ssafy.sosangomin.api.proxy.competitor.docs.CompetitorSwagger;
 public class CompetitorProxyController implements CompetitorSwagger {
 
     private final CompetitorProxyService competitorProxyService;
+    private final IdEncryptionUtil idEncryptionUtil;
 
     @GetMapping("/{storeId}")
-    public ResponseEntity<Object> getStoreComparisonList(@PathVariable int storeId) {
+    public ResponseEntity<Object> getStoreComparisonList(@DecryptedId @PathVariable Long storeId) {
         log.info("Received store comparison list request for store ID: {}", storeId);
         return competitorProxyService.getStoreComparisonList(storeId).block();
     }
 
     @PostMapping("/analysis")
-    public ResponseEntity<Object> oneClickAnalyzeCompetitor(@RequestBody CompetitorAnalysisRequest request) {
+    public ResponseEntity<Object> oneClickAnalyzeCompetitor(
+            @RequestBody CompetitorAnalysisRequest request) {
         log.info("Received one-click competitor analysis request: {}", request);
-        return competitorProxyService.oneClickAnalyzeCompetitor(request).block();
+
+        // 복호화 수행
+        Long decryptedStoreId = idEncryptionUtil.decrypt(request.storeId());
+
+        return competitorProxyService
+                .oneClickAnalyzeCompetitor(new CompetitorAnalysisRequest(decryptedStoreId.toString(), request.competitorName()))
+                .block();
     }
 
     @GetMapping("/comparison/{comparisonId}")

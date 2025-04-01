@@ -10,7 +10,7 @@ public record CompetitorAnalysisRequest(
         @Schema(description = "매장 ID", required = true)
         @NotNull
         @JsonProperty("store_id")
-        int storeId,
+        String storeId,
 
         @Schema(description = "경쟁사 이름", required = true)
         @NotNull
