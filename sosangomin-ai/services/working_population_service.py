@@ -137,8 +137,6 @@ class WorkingPopulationService:
         """최근 직장인구 데이터 조회"""
         return db.query(Population).order_by(Population.created_at.desc()).limit(limit).all()
 
-
-# ✅ 서비스 인스턴스 생성
 working_population_service = WorkingPopulationService()
 
 # ✅ 단독 테스트 실행용

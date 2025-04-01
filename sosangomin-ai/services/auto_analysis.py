@@ -27,6 +27,21 @@ class AutoAnalysisService:
         self.temp_dir = "temp_files"
         os.makedirs(self.temp_dir, exist_ok=True)
 
+        self.pos_col = {
+            "키움": {
+                "datetime": "매출 일시",
+                "qty": "수량",
+                "price": "단가",
+                "product": "상품 명칭" 
+            },
+            "토스": {
+                "datetime": "주문시작시각",
+                "qty": "수량",
+                "price": "상품가격",
+                "product": "상품명"
+            }
+        }
+
     async def read_file(self, temp_file: str, pos_type: str = "키움") -> pd.DataFrame:
         """파일 확장자에 따른 데이터 읽기"""
         ext = os.path.splitext(temp_file)[1].lower()
@@ -38,11 +53,57 @@ class AutoAnalysisService:
         else:
             raise ValueError("지원되지 않는 파일 형식입니다. CSV 또는 Excel만 가능합니다.")
 
+    def validate_and_normalize_pos(self, df: pd.DataFrame, pos_type: str) -> pd.DataFrame:
+        """POS 데이터의 형식 검증 및 표준 컬럼명으로 통일"""
+
+        pos_map = self.pos_col.get(pos_type)
+        if not pos_map:
+            raise ValueError(f"지원하지 않는 POS 유형입니다: {pos_type}")
+
+        # 필수 컬럼 존재 여부 확인
+        required_cols = list(pos_map.values())
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            raise ValueError(f"필수 컬럼 누락: {missing}")
+
+        # 행 수 너무 적으면 비정상 파일 가능성
+        if df.shape[0] < 5:
+            raise ValueError(f"행 수가 너무 적습니다: {df.shape[0]}행")
+
+        # 상품명 다양성 검사
+        product_col = pos_map["product"]
+        if df[product_col].nunique() <= 1:
+            raise ValueError(f"상품명이 1개 이하입니다. ({product_col})")
+
+        # 날짜 형식 확인
+        try:
+            pd.to_datetime(df[pos_map["datetime"]])
+        except Exception:
+            raise ValueError(f"'{pos_map['datetime']}' 컬럼이 날짜 형식이 아닙니다.")
+
+        # 수량, 단가 숫자형 확인
+        for key in ["qty", "price"]:
+            col = pos_map[key]
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                raise ValueError(f"'{col}' 컬럼이 숫자형이 아닙니다.")
+
+        # 표준 컬럼명으로 통일
+        df = df.rename(columns={
+            pos_map["datetime"]: "매출 일시",
+            pos_map["qty"]: "수량",
+            pos_map["price"]: "단가",
+            pos_map["product"]: "상품 명칭"
+        })
+
+        return df
+
     async def preprocess_data(self, df: pd.DataFrame, pos_type: str = "키움") -> pd.DataFrame:
         """데이터 전처리 및 시간 변수 생성"""
         try:
-            # TODO : 현재 직접적인 변수명을 사용한 부분이 있는데 일반화를 할지 고민
-            
+            # 파일 형식 확인
+            df = self.validate_and_normalize_pos(df, pos_type)
+
+            # TODO: 결제 수단 이용할건지?
             if pos_type == "키움":
 
                 # 헤더의 변수명과 같은 값을 가지는 열을 삭제 
@@ -66,12 +127,9 @@ class AutoAnalysisService:
                 dup_val = ['단가', '수량', '원가']
                 for val in dup_val :
                     columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
-                    # print(val, columns)
                     if columns:
                         df[val] = df[columns].bfill(axis=1).iloc[:, 0]
                         df = df.drop(columns=columns)
-
-                # TODO: 결제 수단 이용할건지?
 
                 df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
 
@@ -82,14 +140,8 @@ class AutoAnalysisService:
                 df = df.loc[:, df.nunique() > 1]  
             
             elif pos_type == "토스":
-
-                # 필요 변수 추출 및 변수명 통일 
-                df = df[['주문시작시각', '상품명', '수량', '상품가격']]
-                df = df.rename(columns={'주문시작시각':'매출 일시', '상품명':'상품 명칭', '상품가격':'단가'})
                 df['매출'] = df['수량'] * df['단가']
                 df = df.drop(index=0).reset_index(drop=True)
-
-                # 전처리 
                 df = (
                     df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
                     .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
@@ -276,10 +328,6 @@ class AutoAnalysisService:
 
                 # 향후 30일 예측
                 future = final_model.make_future_dataframe(periods=30)
-                print("학습 데이터 시작")
-                print(full_df_prophet.head())
-                print(full_df_prophet.tail())
-                print(future)
                 # future['요일'] = future['ds'].dt.day_name()
                 # weekday_encoded_future = enc.transform(future[['요일']]) 
                 # weekday_df_future = pd.DataFrame(weekday_encoded_future, columns=enc.get_feature_names_out(['요일']))
@@ -541,8 +589,8 @@ class AutoAnalysisService:
             }
 
         except Exception as e:
-            logger.error(f"분석 중 오류 발생: {str(e)}")
-            raise ValueError(f"분석 실패: {str(e)}")
+            logger.error(f"pos 데이터 분석 중 오류 발생: {str(e)}")
+            raise ValueError(f"pos 데이터 분석 실패: {str(e)}")
 
         finally:
             for path in local_files:

@@ -51,12 +51,12 @@ class ResidentPopulationService:
                 # logger.error(f"API 응답 데이터 예시: {data}")
 
                 if 'error' in data:
-                    return 0
+                    return
                 
                 rows = data[self.resident_pop_service].get("row", [])
                 if not rows:
                     logger.warning("가져올 상주 인구 데이터가 없습니다.")
-                    return 0
+                    return
                 
                 for row in rows:
                     try:
@@ -138,8 +138,6 @@ class ResidentPopulationService:
         """최근 상주인구 데이터 조회"""
         return db.query(Population).order_by(Population.created_at.desc()).limit(limit).all()
 
-
-# ✅ 서비스 인스턴스 생성
 resident_population_service = ResidentPopulationService()
 
 # ✅ 단독 테스트 실행용
