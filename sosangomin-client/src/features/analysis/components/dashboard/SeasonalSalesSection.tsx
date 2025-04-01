@@ -1,6 +1,4 @@
-// src/features/analysis/components/dashboard/SeasonalSalesSection.tsx
 import React from "react";
-
 import { AnalysisResultData } from "../../types/analysis";
 
 interface SeasonalSalesSectionProps {
@@ -11,10 +9,7 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
   data
 }) => {
   // 시즌 매출 데이터
-  const seasonSales = data?.result_data?.season_sales?.data || {
-    봄: 14089000
-  };
-
+  const seasonSales = data?.result_data?.season_sales?.data || {};
   const seasonSalesSummary = data?.result_data?.season_sales?.summary || "";
 
   // 요약 텍스트 축약 함수

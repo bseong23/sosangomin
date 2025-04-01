@@ -1,7 +1,5 @@
-// src/features/analysis/components/dashboard/TopProductsSection.tsx
 import React from "react";
 import SalesRankingCard from "./SalesRankingCard";
-
 import { AnalysisResultData } from "../../types/analysis";
 
 interface TopProductsSectionProps {
@@ -10,14 +8,7 @@ interface TopProductsSectionProps {
 
 const TopProductsSection: React.FC<TopProductsSectionProps> = ({ data }) => {
   // 상위 제품 데이터
-  const topProducts = data?.result_data?.top_products?.data || {
-    공기밥: 3025000,
-    소주: 1601000,
-    "조림점심특선(소)": 1538000,
-    "조림점심특선(중)": 1321000,
-    "매콤명태조림(소)": 975000
-  };
-
+  const topProducts = data?.result_data?.top_products?.data || {};
   const topProductsSummary = data?.result_data?.top_products?.summary || "";
 
   const topProductsLabels = Object.keys(topProducts);

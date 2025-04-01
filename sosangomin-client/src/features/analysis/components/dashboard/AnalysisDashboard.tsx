@@ -1,5 +1,6 @@
 // src/features/analysis/components/dashboard/AnalysisDashboard.tsx
 import React, { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import StatsCard from "./StatsCard";
 import SummarySection from "./SummarySection";
 import HourlySalesSection from "./HourlySalesSection";
@@ -10,180 +11,151 @@ import SeasonalSalesSection from "./SeasonalSalesSection";
 import StrategySection from "./StrategySection";
 import ForecastSection from "./ForecastSection";
 import AnalysisSelector from "./AnalysisSelector";
-import { useAnalysisData } from "../../hooks/useAnalysisData";
 import Loading from "@/components/common/Loading";
-
-// TODO: 백엔드 API 연동 시 주석 해제
-// import { useAnalysisStore } from '@/features/analysis';
-// import { useAnalysisPolling } from '@/features/analysis';
-// import { useLocation } from 'react-router-dom';
-
-// 분석 항목 인터페이스
-interface AnalysisItem {
-  analysis_id: string;
-  created_at: string;
-  store_id: number;
-  status: "success" | "pending" | "failed";
-}
+import useAnalysisStore from "@/store/useAnalysisStore";
 
 const AnalysisDashboard: React.FC = () => {
+  // 매장 ID를 1로 고정 (추후 Zustand에서 관리하는 상태로 변경 가능)
+  const storeId = "1hGScLSIMYqWR9OwRajVxw";
+  const { analysisId } = useParams<{ analysisId?: string }>();
+
+  // 스토어에서 상태와 액션 가져오기
+  const {
+    currentAnalysis,
+    analysisList,
+    isLoading,
+    isLoadingList,
+    error,
+    listError,
+    fetchStoreAnalysisList,
+    fetchAnalysisResult
+  } = useAnalysisStore();
+
   // 현재 선택된 분석 ID 상태
   const [selectedAnalysisId, setSelectedAnalysisId] = useState<
     string | undefined
-  >(undefined);
+  >(analysisId);
 
-  // 분석 목록 상태
-  const [analysisList, setAnalysisList] = useState<AnalysisItem[]>([]);
-  const [isLoadingList, setIsLoadingList] = useState<boolean>(true);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisItem | null>(
-    null
-  );
+  // 변환된 분석 목록 및 선택된 분석 항목 상태
+  const [displayAnalysisList, setDisplayAnalysisList] = useState<any[]>([]);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<any | null>(null);
 
-  // API 통합 시 상점 ID는 컨텍스트 또는 Redux에서 가져올 수 있음
-  const storeId = 1; // 임시 상점 ID
-
-  // Mock 데이터 (API 연동 전까지 사용)
-  const mockAnalysisList: AnalysisItem[] = [
-    {
-      analysis_id: "a1",
-      created_at: "2025-04-01T12:00:00Z",
-      store_id: 1,
-      status: "success"
-    },
-    {
-      analysis_id: "a2",
-      created_at: "2025-03-25T15:30:00Z",
-      store_id: 1,
-      status: "success"
-    },
-    {
-      analysis_id: "a3",
-      created_at: "2025-03-20T09:15:00Z",
-      store_id: 1,
-      status: "success"
-    },
-    {
-      analysis_id: "a4",
-      created_at: "2025-03-15T18:45:00Z",
-      store_id: 1,
-      status: "success"
-    }
-  ];
-
-  // 분석 목록과 초기 분석 데이터를 함께 불러오기
+  // 분석 목록 로드
   useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoadingList(true);
-      try {
-        // API 연동시 아래 코드로 대체
-        // const response = await getAnalysisListByStoreId(storeId);
-        // setAnalysisList(response.data);
+    if (!storeId) return;
 
-        // Mock 데이터 가져오기
-        await new Promise((resolve) => setTimeout(resolve, 500)); // API 호출 지연 시뮬레이션
-        setAnalysisList(mockAnalysisList);
-
-        // 가장 최근 분석을 기본으로 선택
-        if (mockAnalysisList.length > 0) {
-          const firstAnalysis = mockAnalysisList[0];
-          setSelectedAnalysis(firstAnalysis);
-          setSelectedAnalysisId(firstAnalysis.analysis_id);
-        }
-      } catch (error) {
-        console.error("분석 목록을 가져오는데 실패했습니다.", error);
-      } finally {
-        setIsLoadingList(false);
-      }
+    const loadAnalysisList = async () => {
+      await fetchStoreAnalysisList(storeId);
     };
 
-    fetchInitialData();
-  }, [storeId]);
+    loadAnalysisList();
+  }, [storeId, fetchStoreAnalysisList]);
 
-  const { data, loading, error } = useAnalysisData(selectedAnalysisId);
+  // 분석 목록이 로드되면, 목록을 컴포넌트가 이해할 수 있는 형식으로 변환
+  useEffect(() => {
+    console.log("전체 분석 목록:", analysisList);
 
+    if (analysisList && (analysisList.analysisList || analysisList.analyses)) {
+      const list = analysisList.analysisList || analysisList.analyses;
+      const convertedList = list.map((item: any) => ({
+        analysis_id: item.analysisId || item.analysis_id,
+        created_at: item.createdAt || item.created_at,
+        store_id: storeId,
+        status: "success" // API에서 상태 정보가 없으면 success로 가정
+      }));
+
+      setDisplayAnalysisList(convertedList);
+
+      // 선택된 분석 ID가 없으면 첫 번째 항목 선택
+      if (!selectedAnalysisId && convertedList.length > 0) {
+        const firstAnalysisId = convertedList[0].analysis_id;
+        setSelectedAnalysisId(firstAnalysisId);
+        setSelectedAnalysis(convertedList[0]);
+        fetchAnalysisResult(firstAnalysisId);
+      } else if (selectedAnalysisId) {
+        // 선택된 분석이 있으면 해당 분석 정보 설정
+        const selected = convertedList.find(
+          (item: any) => item.analysis_id === selectedAnalysisId
+        );
+        if (selected) {
+          setSelectedAnalysis(selected);
+          fetchAnalysisResult(selectedAnalysisId);
+        }
+      }
+    }
+  }, [analysisList, selectedAnalysisId, fetchAnalysisResult, storeId]);
+
+  useEffect(() => {
+    console.log("analysisList:", analysisList);
+    console.log("currentAnalysis:", currentAnalysis);
+  }, [analysisList, currentAnalysis]);
   // 분석 선택 핸들러
   const handleAnalysisSelect = useCallback(
     (analysisId: string) => {
       setSelectedAnalysisId(analysisId);
-      const selected = analysisList.find(
+      const selected = displayAnalysisList.find(
         (item) => item.analysis_id === analysisId
       );
       if (selected) {
         setSelectedAnalysis(selected);
       }
-      // 실제 구현에서는 여기서 해당 분석 ID에 대한 데이터를 불러오는 API 호출
-      // fetchAnalysisResult(analysisId);
+
+      // 분석 결과 가져오기
+      fetchAnalysisResult(analysisId);
     },
-    [analysisList]
+    [displayAnalysisList, fetchAnalysisResult]
   );
 
-  // TODO: 백엔드 API 연동 시 주석 해제
-  // const location = useLocation();
-  // const { currentAnalysis, isLoading: analysisLoading, error: analysisError, fetchAnalysisResult } = useAnalysisStore();
-
-  // 라우팅으로 전달받은 분석 ID가 있는지 확인
-  // useEffect(() => {
-  //   // URL 쿼리 파라미터나 state에서 분석 ID 가져오기
-  //   const searchParams = new URLSearchParams(location.search);
-  //   const analysisId = searchParams.get('analysis_id') ||
-  //                     (location.state && location.state.analysisId);
-  //
-  //   if (analysisId) {
-  //     // 분석 결과 조회
-  //     fetchAnalysisResult(analysisId);
-  //     setSelectedAnalysisId(analysisId);
-  //   }
-  // }, [location, fetchAnalysisResult]);
-
-  // 폴링을 통한 분석 상태 확인 (백엔드 API 연동 시 주석 해제)
-  // const { analysisState, startPolling } = useAnalysisPolling(
-  //   selectedAnalysisId,
-  //   { pollingInterval: 3000, maxAttempts: 100 }
-  // );
-
-  // 분석 ID가 있으면 폴링 시작
-  // useEffect(() => {
-  //   if (selectedAnalysisId) {
-  //     startPolling();
-  //   }
-  // }, [selectedAnalysisId, startPolling]);
-
-  // TODO: 백엔드 API 연동 시 replace
-  // const loadingState = loading;
-  // const errorState = error;
-  // const dataState = data;
-
-  // TODO: 백엔드 API 연동 시 주석 해제
-  // // 폴링 또는 단일 요청의 결과를 사용
-  // const loadingState = analysisState.isLoading || analysisLoading;
-  // const errorState = analysisState.error || analysisError;
-  // const dataState = analysisState.data || currentAnalysis;
-
   // 통합 로딩 상태
-  const isLoading = isLoadingList || loading;
+  const isLoadingData = isLoading || isLoadingList;
+  const anyError = error || listError;
 
-  if (isLoading) return <Loading />;
-  if (error)
+  if (isLoadingData) return <Loading />;
+  if (anyError)
     return (
       <div className="text-center py-10 text-red-500">
-        데이터를 불러오는데 실패했습니다.
+        데이터를 불러오는데 실패했습니다: {anyError}
       </div>
     );
-  if (!data) return null;
+  if (!currentAnalysis) {
+    return (
+      <div className="text-center py-10">
+        분석 데이터가 없습니다. 분석을 실행해주세요.
+      </div>
+    );
+  }
 
-  // 기본 통계 데이터
-  const basicStats = data?.result_data?.basic_stats?.data || {
-    total_sales: 14089000,
-    avg_transaction: 46042.48366013072,
-    total_transactions: 306,
-    unique_products: 27,
-    customer_avg: 47278.523489932886
+  console.log("API 응답:", currentAnalysis);
+
+  // result_data를 그대로 사용 (useAnalysisStore에서 이미 적절히 변환됨)
+  const resultData = currentAnalysis.result_data;
+  console.log("추출된 결과 데이터:", resultData);
+
+  // 데이터가 API 응답 형식에 맞게 구성
+  const data = {
+    result_data: resultData,
+    summary: currentAnalysis.summary,
+    analysis_id: currentAnalysis._id,
+    created_at: currentAnalysis.created_at,
+    status: currentAnalysis.status
   };
 
-  const basicStatsSummary = data?.result_data?.basic_stats?.summary || "";
+  console.log("변환된 데이터 구조:", data);
+  console.log("기본 통계 데이터:", resultData?.basic_stats?.data);
+
+  // 기본 통계 데이터
+  const basicStats = resultData?.basic_stats?.data || {
+    total_sales: 0,
+    avg_transaction: 0,
+    total_transactions: 0,
+    unique_products: 0,
+    customer_avg: 0
+  };
+
+  const basicStatsSummary = resultData?.basic_stats?.summary || "";
 
   // 전체 요약
-  const overallSummary = data?.summary || "";
+  const overallSummary = currentAnalysis?.summary || "";
 
   return (
     <div>
@@ -191,11 +163,11 @@ const AnalysisDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold text-comment">지금 우리 가게는?</h1>
 
-          {/* 분석 선택기 - 미리 로드된 분석 목록 전달 */}
+          {/* 분석 선택기 - API에서 로드된 분석 목록 전달 */}
           <div className="flex items-center">
             <AnalysisSelector
-              storeId={storeId}
-              analysisList={analysisList}
+              storeId={Number(storeId)}
+              analysisList={displayAnalysisList}
               currentAnalysisId={selectedAnalysisId}
               selectedAnalysis={selectedAnalysis}
               onAnalysisSelect={handleAnalysisSelect}

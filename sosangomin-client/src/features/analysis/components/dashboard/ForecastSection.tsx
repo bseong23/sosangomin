@@ -1,4 +1,3 @@
-// src/features/analysis/components/dashboard/ForecastSection.tsx
 import React from "react";
 
 interface ForecastSectionProps {
@@ -12,7 +11,7 @@ interface ForecastSectionProps {
 }
 
 const ForecastSection: React.FC<ForecastSectionProps> = ({ basicStats }) => {
-  // 성장률 (고정값 예시: 실제로는 API에서 받거나 계산해야 함)
+  // 성장률은 기본값으로 설정 (실제로는 API에서 받아올 수 있음)
   const growthRate = 12.1;
 
   // 다음달 예상 매출 계산

@@ -9,11 +9,7 @@ interface DistributionSectionProps {
 
 const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
   // 평일/휴일 매출 데이터
-  const holidaySales = data?.result_data?.holiday_sales?.data || {
-    평일: 7122000,
-    휴일: 6967000
-  };
-
+  const holidaySales = data?.result_data?.holiday_sales?.data || {};
   const holidaySalesSummary = data?.result_data?.holiday_sales?.summary || "";
 
   const holidaySalesData = {
@@ -30,12 +26,7 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
   };
 
   // 시간대별 매출 데이터
-  const timePeriodSales = data?.result_data?.time_period_sales?.data || {
-    기타: 26000,
-    저녁: 8553000,
-    점심: 5510000
-  };
-
+  const timePeriodSales = data?.result_data?.time_period_sales?.data || {};
   const timePeriodSalesSummary =
     data?.result_data?.time_period_sales?.summary || "";
 

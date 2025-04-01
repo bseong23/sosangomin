@@ -1,7 +1,7 @@
 // features/analysis/hooks/useAnalysisPolling.ts
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getAnalysisResult } from "../api/analysisApi";
-import { AnalysisState } from "../types/analysis";
+import { AnalysisState, AnalysisResult } from "../types/analysis";
 
 interface UseAnalysisPollingOptions {
   pollingInterval?: number; // 폴링 간격 (ms)
@@ -90,7 +90,7 @@ export const useAnalysisPolling = (
 
         // 데이터 업데이트
         setAnalysisState({
-          data: response,
+          data: response as AnalysisResult, // 타입 단언 추가
           isLoading: polling,
           error: null
         });

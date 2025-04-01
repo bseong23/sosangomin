@@ -1,26 +1,14 @@
-// src/features/analysis/components/dashboard/HourlySalesSection.tsx
 import React from "react";
 import SalesTrendCard from "./SalesTrendCard";
+import { AnalysisResultData } from "../../types/analysis";
 
 interface HourlySalesSectionProps {
-  data: any; // 타입은 실제 데이터 구조에 맞게 정의하는 것이 좋습니다
+  data: AnalysisResultData;
 }
 
 const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
-  // 시간별 매출 데이터
-  const hourlySales = data?.result_data?.hourly_sales?.data || {
-    "11": 420000,
-    "12": 1714000,
-    "13": 1999000,
-    "14": 1274000,
-    "15": 103000,
-    "16": 26000,
-    "17": 1019000,
-    "18": 1776000,
-    "19": 3603000,
-    "20": 2155000
-  };
-
+  // 하드코딩된 데이터 대신 props 데이터 사용
+  const hourlySales = data?.result_data?.hourly_sales?.data || {};
   const hourlySalesSummary = data?.result_data?.hourly_sales?.summary || "";
 
   const hourlySalesLabels = Object.keys(hourlySales).map((hour) => `${hour}시`);

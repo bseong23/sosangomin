@@ -1,7 +1,5 @@
-// src/features/analysis/components/dashboard/WeekdaySalesSection.tsx
 import React from "react";
 import SalesRankingCard from "./SalesRankingCard";
-
 import { AnalysisResultData } from "../../types/analysis";
 
 interface WeekdaySalesSectionProps {
@@ -10,14 +8,7 @@ interface WeekdaySalesSectionProps {
 
 const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
   // 요일별 매출 데이터
-  const weekdaySales = data?.result_data?.weekday_sales?.data || {
-    Saturday: 3264000,
-    Sunday: 3703000,
-    Thursday: 2649000,
-    Tuesday: 1836000,
-    Wednesday: 2637000
-  };
-
+  const weekdaySales = data?.result_data?.weekday_sales?.data || {};
   const weekdaySalesSummary = data?.result_data?.weekday_sales?.summary || "";
 
   const weekdaySalesLabels = Object.keys(weekdaySales).map((day) => {
