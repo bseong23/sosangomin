@@ -1,5 +1,5 @@
 // features/review/components/ReviewDashboard.tsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import BarChart from "@/components/chart/BarChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import WordCloud from "./WordCloud";

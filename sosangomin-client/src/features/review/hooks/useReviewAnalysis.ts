@@ -47,6 +47,7 @@ export function useReviewAnalysis(
         setError(result.error);
         setAnalysisResult(null);
       } else {
+        setAnalysisList([]);
         setAnalysisResult(result);
       }
     } catch (err) {
