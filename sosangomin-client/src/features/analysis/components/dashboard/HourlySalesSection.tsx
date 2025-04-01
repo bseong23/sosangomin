@@ -43,7 +43,7 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
   };
 
   return (
-    <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+    <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         우리 가게 시간별 매출액
       </h2>
