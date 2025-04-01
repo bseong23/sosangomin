@@ -72,91 +72,6 @@ class Weathers(Base):
     hm = Column(Float, nullable=True, comment='습도 (%)')
     rn = Column(Float, nullable=True, comment='강수량 (mm)')
 
-# class ResidentPopulation(Base):
-#     __tablename__ = 'resident_populations' 
-
-#     resident_population_id = Column(Integer, primary_key=True, autoincrement=True, comment='거주 인구 데이터 ID (PK)')
-#     stdr_yyqu_cd = Column(String(6), comment='기준 년월분기 코드 (예: 202301)', nullable=False)
-#     adstrd_cd_nm = Column(String(100), comment='행정동 코드명 (예: 강남구 역삼동)', nullable=False)
-#     # population_type = Column(String(20), comment='인구 구분 (예: 상주인구, 유동인구, 직장인구)', nullable=False)  # 인구 구분
-
-#     # 총 인구
-#     tot_repop = Column(Integer, nullable=True, comment='총 인구 수')
-#     # ml_repop = Column(Integer, nullable=True, comment='남성 인구 수')
-#     # fml_repop = Column(Integer, nullable=True, comment='여성 인구 수')
-
-#     # 연령대별 인구
-#     # age_10_repop = Column(Integer, nullable=True, comment='연령대_10_인구 수')
-#     # age_20_repop = Column(Integer, nullable=True, comment='연령대_20_인구 수')
-#     # age_30_repop = Column(Integer, nullable=True, comment='연령대_30_인구 수')
-#     # age_40_repop = Column(Integer, nullable=True, comment='연령대_40_인구 수')
-#     # age_50_repop = Column(Integer, nullable=True, comment='연령대_50_인구 수')
-#     # age_60_repop = Column(Integer, nullable=True, comment='연령대_60이상_인구 수')
-
-#     # 남성 연령대별 인구
-#     male_10_repop = Column(Integer, nullable=True, comment='남성연령대_10_인구 수')
-#     male_20_repop  = Column(Integer, nullable=True, comment='남성연령대_20_인구 수')
-#     male_30_repop  = Column(Integer, nullable=True, comment='남성연령대_30_인구 수')
-#     male_40_repop  = Column(Integer, nullable=True, comment='남성연령대_40_인구 수')
-#     male_50_repop  = Column(Integer, nullable=True, comment='남성연령대_50_인구 수')
-#     male_60_repop  = Column(Integer, nullable=True, comment='남성연령대_60이상_인구 수')
-
-#     # 여성 연령대별 인구
-#     female_10_repop = Column(Integer, nullable=True, comment='여성연령대_10_인구 수')
-#     female_20_repop = Column(Integer, nullable=True, comment='여성연령대_20_인구 수')
-#     female_30_repop = Column(Integer, nullable=True, comment='여성연령대_30_인구 수')
-#     female_40_repop = Column(Integer, nullable=True, comment='여성연령대_40_인구 수')
-#     female_50_repop = Column(Integer, nullable=True, comment='여성연령대_50_인구 수')
-#     female_60_repop = Column(Integer, nullable=True, comment='여성연령대_60이상_인구 수')
-
-#     # 가구
-#     # tot_hshld_co = Column(Integer, nullable=True, comment='총 가구 수')
-#     # apt_hshld_co = Column(Integer, nullable=True, comment='아파트 가구 수')
-#     # non_apt_hshld_co = Column(Integer, nullable=True, comment='비아파트 가구 수')
-
-#     # 등록 일시
-#     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
-
-
-# class WorkingPopulation(Base):
-#     __tablename__ = 'working_populations' 
-
-#     working_population_id = Column(Integer, primary_key=True, autoincrement=True, comment='직장 인구 데이터 ID (PK)')
-#     stdr_yyqu_cd = Column(String(6), comment='기준 년월분기 코드 (예: 202301)', nullable=False)
-#     adstrd_cd_nm = Column(String(100), comment='행정동 코드명 (예: 강남구 역삼동)', nullable=False)
-
-#     # 총 인구
-#     tot_wrpop = Column(Integer, nullable=True, comment='총 인구 수')
-#     ml_wrpop = Column(Integer, nullable=True, comment='남성 인구 수')
-#     fml_wrpop = Column(Integer, nullable=True, comment='여성 인구 수')
-
-#     # 연령대별 인구
-#     age_10_wrpop = Column(Integer, nullable=True, comment='연령대_10_인구 수')
-#     age_20_wrpop = Column(Integer, nullable=True, comment='연령대_20_인구 수')
-#     age_30_wrpop = Column(Integer, nullable=True, comment='연령대_30_인구 수')
-#     age_40_wrpop = Column(Integer, nullable=True, comment='연령대_40_인구 수')
-#     age_50_wrpop = Column(Integer, nullable=True, comment='연령대_50_인구 수')
-#     age_60_wrpop = Column(Integer, nullable=True, comment='연령대_60이상_인구 수')
-
-#     # 남성 연령대별 인구
-#     male_10_wrpop = Column(Integer, nullable=True, comment='남성연령대_10_인구 수')
-#     male_20_wrpop  = Column(Integer, nullable=True, comment='남성연령대_20_인구 수')
-#     male_30_wrpop  = Column(Integer, nullable=True, comment='남성연령대_30_인구 수')
-#     male_40_wrpop  = Column(Integer, nullable=True, comment='남성연령대_40_인구 수')
-#     male_50_wrpop  = Column(Integer, nullable=True, comment='남성연령대_50_인구 수')
-#     male_60_wrpop  = Column(Integer, nullable=True, comment='남성연령대_60이상_인구 수')
-
-#     # 여성 연령대별 인구
-#     female_10_wrpop = Column(Integer, nullable=True, comment='여성연령대_10_인구 수')
-#     female_20_wrpop = Column(Integer, nullable=True, comment='여성연령대_20_인구 수')
-#     female_30_wrpop = Column(Integer, nullable=True, comment='여성연령대_30_인구 수')
-#     female_40_wrpop = Column(Integer, nullable=True, comment='여성연령대_40_인구 수')
-#     female_50_wrpop = Column(Integer, nullable=True, comment='여성연령대_50_인구 수')
-#     female_60_wrpop = Column(Integer, nullable=True, comment='여성연령대_60이상_인구 수')
-
-#     # 등록 일시
-#     created_at = Column(DateTime, default=datetime.datetime.now(), comment='데이터 수집 시점')
-
 class Store(Base):
     __tablename__ = 'stores'
     
@@ -431,3 +346,18 @@ class SalesData(Base):
     age_40_sales_count = Column(Integer, default=0)
     age_50_sales_count = Column(Integer, default=0)
     age_60_sales_count = Column(Integer, default=0)
+
+class RentInfo(Base):
+    __tablename__ = "rent_infos"
+
+    STRD_YR_CD = Column(String(4), primary_key=True, comment="기준년코드")
+    STRD_QTR_CD = Column(String(1), primary_key=True, comment="기준분기코드")
+    ADSTRD_CD = Column(String(10), primary_key=True, comment="행정동코드")
+    LET_CURPRC_FLR_CLSF_CD = Column(String(10), primary_key=True, comment="임대시세층구분코드")
+
+    ADSTRD_CD_NM = Column(String(255), nullable=True, comment="행정동코드명")
+    LET_CURPRC_FLR_CLSF_CD_NM = Column(String(10), nullable=True, comment="임대시세층구분명")
+    GTN_AVE = Column(Integer, nullable=True, comment="보증금평균")
+    MNTH_RENTCG_AVE = Column(Integer, nullable=True, comment="월임대료평균")
+    EXCHE_RENTCG_AVE = Column(Integer, nullable=True, comment="환산임대료평균")
+    LET_CASCNT = Column(Integer, nullable=True, comment="임대건수")
