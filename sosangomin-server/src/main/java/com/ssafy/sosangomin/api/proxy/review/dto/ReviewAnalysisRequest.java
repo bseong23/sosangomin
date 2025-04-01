@@ -8,7 +8,7 @@ public record ReviewAnalysisRequest(
         @Schema(description = "매장 ID", required = true, example = "1")
         @NotNull
         @JsonProperty("store_id")
-        int storeId,
+        String storeId,
 
         @Schema(description = "네이버 플레이스 ID", required = true, example = "1234567890")
         @NotNull

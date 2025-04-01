@@ -19,7 +19,7 @@ public class CompetitorProxyService {
 
     private final WebClient webClient;
 
-    public Mono<ResponseEntity<Object>> getStoreComparisonList(int storeId) {
+    public Mono<ResponseEntity<Object>> getStoreComparisonList(Long storeId) {
         return webClient.get()
                 .uri("/api/competitor/{storeId}", storeId)
                 .retrieve()

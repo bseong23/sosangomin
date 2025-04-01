@@ -60,7 +60,7 @@ public interface DataSwagger {
             }
     )
     ResponseEntity<Object> getDataSources(
-            @Parameter(description = "매장 ID (필터링용)") @RequestParam(required = false) Integer storeId);
+            @Parameter(description = "매장 ID (필터링용)") @RequestParam(required = false) Long storeId);
 
     @Operation(
             summary = "데이터소스 상세 조회",

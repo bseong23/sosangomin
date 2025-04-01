@@ -49,7 +49,7 @@ public class ReviewProxyService {
                 .map(ResponseEntity::ok);
     }
 
-    public Mono<ResponseEntity<Object>> getStoreReviewsList(int storeId) {
+    public Mono<ResponseEntity<Object>> getStoreReviewsList(Long storeId) {
         return webClient.get()
                 .uri("/api/reviews/store/{storeId}", storeId)
                 .retrieve()

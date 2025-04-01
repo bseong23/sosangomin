@@ -2,6 +2,7 @@ package com.ssafy.sosangomin.api.proxy.data.controller;
 
 import com.ssafy.sosangomin.api.proxy.data.docs.DataSwagger;
 import com.ssafy.sosangomin.api.proxy.data.service.DataProxyService;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class DataProxyController implements DataSwagger {
     private final DataProxyService dataProxyService;
 
     @GetMapping("/datasources")
-    public ResponseEntity<Object> getDataSources(@RequestParam(required = false) Integer storeId) {
+    public ResponseEntity<Object> getDataSources(@DecryptedId @RequestParam(required = false) Long storeId) {
         log.info("Received data sources list request with store ID: {}", storeId);
         return dataProxyService.getDataSources(storeId).block();
     }

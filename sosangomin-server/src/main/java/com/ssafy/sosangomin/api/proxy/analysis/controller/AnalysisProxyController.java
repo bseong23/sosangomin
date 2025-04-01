@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.proxy.analysis.controller;
 import com.ssafy.sosangomin.api.proxy.analysis.docs.AnalysisSwagger;
 import com.ssafy.sosangomin.api.proxy.analysis.dto.CombinedAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.analysis.service.AnalysisProxyService;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +19,23 @@ import reactor.core.publisher.Mono;
 public class AnalysisProxyController implements AnalysisSwagger {
 
     private final AnalysisProxyService analysisProxyService;
+    private final IdEncryptionUtil idEncryptionUtil;
 
     @PostMapping
-    public ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request) {
-        log.info("Received combined analysis request: {}", request);
-        return analysisProxyService.analyzeCombinedData(request)
+    public ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest encryptedRequest) {
+        log.info("Received combined analysis request with encrypted store_id: {}", encryptedRequest);
+
+        Long decryptedStoreId = idEncryptionUtil.decrypt(encryptedRequest.storeId());
+
+        CombinedAnalysisRequest decryptedRequest = new CombinedAnalysisRequest(
+                String.valueOf(decryptedStoreId),
+                encryptedRequest.sourceIds(),
+                encryptedRequest.posType()
+        );
+
+        log.info("Decrypted store_id for analysis: {}", decryptedStoreId);
+
+        return analysisProxyService.analyzeCombinedData(decryptedRequest)
                 .map(ResponseEntity::ok).block();
     }
 

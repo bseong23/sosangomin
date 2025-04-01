@@ -1,5 +1,6 @@
 package com.ssafy.sosangomin.api.proxy.data.dto;
 
+import com.ssafy.sosangomin.api.proxy.data.entity.DataSource;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record DataSourceDetailResponse(

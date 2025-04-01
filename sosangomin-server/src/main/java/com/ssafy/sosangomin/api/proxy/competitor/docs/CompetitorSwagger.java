@@ -76,7 +76,7 @@ public interface CompetitorSwagger {
             }
     )
     ResponseEntity<Object> getStoreComparisonList(
-            @Parameter(description = "매장 ID") @PathVariable int storeId);
+            @Parameter(description = "매장 ID") @PathVariable Long storeId);
 
     @Operation(
             summary = "원클릭 경쟁사 분석",

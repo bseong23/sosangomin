@@ -7,9 +7,8 @@ import java.util.List;
 
 public record CombinedAnalysisRequest(
         @Schema(description = "매장 ID", required = true, example = "1")
-        @NotNull
         @JsonProperty("store_id")
-        int storeId,
+        String storeId,
 
         @Schema(description = "데이터소스 ID 목록", required = true, example = "[\"source_1\", \"source_2\"]")
         @NotNull
