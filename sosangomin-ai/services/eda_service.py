@@ -366,7 +366,7 @@ class EdaService:
                 raise ValueError(f"ID가 {analysis_id}인 EDA 결과를 찾을 수 없습니다.")
             
             result["_id"] = str(result["_id"])
-            result["source_id"] = str(result["source_id"])
+            result["source_ids"] = str(result["source_ids"])
             
             return {
                 "status": "success",
@@ -388,7 +388,7 @@ class EdaService:
             results = []
             for result in cursor:
                 result["_id"] = str(result["_id"])
-                result["source_id"] = str(result["source_id"])
+                result["source_ids"] = str(result["source_ids"])
                 results.append(result)
             
             return {
