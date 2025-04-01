@@ -1,5 +1,3 @@
-// src/features/analysis/components/SalesRankingCard.tsx
-
 import React from "react";
 import BarChart from "@/components/chart/BarChart";
 
