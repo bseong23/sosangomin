@@ -256,8 +256,8 @@ class EdaService:
                     "summary": overall_summary
                 },
                 "auto_analysis_results": {
-                    "predict": predict_result,
-                    "cluster": cluster_result,
+                    "predict": predict_value,
+                    "cluster": cluster_value,
                     "summaries": {
                         "predict_summary": predict_summary,
                         "cluster_summary": cluster_summary
