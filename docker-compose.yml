@@ -25,6 +25,7 @@ services:
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
       - REDIS_SERVER_IP=${REDIS_SERVER_IP}
       - FASTAPI_URL=${FASTAPI_URL}
+      - MONGO_URI=${MONGO_URI}
     networks:
       - sosangomin-network
 
@@ -60,6 +61,9 @@ services:
       - WORKING_POPULATION_API_KEY=${WORKING_POPULATION_API_KEY}
       - BUS_API_KEY=${BUS_API_KEY}
       - SUBWAY_API_KEY=${SUBWAY_API_KEY}
+      - STORE_API_KEY=${STORE_API_KEY}
+      - TRADE_AREA_CHANGE_KEY=${TRADE_AREA_CHANGE_KEY}
+      - SALES_API_KEY=${SALES_API_KEY}
     networks:
       - sosangomin-network
 
