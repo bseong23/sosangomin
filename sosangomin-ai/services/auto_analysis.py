@@ -212,13 +212,13 @@ class AutoAnalysisService:
             kmeans = KMeans(n_clusters=k, random_state=42, n_init='auto')
             labels = kmeans.fit_predict(data)
             score = silhouette_score(data, labels)
-            print(f"[K={k}] Silhouette Score: {score:.4f}")
+            # print(f"[K={k}] Silhouette Score: {score:.4f}")
 
             if score > best_score:
                 best_score = score
                 best_k = k
 
-        print(f"최적 클러스터 수: {best_k}")
+        # print(f"최적 클러스터 수: {best_k}")
         return best_k
 
     def find_best_k_elbow(self, data: pd.DataFrame, k_min: int = 2, k_max: int = 10) -> int:
@@ -330,10 +330,10 @@ class AutoAnalysisService:
             max_row = forecast_30.loc[forecast_30["예측 매출"].idxmax()]
             min_row = forecast_30.loc[forecast_30["예측 매출"].idxmin()]
 
-            print('================= 실제 데이터 ===================')
-            print(recent_30_df)
-            print('================= 예측 데이터 ===================')
-            print(forecast_30)
+            # print('================= 실제 데이터 ===================')
+            # print(recent_30_df)
+            # print('================= 예측 데이터 ===================')
+            # print(forecast_30)
 
             return {
                 "message": "향후 30일 매출 예측 완료",
@@ -445,8 +445,6 @@ class AutoAnalysisService:
 
             # 예측 & 클러스터링
             predict_result = await self.predict_next_30_sales(combined_df)
-            print("=============== 예측 결과 =============")
-            print(predict_result)
             cluster_result = await self.cluster_items(combined_df)
 
             # 요약

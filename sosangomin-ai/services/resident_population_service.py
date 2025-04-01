@@ -6,7 +6,6 @@ import asyncio
 import aiohttp
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
 from db_models import Population 
