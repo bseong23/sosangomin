@@ -183,7 +183,11 @@ public interface StoreSwagger {
                     )
             }
     )
-    ResponseEntity<Object> getStoreDetail(@DecryptedId @PathVariable Long encryptedStoreId);
+    ResponseEntity<Object> getStoreDetail(
+            @DecryptedId
+            @Parameter(schema = @Schema(type = "string"))
+            @PathVariable
+            Long encryptedStoreId);
 
     @Operation(
             summary = "매장 분석 목록 조회",
@@ -231,6 +235,10 @@ public interface StoreSwagger {
                     )
             }
     )
-    ResponseEntity<Object> getAnalysisList(@DecryptedId @PathVariable Long encryptedStoreId);
+    ResponseEntity<Object> getAnalysisList(
+            @DecryptedId
+            @PathVariable
+            @Parameter(schema = @Schema(type = "string"))
+            Long encryptedStoreId);
 
 }

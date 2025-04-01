@@ -4,6 +4,7 @@ import com.ssafy.sosangomin.api.proxy.competitor.dto.ComparisonResultResponse;
 import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.competitor.dto.CompetitorAnalysisResponse;
 import com.ssafy.sosangomin.api.proxy.competitor.dto.StoreComparisonListResponse;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -76,7 +77,10 @@ public interface CompetitorSwagger {
             }
     )
     ResponseEntity<Object> getStoreComparisonList(
-            @Parameter(description = "매장 ID") @PathVariable Long storeId);
+            @DecryptedId
+            @Parameter(description = "매장 ID", schema = @Schema(type = "string"))
+            @PathVariable
+            Long storeId);
 
     @Operation(
             summary = "원클릭 경쟁사 분석",

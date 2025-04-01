@@ -3,6 +3,7 @@ package com.ssafy.sosangomin.api.proxy.review.docs;
 import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisResponse;
 import com.ssafy.sosangomin.api.proxy.review.dto.StoreReviewsListResponse;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -107,7 +108,11 @@ public interface ReviewSwagger {
             }
     )
     ResponseEntity<Object> getStoreReviewsList(
-            @Parameter(description = "매장 ID") @PathVariable Long storeId);
+            @DecryptedId
+            @Parameter(description = "매장 ID", schema = @Schema(type = "string"))
+            @PathVariable
+            Long storeId
+    );
 
     @Operation(
             summary = "리뷰 분석 결과 조회",

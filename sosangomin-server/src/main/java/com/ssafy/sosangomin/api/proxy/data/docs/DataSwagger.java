@@ -2,6 +2,7 @@ package com.ssafy.sosangomin.api.proxy.data.docs;
 
 import com.ssafy.sosangomin.api.proxy.data.dto.DataSourceDetailResponse;
 import com.ssafy.sosangomin.api.proxy.data.dto.DataSourcesResponse;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,7 +61,10 @@ public interface DataSwagger {
             }
     )
     ResponseEntity<Object> getDataSources(
-            @Parameter(description = "매장 ID (필터링용)") @RequestParam(required = false) Long storeId);
+            @DecryptedId
+            @Parameter(description = "매장 ID (필터링용)", schema = @Schema(type = "string"))
+            @RequestParam(required = false)
+            Long storeId);
 
     @Operation(
             summary = "데이터소스 상세 조회",
