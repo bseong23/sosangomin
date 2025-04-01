@@ -31,13 +31,16 @@ public class CompetitorProxyController implements CompetitorSwagger {
     @PostMapping("/analysis")
     public ResponseEntity<Object> oneClickAnalyzeCompetitor(
             @RequestBody CompetitorAnalysisRequest request) {
-        log.info("Received one-click competitor analysis request: {}", request);
-
-        // 복호화 수행
         Long decryptedStoreId = idEncryptionUtil.decrypt(request.storeId());
 
+        CompetitorAnalysisRequest decryptedRequest = new CompetitorAnalysisRequest(
+                String.valueOf(decryptedStoreId),
+                request.competitorName()
+        );
+        log.info("Decrypted store_id for competitor analysis: {}", decryptedStoreId);
+
         return competitorProxyService
-                .oneClickAnalyzeCompetitor(new CompetitorAnalysisRequest(decryptedStoreId.toString(), request.competitorName()))
+                .oneClickAnalyzeCompetitor(decryptedRequest)
                 .block();
     }
 

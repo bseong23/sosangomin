@@ -10,7 +10,7 @@ public record DataSource(
 
         @Schema(description = "매장 ID", example = "1")
         @JsonProperty("store_id")
-        Integer storeId,
+        String storeId,
 
         @Schema(description = "원본 파일명", example = "sales_data_2025_01.xlsx")
         @JsonProperty("original_filename")

@@ -107,7 +107,7 @@ public interface ReviewSwagger {
             }
     )
     ResponseEntity<Object> getStoreReviewsList(
-            @Parameter(description = "매장 ID") @PathVariable int storeId);
+            @Parameter(description = "매장 ID") @PathVariable Long storeId);
 
     @Operation(
             summary = "리뷰 분석 결과 조회",

@@ -3,6 +3,8 @@ package com.ssafy.sosangomin.api.proxy.review.controller;
 import com.ssafy.sosangomin.api.proxy.review.docs.ReviewSwagger;
 import com.ssafy.sosangomin.api.proxy.review.dto.ReviewAnalysisRequest;
 import com.ssafy.sosangomin.api.proxy.review.service.ReviewProxyService;
+import com.ssafy.sosangomin.common.annotation.DecryptedId;
+import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,15 +20,25 @@ import reactor.core.publisher.Mono;
 public class ReviewProxyController implements ReviewSwagger {
 
     private final ReviewProxyService reviewProxyService;
-
+    private final IdEncryptionUtil idEncryptionUtil;
     @PostMapping
-    public ResponseEntity<Object> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest request) {
-        log.info("Received review analysis request: {}", request);
-        return reviewProxyService.analyzeStoreReviews(request).block();
+    public ResponseEntity<Object> analyzeStoreReviews(@RequestBody ReviewAnalysisRequest encryptedRequest) {
+        log.info("Received review analysis request: {}", encryptedRequest);
+
+        Long decryptedStoreId = idEncryptionUtil.decrypt(encryptedRequest.storeId());
+
+        ReviewAnalysisRequest decryptedRequest = new ReviewAnalysisRequest(
+                String.valueOf(decryptedStoreId),
+                encryptedRequest.placeId()
+        );
+
+        log.info("Decrypted store_id for review analysis: {}", decryptedStoreId);
+
+        return reviewProxyService.analyzeStoreReviews(decryptedRequest).block();
     }
 
     @GetMapping("/store/{storeId}")
-    public ResponseEntity<Object> getStoreReviewsList(@PathVariable int storeId) {
+    public ResponseEntity<Object> getStoreReviewsList(@DecryptedId @PathVariable Long storeId) {
         log.info("Received store reviews list request for store ID: {}", storeId);
         return reviewProxyService.getStoreReviewsList(storeId).block();
     }

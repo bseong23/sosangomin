@@ -18,7 +18,7 @@ public class DataProxyService {
 
     private final WebClient webClient;
 
-    public Mono<ResponseEntity<Object>> getDataSources(Integer storeId) {
+    public Mono<ResponseEntity<Object>> getDataSources(Long storeId) {
         return webClient.get()
                 .uri(uriBuilder -> {
                     var builder = uriBuilder.path("/api/data/datasources");

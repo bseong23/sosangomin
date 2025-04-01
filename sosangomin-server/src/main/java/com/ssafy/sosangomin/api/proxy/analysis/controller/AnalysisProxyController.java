@@ -20,10 +20,22 @@ public class AnalysisProxyController implements AnalysisSwagger {
 
     private final AnalysisProxyService analysisProxyService;
     private final IdEncryptionUtil idEncryptionUtil;
+
     @PostMapping
-    public ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest request) {
-        log.info("Received combined analysis request: {}", request);
-        return analysisProxyService.analyzeCombinedData(request)
+    public ResponseEntity<Object> analyzeCombinedData(@RequestBody CombinedAnalysisRequest encryptedRequest) {
+        log.info("Received combined analysis request with encrypted store_id: {}", encryptedRequest);
+
+        Long decryptedStoreId = idEncryptionUtil.decrypt(encryptedRequest.storeId());
+
+        CombinedAnalysisRequest decryptedRequest = new CombinedAnalysisRequest(
+                String.valueOf(decryptedStoreId),
+                encryptedRequest.sourceIds(),
+                encryptedRequest.posType()
+        );
+
+        log.info("Decrypted store_id for analysis: {}", decryptedStoreId);
+
+        return analysisProxyService.analyzeCombinedData(decryptedRequest)
                 .map(ResponseEntity::ok).block();
     }
 
