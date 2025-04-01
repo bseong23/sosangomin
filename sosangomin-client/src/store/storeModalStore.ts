@@ -12,6 +12,7 @@ interface LocationInfo {
 interface StoreData {
   name: string;
   businessNumber: string;
+  selectedPaymentOption: string;
   selectedCategory: string;
   location: LocationInfo | null;
 }
@@ -22,6 +23,7 @@ interface StoreModalState {
   currentStep: number;
   storeName: string;
   businessNumber: string;
+  selectedPaymentOption: string;
   selectedLocation: LocationInfo | null;
   selectedCategory: string;
   storeData: StoreData | null;
@@ -35,6 +37,7 @@ interface StoreModalState {
   setSelectedLocation: (location: LocationInfo) => void;
   setSelectedCategory: (category: string) => void;
   saveStoreData: () => void;
+  setSelectedPaymentOption: (payment: string) => void;
   resetModalData: () => void;
 }
 
@@ -46,6 +49,7 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
   selectedLocation: null,
   selectedCategory: "",
   storeData: null,
+  selectedPaymentOption: "",
 
   openModal: () => set({ isOpen: true }),
   closeModal: () =>
@@ -55,6 +59,7 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
       storeName: "",
       businessNumber: "",
       selectedLocation: null,
+      selectedPaymentOption: "",
       selectedCategory: "",
       storeData: null
     }),
@@ -68,14 +73,21 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
       storeName: location.name
     })),
   setSelectedCategory: (category) => set({ selectedCategory: category }),
-
+  setSelectedPaymentOption: (payment) =>
+    set({ selectedPaymentOption: payment }),
   saveStoreData: () => {
-    const { storeName, businessNumber, selectedCategory, selectedLocation } =
-      get();
+    const {
+      storeName,
+      businessNumber,
+      selectedCategory,
+      selectedPaymentOption,
+      selectedLocation
+    } = get();
     if (
       !storeName ||
       !businessNumber ||
       !selectedCategory ||
+      !selectedPaymentOption ||
       !selectedLocation
     ) {
       alert("모든 필드를 입력해주세요.");
@@ -85,6 +97,7 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
     const storeData: StoreData = {
       name: storeName,
       businessNumber,
+      selectedPaymentOption,
       selectedCategory,
       location: selectedLocation
     };
@@ -98,15 +111,11 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
       currentStep: 1,
       storeName: "",
       businessNumber: "",
+      selectedPaymentOption: "",
       selectedLocation: null,
       selectedCategory: "",
       storeData: null
     })
 }));
-
-// ✅ 개발용으로 window에 저장 (프로덕션에서는 제거해야 함)
-if (typeof window !== "undefined") {
-  (window as any).useStoreModalStore = useStoreModalStore;
-}
 
 export default useStoreModalStore;

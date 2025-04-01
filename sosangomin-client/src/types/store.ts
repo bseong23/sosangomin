@@ -11,6 +11,7 @@ export interface LocationInfo {
 
 export interface StoreData {
   name: string;
+  selectedPaymentOption: string;
   selectedCategory: string;
   businessNumber: string;
   location: LocationInfo | null;

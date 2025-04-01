@@ -16,10 +16,10 @@ export interface DoughnutChartProps {
   chartData: {
     labels: string[];
     datasets: {
-      label: string;
+      label?: string; // 선택적으로 변경
       data: number[];
       backgroundColor: string[];
-      borderColor: string[];
+      borderColor?: string[]; // 선택적으로 변경
       borderWidth: number;
     }[];
   };

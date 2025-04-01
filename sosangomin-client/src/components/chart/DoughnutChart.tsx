@@ -11,19 +11,20 @@ import { DoughnutChartProps } from "@/types/chart";
 // Chart.js 컴포넌트 등록
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DoughnutChart: React.FC<DoughnutChartProps> = ({ chartData }) => {
-  // 차트 옵션 설정
+const DoughnutChart: React.FC<
+  DoughnutChartProps & { legendPosition?: "top" | "bottom" | "left" | "right" }
+> = ({ chartData, legendPosition = "top" }) => {
   const options: ChartOptions<"doughnut"> = {
-    responsive: true, // 창 크기에 따라 그래프 크기 조절
+    responsive: true,
     plugins: {
       legend: {
-        position: "top" // 범례 위치
+        position: legendPosition // 동적 설정
       },
       title: {
         display: false
       }
     },
-    cutout: "50%" // 도넛 차트의 중앙 구멍 크기 설정 (기본값은 '50%')
+    cutout: "50%"
   };
 
   return (
