@@ -348,7 +348,7 @@ class SalesData(Base):
     age_60_sales_count = Column(Integer, default=0)
 
 class RentInfo(Base):
-    __tablename__ = "rent_infos"
+    __tablename__ = "rent_info"
 
     STRD_YR_CD = Column(String(4), primary_key=True, comment="기준년코드")
     STRD_QTR_CD = Column(String(1), primary_key=True, comment="기준분기코드")
@@ -361,3 +361,35 @@ class RentInfo(Base):
     MNTH_RENTCG_AVE = Column(Integer, nullable=True, comment="월임대료평균")
     EXCHE_RENTCG_AVE = Column(Integer, nullable=True, comment="환산임대료평균")
     LET_CASCNT = Column(Integer, nullable=True, comment="임대건수")
+
+class Facilities(Base):
+    __tablename__ = "facilities"
+
+    facility_id = Column(Integer, primary_key=True, autoincrement=True)
+    year = Column(Integer, nullable=False)    
+    quarter = Column(Integer, nullable=False)  
+    region_name = Column(String(100), index=True, nullable=False) 
+
+    viatr_fclty_co = Column(Integer, nullable=True)     
+    pblofc_co = Column(Integer, nullable=True)          
+    bank_co = Column(Integer, nullable=True)        
+    gehspt_co = Column(Integer, nullable=True)         
+    gnrl_hsptl_co = Column(Integer, nullable=True)   
+    parmacy_co = Column(Integer, nullable=True)         
+    kndrgr_co = Column(Integer, nullable=True)        
+    elesch_co = Column(Integer, nullable=True)          
+    mskul_co = Column(Integer, nullable=True)           
+    hgschl_co = Column(Integer, nullable=True)           
+    univ_co = Column(Integer, nullable=True)             
+    drts_co = Column(Integer, nullable=True)            
+    supmk_co = Column(Integer, nullable=True)           
+    theat_co = Column(Integer, nullable=True)            
+    stayng_fclty_co = Column(Integer, nullable=True)
+    arprt_co = Column(Integer, nullable=True)          
+    rlroad_statn_co = Column(Integer, nullable=True)   
+    bus_trminl_co = Column(Integer, nullable=True)      
+    subway_statn_co = Column(Integer, nullable=True)    
+    bus_sttn_co = Column(Integer, nullable=True)        
+
+    created_at = Column(DateTime, default=datetime.datetime.now, comment="데이터 수집 시점")
+
