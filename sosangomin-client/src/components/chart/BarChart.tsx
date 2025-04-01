@@ -52,7 +52,6 @@ const BarChart: React.FC<BarChartProps> = ({
   yAxisLabel = "", // Y축 레이블
   legend = true, // 범례 표시 여부 (기본값: 표시)
   legendPosition = "top", // 범례 위치 (기본값: 상단)
-  gridLines = true, // 그리드 라인 표시 여부 (기본값: 표시)
   beginAtZero = true, // Y축 0부터 시작 여부 (기본값: 0부터 시작)
   tooltips = true, // 툴팁 표시 여부 (기본값: 표시)
   animation = true, // 애니메이션 효과 (기본값: 사용)
@@ -91,7 +90,7 @@ const BarChart: React.FC<BarChartProps> = ({
           text: xAxisLabel // X축 레이블 텍스트
         },
         grid: {
-          display: gridLines // X축 그리드 라인 표시 여부
+          color: "transparent" // 그리드 색상 설정 (투명)
         }
       },
       y: {
@@ -102,7 +101,7 @@ const BarChart: React.FC<BarChartProps> = ({
           text: yAxisLabel // Y축 레이블 텍스트
         },
         grid: {
-          display: gridLines // Y축 그리드 라인 표시 여부
+          color: "transparent" // 그리드 색상 설정 (투명)
         }
       }
     },

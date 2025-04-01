@@ -59,15 +59,15 @@ export const login = async (
 /**
  * 사용자 정보 조회 API 호출
  */
-export const getUserProfile = async (): Promise<ApiResponse> => {
-  try {
-    const response = await axiosInstance.get("/api/v1/users/me");
-    return response.data;
-  } catch (error) {
-    console.error("사용자 정보 조회 오류:", error);
-    throw error;
-  }
-};
+// export const getUserProfile = async (): Promise<ApiResponse> => {
+//   try {
+//     const response = await axiosInstance.get("/api/v1/users/me");
+//     return response.data;
+//   } catch (error) {
+//     console.error("사용자 정보 조회 오류:", error);
+//     throw error;
+//   }
+// };
 
 /**
  * 회원가입 API 호출
