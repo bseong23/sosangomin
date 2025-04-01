@@ -31,7 +31,7 @@ import NoticePostDetailPage from "./pages/NoticePostDetailPage";
 import DataUploadPage from "@/pages/DataUploadPage";
 import ResearchPage from "@/pages/ResearchPage";
 import Map from "@/pages/Map";
-import ReviewStore from "@/pages/ReviewStore";
+import ReviewDashBoard from "./features/review/components/ReviewDashBoard";
 import ReviewCompare from "@/pages/ReviewCompare";
 import ResultPage from "@/pages/ResultPage";
 
@@ -127,7 +127,7 @@ const App: React.FC = () => {
           {/* 리뷰 관련 라우트 */}
           <Route
             path="/review/store"
-            element={<PrivateRoute element={<ReviewStore />} />}
+            element={<PrivateRoute element={<ReviewDashBoard />} />}
           />
           <Route
             path="/review/compare"

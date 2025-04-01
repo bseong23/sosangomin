@@ -24,7 +24,7 @@ export interface ErrorResponse {
  */
 export interface ReviewAnalysisRequest {
   /** 매장 ID */
-  store_id: number;
+  store_id: string;
   /** 장소 ID (네이버/구글 등의 플랫폼에서의 ID) */
   place_id: string;
 }
@@ -36,7 +36,7 @@ export interface ReviewAnalysisResult {
   /** 분석 결과 ID */
   analysis_id: string;
   /** 매장 ID */
-  store_id: number;
+  store_id: string;
   /** 매장 이름 */
   store_name: string;
   /** 분석 상태 (success, pending, failed 등) */
@@ -104,7 +104,7 @@ export interface ReviewAnalysisSummary {
  */
 export interface StoreReviewAnalyses {
   /** 매장 ID */
-  store_id: number;
+  store_id: string;
   /** 매장 이름 */
   store_name: string;
   /** 총 분석 결과 수 */
@@ -124,7 +124,7 @@ export interface ReviewDashBoardProps {
   /** 분석 데이터 */
   analysisData?: ReviewAnalysisResult;
   /** 분석 요청 함수 */
-  onRequestAnalysis?: () => void;
+  onRequestAnalysis: () => void;
 }
 
 /**
