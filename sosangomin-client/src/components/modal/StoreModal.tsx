@@ -2,8 +2,8 @@ import React from "react";
 import SearchableMap from "./SearchableMap";
 import useStoreModalStore from "@/store/storeModalStore";
 import { StoreModalProps, LocationInfo } from "@/types/store";
-
-const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
+import { registerStore } from "@/features/auth/api/mypageApi";
+const StoreModal: React.FC<StoreModalProps> = () => {
   const {
     isOpen,
     currentStep,
@@ -11,12 +11,14 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
     businessNumber,
     selectedLocation,
     selectedCategory,
+    selectedPaymentOption,
     closeModal,
     setCurrentStep,
     setStoreName,
     setBusinessNumber,
     setSelectedCategory,
     setSelectedLocation,
+    setSelectedPaymentOption,
     resetModalData
   } = useStoreModalStore();
 
@@ -58,7 +60,6 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
             <p className="text-sm text-gray-600 mb-2">
               가게 이름을 검색하고 위치를 선택해 주세요.
             </p>
-
             <SearchableMap
               width="100%"
               height="300px" // 높이 조정
@@ -177,6 +178,29 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
               />
               <p className="text-xs text-gray-500 mt-1">형식: 000-00-00000</p>
             </div>
+            <div>
+              <label
+                htmlFor="paymentSelect"
+                className="block text-xs font-medium text-gray-700 mb-1"
+              >
+                결제 옵션 선택 <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="paymentSelect"
+                value={selectedPaymentOption}
+                onChange={(e) => {
+                  console.log("Selected Payment Option:", e.target.value);
+                  setSelectedPaymentOption(e.target.value);
+                }}
+                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-bit-main bg-white"
+              >
+                <option value="" disabled>
+                  결제 옵션을 선택하세요
+                </option>
+                <option value="키움">키움</option>
+                <option value="Toss">Toss</option>
+              </select>
+            </div>
 
             {/* 외식업 카테고리 선택 */}
             <div>
@@ -249,28 +273,35 @@ const StoreModal: React.FC<StoreModalProps> = ({ onSubmit }) => {
   };
 
   const buttonConfig = getButtonConfig();
-  const { saveStoreData } = useStoreModalStore();
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (buttonConfig.isValid) {
       if (currentStep === 1) {
-        if (selectedLocation) {
-          setCurrentStep(2);
-        } else {
-          alert("가게 위치를 선택해주세요.");
-        }
+        setCurrentStep(2);
       } else {
-        // 최종 제출 처리
-        saveStoreData();
-
-        console.log("등록할 가게 정보:");
-
-        // onSubmit 콜백이 제공된 경우 호출
-        if (onSubmit) {
+        if (!selectedLocation) {
+          alert("가게 위치가 선택되지 않았습니다.");
+          return;
         }
 
-        // 모달 닫기 및 데이터 리셋
-        closeModal();
-        resetModalData();
+        try {
+          // ✅ API 요청 형식에 맞게 데이터 변환
+          const payload = {
+            store_name: storeName, // ✅ storeName -> store_name
+            business_number: businessNumber, // ✅ businessNumber -> business_number
+            pos_type: selectedPaymentOption, // ✅ selectedPaymentOption -> pos_type
+            category: selectedCategory // ✅ selectedCategory -> category
+          };
+
+          // API 호출
+          const response = await registerStore(payload);
+          console.log("가게 등록 성공:", response);
+
+          alert("가게 등록이 완료되었습니다.");
+          closeModal();
+          resetModalData();
+        } catch (error) {
+          alert("가게 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
       }
     }
   };

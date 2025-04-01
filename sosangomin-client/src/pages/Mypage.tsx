@@ -2,7 +2,7 @@ import UserInfo from "@/features/auth/components/mypage/UserInfo";
 import StoreModal from "@/components/modal/StoreModal";
 import { useUserProfile } from "@/features/auth/hooks/useUserProfile";
 import useStoreModalStore from "@/store/storeModalStore";
-
+import StoreList from "@/features/auth/components/mypage/StoreList";
 const MyPage: React.FC = () => {
   const { userProfile } = useUserProfile();
   const { openModal } = useStoreModalStore();
@@ -36,6 +36,9 @@ const MyPage: React.FC = () => {
             가게 등록하기
           </button>
           <StoreModal />
+        </div>
+        <div className="pt-10">
+          <StoreList />
         </div>
       </div>
     </div>

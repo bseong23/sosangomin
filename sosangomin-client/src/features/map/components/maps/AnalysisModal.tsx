@@ -90,6 +90,161 @@ const dummyPopulationData = {
   }
 };
 
+const dummyBusinessData = {
+  main_category_store_count: [
+    {
+      year: 2024,
+      quarter: 4,
+      main_category_store_count: {
+        기타: 76,
+        도소매업: 234,
+        서비스업: 246,
+        외식업: 357
+      }
+    },
+    {
+      year: 2024,
+      quarter: 3,
+      main_category_store_count: {
+        기타: 76,
+        도소매업: 234,
+        서비스업: 250,
+        외식업: 358
+      }
+    },
+    {
+      year: 2024,
+      quarter: 2,
+      main_category_store_count: {
+        기타: 75,
+        도소매업: 232,
+        서비스업: 244,
+        외식업: 366
+      }
+    },
+    {
+      year: 2024,
+      quarter: 1,
+      main_category_store_count: {
+        기타: 73,
+        도소매업: 233,
+        서비스업: 243,
+        외식업: 366
+      }
+    }
+  ],
+  food_category_stats: {
+    "기준 연도": 2024,
+    "기준 분기": 4,
+    행정동: {
+      donut: {
+        "커피-음료": 116,
+        한식음식점: 78,
+        양식음식점: 53,
+        분식전문점: 24,
+        "호프-간이주점": 21,
+        반찬가게: 20,
+        제과점: 19,
+        일식음식점: 16,
+        패스트푸드점: 6,
+        중식음식점: 2,
+        치킨전문점: 2
+      },
+      top3: [
+        {
+          category: "커피-음료",
+          count: 116
+        },
+        {
+          category: "한식음식점",
+          count: 78
+        },
+        {
+          category: "양식음식점",
+          count: 53
+        }
+      ],
+      industry_rank: 2
+    },
+    자치구: {
+      donut: {
+        한식음식점: 2489,
+        "커피-음료": 1270,
+        "호프-간이주점": 733,
+        양식음식점: 502,
+        분식전문점: 391,
+        일식음식점: 263,
+        반찬가게: 231,
+        제과점: 217,
+        중식음식점: 192,
+        패스트푸드점: 144,
+        치킨전문점: 60
+      },
+      top3: [
+        {
+          category: "한식음식점",
+          count: 2489
+        },
+        {
+          category: "커피-음료",
+          count: 1270
+        },
+        {
+          category: "호프-간이주점",
+          count: 733
+        }
+      ],
+      industry_rank: 1
+    },
+    서울시: {
+      donut: {
+        한식음식점: 52333,
+        "커피-음료": 21315,
+        "호프-간이주점": 15362,
+        반찬가게: 9463,
+        분식전문점: 9374,
+        양식음식점: 8054,
+        일식음식점: 6485,
+        중식음식점: 5574,
+        제과점: 5403,
+        패스트푸드점: 3113,
+        치킨전문점: 2131
+      },
+      top3: [
+        {
+          category: "한식음식점",
+          count: 52333
+        },
+        {
+          category: "커피-음료",
+          count: 21315
+        },
+        {
+          category: "호프-간이주점",
+          count: 15362
+        }
+      ],
+      industry_rank: 1
+    }
+  },
+  store_open_close: {
+    "기준 연도": [2024, 2024, 2024, 2024],
+    "기준 분기": [1, 2, 3, 4],
+    업소수: [73, 77, 75, 78],
+    개업률: [3.0, 5.0, 3.0, 5.0],
+    폐업률: [3.0, 0.0, 5.0, 1.0]
+  },
+  operation_duration_summary: {
+    "기준 연도": 2024,
+    "행정동 운영 영업 개월 평균": 100.0,
+    "행정동 폐업 영업 개월 평균": 55.0,
+    "자치구 운영 영업 개월 평균": 111.6,
+    "자치구 폐업 영업 개월 평균": 58.2,
+    "서울시 운영 영업 개월 평균": 108.0,
+    "서울시 폐업 영업 개월 평균": 52.4
+  }
+};
+
 const AnalysisModal: React.FC<AnalysisModalProps> = ({
   isOpen,
   onClose,
@@ -124,7 +279,12 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
           />
         );
       case "업종":
-        return <BusinessTab selectedAdminName={selectedAdminName} />;
+        return (
+          <BusinessTab
+            selectedAdminName={selectedAdminName}
+            businessData={dummyBusinessData}
+          />
+        );
       case "매출":
         return <EtcTab selectedAdminName={selectedAdminName} />;
       default:

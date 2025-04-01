@@ -60,122 +60,102 @@ ChartJS.register(
  * />
  */
 const MixedChart: React.FC<MixedChartProps> = ({
-  labels, // X축에 표시될 레이블 배열
-  datasets, // 차트 데이터셋 배열
-  height = 400, // 차트 높이 (기본값: 400px)
-  width, // 차트 너비 (미지정 시 컨테이너 너비 사용)
-  title = "", // 차트 제목
-  xAxisLabel = "", // X축 레이블
-  yAxisLabel = "", // Y축 레이블
-  legend = true, // 범례 표시 여부 (기본값: 표시)
-  legendPosition = "top", // 범례 위치 (기본값: 상단)
-  gridLines = true, // 그리드 라인 표시 여부 (기본값: 표시)
-  beginAtZero = true, // Y축 0부터 시작 여부 (기본값: 0부터 시작)
-  tooltips = true, // 툴팁 표시 여부 (기본값: 표시)
-  animation = true, // 애니메이션 효과 (기본값: 사용)
-  responsive = true, // 반응형 차트 (기본값: 반응형)
-  maintainAspectRatio = false, // 종횡비 유지 여부 (기본값: 유지 안 함)
-  stacked = false, // 막대 그래프 누적 여부 (기본값: 비누적)
-  onClick, // 차트 요소 클릭 시 실행될 함수
-  className = "", // 추가 CSS 클래스
-  id = "mixed-chart", // 차트 HTML ID (기본값: "mixed-chart")
-  multiAxis = false, // 다중 Y축 사용 여부 (기본값: 단일 축)
-  rightYAxisLabel = "" // 오른쪽 Y축 레이블
+  labels,
+  datasets,
+  height = 400,
+  width,
+  title = "",
+  xAxisLabel = "",
+  yAxisLabel = "",
+  legend = true,
+  legendPosition = "top",
+  gridLines = true,
+  beginAtZero = true,
+  tooltips = true,
+  animation = true,
+  responsive = true,
+  maintainAspectRatio = false,
+  stacked = false,
+  onClick,
+  className = "",
+  id = "mixed-chart",
+  multiAxis = false,
+  rightYAxisLabel = ""
 }) => {
-  // 차트 데이터 설정
   const data = {
     labels,
-    datasets: multiAxis
-      ? datasets.map((dataset) => {
-          // 다중 Y축 사용 시 선 그래프는 오른쪽 축에, 막대 그래프는 왼쪽 축에 기본 할당
-          if (!dataset.yAxisID) {
-            return {
-              ...dataset,
-              yAxisID: dataset.type === "line" ? "y1" : "y"
-            };
-          }
-          return dataset;
-        })
-      : datasets
+    datasets: datasets.map((dataset) => {
+      // 바 차트에만 너비 조절 옵션 추가
+      if (dataset.type === "bar") {
+        return {
+          ...dataset,
+          barThickness: 30, // 막대 두께 (px)
+          maxBarThickness: 40, // 최대 두께
+          categoryPercentage: 0.8, // 카테고리 영역 비율
+          barPercentage: 0.5 // 막대 영역 비율
+        };
+      }
+      return dataset;
+    })
   };
 
-  // 차트 옵션 구성
   const options = {
-    responsive, // 반응형 설정
-    maintainAspectRatio, // 종횡비 유지 설정
+    responsive,
+    maintainAspectRatio,
     plugins: {
       legend: {
-        display: legend, // 범례 표시 여부
-        position: legendPosition as "top" | "right" | "bottom" | "left" // 범례 위치
+        display: legend,
+        position: legendPosition as "top" | "right" | "bottom" | "left"
       },
       title: {
-        display: !!title, // 제목 표시 여부
-        text: title, // 제목 텍스트
-        font: {
-          size: 16 // 제목 폰트 크기
-        }
+        display: !!title,
+        text: title,
+        font: { size: 16 }
       },
-      tooltip: {
-        enabled: tooltips // 툴팁 표시 여부
-      }
+      tooltip: { enabled: tooltips }
     },
     scales: {
       x: {
-        title: {
-          display: !!xAxisLabel, // X축 레이블 표시 여부
-          text: xAxisLabel // X축 레이블 텍스트
-        },
-        grid: {
-          display: gridLines // X축 그리드 라인 표시 여부
-        },
-        stacked: stacked // X축 누적 설정
+        title: { display: !!xAxisLabel, text: xAxisLabel },
+        grid: { display: gridLines },
+        stacked,
+        // 추가: x축 레벨에서 너비 제어
+        barThickness: 30,
+        categoryPercentage: 0.8,
+        barPercentage: 0.5
       },
       y: {
-        beginAtZero, // Y축 0부터 시작 여부
-        title: {
-          display: !!yAxisLabel, // Y축 레이블 표시 여부
-          text: yAxisLabel // Y축 레이블 텍스트
-        },
-        grid: {
-          display: gridLines // Y축 그리드 라인 표시 여부
-        },
-        stacked: stacked // Y축 누적 설정
+        beginAtZero,
+        title: { display: !!yAxisLabel, text: yAxisLabel },
+        grid: { display: gridLines },
+        stacked
       },
-      ...(multiAxis
-        ? {
-            y1: {
-              beginAtZero, // 오른쪽 Y축 0부터 시작 여부
-              position: "right" as const, // 오른쪽에 위치
-              title: {
-                display: !!rightYAxisLabel, // 오른쪽 Y축 레이블 표시 여부
-                text: rightYAxisLabel // 오른쪽 Y축 레이블 텍스트
-              },
-              grid: {
-                display: false // 오른쪽 Y축 그리드 라인 표시 안 함
-              }
-            }
-          }
-        : {})
+      ...(multiAxis && {
+        y1: {
+          beginAtZero,
+          position: "right" as const,
+          title: { display: !!rightYAxisLabel, text: rightYAxisLabel },
+          grid: { display: false }
+        }
+      })
     },
-    animation: animation ? { duration: 1000 } : { duration: 0 }, // 애니메이션 설정
-    onClick // 클릭 이벤트 핸들러
+    animation: animation ? { duration: 1000 } : { duration: 0 },
+    onClick
   };
 
-  // 반응형 개선을 위한 wrapper div 추가
   return (
     <div className={`w-full overflow-hidden ${className}`}>
       <div
-        id={id} // HTML ID
-        className="chart-container w-full" // CSS 클래스
+        id={id}
+        className="chart-container w-full"
         style={{
-          height: `${height}px`, // 높이 설정
-          width: width ? `${width}px` : "100%", // 너비 설정 (지정되지 않으면 100%)
-          position: "relative" // 포지션 설정
+          height: `${height}px`,
+          width: width ? `${width}px` : "100%",
+          position: "relative"
         }}
-        data-testid="mixed-chart" // 테스트용 ID
+        data-testid="mixed-chart"
       >
         <Chart type="bar" data={data} options={options} />
-        {/* type="bar"로 설정해도 dataset 내의 type 속성에 따라 다양한 차트 유형이 표시됨 */}
       </div>
     </div>
   );

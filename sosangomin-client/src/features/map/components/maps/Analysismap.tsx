@@ -101,7 +101,7 @@ const Analysismap: React.FC<MapSidebarProps> = ({ selectedAdminName }) => {
           <h3 className="text-lg font-semibold">인구 분포도</h3>
         </div>
         <div className="w-full h-full">
-          <DoughnutChart chartData={chartData} />
+          <DoughnutChart chartData={chartData} legendPosition="top" />
         </div>
       </div>
 

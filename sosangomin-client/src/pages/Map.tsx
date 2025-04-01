@@ -6,31 +6,75 @@ import { Marker } from "@/features/map/types/map";
 import { searchLocation } from "@/features/map/api/mapApi";
 import seoulDistrictsData from "@/assets/sig.json";
 
+// 주소에서 행정동을 추출하는 함수
+const extractAdminDong = (address: string): string | null => {
+  // 행정동 패턴: 숫자가 포함될 수 있는 ~동, ~가
+  const match = address.match(/([가-힣]+\d*[동가])(?=[^가-힣\d동가]|$)/);
+  return match ? match[1] : null;
+};
+
 const MapPage: React.FC = () => {
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [center, setCenter] = useState({ lat: 37.501, lng: 127.039 }); // 서울 시청 기본값
   const [showSidebar, setShowSidebar] = useState(true);
-  const [showLegend, setShowLegend] = useState(true); // 초기값을 true로 변경
+  const [showLegend, setShowLegend] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedAdminName, setSelectedAdminName] = useState<string | null>(
     "역삼2동"
-  ); // 선택된 행정동 이름 상태 추가
+  );
+
+  // 로컬스토리지에서 대표 가게 정보 가져오기
+  useEffect(() => {
+    try {
+      const storeData = localStorage.getItem("store-storage");
+      if (storeData) {
+        const parsedData = JSON.parse(storeData);
+        const representativeStore = parsedData.state.representativeStore;
+
+        if (
+          representativeStore &&
+          representativeStore.latitude &&
+          representativeStore.longitude
+        ) {
+          // 대표 가게 위치를 지도 중심으로 설정
+          setCenter({
+            lat: representativeStore.latitude,
+            lng: representativeStore.longitude
+          });
+
+          // 대표 가게 위치에 마커 추가
+          setMarkers([
+            {
+              position: {
+                lat: representativeStore.latitude,
+                lng: representativeStore.longitude
+              },
+              content: `<div style="padding:5px;width:150px;text-align:center;">${representativeStore.store_name}</div>`
+            }
+          ]);
+
+          // 주소에서 행정동 추출
+          const adminDong = extractAdminDong(representativeStore.address);
+          if (adminDong) {
+            setSelectedAdminName(adminDong);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("로컬스토리지 데이터 파싱 실패:", error);
+    }
+  }, []);
+
   // 모바일 화면 감지
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-    // 초기 모바일 상태 설정
     setIsMobile(mediaQuery.matches);
 
-    // 화면 크기 변경 감지 함수
     const handleMediaQueryChange = (event: MediaQueryListEvent) => {
       setIsMobile(event.matches);
     };
 
-    // 이벤트 리스너 등록
     mediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
       mediaQuery.removeEventListener("change", handleMediaQueryChange);
     };
@@ -39,21 +83,17 @@ const MapPage: React.FC = () => {
   // 사이드바 상태에 따라 범례 표시 여부 결정 (모바일에서만)
   useEffect(() => {
     if (isMobile) {
-      // 모바일에서는 사이드바가 열려있으면 범례 숨김, 닫혀있으면 범례 표시
       setShowLegend(!showSidebar);
     } else {
-      // 데스크톱에서는 항상 범례 표시
       setShowLegend(true);
     }
   }, [showSidebar, isMobile]);
 
   const handleSearch = async (address: string) => {
     try {
-      // 주소를 좌표로 변환
       const coordinates = await searchLocation(address);
       setCenter(coordinates);
 
-      // 검색 위치에 마커 추가
       setMarkers([
         {
           position: coordinates,
@@ -70,10 +110,8 @@ const MapPage: React.FC = () => {
     setShowSidebar(!showSidebar);
   };
 
-  // 폴리곤 선택 핸들러
   const handlePolygonSelect = (adminName: string) => {
     setSelectedAdminName(adminName);
-    // 모바일에서 폴리곤 선택 시 사이드바 자동 표시 (선택 사항)
     if (isMobile && !showSidebar) {
       setShowSidebar(true);
     }
@@ -81,7 +119,6 @@ const MapPage: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full h-full relative">
-      {/* 맵 컴포넌트 */}
       <div className="w-full">
         <Kakaomap
           width="100%"
@@ -90,11 +127,10 @@ const MapPage: React.FC = () => {
           level={6}
           markers={markers}
           geoJsonData={seoulDistrictsData}
-          onPolygonSelect={handlePolygonSelect} // 폴리곤 선택 콜백 전달
+          onPolygonSelect={handlePolygonSelect}
         />
       </div>
 
-      {/* 사이드바 토글 버튼 */}
       {!showSidebar && (
         <button
           onClick={toggleSidebar}
@@ -118,16 +154,14 @@ const MapPage: React.FC = () => {
         </button>
       )}
 
-      {/* 사이드바 컴포넌트 - 선택된 행정동 이름 전달 */}
       {showSidebar && (
         <MapSidebar
           onClose={toggleSidebar}
           onSearch={handleSearch}
-          selectedAdminName={selectedAdminName} // 선택된 행정동 이름 전달
+          selectedAdminName={selectedAdminName}
         />
       )}
 
-      {/* 색상 범례 컴포넌트 */}
       {showLegend && <ColorLegend position="bottom-right" />}
     </div>
   );
