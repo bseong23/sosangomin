@@ -11,7 +11,7 @@ from routers import chat_router, news_router, data_analysis_router, s3_router, d
 
 # 스케줄러 
 from schedulers.news_scheduler import start_news_scheduler
-from schedulers.population_scheduler import start_population_scheduler
+from schedulers.area_analysis_scheduler import start_area_scheduler
 from schedulers.transport_scheduler import start_subway_station_scheduler
 
 # 환경 변수 로드
@@ -50,7 +50,8 @@ app.include_router(eda_router.router)
 app.include_router(review_router.router)
 app.include_router(store_router.router)
 app.include_router(competitor_router.router)
-app.include_router(population_router.router)
+app.include_router(area_analysis_router.router)
+app.include_router(final_report_router.router)
 
 @app.get("/")
 def read_root():
@@ -64,9 +65,9 @@ async def startup_event():
         start_news_scheduler()
         logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
 
-        start_population_scheduler()
-        logger.info("상주/직장 인구 스케줄링 완료")
-
+        start_area_scheduler()
+        logger.info("상권분석 스케줄링 완료")
+    
         start_subway_station_scheduler()
         logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
     else:

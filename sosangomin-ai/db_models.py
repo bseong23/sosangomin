@@ -2,7 +2,7 @@
 import os
 import logging
 import datetime
-from sqlalchemy import create_engine, event, Column, String, DateTime, Integer, Text, ForeignKey, Date, Enum, Float, Boolean, func
+from sqlalchemy import create_engine, event, Column, String, DateTime, Integer, Text, ForeignKey, Date, Enum, Float, BigInteger, INTEGER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -232,6 +232,7 @@ class Population(Base):
     early_morning_fpop = Column(Integer)
     morning_peak_fpop = Column(Integer)
     afternoon_fpop = Column(Integer)
+    midday_fpop = Column(Integer)
     evening_peak_fpop = Column(Integer)
     night_fpop = Column(Integer)
 
@@ -351,3 +352,82 @@ class StoreCategories(Base):
 
     created_at = Column(DateTime, default=datetime.datetime.now())
     updated_at = Column(DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now())
+
+class SalesData(Base):
+    __tablename__ = "sales_data"
+
+    sale_id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # 기본 정보
+    year = Column(Integer, nullable=False)
+    quarter = Column(Integer, nullable=False)
+    district_name = Column(String(50), nullable=False)
+    region_name = Column(String(50), nullable=False)
+    industry_name = Column(String(100), nullable=False)
+    main_category = Column(String(50), nullable=False)
+
+    # 전체 매출 금액/건수
+    sales_amount = Column(BigInteger, default=0)
+    sales_count = Column(Integer, default=0)
+
+    # 요일별 매출 금액
+    weekday_sales_amount = Column(BigInteger, default=0)
+    weekend_sales_amount = Column(BigInteger, default=0)
+    mon_sales_amount = Column(BigInteger, default=0)
+    tues_sales_amount = Column(BigInteger, default=0)
+    wed_sales_amount = Column(BigInteger, default=0)
+    thur_sales_amount = Column(BigInteger, default=0)
+    fri_sales_amount = Column(BigInteger, default=0)
+    sat_sales_amount = Column(BigInteger, default=0)
+    sun_sales_amount = Column(BigInteger, default=0)
+
+    # 시간대별 매출 금액
+    time_00_06_sales_amount = Column(BigInteger, default=0)
+    time_06_11_sales_amount = Column(BigInteger, default=0)
+    time_11_14_sales_amount = Column(BigInteger, default=0)
+    time_14_17_sales_amount = Column(BigInteger, default=0)
+    time_17_21_sales_amount = Column(BigInteger, default=0)
+    time_21_24_sales_amount = Column(BigInteger, default=0)
+
+    # 성별 매출 금액
+    male_sales_amount = Column(BigInteger, default=0)
+    female_sales_amount = Column(BigInteger, default=0)
+
+    # 연령대 매출 금액
+    age_10_sales_amount = Column(BigInteger, default=0)
+    age_20_sales_amount = Column(BigInteger, default=0)
+    age_30_sales_amount = Column(BigInteger, default=0)
+    age_40_sales_amount = Column(BigInteger, default=0)
+    age_50_sales_amount = Column(BigInteger, default=0)
+    age_60_sales_amount = Column(BigInteger, default=0)
+
+    # 요일별 매출 건수
+    weekday_sales_count = Column(Integer, default=0)
+    weekend_sales_count = Column(Integer, default=0)
+    mon_sales_count = Column(Integer, default=0)
+    tues_sales_count = Column(Integer, default=0)
+    wed_sales_count = Column(Integer, default=0)
+    thur_sales_count = Column(Integer, default=0)
+    fri_sales_count = Column(Integer, default=0)
+    sat_sales_count = Column(Integer, default=0)
+    sun_sales_count = Column(Integer, default=0)
+
+    # 시간대별 매출 건수
+    time_00_06_sales_count = Column(Integer, default=0)
+    time_06_11_sales_count = Column(Integer, default=0)
+    time_11_14_sales_count = Column(Integer, default=0)
+    time_14_17_sales_count = Column(Integer, default=0)
+    time_17_21_sales_count = Column(Integer, default=0)
+    time_21_24_sales_count = Column(Integer, default=0)
+
+    # 성별 매출 건수
+    male_sales_count = Column(Integer, default=0)
+    female_sales_count = Column(Integer, default=0)
+
+    # 연령대 매출 건수
+    age_10_sales_count = Column(Integer, default=0)
+    age_20_sales_count = Column(Integer, default=0)
+    age_30_sales_count = Column(Integer, default=0)
+    age_40_sales_count = Column(Integer, default=0)
+    age_50_sales_count = Column(Integer, default=0)
+    age_60_sales_count = Column(Integer, default=0)

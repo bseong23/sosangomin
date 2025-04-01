@@ -101,7 +101,6 @@ class SubwayStationService:
         finally:
             db.close()
 
-# 서비스 인스턴스 생성
 subway_station_service = SubwayStationService()
 
 # 단독 실행 테스트
