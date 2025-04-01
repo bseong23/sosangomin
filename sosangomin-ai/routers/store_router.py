@@ -5,6 +5,8 @@ from pydantic import BaseModel
 from services.store_service import simple_store_service
 from database.connector import database_instance
 from db_models import Store
+from database.mongo_connector import mongo_instance
+from bson import ObjectId
 
 logger = logging.getLogger(__name__)
 
@@ -18,40 +20,71 @@ class StoreRegisterRequest(BaseModel):
     user_id: int
     store_name: str
     pos_type: str
+    category: str
 
 class StoreRegisterWithBusinessRequest(BaseModel):
     user_id: int
     store_name: str
     business_number: str
     pos_type: str
+    category: str
 
-@router.post("/register")
-async def register_store_by_name(request: StoreRegisterRequest):
-    """
-    가게 이름으로 검색하여 자동으로 등록하는 API
+# @router.post("/register")
+# async def register_store_by_name(request: StoreRegisterRequest):
+#     """
+#     가게 이름으로 검색하여 자동으로 등록하는 API
     
-    가게 이름을 입력받아 네이버 검색 API로 정보를 가져오고,
-    place_id를 추출한 후 DB에 바로 저장.
+#     가게 이름을 입력받아 네이버 검색 API로 정보를 가져오고,
+#     place_id를 추출한 후 DB에 바로 저장.
+#     """
+#     try:
+#         if not request.store_name or len(request.store_name.strip()) < 2:
+#             raise HTTPException(status_code=400, detail="가게 이름은 최소 2글자 이상이어야 합니다.")
+            
+#         result = await simple_store_service.register_store_by_name(
+#             user_id=request.user_id,
+#             store_name=request.store_name,
+#             pos_type=request.pos_type
+#         )
+        
+#         if result.get("status") == "error":
+#             raise HTTPException(status_code=400, detail=result.get("message", "가게 등록 중 오류가 발생했습니다."))
+            
+#         return result
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         logger.error(f"가게 등록 API 호출 중 오류: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"가게 등록 중 오류가 발생했습니다: {str(e)}")
+
+@router.get("/analysis-list/{store_id}")
+async def get_analysis_list(store_id: int = Path(..., description="가게 ID")):
+    """
+    매장 ID를 기준으로 분석 결과 목록(분석 ID, 생성일) 조회
     """
     try:
-        if not request.store_name or len(request.store_name.strip()) < 2:
-            raise HTTPException(status_code=400, detail="가게 이름은 최소 2글자 이상이어야 합니다.")
-            
-        result = await simple_store_service.register_store_by_name(
-            user_id=request.user_id,
-            store_name=request.store_name,
-            pos_type=request.pos_type
-        )
-        
-        if result.get("status") == "error":
-            raise HTTPException(status_code=400, detail=result.get("message", "가게 등록 중 오류가 발생했습니다."))
-            
-        return result
-    except HTTPException:
-        raise
+        collection = mongo_instance.get_collection("AnalysisResults")
+        cursor = collection.find({
+            "store_id": store_id,
+            "status": "completed"
+        }).sort("created_at", -1)
+
+        results = []
+        for doc in cursor:
+            results.append({
+                "analysis_id": str(doc["_id"]),
+                "created_at": doc["created_at"].isoformat() if doc.get("created_at") else None
+            })
+
+        return {
+            "status": "success",
+            "count": len(results),
+            "analyses": results
+        }
+
     except Exception as e:
-        logger.error(f"가게 등록 API 호출 중 오류: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"가게 등록 중 오류가 발생했습니다: {str(e)}")
+        logger.error(f"분석 목록 조회 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"분석 목록 조회 중 오류가 발생했습니다: {str(e)}")
     
 @router.post("/register-with-business")
 async def register_store_with_business(request: StoreRegisterWithBusinessRequest):
@@ -71,7 +104,8 @@ async def register_store_with_business(request: StoreRegisterWithBusinessRequest
             user_id=request.user_id,
             store_name=request.store_name,
             business_number=request.business_number,
-            pos_type=request.pos_type
+            pos_type=request.pos_type,
+            category=request.category
         )
         
         if result.get("status") == "error":

@@ -39,7 +39,7 @@ class SimpleStoreService:
         
         self.naver_search_url = "https://openapi.naver.com/v1/search/local.json"
     
-    async def register_store_by_name(self, user_id: int, store_name: str, pos_type: str) -> Dict[str, Any]:
+    async def register_store_by_name(self, user_id: int, store_name: str, pos_type: str, category: str) -> Dict[str, Any]:
         """
         가게 이름으로 검색하여 첫 번째 결과를 DB에 등록
         
@@ -62,7 +62,7 @@ class SimpleStoreService:
             place_id = search_result.get("place_id")
             
             if not place_id or place_id == search_result.get("place_url"):
-                search_query = f"{search_result['store_name']} {search_result['address']}"
+                search_query = f"{search_result['store_name']}"
                 place_id = await self._get_place_id_with_selenium(search_query)
                 
                 if place_id:
@@ -74,7 +74,7 @@ class SimpleStoreService:
                 "address": search_result.get("address"),
                 "place_id": search_result.get("place_id"),
                 "phone": search_result.get("phone", ""),
-                "category": search_result.get("category", ""),
+                "category": category,
                 "latitude": search_result.get("latitude"),
                 "longitude": search_result.get("longitude")
             }
@@ -392,7 +392,7 @@ class SimpleStoreService:
         finally:
             db_session.close()
 
-    async def register_store_with_business_number(self, user_id: int, store_name: str, business_number: str, pos_type: str) -> Dict[str, Any]:
+    async def register_store_with_business_number(self, user_id: int, store_name: str, business_number: str, pos_type: str, category: str) -> Dict[str, Any]:
         """
         사업자등록번호 검증 후 가게 등록
         
@@ -424,7 +424,7 @@ class SimpleStoreService:
                 place_id = search_result.get("place_id")
                 
                 if not place_id or place_id == search_result.get("place_url"):
-                    search_query = f"{search_result['store_name']} {search_result['address']}"
+                    search_query = f"{search_result['store_name']}"
                     place_id = await self._get_place_id_with_selenium(search_query)
                     
                     if place_id:
@@ -435,7 +435,7 @@ class SimpleStoreService:
                     "store_name": search_result.get("store_name", store_name),
                     "address": search_result.get("address", ""),
                     "place_id": search_result.get("place_id", ""),
-                    "category": search_result.get("category", ""),
+                    "category": category,
                     "latitude": search_result.get("latitude"),
                     "longitude": search_result.get("longitude")
                 }
@@ -444,7 +444,7 @@ class SimpleStoreService:
                     "store_name": store_name,
                     "address": "",
                     "place_id": "",
-                    "category": "",
+                    "category": category,
                     "latitude": None,
                     "longitude": None
                 }
