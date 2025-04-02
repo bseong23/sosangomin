@@ -5,6 +5,7 @@ import com.ssafy.sosangomin.api.user.domain.entity.UserRole;
 import com.ssafy.sosangomin.api.user.domain.entity.UserType;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -102,4 +103,8 @@ public interface UserMapper {
             @Param("profileImgUrl") String profileImgUrl,
             @Param("userId") Long userId
     );
+
+    // user에 store가 섞인게 마음에 안들긴 하지만, 일단 다른 곳 거치는 것 보다는 이게 최선점
+    @Select("SELECT store_id FROM stores WHERE user_id = #{userId}")
+    List<Long> findStoreIdByUserId(@Param("userId") Long userId);
 }

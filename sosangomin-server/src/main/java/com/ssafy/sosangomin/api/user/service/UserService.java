@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -94,13 +96,21 @@ public class UserService {
         // 암호화된 유저 id (pk)
         String encryptedUserId = idEncryptionUtil.encrypt(user.getUserId());
 
+        // 유저 소유 store id (암호화)
+        List<Long> rawStoreIdList = userMapper.findStoreIdByUserId(user.getUserId());
+        List<String> encryptedStoreIdList = new ArrayList<>();
+        for (Long rawStoreId : rawStoreIdList) {
+            encryptedStoreIdList.add(idEncryptionUtil.encrypt(rawStoreId));
+        }
+
         return new LoginResponseDto(
                 accessToken,
                 user.getName(),
                 user.getProfileImgUrl(),
                 "false",
                 encryptedUserId,
-                user.getUserRole().toString()
+                user.getUserRole().toString(),
+                encryptedStoreIdList
         );
     }
 

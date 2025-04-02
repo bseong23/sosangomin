@@ -3,6 +3,8 @@ package com.ssafy.sosangomin.api.user.domain.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.util.List;
+
 public record LoginResponseDto(
         @Schema(description = "JWT 엑세스 토큰")
         String accessToken,
@@ -15,6 +17,8 @@ public record LoginResponseDto(
         @Schema(description = "암호화된 유저 id (pk)")
         String userId,
         @Schema(description = "유저 역할")
-        String userRole
+        String userRole,
+        @Schema(description = "유저 소유 store id")
+        List<String> storeIdList
 ) {
 }

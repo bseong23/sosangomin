@@ -1,10 +1,6 @@
 package com.ssafy.sosangomin.api.user.service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import com.ssafy.sosangomin.api.user.domain.entity.User;
 import com.ssafy.sosangomin.api.user.mapper.UserMapper;
@@ -50,6 +46,13 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
 
             String encryptedUserId = idEncryptionUtil.encrypt(user.getUserId());
 
+            // 유저 소유 store id (암호화)
+            List<Long> rawStoreIdList = userMapper.findStoreIdByUserId(user.getUserId());
+            List<String> encryptedStoreIdList = new ArrayList<>();
+            for (Long rawStoreId : rawStoreIdList) {
+                encryptedStoreIdList.add(idEncryptionUtil.encrypt(rawStoreId));
+            }
+
             // 사용자 속성 설정
             Map<String, Object> attributes = new HashMap<>();
             // 아래에서 주요 식별자로 "id"를 사용할 것이기 때문에 넣어줌
@@ -59,6 +62,7 @@ public class KakaoOAuth2UserService extends DefaultOAuth2UserService {
             attributes.put("isFirstLogin", "false");
             attributes.put("userId", encryptedUserId);
             attributes.put("userRole", user.getUserRole());
+            attributes.put("storeIdList", encryptedStoreIdList);
 
             // OAuth2User 객체 생성 및 반환
             return new DefaultOAuth2User(authorities, attributes, "id");
