@@ -128,7 +128,6 @@ class AutoAnalysisChatService:
             clusters = cluster_result.get("clusters", [])
             optimal_k = cluster_result.get("optimal_k", "알 수 없음")
             cluster_summary = cluster_result.get("cluster_summary", {})
-            preview = clusters[:5]
 
             prompt = f"""
             당신은 소상공인을 위한 데이터 분석 도우미입니다. 아래는 가게 상품을 판매 데이터 기반으로 유사한 성격끼리 묶은 클러스터링 결과입니다.
