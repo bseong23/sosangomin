@@ -1,13 +1,14 @@
+// src/features/analysis/components/MainContent.tsx
 import React, { useState, useEffect } from "react";
 import DataUploadArea from "./DataUploadArea";
 import FilePreview from "./FilePreview";
 import AnalysisButton from "./AnalysisButton";
 import InfoModal from "./InfoModal";
 import DateRangePicker from "./DateRangePicker";
-// 새로운 모듈화된 DataLoadingModal 임포트
-import DataLoadingModal from "@/components/modal/DataLoadingModal"; // index.tsx가 기본으로 임포트됨
+import DataLoadingModal from "@/components/modal/DataLoadingModal";
 import useFileModalStore from "@/store/modalStore";
 import useStoreStore from "@/store/storeStore";
+import useAnalysisStore from "@/store/useAnalysisStore"; // 추가: 분석 결과 스토어
 import { StoreInfo } from "@/features/auth/types/mypage";
 
 // 분석 API 및 파일 API 연동
@@ -27,12 +28,14 @@ const MainContent: React.FC = () => {
     isLoading,
     fileCount,
     openModal,
-    // closeModal,
     setLoading,
     setFileData,
-    completeLoading, // 새 구조의 액션 추가
-    setAnalysisCompleted // 새 구조의 액션 추가
+    completeLoading,
+    setAnalysisCompleted
   } = useFileModalStore();
+
+  // 분석 스토어에서 액션 가져오기
+  const { requestAnalysis: saveAnalysisToStore } = useAnalysisStore();
 
   // 파일 업로드 훅 사용
   const {
@@ -91,7 +94,7 @@ const MainContent: React.FC = () => {
 
       // 분석이 완료되거나 실패한 경우
       if (status === "success" || status === "failed") {
-        // 로딩 상태 업데이트 (새 구조의 액션 사용)
+        // 로딩 상태 업데이트
         completeLoading();
 
         // 모달을 명시적으로 열림 상태로 유지
@@ -99,12 +102,35 @@ const MainContent: React.FC = () => {
 
         if (status === "success") {
           console.log("분석 완료:", pollingAnalysisState.data);
+
+          // 새로운 코드: 분석 결과를 Zustand 스토어에 저장
+          // API 응답을 분석 스토어가 이해할 수 있는 형태로 변환해야 할 수 있음
+          if (analysisId) {
+            // 분석 ID와 함께 결과 데이터를 스토어에 저장
+            // 이 함수는 내부적으로 캐시에도 저장함
+            saveAnalysisToStore({
+              store_id:
+                typeof representativeStore?.store_id === "string"
+                  ? representativeStore.store_id
+                  : "",
+              source_ids: [], // 이미 분석이 완료되었으므로 여기서는 빈 배열
+              pos_type: representativeStore?.pos_type || "",
+              analysis_result: pollingAnalysisState.data // 폴링 결과를 그대로 전달
+            });
+          }
         } else {
           console.error("분석 실패:", pollingAnalysisState.error);
         }
       }
     }
-  }, [pollingAnalysisState, completeLoading, openModal]);
+  }, [
+    pollingAnalysisState,
+    completeLoading,
+    openModal,
+    analysisId,
+    representativeStore,
+    saveAnalysisToStore
+  ]);
 
   // 컴포넌트 마운트 시 스토어 ID 설정 확인
   useEffect(() => {
