@@ -78,7 +78,7 @@ class EdaChatService:
             prompt = prompt_template.format(data_str)
             
             response = self.client.messages.create(
-                model="claude-3-7-sonnet-20250219",
+                model="claude-3-5-haiku-20240307",
                 max_tokens=150,
                 temperature=0.2,
                 system=self.system_prompt,
