@@ -6,11 +6,12 @@ export interface StoreListResponse {
 }
 
 export interface StoreInfo {
-  id: string;
+  store_id: string;
   store_name: string;
   business_number: string;
   category: string;
   pos_type: string;
+  place_id: string;
 }
 
 export interface StoreProps {
