@@ -7,7 +7,7 @@ import useAuthStore from "@/store/useAuthStore";
 const API_URL = import.meta.env.VITE_API_SERVER_URL || "";
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 1200000,
   headers: {
     "Content-Type": "application/json"
   }
@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     // 400 에러
-    if (error.code === "ERR_INVALID_TOKEN" || !error.response) {
+    if (error.code === "ERR_INVALID_TOKEN") {
       clearAuthData();
 
       useAuthStore.getState().clearUserInfo();

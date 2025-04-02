@@ -1,35 +1,3 @@
-// // features/review/api/reviewApi.ts
-// import axiosInstance from "@/api/axios";
-// import {
-//   ReviewAnalysisRequest,
-//   ReviewAnalysisResult
-// } from "@/features/review/types/review";
-
-// /**
-//  * 리뷰 분석 요청 (POST)
-//  */
-// export const requestReviewAnalysis = async (
-//   params: ReviewAnalysisRequest
-// ): Promise<ReviewAnalysisResult> => {
-//   const { data } = await axiosInstance.post<ReviewAnalysisResult>(
-//     "/api/proxy/reviews",
-//     params
-//   );
-//   return data;
-// };
-
-// /**
-//  * 리뷰 분석 결과 조회 (GET)
-//  */
-// export const getReviewAnalysisResult = async (
-//   analysisId: string
-// ): Promise<ReviewAnalysisResult> => {
-//   const { data } = await axiosInstance.get<ReviewAnalysisResult>(
-//     `/api/proxy/reviews/analysis/${analysisId}`
-//   );
-//   return data;
-// };
-
 // features/review/api/reviewApi.ts
 import axiosInstance from "@/api/axios";
 import { ReviewAnalysisRequest } from "@/features/review/types/review";

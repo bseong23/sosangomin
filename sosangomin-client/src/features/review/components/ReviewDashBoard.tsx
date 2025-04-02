@@ -4,27 +4,11 @@ import BarChart from "@/components/chart/BarChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import WordCloud from "./WordCloud";
 import { useReviewStore } from "@/store/useReviewStore";
-
-// 실제 프로젝트에서는 import 구문으로 가져오게 됩니다
-// import { useStoreStore } from "@/features/store/store";
+import useStoreStore from "@/store/storeStore";
 
 const ReviewDashBoard: React.FC = () => {
-  // TODO: 추후 Zustand store로 대체될 임시 데이터
-  // ----- 시작: 추후 Zustand store로 교체될 부분 -----
-  const selectedStore = {
-    store_id: "1hGScLSIMYqWR9OwRajVxw",
-    place_id: "1926291349",
-    store_name: "착한명태조리고 각산역점",
-    address: "대구광역시 동구 신서동 799-7 (신서동)",
-    category: "음식점>한식",
-    latitude: 35.8715008,
-    longitude: 128.728734,
-    business_number: "4943201428",
-    is_verified: true,
-    pos_type: "키움",
-    created_at: "2025-03-31T13:20:36"
-  };
-  // ----- 끝: 추후 Zustand store로 교체될 부분 -----
+  // Zustand store에서 가게 정보 가져오기
+  const selectedStore = useStoreStore((state) => state.representativeStore);
 
   // 리뷰 관련 Zustand store 활용
   const {
@@ -41,7 +25,9 @@ const ReviewDashBoard: React.FC = () => {
   } = useReviewStore();
 
   // 현재 선택된 매장의 분석 목록
-  const analysisList = analysisListCache[selectedStore.store_id] || [];
+  const analysisList = selectedStore?.store_id
+    ? analysisListCache[selectedStore.store_id] || []
+    : [];
 
   // 현재 선택된 분석 상세 정보
   const analysisData = selectedAnalysisId
@@ -53,7 +39,7 @@ const ReviewDashBoard: React.FC = () => {
     const fetchData = async () => {
       // 매장 ID가 있고, 캐시에 해당 매장의 분석 목록이 없거나 비어있을 때만 API 호출
       if (
-        selectedStore.store_id &&
+        selectedStore?.store_id &&
         (!analysisListCache[selectedStore.store_id] ||
           analysisListCache[selectedStore.store_id].length === 0)
       ) {
@@ -70,7 +56,7 @@ const ReviewDashBoard: React.FC = () => {
             await getAnalysisDetail(latestId);
           }
         }
-      } else if (selectedStore.store_id) {
+      } else if (selectedStore?.store_id) {
         // 캐시에 있는 경우, 가장 최신 분석 ID 선택
         const latestId = latestAnalysisIdByStore[selectedStore.store_id];
         if (latestId && selectedAnalysisId !== latestId) {
@@ -80,7 +66,7 @@ const ReviewDashBoard: React.FC = () => {
     };
 
     fetchData();
-  }, [selectedStore.store_id]);
+  }, [selectedStore?.store_id]);
 
   // 분석 ID 선택 시 해당 분석 상세 정보 로드
   const handleAnalysisChange = async (
@@ -103,6 +89,10 @@ const ReviewDashBoard: React.FC = () => {
 
   // 새 리뷰 분석 요청
   const handleAnalysis = async () => {
+    if (!selectedStore?.store_id || !selectedStore?.place_id) {
+      return;
+    }
+
     await requestNewAnalysis(selectedStore.store_id, selectedStore.place_id);
   };
 
@@ -177,14 +167,42 @@ const ReviewDashBoard: React.FC = () => {
     return selectedAnalysis ? selectedAnalysis.created_at : null;
   };
 
+  // 매장 정보가 없는 경우 안내 메시지 표시
+  if (!selectedStore) {
+    return (
+      <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
+        <div className="text-center bg-yellow-50 border border-yellow-100 rounded-lg p-8 mb-6">
+          <svg
+            className="w-12 h-12 text-yellow-400 mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <p className="text-yellow-800 text-lg mb-4">
+            대표 매장이 설정되지 않았습니다
+          </p>
+          <p className="text-yellow-600">
+            마이페이지에서 대표 매장을 설정한 후 이용해 주세요.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
       {/* 매장 정보를 별도 영역에 배치 */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
         <h2 className="text-2xl font-bold">{selectedStore.store_name}</h2>
-        <p className="text-gray-500 text-sm">{selectedStore.address}</p>
       </div>
-
       {/* 리뷰 분석 문구와 버튼을 같은 줄에 정렬 */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h3 className="text-lg font-bold">
@@ -234,7 +252,6 @@ const ReviewDashBoard: React.FC = () => {
           </button>
         </div>
       </div>
-
       {/* 에러 메시지 */}
       {error && (
         <div className="bg-red-50 border border-red-100 rounded-lg p-4 mb-6">
@@ -244,7 +261,6 @@ const ReviewDashBoard: React.FC = () => {
           </p>
         </div>
       )}
-
       {/* 분석 결과가 없고, 로딩 중이 아니고, 에러가 없는 경우 - 가이드 메시지 */}
       {!analysisData && !loading && !error && (
         <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6">
@@ -276,7 +292,6 @@ const ReviewDashBoard: React.FC = () => {
           </p>
         </div>
       )}
-
       {/* 로딩 중 표시 */}
       {loading && (
         <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6 animate-pulse">
@@ -302,7 +317,6 @@ const ReviewDashBoard: React.FC = () => {
           </p>
         </div>
       )}
-
       {/* 분석 결과 보여주기 */}
       {analysisData && !loading && (
         <>

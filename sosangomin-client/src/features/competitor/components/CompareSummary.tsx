@@ -1,6 +1,6 @@
 // features/competitor/components/CompareSummary.tsx
 import React from "react";
-import { StoreData } from "@/features/review/types/competitor";
+import { StoreData } from "@/features/competitor/types/competitor";
 
 interface CompareSummaryProps {
   myStore: StoreData;
