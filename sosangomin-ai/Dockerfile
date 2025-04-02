@@ -1,7 +1,22 @@
 FROM python:3.11-slim
 
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk
+    apt-get install -y openjdk-17-jdk \
+    wget \
+    unzip \
+    gnupg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Chrome 및 ChromeDriver 설치
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get update && apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+    rm google-chrome-stable_current_amd64.deb && \
+    wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/134.0.6998.178/linux64/chromedriver-linux64.zip && \
+    unzip chromedriver-linux64.zip && \
+    mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm -rf chromedriver-linux64.zip chromedriver-linux64
 
 # JAVA_HOME 설정
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
