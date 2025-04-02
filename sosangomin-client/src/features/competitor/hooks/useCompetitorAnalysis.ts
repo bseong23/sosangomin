@@ -7,7 +7,6 @@ import {
   getCompetitorComparisonResult
 } from "@/features/competitor/api/competitorApi";
 import {
-  CompetitorComparisonResult,
   CompetitorComparisonSummary,
   ComparisonData
 } from "@/features/competitor/types/competitor";

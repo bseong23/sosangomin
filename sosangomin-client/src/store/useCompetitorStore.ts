@@ -7,11 +7,9 @@ import {
   getCompetitorComparisonResult
 } from "@/features/competitor/api/competitorApi";
 import {
-  CompetitorComparisonResult,
   CompetitorComparisonSummary,
   ComparisonData
 } from "@/features/competitor/types/competitor";
-import useStoreStore from "./storeStore";
 
 interface CompetitorState {
   // 상태

@@ -58,9 +58,9 @@ const StoreList: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {storeListData.stores.map((store) => (
           <Store
-            key={store.id}
+            key={store.store_id}
             store={store}
-            isRepresentative={representativeStore?.id === store.id}
+            isRepresentative={representativeStore?.store_id === store.store_id}
           />
         ))}
       </div>
