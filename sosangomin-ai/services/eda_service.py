@@ -206,7 +206,8 @@ class EdaService:
             overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
             
             predict_result = await autoanalysis_service.predict_next_30_sales(combined_df)
-            raw_predictions = predict_summary.get("predictions", [])
+
+            raw_predictions = predict_result.get("predictions", [])
             predict_value = {
                 "날짜": [item["날짜"] for item in raw_predictions],
                 "예측 매출": [item["예측 매출"] for item in raw_predictions]
