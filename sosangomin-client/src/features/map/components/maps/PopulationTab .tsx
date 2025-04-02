@@ -1,17 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import BarChart from "@/components/chart/BarChart"; // 커스텀 BarChart 컴포넌트 임포트
+import { getPopulation } from "@/features/map/api/analiysisApi"; // API 함수 경로는 실제 경로에 맞게 수정해주세요
 
 interface PopulationTabProps {
   selectedAdminName?: string;
-  populationData?: any; // 데이터 타입은 실제 프로젝트에서 인터페이스로 정의하는 것이 좋음
+  selectedCategory?: string;
 }
 
 const PopulationTab: React.FC<PopulationTabProps> = ({
-  selectedAdminName = "지역 미지정",
-  populationData
+  selectedAdminName = "지역 미지정"
 }) => {
-  if (!populationData) return <p>데이터를 불러오는 중...</p>;
+  const [populationData, setPopulationData] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchPopulationData = async () => {
+      if (selectedAdminName && selectedAdminName !== "지역 미지정") {
+        try {
+          const data = await getPopulation(selectedAdminName);
+          setPopulationData(data);
+        } catch (error) {
+          console.error("인구 데이터 로딩 실패:", error);
+        } finally {
+        }
+      }
+    };
+    fetchPopulationData();
+  }, [selectedAdminName]);
+  if (!populationData) return <p>데이터를 불러오는 중...</p>;
   // ✅ 시간대별 유동인구 데이터 가공
   const timeLabels = [
     "심야",
@@ -129,17 +144,17 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             yAxisLabel="인구 수"
             stacked={false} // ✅ 남녀가 나란히 표시되도록 수정
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 justify-center md:w-120">
+          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
             <div>
-              <p className="text-sm text-gray-600">총 상주인구</p>
-              <p className="text-2xl font-bold">
+              <p className="text-base text-gray-600">총 상주인구</p>
+              <p className="text-base font-bold">
                 {populationData.resident_pop.총_상주인구.toLocaleString()}명
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">서울시 평균 대비</p>
+              <p className="text-base text-gray-600">서울시 평균 대비</p>
               <p
-                className={`text-xl ${
+                className={`text-base ${
                   avgResident > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
@@ -147,8 +162,8 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">최다 인구 그룹</p>
-              <p className="text-lg">
+              <p className="text-base text-gray-600">최다 인구 그룹</p>
+              <p className="text-base">
                 {populationData.resident_pop.가장_많은_성별_연령대.구분}
                 <span className="ml-2 text-gray-500">
                   (
@@ -187,17 +202,17 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             yAxisLabel="인구 수"
             stacked={false} // ✅ 남녀가 나란히 표시되도록 수정
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 justify-center md:w-120">
+          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
             <div>
-              <p className="text-sm text-gray-600">총 상주인구</p>
-              <p className="text-2xl font-bold">
+              <p className="text-base text-gray-600">총 직장인구</p>
+              <p className="text-base font-bold">
                 {populationData.working_pop.총_직장인구.toLocaleString()}명
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">서울시 평균 대비</p>
+              <p className="text-base text-gray-600">서울시 평균 대비</p>
               <p
-                className={`text-xl ${
+                className={`text-base ${
                   avgResident > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
@@ -205,8 +220,8 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">최다 인구 그룹</p>
-              <p className="text-lg">
+              <p className="text-base text-gray-600">최다 인구 그룹</p>
+              <p className="text-base">
                 {populationData.working_pop.가장_많은_성별_연령대.구분}
                 <span className="ml-2 text-gray-500">
                   (
@@ -247,15 +262,15 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
           />
           <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
             <div>
-              <p className="text-sm text-gray-600">총 상주인구</p>
-              <p className="text-2xl font-bold">
+              <p className="text-base text-gray-600">총 유동인구</p>
+              <p className="text-base font-bold">
                 {populationData.floating_pop.총_유동인구.toLocaleString()}명
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">서울시 평균 대비</p>
+              <p className="text-base text-gray-600">서울시 평균 대비</p>
               <p
-                className={`text-xl ${
+                className={`text-base ${
                   avgfloating > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
@@ -263,8 +278,8 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">최다 인구 그룹</p>
-              <p className="text-lg">
+              <p className="text-base text-gray-600">최다 인구 그룹</p>
+              <p className="text-base">
                 {populationData.floating_pop.가장_많은_성별_연령대.구분}
                 <span className="ml-2 text-gray-500">
                   (
@@ -293,20 +308,20 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             xAxisLabel="시간대"
             yAxisLabel="인구 수"
           />
-          <div className="grid grid-cols-2 gap-4 md:px-10 md:w-120">
+          <div className="grid grid-row-2 gap-4 md:px-10 md:w-120">
             <div>
-              <p className="text-sm text-gray-600 py-2">
+              <p className="text-base text-gray-600 py-2">
                 유동인구가 가장 많은 시간대
               </p>
-              <p className="text-2xl font-bold py-2">
+              <p className="text-base font-bold py-2">
                 {populationData.floating_pop.가장_많은_시간대}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 py-2">
+              <p className="text-base text-gray-600 py-2">
                 유동인구가 가장 적은 시간대
               </p>
-              <p className="text-2xl font-bold py-2">
+              <p className="text-base font-bold py-2">
                 {populationData.floating_pop.가장_적은_시간대}
               </p>
             </div>
@@ -330,37 +345,38 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             xAxisLabel="요일"
             yAxisLabel="인구 수"
           />
-          <div className="grid grid-cols-2 gap-4 md:px-10 md:w-120">
+          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
             <div>
-              <p className="text-sm text-gray-600 py-2">
-                유동인구가 가장 많은 시간대
-              </p>
-              <p className="text-2xl font-bold py-2">
-                {populationData.floating_pop.가장_많은_시간대}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 py-2">
-                유동인구가 가장 적은 시간대
-              </p>
-              <p className="text-2xl font-bold py-2">
-                {populationData.floating_pop.가장_적은_시간대}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 py-2">
+              <p className="text-base text-gray-600 py-2">
                 유동인구가 가장 많은 요일
               </p>
-              <p className="text-xl font-bold py-2">
+              <p className="text-base font-bold py-2">
                 {populationData.floating_pop.가장_많은_요일}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 py-2">
+              <p className="text-base text-gray-600 py-2">
                 유동인구가 가장 적은 요일
               </p>
-              <p className="text-2xl font-bold py-2">
+              <p className="text-base font-bold py-2">
                 {populationData.floating_pop.가장_적은_요일}
+              </p>
+            </div>
+            <div>
+              <p className="text-base text-gray-600 py-2">
+                평일 주말 평균 유동인구 비교
+              </p>
+              <p className="text-base font-bold py-2">
+                {populationData.floating_pop.주말_평균_유동인구 >
+                populationData.floating_pop.평일_평균_유동인구
+                  ? `주말이 ${Math.abs(
+                      populationData.floating_pop.주말_평균_유동인구 -
+                        populationData.floating_pop.평일_평균_유동인구
+                    ).toLocaleString()}명 더 많습니다`
+                  : `평일이 ${Math.abs(
+                      populationData.floating_pop.평일_평균_유동인구 -
+                        populationData.floating_pop.주말_평균_유동인구
+                    ).toLocaleString()}명 더 많습니다`}
               </p>
             </div>
           </div>

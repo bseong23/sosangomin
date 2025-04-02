@@ -7,21 +7,25 @@ interface StoreState {
   stores: StoreInfo[];
   setRepresentativeStore: (store: StoreInfo) => void;
   addStore: (store: StoreInfo) => void;
+  resetStore: () => void; // 스토어 초기화 함수 추가
 }
+
+const initialState = {
+  representativeStore: null,
+  stores: []
+};
 
 const useStoreStore = create<StoreState>()(
   persist(
     (set) => ({
-      representativeStore: null,
-      stores: [
-        // 기존 더미 데이터
-      ],
+      ...initialState,
       setRepresentativeStore: (store) => set({ representativeStore: store }),
       addStore: (store) =>
-        set((state) => ({ stores: [...state.stores, store] }))
+        set((state) => ({ stores: [...state.stores, store] })),
+      resetStore: () => set(initialState) // 초기 상태로 리셋
     }),
     {
-      name: "store-storage" // localStorage에 저장될 키 이름
+      name: "store-storage"
     }
   )
 );

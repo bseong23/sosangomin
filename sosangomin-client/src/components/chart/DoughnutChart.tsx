@@ -12,13 +12,17 @@ import { DoughnutChartProps } from "@/types/chart";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const DoughnutChart: React.FC<
-  DoughnutChartProps & { legendPosition?: "top" | "bottom" | "left" | "right" }
-> = ({ chartData, legendPosition = "top" }) => {
+  DoughnutChartProps & {
+    legendPosition?: "top" | "bottom" | "left" | "right";
+    showLegend?: boolean;
+  }
+> = ({ chartData, legendPosition = "top", showLegend = true }) => {
   const options: ChartOptions<"doughnut"> = {
     responsive: true,
     plugins: {
       legend: {
-        position: legendPosition // 동적 설정
+        display: showLegend, // 범례 표시 여부 설정
+        position: legendPosition
       },
       title: {
         display: false

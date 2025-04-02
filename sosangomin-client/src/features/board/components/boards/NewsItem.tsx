@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { NewsItem as NewsItemType } from "@/features/board/types/news";
+import Newsimg from "@/assets/defaultnews.png";
 
 interface NewsItemProps {
   item: NewsItemType;
 }
 
 const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
+  const [imgSrc, setImgSrc] = useState(item.imageUrl || Newsimg);
+
+  const handleImageError = () => {
+    setImgSrc(Newsimg);
+  };
+
   return (
     <div className="border-b border-gray-200 hover:bg-gray-50 py-10 px-10">
       <a
@@ -17,8 +24,9 @@ const NewsItem: React.FC<NewsItemProps> = ({ item }) => {
         {/* 좌측 이미지 영역 */}
         <div className="w-30 h-30 flex-shrink-0 mr-5 overflow-hidden">
           <img
-            src={item.imageUrl}
+            src={imgSrc}
             alt={item.title}
+            onError={handleImageError}
             className="w-full h-full object-cover rounded"
           />
         </div>

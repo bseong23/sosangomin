@@ -29,7 +29,7 @@ const Store: React.FC<StoreProps> = ({
               className="bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium px-3 py-1 rounded transition-colors"
               onClick={() => onSetRepresentative && onSetRepresentative(store)}
             >
-              대표 가게
+              대표 가게로 설정
             </button>
           )}
         </div>

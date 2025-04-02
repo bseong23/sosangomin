@@ -7,7 +7,8 @@ import ToggleSwitch from "@/features/map/components/maps/ToggleSwitch";
 const MapSidebar: React.FC<MapSidebarProps> = ({
   onSearch,
   onClose,
-  selectedAdminName
+  selectedAdminName,
+  selectedCategory
 }) => {
   const [activeTab, setActiveTab] = useState<"상권분석" | "입지추천">(
     "상권분석"
@@ -18,7 +19,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   };
 
   return (
-    <div className="absolute max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:h-[80%] md:top-9 md:left-8 md:h-[90%] md:w-100 bg-white shadow-lg rounded-lg z-20">
+    <div className="absolute max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:h-[80%] md:top-9 md:left-8 md:h-[90%] md:w-100 bg-white shadow-lg rounded-lg z-10">
       {/* 닫기 버튼 */}
       <button
         onClick={onClose}
@@ -54,6 +55,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
             onSearch={onSearch}
             onClose={onClose}
             selectedAdminName={selectedAdminName}
+            selectedCategory={selectedCategory}
           />
         ) : (
           <Recommendmap />

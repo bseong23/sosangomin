@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import SearchableMap from "./SearchableMap";
 import useStoreModalStore from "@/store/storeModalStore";
 import { StoreModalProps, LocationInfo } from "@/types/store";
@@ -189,7 +189,6 @@ const StoreModal: React.FC<StoreModalProps> = () => {
                 id="paymentSelect"
                 value={selectedPaymentOption}
                 onChange={(e) => {
-                  console.log("Selected Payment Option:", e.target.value);
                   setSelectedPaymentOption(e.target.value);
                 }}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-bit-main bg-white"
@@ -273,35 +272,38 @@ const StoreModal: React.FC<StoreModalProps> = () => {
   };
 
   const buttonConfig = getButtonConfig();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async () => {
-    if (buttonConfig.isValid) {
-      if (currentStep === 1) {
-        setCurrentStep(2);
-      } else {
-        if (!selectedLocation) {
-          alert("가게 위치가 선택되지 않았습니다.");
-          return;
-        }
+    if (!buttonConfig.isValid || isSubmitting) return;
+    setIsSubmitting(true);
 
-        try {
-          // ✅ API 요청 형식에 맞게 데이터 변환
-          const payload = {
-            store_name: storeName, // ✅ storeName -> store_name
-            business_number: businessNumber, // ✅ businessNumber -> business_number
-            pos_type: selectedPaymentOption, // ✅ selectedPaymentOption -> pos_type
-            category: selectedCategory // ✅ selectedCategory -> category
-          };
+    if (currentStep === 1) {
+      setCurrentStep(2);
+      setIsSubmitting(false);
+    } else {
+      if (!selectedLocation) {
+        alert("가게 위치가 선택되지 않았습니다.");
+        setIsSubmitting(false);
+        return;
+      }
 
-          // API 호출
-          const response = await registerStore(payload);
-          console.log("가게 등록 성공:", response);
+      try {
+        const payload = {
+          store_name: storeName,
+          business_number: businessNumber,
+          pos_type: selectedPaymentOption,
+          category: selectedCategory
+        };
+        await registerStore(payload);
 
-          alert("가게 등록이 완료되었습니다.");
-          closeModal();
-          resetModalData();
-        } catch (error) {
-          alert("가게 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
-        }
+        alert("가게 등록이 완료되었습니다.");
+        closeModal();
+        resetModalData();
+      } catch (error) {
+        alert("가게 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -377,18 +379,17 @@ const StoreModal: React.FC<StoreModalProps> = () => {
             >
               취소
             </button>
-
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!buttonConfig.isValid}
+              disabled={!buttonConfig.isValid || isSubmitting}
               className={`px-3 py-1 rounded text-sm ${
-                buttonConfig.isValid
+                buttonConfig.isValid && !isSubmitting
                   ? "bg-bit-main text-white hover:bg-blue-900"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
             >
-              {buttonConfig.text}
+              {isSubmitting ? "처리 중..." : buttonConfig.text}
             </button>
           </div>
         </div>

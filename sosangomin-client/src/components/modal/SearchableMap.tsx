@@ -46,7 +46,7 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
     if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
       try {
         placesService.current = new window.kakao.maps.services.Places();
-        console.log("Places 서비스 초기화 성공");
+
         setIsPlacesServiceReady(true);
         return true;
       } catch (error) {
@@ -54,7 +54,6 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
         return false;
       }
     } else {
-      console.log("카카오맵 서비스가 아직 준비되지 않음");
       return false;
     }
   };
@@ -68,9 +67,6 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
     // 초기화 실패 시 일정 간격으로 재시도
     const intervalId = setInterval(() => {
       initAttemptsRef.current += 1;
-      console.log(
-        `Places 서비스 초기화 시도 ${initAttemptsRef.current}/${maxInitAttempts}`
-      );
 
       const success = initPlacesService();
 
@@ -88,8 +84,6 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
 
   // 키워드 검색 함수
   const searchPlaces = () => {
-    console.log("검색 함수 호출됨:", keyword);
-
     if (!keyword.trim()) {
       alert("키워드를 입력해주세요!");
       return;
@@ -107,8 +101,6 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
     placesService.current.keywordSearch(
       keyword,
       (results: any, status: any) => {
-        console.log("검색 결과:", results, "상태:", status);
-
         if (status === window.kakao.maps.services.Status.OK) {
           setSearchResults(results);
 
@@ -129,8 +121,6 @@ const SearchableMap: React.FC<SearchableMapProps> = ({
 
   // 장소 선택 핸들러
   const handleSelectPlace = (place: any) => {
-    console.log("장소 선택:", place);
-
     const selectedLocation = {
       address: place.address_name,
       name: place.place_name,

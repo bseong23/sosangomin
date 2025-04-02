@@ -5,7 +5,6 @@ import ColorLegend from "@/features/map/components/maps/ColorLegend";
 import { Marker } from "@/features/map/types/map";
 import { searchLocation } from "@/features/map/api/mapApi";
 import seoulDistrictsData from "@/assets/sig.json";
-
 // 주소에서 행정동을 추출하는 함수
 const extractAdminDong = (address: string): string | null => {
   // 행정동 패턴: 숫자가 포함될 수 있는 ~동, ~가
@@ -22,6 +21,7 @@ const MapPage: React.FC = () => {
   const [selectedAdminName, setSelectedAdminName] = useState<string | null>(
     "역삼2동"
   );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // 로컬스토리지에서 대표 가게 정보 가져오기
   useEffect(() => {
@@ -57,6 +57,11 @@ const MapPage: React.FC = () => {
           const adminDong = extractAdminDong(representativeStore.address);
           if (adminDong) {
             setSelectedAdminName(adminDong);
+          }
+
+          // 카테고리 정보 저장
+          if (representativeStore.category) {
+            setSelectedCategory(representativeStore.category);
           }
         }
       }
@@ -159,6 +164,7 @@ const MapPage: React.FC = () => {
           onClose={toggleSidebar}
           onSearch={handleSearch}
           selectedAdminName={selectedAdminName}
+          selectedCategory={selectedCategory}
         />
       )}
 
