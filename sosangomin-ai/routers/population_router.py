@@ -33,21 +33,21 @@ async def get_all_population():
         db.close()
 
 # 특정 동의 인구 정보 조회
-@router.get("/{dong_name}", response_model=dict)
+@router.get("/{region_name}", response_model=dict)
 async def get_population_by_dong(
-    dong_name: str = Path(..., description="조회할 동 이름")
+    region_name: str = Path(..., description="조회할 동 이름")
 ):
     try:
         db: Session = mariadb.pre_session()
-        result = db.query(Population).filter(Population.dong_name == dong_name).first()
+        result = db.query(Population).filter(Population.region_name == region_name).first()
 
         if not result:
-            raise HTTPException(status_code=404, detail=f"{dong_name}에 대한 인구 데이터가 없습니다.")
+            raise HTTPException(status_code=404, detail=f"{region_name}에 대한 인구 데이터가 없습니다.")
 
         return result.__dict__
 
     except Exception as e:
-        logger.error(f"[오류] {dong_name} 인구 조회 실패: {e}")
+        logger.error(f"[오류] {region_name} 인구 조회 실패: {e}")
         raise HTTPException(status_code=500, detail="인구 데이터를 불러오는 중 오류 발생")
     finally:
         db.close()
@@ -60,8 +60,8 @@ async def get_population_by_dong(
 #         if "repop" in col.name
 #     ]
 
-#     # dong_name도 추가로 포함
-#     repop_columns.insert(0, Population.dong_name)
+#     # region_name도 추가로 포함
+#     repop_columns.insert(0, Population.region_name)
 
 #     # 쿼리 실행
 #     result = db.query(*repop_columns).filter(Population.tot_repop != None).all()
@@ -76,8 +76,8 @@ async def get_population_by_dong(
 #         if "wrpop" in col.name
 #     ]
 
-#     # dong_name도 추가로 포함
-#     wrpop_columns.insert(0, Population.dong_name)
+#     # region_name도 추가로 포함
+#     wrpop_columns.insert(0, Population.region_name)
 
 #     # 쿼리 실행
 #     result = db.query(*wrpop_columns).filter(Population.tot_wrpop != None).all()
@@ -92,8 +92,8 @@ async def get_population_by_dong(
 #         if "fpop" in col.name
 #     ]
 
-#     # dong_name도 추가로 포함
-#     fpop_columns.insert(0, Population.dong_name)
+#     # region_name도 추가로 포함
+#     fpop_columns.insert(0, Population.region_name)
 
 #     # 쿼리 실행
 #     result = db.query(*fpop_columns).filter(Population.tot_fpop != None).all()
