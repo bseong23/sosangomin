@@ -1,17 +1,42 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import LineChart from "@/components/chart/LineChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
 import MixedChart from "@/components/chart/MixedChart";
 import BarChart from "@/components/chart/BarChart";
+import Legend from "./Legend";
+import { getBuiness } from "@/features/map/api/analiysisApi";
 interface BusinessTabProps {
   selectedAdminName?: string;
-  businessData?: any;
+  selectedCategory?: string;
+}
+interface DonutData {
+  [key: string]: number;
 }
 
 const BusinessTab: React.FC<BusinessTabProps> = ({
   selectedAdminName = "지역 미지정",
-  businessData
+  selectedCategory
 }) => {
+  const [businessData, setBusinessData] = useState<any>(null);
+  useEffect(() => {
+    const fetchBusinessData = async () => {
+      if (
+        selectedAdminName &&
+        selectedAdminName !== "지역 미지정" &&
+        selectedCategory
+      ) {
+        try {
+          const data = await getBuiness(selectedAdminName, selectedCategory);
+          setBusinessData(data);
+        } catch (error) {
+          console.error("업종 데이터 로딩 실패:", error);
+        } finally {
+        }
+      }
+    };
+
+    fetchBusinessData();
+  }, [selectedAdminName, selectedCategory]);
   if (!businessData) return <p>데이터를 불러오는 중...</p>;
 
   // 분기별 데이터 정렬 (1분기부터 4분기까지)
@@ -37,42 +62,40 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
   const otherData = sortedQuarterData.map(
     (item) => item.main_category_store_count["기타"]
   );
+
+  const categoryColors: Record<string, string> = {
+    한식음식점: "rgba(255, 99, 132, 0.7)", // 빨강
+    "커피-음료": "rgba(54, 162, 235, 0.7)", // 파랑
+    "호프-간이주점": "rgba(255, 206, 86, 0.7)", // 노랑
+    양식음식점: "rgba(75, 192, 192, 0.7)", // 청록
+    분식전문점: "rgba(153, 102, 255, 0.7)", // 보라
+    일식음식점: "rgba(255, 159, 64, 0.7)", // 주황
+    반찬가게: "rgba(100, 181, 246, 0.7)", // 하늘색
+    제과점: "rgba(174, 214, 241, 0.7)", // 연파랑
+    중식음식점: "rgba(255, 140, 0, 0.7)", // 다크 오렌지
+    패스트푸드점: "rgba(46, 204, 113, 0.7)", // 연두색
+    치킨전문점: "rgba(231, 76, 60, 0.7)" // 진빨강
+  };
   const prepareDonutChartData = (region: any) => {
-    const donutData = businessData.food_category_stats[region].donut;
+    const donutData: DonutData = businessData.food_category_stats[region].donut;
+
+    // 상위 5개 필터링
+    const top5Entries = Object.entries(donutData)
+      .sort((a, b) => b[1] - a[1]) // 내림차순 정렬
+      .slice(0, 5); // 상위 5개 선택
 
     return {
-      labels: Object.keys(donutData),
+      labels: top5Entries.map(([key]) => key),
       datasets: [
         {
-          label: `${region} 외식업 분포`, // 라벨 추가
-          data: Object.values(donutData) as number[], // 명시적 타입 변환
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.7)",
-            "rgba(54, 162, 235, 0.7)",
-            "rgba(255, 206, 86, 0.7)",
-            "rgba(75, 192, 192, 0.7)",
-            "rgba(153, 102, 255, 0.7)",
-            "rgba(255, 159, 64, 0.7)",
-            "rgba(199, 199, 199, 0.7)",
-            "rgba(83, 102, 255, 0.7)",
-            "rgba(40, 159, 64, 0.7)",
-            "rgba(210, 105, 30, 0.7)",
-            "rgba(128, 0, 128, 0.7)"
-          ],
-          borderColor: [
-            // 테두리 색상 추가
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)",
-            "rgba(199, 199, 199, 1)",
-            "rgba(83, 102, 255, 1)",
-            "rgba(40, 159, 64, 1)",
-            "rgba(210, 105, 30, 1)",
-            "rgba(128, 0, 128, 1)"
-          ],
+          label: `${region} 외식업 분포`,
+          data: top5Entries.map(([, value]) => value),
+          backgroundColor: top5Entries.map(
+            ([key]) => categoryColors[key] || "rgba(200, 200, 200, 0.7)"
+          ),
+          borderColor: top5Entries.map(
+            ([key]) => categoryColors[key] || "rgba(200, 200, 200, 1)"
+          ),
           borderWidth: 1
         }
       ]
@@ -212,12 +235,19 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
         <h3 className="text-lg font-semibold mb-4">
           외식업 세부 카테고리 분포
         </h3>
+        <div className="pb-5">
+          <Legend categories={categoryColors} />
+        </div>
         <div className="flex flex-wrap justify-between">
           {/* 서울시 */}
-          <div className="w-full md:w-1/3 mb-4">
+          <div className="w-full md:w-1/4 mb-4">
             <h4 className="text-md font-medium mb-2">서울시</h4>
             <div className="">
-              <DoughnutChart chartData={seoulDonutData} legendPosition="left" />
+              <DoughnutChart
+                chartData={seoulDonutData}
+                legendPosition="top"
+                showLegend={false}
+              />
             </div>
             <div className="mt-2">
               <p className="text-sm font-medium">TOP 3</p>
@@ -230,7 +260,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               )}
             </div>
             <p className="text-sm mt-2">
-              업종 순위:{" "}
+              {selectedCategory} 순위:{" "}
               <span className="font-bold">
                 {businessData.food_category_stats.서울시.industry_rank}위
               </span>
@@ -238,12 +268,13 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
           </div>
 
           {/* 자치구 */}
-          <div className="w-full md:w-1/3 mb-4">
+          <div className="w-full md:w-1/4 mb-4">
             <h4 className="text-md font-medium mb-2">자치구</h4>
             <div className="">
               <DoughnutChart
                 chartData={districtDonutData}
-                legendPosition="left"
+                legendPosition="top"
+                showLegend={false}
               />
             </div>
             <div className="mt-2">
@@ -257,7 +288,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               )}
             </div>
             <p className="text-sm mt-2">
-              업종 순위:{" "}
+              {selectedCategory} 순위:{" "}
               <span className="font-bold">
                 {businessData.food_category_stats.자치구.industry_rank}위
               </span>
@@ -265,12 +296,13 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
           </div>
 
           {/* 행정동 */}
-          <div className="w-full md:w-1/3 mb-4">
+          <div className="w-full md:w-1/4 mb-4">
             <h4 className="text-md font-medium mb-2">{selectedAdminName}</h4>
             <div className="">
               <DoughnutChart
                 chartData={neighborhoodDonutData}
-                legendPosition="left"
+                legendPosition="top"
+                showLegend={false}
               />
             </div>
             <div className="mt-2">
@@ -284,7 +316,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               )}
             </div>
             <p className="text-sm mt-2">
-              내 업종 순위:{" "}
+              {selectedCategory} 순위:{" "}
               <span className="font-bold">
                 {businessData.food_category_stats.행정동.industry_rank}위
               </span>

@@ -2,7 +2,7 @@
 import axios, { AxiosError } from "axios";
 import { getAccessToken, clearAuthData } from "@/features/auth/api/userStorage";
 import useAuthStore from "@/store/useAuthStore";
-
+import useStoreStore from "@/store/storeStore";
 // 기본 axios 인스턴스 생성
 const API_URL = import.meta.env.VITE_API_SERVER_URL || "";
 const axiosInstance = axios.create({
@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
       clearAuthData();
 
       useAuthStore.getState().clearUserInfo();
-
+      useStoreStore.getState().resetStore;
       window.location.href = "/login";
 
       console.log("네트워크 에러 발생:", error.message);

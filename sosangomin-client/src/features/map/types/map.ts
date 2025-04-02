@@ -25,6 +25,7 @@ export interface MapSidebarProps {
   onSearch: (address: string) => void;
   onClose: () => void;
   selectedAdminName?: string | null;
+  selectedCategory?: string | null;
 }
 
 export interface KakaoMapAPI {
@@ -63,6 +64,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   selectedAdminName?: string;
+  selectedCategory?: string;
 }
 export interface AnalysisModalProps extends ModalProps {
   selectedAdminName?: string;

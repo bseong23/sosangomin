@@ -1,11 +1,10 @@
 // src/features/auth/components/mypage/StoreList.tsx
 import React, { useEffect, useState } from "react";
-import { StoreListResponse } from "@/features/auth/types/mypage";
+import { StoreListResponse, StoreInfo } from "@/features/auth/types/mypage";
 import Store from "@/features/auth/components/mypage/Storeitem";
 import useStoreStore from "@/store/storeStore";
 import { getStoreList } from "@/features/auth/api/mypageApi";
 
-// onAddStore를 선택적 속성으로 변경
 const StoreList: React.FC = () => {
   const [storeListData, setStoreListData] = useState<StoreListResponse | null>(
     null
@@ -33,6 +32,12 @@ const StoreList: React.FC = () => {
     fetchStores();
   }, [representativeStore, setRepresentativeStore]);
 
+  // 대표 가게 설정 핸들러
+  const handleSetRepresentative = (store: StoreInfo) => {
+    setRepresentativeStore(store);
+    alert(`${store.store_name}이(가) 대표 가게로 설정되었습니다.`);
+  };
+
   if (!storeListData) {
     return <div className="text-center py-8">데이터를 불러오는 중...</div>;
   }
@@ -41,7 +46,6 @@ const StoreList: React.FC = () => {
     return (
       <div className="text-center py-8 bg-gray-50 rounded-lg">
         <p className="text-gray-500">{storeListData.message}</p>
-        {/* 등록하기 버튼 제거 */}
       </div>
     );
   }
@@ -58,9 +62,12 @@ const StoreList: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {storeListData.stores.map((store) => (
           <Store
-            key={store.store_id}
+            key={store.business_number}
             store={store}
-            isRepresentative={representativeStore?.store_id === store.store_id}
+            isRepresentative={
+              representativeStore?.business_number === store.business_number
+            }
+            onSetRepresentative={() => handleSetRepresentative(store)}
           />
         ))}
       </div>
