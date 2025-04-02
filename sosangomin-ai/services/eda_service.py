@@ -166,7 +166,7 @@ class EdaService:
                 try:
                     file_ext = os.path.splitext(filename)[1].lower()
                     if file_ext == '.xlsx' or file_ext == '.xls':
-                        df = pd.read_excel(local_path, header=2)
+                        df = pd.read_excel(local_path, header=2, engine='openpyxl')
                     elif file_ext == '.csv':
                         df = pd.read_csv(local_path, header=2)
                     else:
