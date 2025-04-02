@@ -46,6 +46,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String isFirstLogin = (String) oAuth2User.getAttributes().get("isFirstLogin");
         String userId = (String) oAuth2User.getAttributes().get("userId");
         String userRole = oAuth2User.getAttributes().get("userRole").toString();
+        String storeIdList = oAuth2User.getAttributes().get("storeIdList").toString();
 
         String accessToken = jwtTokenUtil.createWeekAccessToken(id);
 
@@ -56,7 +57,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 + "&userProfileUrl=" + URLEncoder.encode(profileImgUrl, StandardCharsets.UTF_8)
                 + "&isFirstLogin=" + URLEncoder.encode(isFirstLogin, StandardCharsets.UTF_8)
                 + "&userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
-                + "&userRole=" + URLEncoder.encode(userRole, StandardCharsets.UTF_8);
+                + "&userRole=" + URLEncoder.encode(userRole, StandardCharsets.UTF_8)
+                + "&storeIdList=" + URLEncoder.encode(storeIdList, StandardCharsets.UTF_8);
 
         System.out.println(redirectUrl);
 
