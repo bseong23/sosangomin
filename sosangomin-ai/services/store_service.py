@@ -172,7 +172,7 @@ class SimpleStoreService:
             logger.info(f"'{query}' 검색하여 place_id 추출 중...")
 
             chrome_options = Options()
-            chrome_options.add_argument("--headless=new")
+            chrome_options.add_argument("--headless")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
             chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -254,6 +254,11 @@ class SimpleStoreService:
                             logger.warning(f"선택자 '{selector}' 시도 실패: {e}")
                     
                     driver.switch_to.default_content()
+                    iframes = driver.find_elements("tag name", "iframe")
+                    logger.info(f"현재 페이지 iframe 수: {len(iframes)}")
+                    for i, frame in enumerate(iframes):
+                        logger.info(f"iframe[{i}] - id: {frame.get_attribute('id')}, src: {frame.get_attribute('src')}")
+
                     
                     # 클릭 후 추가 로딩 시간
                     time.sleep(3)
