@@ -101,7 +101,7 @@ class AreaAnalysisService:
             # 지역별 상주 인구 정보 조회
             region_row = (
                 db.query(Population)
-                .filter(Population.dong_name == region_name)
+                .filter(Population.region_name == region_name)
                 .order_by(desc(Population.created_at))
                 .first()
             )
@@ -145,7 +145,7 @@ class AreaAnalysisService:
         try:
             region_row = (
                 db.query(Population)
-                .filter(Population.dong_name == region_name)
+                .filter(Population.region_name == region_name)
                 .order_by(desc(Population.created_at))
                 .first()
             )
@@ -187,7 +187,7 @@ class AreaAnalysisService:
         try:
             region_row = (
                 db.query(Population)
-                .filter(Population.dong_name == region_name)
+                .filter(Population.region_name == region_name)
                 .order_by(desc(Population.created_at))
                 .first()
             )

@@ -62,9 +62,9 @@ class WorkingPopulationService:
                     try:
                         adstrd_cd_nm=row.get("ADSTRD_CD_NM")
                         
-                        # 기존 유동인구 테이블에서 dong_name으로 검색
+                        # 기존 유동인구 테이블에서 region_name으로 검색
                         existing = db.query(Population).filter(
-                            Population.dong_name == adstrd_cd_nm                            
+                            Population.region_name == adstrd_cd_nm                            
                         ).first()
 
                         if not existing:

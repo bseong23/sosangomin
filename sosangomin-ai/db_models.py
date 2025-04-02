@@ -120,7 +120,7 @@ class Population(Base):
     population_id = Column(Integer, primary_key=True, autoincrement=True, comment='인구 데이터 ID (PK)')
 
     district_name = Column(String(45), comment='구 이름')
-    dong_name = Column(String(45), comment='동 이름')
+    region_name = Column(String(45), comment='동 이름')
 
     ## 유동인구 
     # stdr_yyqu_cd = Column(String(6), comment='기준 년월분기 코드 (예: 202301)', nullable=False)

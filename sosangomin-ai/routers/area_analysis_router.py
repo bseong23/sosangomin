@@ -1,9 +1,6 @@
 from fastapi import APIRouter, HTTPException, Path, Query, Form
-from sqlalchemy.orm import Session
-from database.connector import database_instance as mariadb
-from db_models import StoreCategories
+from database.connector import database_instance
 from services.area_analysis_service import area_analysis_service
-from typing import List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,7 +13,7 @@ router = APIRouter(
 
 @router.get("/summary")
 def summary_view(region_name: str = Query(..., description="행정동 이름"), industry_name: str = Query(..., description="업종 이름")):
-    db = mariadb.pre_session()
+    db = database_instance.pre_session()
     try:
         return area_analysis_service.get_summary_analysis(db, region_name, industry_name)
     finally:
@@ -24,7 +21,7 @@ def summary_view(region_name: str = Query(..., description="행정동 이름"), 
 
 @router.get("/population")
 def population_analysis(region_name: str = Query(..., description="행정동 이름")):
-    db = mariadb.pre_session()
+    db = database_instance.pre_session()
     try:
         result = {
             "resident_pop": area_analysis_service.get_resident_population_analysis(db, region_name),
@@ -37,7 +34,7 @@ def population_analysis(region_name: str = Query(..., description="행정동 이
 
 @router.get("/category")
 def category_analysis(region_name: str = Query(..., description="행정동 이름"), industry_name: str = Query(..., description="업종 이름")):
-    db = mariadb.pre_session()
+    db = database_instance.pre_session()
     try:
         result = {
             "main_category_store_count": area_analysis_service.get_main_category_store_count(db, region_name),
@@ -51,7 +48,7 @@ def category_analysis(region_name: str = Query(..., description="행정동 이�
 
 @router.get("/sales")
 def sales_analysis(region_name: str = Query(..., description="행정동 이름"), industry_name: str = Query(..., description="업종 이름")):
-    db = mariadb.pre_session()
+    db = database_instance.pre_session()
     try:
         result = {
             "main_category_sales_count": area_analysis_service.get_main_category_sales_count(db, region_name),

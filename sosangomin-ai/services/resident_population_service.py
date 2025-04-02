@@ -61,9 +61,9 @@ class ResidentPopulationService:
                     try:
                         adstrd_cd_nm=row.get("ADSTRD_CD_NM")
                         
-                        # 기존 유동인구 테이블에서 dong_name으로 검색
+                        # 기존 유동인구 테이블에서 region_name으로 검색
                         existing = db.query(Population).filter(
-                            Population.dong_name == adstrd_cd_nm                            
+                            Population.region_name == adstrd_cd_nm                            
                         ).first()
 
                         if not existing:
@@ -139,7 +139,7 @@ class ResidentPopulationService:
 
 resident_population_service = ResidentPopulationService()
 
-# ✅ 단독 테스트 실행용
+# 단독 테스트 실행용
 if __name__ == "__main__":
     async def main():
         await resident_population_service.update_population_data(1, 1000)  # 1~1000건 수집
