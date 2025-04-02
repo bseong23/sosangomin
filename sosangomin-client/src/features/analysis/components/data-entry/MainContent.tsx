@@ -1,16 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataUploadArea from "./DataUploadArea";
 import FilePreview from "./FilePreview";
 import AnalysisButton from "./AnalysisButton";
 import InfoModal from "./InfoModal";
-import PosTypeSelector from "./PosTypeSelector";
-import DataLoadingModal from "@/components/modal/DataLoadingModal/index.tsx";
+import DateRangePicker from "./DateRangePicker";
+// 새로운 모듈화된 DataLoadingModal 임포트
+import DataLoadingModal from "@/components/modal/DataLoadingModal"; // index.tsx가 기본으로 임포트됨
 import useFileModalStore from "@/store/modalStore";
+import useStoreStore from "@/store/storeStore";
+import { StoreInfo } from "@/features/auth/types/mypage";
 
-// 분석 API 연동 관련 import
-// TODO: 백엔드 API 연동 시 주석 해제
-// import { useAnalysisStore } from '@/features/analysis';
-// import { AnalysisRequest } from '@/features/analysis';
+// 분석 API 및 파일 API 연동
+import useFileUpload from "@/features/analysis/hooks/useFileUpload";
+import { AnalysisRequest } from "@/features/analysis/types/analysis";
+import useAnalysis from "@/features/analysis/hooks/useAnalysis";
+import useAnalysisPolling from "@/features/analysis/hooks/useAnalysisPolling";
 
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
@@ -19,80 +23,123 @@ import PosData2 from "@/assets/POS_data_2.webp";
 const MainContent: React.FC = () => {
   // Zustand 스토어에서 필요한 상태와 액션 가져오기
   const {
-    uploadedFiles,
     isModalOpen,
     isLoading,
     fileCount,
-    // posType,
-    addFiles,
-    removeFile,
-    // clearFiles,
     openModal,
-    closeModal,
+    // closeModal,
     setLoading,
-    setFileData
-    // resetAfterAnalysis
+    setFileData,
+    completeLoading, // 새 구조의 액션 추가
+    setAnalysisCompleted // 새 구조의 액션 추가
   } = useFileModalStore();
 
-  // Analysis Store 사용 (백엔드 연동 시 주석 해제)
-  // TODO: 백엔드 API 연동 시 주석 해제
-  // const {
-  //   requestAnalysis,
-  //   currentAnalysis,
-  //   isLoading: isAnalysisLoading,
-  //   error: analysisError
-  // } = useAnalysisStore();
+  // 파일 업로드 훅 사용
+  const {
+    files,
+    isUploading,
+    error: fileUploadError,
+    addFiles,
+    removeFile,
+    uploadFilesToServer
+  } = useFileUpload();
 
-  // 로컬 상태는 최소화
+  // 분석 훅 사용
+  const { analysisState, requestAnalysis } = useAnalysis();
+
+  // 분석 폴링 훅 (상태가 "processing"인 경우 주기적으로 상태 확인)
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const {
+    analysisState: pollingAnalysisState,
+    startPolling,
+    stopPolling
+  } = useAnalysisPolling(analysisId);
+
+  // Zustand 스토어에서 스토어 정보 가져오기
+  const { representativeStore } = useStoreStore() as {
+    representativeStore: StoreInfo | null;
+  };
+
+  // 로컬 상태
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
-  const [selectedPosType, setSelectedPosType] = useState<string>("토스");
+  const [dateRange, setDateRange] = useState({
+    startMonth: getFormattedMonth(-3), // 3개월 전
+    endMonth: getFormattedMonth(0) // 현재 월
+  });
 
-  // 업로드된 파일의 소스 ID 저장 (백엔드 연동 시 주석 해제)
-  // TODO: 백엔드 API 연동 시 주석 해제
-  // const [sourceIds, setSourceIds] = useState<string[]>([]);
+  // 기본 날짜 설정 함수 (YYYY-MM 형식)
+  function getFormattedMonth(monthsOffset: number): string {
+    const date = new Date();
+    date.setMonth(date.getMonth() + monthsOffset);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  }
 
-  // 개발 테스트용 로딩 시간 (밀리초)
-  const loadingTime = 5000; // 5초 (테스트용으로 단축)
+  // 파일 목록이 변경되면 fileCount 업데이트
+  useEffect(() => {
+    if (representativeStore) {
+      setFileData(files.length, representativeStore.pos_type);
+    }
+  }, [files.length, representativeStore, setFileData]);
+
+  // 분석 결과 폴링에 따른 상태 업데이트
+  useEffect(() => {
+    if (pollingAnalysisState.data && !pollingAnalysisState.isLoading) {
+      const status = pollingAnalysisState.data.status;
+
+      // 분석이 완료되거나 실패한 경우
+      if (status === "success" || status === "failed") {
+        // 로딩 상태 업데이트 (새 구조의 액션 사용)
+        completeLoading();
+
+        // 모달을 명시적으로 열림 상태로 유지
+        openModal();
+
+        if (status === "success") {
+          console.log("분석 완료:", pollingAnalysisState.data);
+        } else {
+          console.error("분석 실패:", pollingAnalysisState.error);
+        }
+      }
+    }
+  }, [pollingAnalysisState, completeLoading, openModal]);
+
+  // 컴포넌트 마운트 시 스토어 ID 설정 확인
+  useEffect(() => {
+    // 대표 스토어가 없는 경우 경고 표시 또는 다른 처리를 할 수 있습니다.
+    if (!representativeStore) {
+      console.warn("대표 매장이 설정되어 있지 않습니다.");
+    } else {
+      // 디버깅: 대표 매장 정보 로깅
+      console.log("대표 매장 정보:", representativeStore);
+    }
+  }, [representativeStore]);
+
+  // 컴포넌트 언마운트 시 폴링 중지
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
 
   const handleFileUpload = (files: FileList): void => {
     addFiles(Array.from(files));
-
-    // TODO: 백엔드 API 연동 시 주석 해제
-    // 여기서 파일을 서버에 업로드하고 sourceId를 받아올 수 있습니다.
-    // const uploadFileToServer = async (file: File) => {
-    //   // 파일 업로드 API 호출 (가정)
-    //   // const response = await uploadFile(file);
-    //   // return response.sourceId;
-    //
-    //   // 임시로 고유 ID 생성
-    //   return `source_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    // };
-    //
-    // // 파일마다 업로드 후 sourceId 저장
-    // Promise.all(Array.from(files).map(uploadFileToServer))
-    //   .then(ids => {
-    //     setSourceIds(prev => [...prev, ...ids]);
-    //   })
-    //   .catch(error => {
-    //     console.error("파일 업로드 실패:", error);
-    //   });
   };
 
   const handleRemoveFile = (index: number): void => {
-    removeFile(uploadedFiles[index].name);
-
-    // TODO: 백엔드 API 연동 시 주석 해제
-    // // sourceIds도 함께 제거
-    // setSourceIds(prev => {
-    //   const newIds = [...prev];
-    //   newIds.splice(index, 1);
-    //   return newIds;
-    // });
+    removeFile(index);
   };
 
-  const handlePosTypeSelect = (posType: string): void => {
-    setSelectedPosType(posType);
-    setFileData(uploadedFiles.length, posType);
+  const handleDateRangeChange = (
+    newStartMonth: string,
+    newEndMonth: string
+  ): void => {
+    setDateRange({
+      startMonth: newStartMonth,
+      endMonth: newEndMonth
+    });
   };
 
   const openInfoModal = () => {
@@ -103,73 +150,118 @@ const MainContent: React.FC = () => {
     setIsInfoModalOpen(false);
   };
 
-  // 분석 완료 콜백 함수 - 모달 닫기 후 결과 페이지로 이동 (상태 초기화 포함)
+  // 사용자가 모달에서 "결과 보기" 버튼을 클릭했을 때 호출됩니다.
   const handleAnalysisComplete = () => {
-    closeModal();
-    // 리다이렉트 코드 제거 (DataLoadingModal에서 이미 처리함)
+    // 분석 상태를 완료로 설정
+    setAnalysisCompleted(true);
+    // 이제 의도적으로 모달을 닫았을 때만 closeModal()이 호출됩니다
+  };
+
+  // 안전하게 스토어 ID 가져오기
+  const getValidStoreId = (store: StoreInfo | null): string => {
+    if (!store) return "";
+
+    // store_id 필드 확인 (StoreInfo 인터페이스에서는 id로 정의되어 있을 수 있지만 실제로는 store_id로 전달됨)
+    if (store.store_id && typeof store.store_id === "string") {
+      return store.store_id;
+    }
+
+    // id 필드도 확인 (백업)
+    if (store.store_id && typeof store.store_id === "string") {
+      return store.store_id;
+    }
+
+    return "";
   };
 
   // 분석 시작 함수
-  const startAnalysis = () => {
+  const startAnalysis = async (): Promise<void> => {
+    // 대표 스토어가 없는 경우 처리
+    if (!representativeStore) {
+      console.error("분석을 시작할 매장이 선택되지 않았습니다.");
+      return;
+    }
+
+    // 유효한 스토어 ID 가져오기
+    const storeId = getValidStoreId(representativeStore);
+    if (!storeId) {
+      console.error("유효한 매장 ID를 찾을 수 없습니다:", representativeStore);
+      return;
+    }
+
+    // 디버깅: 사용하는 ID 값 확인
+    console.log("업로드에 사용할 매장 ID:", storeId);
+
+    // 모달 열기 및 로딩 상태 설정
     setLoading(true);
-    setFileData(uploadedFiles.length, selectedPosType);
     openModal();
 
-    // 분석 데이터 객체
-    const analysisData = {
-      posType: selectedPosType,
-      files: uploadedFiles,
-      fileCount: uploadedFiles.length,
-      timestamp: new Date().toISOString()
-    };
+    try {
+      // 1. 파일 업로드 - 직접 ID 목록 받기
+      const uploadResult = await uploadFilesToServer({
+        storeId: storeId,
+        startMonth: dateRange.startMonth,
+        endMonth: dateRange.endMonth
+      });
 
-    console.log("분석 시작:", analysisData);
+      if (!uploadResult.success) {
+        console.error("파일 업로드 실패");
+        setLoading(false);
+        return;
+      }
 
-    // TODO: 백엔드 API 연동 시 replace
-    // 실제 API 호출을 시뮬레이션 (예시)
-    setTimeout(() => {
-      console.log("분석 완료:", analysisData);
+      // 업로드된 파일 ID 직접 사용
+      const fileIds = uploadResult.objectIds;
+      console.log("업로드된 파일 ID 목록 (직접):", fileIds);
+
+      // ID 목록이 비어 있는지 확인
+      if (!fileIds || fileIds.length === 0) {
+        console.error(
+          "업로드된 파일 ID 목록이 비어 있습니다. 분석을 진행할 수 없습니다."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // 2. 분석 요청 파라미터 설정
+      const analysisRequest: AnalysisRequest = {
+        store_id: storeId,
+        source_ids: fileIds, // 직접 받은 파일 ID 목록 사용
+        pos_type: representativeStore.pos_type
+      };
+
+      // 분석 요청 로깅
+      console.log("분석 요청 파라미터:", JSON.stringify(analysisRequest));
+
+      // 3. 분석 요청 보내기
+      const result = await requestAnalysis(analysisRequest);
+
+      if (!result) {
+        console.error("분석 요청 실패");
+        setLoading(false);
+        return;
+      }
+
+      // 4. 분석 ID 저장 및 폴링 시작
+      const newAnalysisId = analysisState.data?.analysis_id;
+      if (newAnalysisId) {
+        setAnalysisId(newAnalysisId);
+        startPolling(); // 분석 상태 폴링 시작
+      } else {
+        console.error("분석 ID를 받지 못했습니다");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("분석 프로세스 중 오류 발생:", error);
       setLoading(false);
-    }, loadingTime);
-
-    // TODO: 백엔드 API 연동 시 주석 해제
-    // // 실제 API 호출
-    // if (sourceIds.length > 0) {
-    //   const analysisRequest: AnalysisRequest = {
-    //     store_id: 1, // 현재 선택된 스토어 ID (컨텍스트에서 가져오거나 상태로 관리)
-    //     source_ids: sourceIds,
-    //     pos_type: selectedPosType
-    //   };
-    //
-    //   // 분석 요청 보내기
-    //   requestAnalysis(analysisRequest)
-    //     .then(analysisId => {
-    //       if (analysisId) {
-    //         console.log("분석 요청 성공, ID:", analysisId);
-    //
-    //         // 분석이 완료되면 로딩 상태 종료
-    //         // Note: 실제로는 useAnalysisPolling을 사용하여 상태를 확인하고
-    //         // 완료되면 setLoading(false) 호출하는 것이 좋습니다.
-    //         setTimeout(() => {
-    //           setLoading(false);
-    //         }, 5000); // 테스트를 위한 임의의 시간
-    //       } else {
-    //         console.error("분석 요청 실패");
-    //         setLoading(false);
-    //       }
-    //     })
-    //     .catch(error => {
-    //       console.error("분석 API 오류:", error);
-    //       setLoading(false);
-    //     });
-    // } else {
-    //   console.error("소스 ID가 없습니다");
-    //   setLoading(false);
-    // }
+    }
   };
 
   // POS 타입에 따른 모달 내용을 결정하는 함수
   const getModalContentByPosType = () => {
+    // 현재 선택된 POS 타입 가져오기
+    const currentPosType = representativeStore?.pos_type || "";
+
     // 공통으로 사용되는 파일 형식 정보 섹션
     const fileFormatInfo = (
       <div>
@@ -204,8 +296,9 @@ const MainContent: React.FC = () => {
     );
 
     // POS 타입에 따른 내용 분기
-    switch (selectedPosType) {
+    switch (currentPosType.toLowerCase()) {
       case "토스":
+      case "toss":
         return (
           <div className="space-y-6">
             <div>
@@ -248,6 +341,7 @@ const MainContent: React.FC = () => {
         );
 
       case "키움페이":
+      case "kiwoompay":
         return (
           <div className="space-y-6">
             <div>
@@ -284,14 +378,13 @@ const MainContent: React.FC = () => {
           </div>
         );
 
-      // 다른 POS 타입을 추가할 수 있습니다
       default:
         return (
           <div className="space-y-6">
             <div>
               <p className="mb-4 text-lg">
-                선택한 POS 시스템({selectedPosType})의 매출 데이터를 엑셀 또는
-                CSV 형식으로 추출하여 업로드해 주세요.
+                {currentPosType ? `${currentPosType} ` : ""}
+                매출 데이터를 엑셀 또는 CSV 형식으로 추출하여 업로드해 주세요.
               </p>
 
               <hr className="border-border my-10" />
@@ -305,6 +398,18 @@ const MainContent: React.FC = () => {
 
   // 모달에 표시할 내용 생성
   const modalContent = getModalContentByPosType();
+
+  // 에러 메시지 컴포넌트
+  const ErrorMessage: React.FC = () => {
+    const errorMsg = fileUploadError || analysisState.error;
+    if (!errorMsg) return null;
+
+    return (
+      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+        {errorMsg}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-white min-h-screen w-full max-w-[1200px] p-6 mx-auto">
@@ -325,29 +430,46 @@ const MainContent: React.FC = () => {
             </button>
           </div>
 
-          {/* POS 타입 선택기 */}
-          <div className="flex items-center justify-center sm:justify-end">
-            <span className="mr-2 text-sm font-medium text-gray-700">
-              POS 타입:
-            </span>
-            <div className="w-[180px] sm:w-auto">
-              <PosTypeSelector
-                onSelect={handlePosTypeSelect}
-                defaultValue="토스"
-              />
+          {/* 선택된 매장 정보 표시 */}
+          {representativeStore && (
+            <div className="mb-4 sm:mb-0 sm:mx-4 px-3 py-1 bg-blue-50 text-blue-800 rounded-md border border-blue-200">
+              <span className="text-sm font-medium">
+                {representativeStore.store_name}
+                {representativeStore.pos_type && (
+                  <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 rounded text-xs">
+                    {representativeStore.pos_type}
+                  </span>
+                )}
+              </span>
             </div>
+          )}
+        </div>
+
+        {/* 날짜 범위 선택기 */}
+        <div className="mb-6">
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h2 className="text-base font-medium text-gray-700 mb-3">
+              분석 기간 설정
+            </h2>
+            <DateRangePicker
+              startMonth={dateRange.startMonth}
+              endMonth={dateRange.endMonth}
+              onDateRangeChange={handleDateRangeChange}
+            />
           </div>
         </div>
 
         <div className="bg-white py-6 rounded-lg w-full">
           <DataUploadArea onFileUpload={handleFileUpload} />
 
-          {uploadedFiles.length > 0 && (
+          {/* 에러 메시지 표시 */}
+          <ErrorMessage />
+
+          {files.length > 0 && (
             <div className="mt-6">
               <FilePreview
-                files={uploadedFiles.map((fileInfo) => {
-                  // FileInfo를 File 객체로 변환하기 위한 더미 File 객체
-                  // 실제로는 File 객체의 속성만 사용한다면 이 방식으로도 동작함
+                files={files.map((fileInfo) => {
+                  // FileInfo를 File 객체로 변환
                   return new File([""], fileInfo.name, {
                     type: fileInfo.type,
                     lastModified: fileInfo.lastModified
@@ -362,8 +484,8 @@ const MainContent: React.FC = () => {
         <div className="flex justify-center mt-6 mb-6">
           <AnalysisButton
             onAnalyze={startAnalysis}
-            isLoading={isLoading}
-            disabled={uploadedFiles.length === 0}
+            isLoading={isLoading || isUploading}
+            disabled={files.length === 0 || !representativeStore}
           />
         </div>
       </div>
@@ -372,17 +494,18 @@ const MainContent: React.FC = () => {
       <InfoModal
         isOpen={isInfoModalOpen}
         onClose={closeInfoModal}
-        title={`${selectedPosType} 영수증 출력 방법`}
+        title={`${representativeStore?.pos_type || ""} 영수증 출력 방법`}
         content={modalContent}
       />
 
-      {/* 데이터 로딩 모달 (퀴즈 게임 포함) */}
+      {/* 새로운 구조의 데이터 로딩 모달 - 분석 ID 전달 */}
       <DataLoadingModal
         isOpen={isModalOpen}
         fileCount={fileCount}
-        posType={selectedPosType}
+        posType={representativeStore?.pos_type || ""}
         isLoading={isLoading}
         onLoadingComplete={handleAnalysisComplete}
+        analysisId={analysisId} // 분석 ID 전달
       />
     </div>
   );

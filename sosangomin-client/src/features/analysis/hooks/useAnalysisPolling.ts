@@ -57,73 +57,63 @@ export const useAnalysisPolling = (
 
   // 폴링 로직
   useEffect(() => {
-    // 폴링 중이 아니거나, analysisId가 없으면 실행하지 않음
     if (!polling || !analysisId) return;
 
     const fetchAnalysisStatus = async () => {
       try {
-        // 최대 시도 횟수 초과 체크
         if (attemptCountRef.current >= maxAttempts) {
-          stopPolling();
           setAnalysisState((prev) => ({
             ...prev,
             isLoading: false,
             error: "분석 결과 확인 시간이 초과되었습니다"
           }));
+          stopPolling(); // 여기서 호출하되, 의존성 배열에서 제거
           return;
         }
 
         attemptCountRef.current += 1;
-
         const response = await getAnalysisResult(analysisId);
 
         if ("error" in response && "message" in response) {
-          // 에러 발생 시 폴링 중지
-          stopPolling();
           setAnalysisState((prev) => ({
             ...prev,
             isLoading: false,
             error: response.error
           }));
+          stopPolling();
           return;
         }
 
-        // 데이터 업데이트
         setAnalysisState({
-          data: response as AnalysisResultData, // 타입 단언 추가
+          data: response as AnalysisResultData,
           isLoading: polling,
           error: null
         });
 
-        // 분석이 완료되었는지 확인
         if (response.status === "success" || response.status === "failed") {
           stopPolling();
           return;
         }
 
-        // 계속 폴링
         timeoutRef.current = setTimeout(fetchAnalysisStatus, pollingInterval);
       } catch (error) {
-        // 예기치 않은 오류 발생 시
-        stopPolling();
         setAnalysisState((prev) => ({
           ...prev,
           isLoading: false,
           error: "분석 상태 확인 중 오류가 발생했습니다"
         }));
+        stopPolling();
       }
     };
 
-    // 폴링 시작
     fetchAnalysisStatus();
 
-    // 클린업 함수
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [analysisId, polling, pollingInterval, maxAttempts, stopPolling]);
+  }, [analysisId, polling, pollingInterval, maxAttempts]);
 
   // 컴포넌트 언마운트 시 폴링 중지
   useEffect(() => {
