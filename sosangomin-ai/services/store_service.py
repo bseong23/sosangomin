@@ -168,7 +168,6 @@ class SimpleStoreService:
     
     async def _get_place_id_with_selenium(self, query: str) -> Optional[str]:
         driver = None
-        user_data_dir = tempfile.mkdtemp(prefix="selenium_", suffix=str(uuid.uuid4()))  
         try:
             logger.info(f"'{query}' 검색하여 place_id 추출 중...")
 
@@ -179,7 +178,7 @@ class SimpleStoreService:
             chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
             chrome_options.add_experimental_option("useAutomationExtension", False)
             chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36")
-            chrome_options.add_argument(f"--user-data-dir={user_data_dir}")  
+            chrome_options.add_argument("--incognito")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
 
@@ -348,12 +347,6 @@ class SimpleStoreService:
                     driver.quit()
             logger.info("WebDriver 종료됨")
 
-            try:
-                shutil.rmtree(user_data_dir)
-                logger.info(f"user-data-dir '{user_data_dir}' 삭제 완료")
-            except Exception as e:
-                logger.warning(f"user-data-dir 삭제 실패: {e}")
-    
     def _clean_text(self, text: str) -> str:
         """HTML 태그 및 특수문자 제거"""
         if not text:

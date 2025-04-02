@@ -104,7 +104,6 @@ class ReviewService:
     async def fetch_reviews_with_selenium(self, place_id: str) -> List[Dict[str, Any]]:
         reviews = []
         driver = None
-        user_data_dir = tempfile.mkdtemp(prefix="selenium_", suffix=str(uuid.uuid4()))  # ✅ 고유 디렉토리 생성
 
         try:
             chrome_options = Options()
@@ -112,7 +111,7 @@ class ReviewService:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument(f"user-agent={self.headers['User-Agent']}")
-            chrome_options.add_argument(f"--user-data-dir={user_data_dir}")  # ✅ 사용자 디렉토리 지정
+            chrome_options.add_argument("--incognito")
 
             webdriver_path = os.getenv('CHROME_WEBDRIVER_PATH', '/usr/local/bin/chromedriver')
             logger.info(f"Using Chrome WebDriver at: {webdriver_path}")
