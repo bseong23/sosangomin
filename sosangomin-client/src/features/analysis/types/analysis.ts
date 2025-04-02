@@ -20,6 +20,16 @@ export interface AnalysisRequest {
   store_id: string;
   source_ids: string[];
   pos_type: string;
+  analysis_result?: any;
+}
+
+export interface AutoAnalysisResults {
+  predict: {
+    total_sales: number;
+    predictions_30: Record<string, number>; // 날짜별 매출 예측
+  };
+  cluster: { [key: string]: string[] }; // 예: cluster0: ["공기밥"]
+  summaries: { [key: string]: { summary: string } }; // 예측 요약
 }
 
 // 분석 결과 인터페이스 (API 응답 구조)
@@ -28,49 +38,24 @@ export interface AnalysisResultResponse {
   analysis_result: {
     _id: string;
     store_id: number;
-    source_ids: string;
+    source_ids: string | string[];
     analysis_type: string;
     created_at: string;
     status: string;
     eda_result: {
       result_data: {
-        basic_stats: {
-          data: BasicStats;
-          summary: string;
-        };
-        weekday_sales: {
-          data: WeekdaySalesData;
-          summary: string;
-        };
-        hourly_sales: {
-          data: HourlySalesData;
-          summary: string;
-        };
-        top_products: {
-          data: TopProductsData;
-          summary: string;
-        };
-        time_period_sales: {
-          data: TimePeriodSalesData;
-          summary: string;
-        };
-        holiday_sales: {
-          data: HolidaySalesData;
-          summary: string;
-        };
-        season_sales: {
-          data: SeasonSalesData;
-          summary: string;
-        };
-        [key: string]: any; // 다른 필드도 허용
+        basic_stats: DataModule<BasicStats>;
+        weekday_sales: DataModule<WeekdaySalesData>;
+        hourly_sales: DataModule<HourlySalesData>;
+        top_products: DataModule<TopProductsData>;
+        time_period_sales: DataModule<TimePeriodSalesData>;
+        holiday_sales: DataModule<HolidaySalesData>;
+        season_sales: DataModule<SeasonSalesData>;
+        [key: string]: any;
       };
       summary: string;
     };
-    auto_analysis_results: {
-      predict: any;
-      cluster: any;
-      summaries: any;
-    };
+    auto_analysis_results: AutoAnalysisResults; // 수정된 타입 적용
   };
 }
 
@@ -107,9 +92,7 @@ export interface TimePeriodSalesData {
 }
 
 export interface HolidaySalesData {
-  [key: string]: number; // 인덱스 시그니처 추가
-  평일: number;
-  휴일: number;
+  [key: string]: number; // 예: "평일": 5000000, "공휴일": 7000000
 }
 
 export interface SeasonSalesData {

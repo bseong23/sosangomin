@@ -9,7 +9,6 @@ import WeekdaySalesSection from "./WeekdaySalesSection";
 import DistributionSection from "./DistributionSection";
 import SeasonalSalesSection from "./SeasonalSalesSection";
 import StrategySection from "./StrategySection";
-import ForecastSection from "./ForecastSection";
 import AnalysisSelector from "./AnalysisSelector";
 import Loading from "@/components/common/Loading";
 import useAnalysisStore from "@/store/useAnalysisStore";
@@ -232,9 +231,6 @@ const AnalysisDashboard: React.FC = () => {
           <SeasonalSalesSection data={data} />
           <StrategySection />
         </div>
-
-        {/* 다음달 예상 매출 섹션 */}
-        <ForecastSection basicStats={basicStats} />
       </div>
     </div>
   );
