@@ -22,6 +22,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service
+import tempfile
+import shutil
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -101,21 +104,22 @@ class ReviewService:
     async def fetch_reviews_with_selenium(self, place_id: str) -> List[Dict[str, Any]]:
         reviews = []
         driver = None
-        
+        user_data_dir = tempfile.mkdtemp(prefix="selenium_", suffix=str(uuid.uuid4()))  # ✅ 고유 디렉토리 생성
+
         try:
             chrome_options = Options()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument(f"user-agent={self.headers['User-Agent']}")
-            
+            chrome_options.add_argument(f"--user-data-dir={user_data_dir}")  # ✅ 사용자 디렉토리 지정
+
             webdriver_path = os.getenv('CHROME_WEBDRIVER_PATH', '/usr/local/bin/chromedriver')
-    
             logger.info(f"Using Chrome WebDriver at: {webdriver_path}")
-            
+
             service = Service()
             driver = webdriver.Chrome(service=service, options=chrome_options)
-            
+
             review_url = self.review_base_url.format(place_id=place_id)
             driver.get(review_url)
             
@@ -233,9 +237,17 @@ class ReviewService:
         except Exception as e:
             logger.error(f"Selenium 리뷰 크롤링 중 오류: {e}")
             return []
+
         finally:
             if driver:
                 driver.quit()
+                logger.info("WebDriver 종료됨")
+
+            try:
+                shutil.rmtree(user_data_dir)
+                logger.info(f"user-data-dir '{user_data_dir}' 삭제 완료")
+            except Exception as e:
+                logger.warning(f"user-data-dir 삭제 실패: {e}")
     
     def _analyze_single_review(self, review: Dict[str, Any]) -> Dict[str, Any]:
         """KoNLPy를 활용한 단일 리뷰 분석"""

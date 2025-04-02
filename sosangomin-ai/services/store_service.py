@@ -16,6 +16,9 @@ from sqlalchemy import or_
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+import tempfile
+import shutil
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -162,55 +165,180 @@ class SimpleStoreService:
             logger.error(f"네이버 place_id 추출 중 오류: {str(e)}")
             return url
     
+    
     async def _get_place_id_with_selenium(self, query: str) -> Optional[str]:
-        """Selenium을 사용하여 place_id 추출"""
         driver = None
+        user_data_dir = tempfile.mkdtemp(prefix="selenium_", suffix=str(uuid.uuid4()))  
         try:
             logger.info(f"'{query}' 검색하여 place_id 추출 중...")
-            
+
             chrome_options = Options()
             chrome_options.add_argument("--headless=new")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
             chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
             chrome_options.add_experimental_option("useAutomationExtension", False)
-            chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36")
-            
+            chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36")
+            chrome_options.add_argument(f"--user-data-dir={user_data_dir}")  
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            
+
             service = Service()
             driver = webdriver.Chrome(service=service, options=chrome_options)
-            
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            
+
             search_url = f"https://map.naver.com/p/search/{quote_plus(query)}"
             driver.get(search_url)
-            
-            time.sleep(5)
+
+            time.sleep(6)
             
             current_url = driver.current_url
             logger.info(f"현재 URL: {current_url}")
-            
+
             place_id_match = re.search(r'/place/(\d+)', current_url)
             if place_id_match:
-                place_id = place_id_match.group(1)
-                logger.info(f"추출된 place_id: {place_id}")
-                return place_id
-                
+                return place_id_match.group(1)
+
             if "place=" in current_url:
                 place_id_match = re.search(r'place=(\d+)', current_url)
                 if place_id_match:
-                    place_id = place_id_match.group(1)
-                    logger.info(f"쿼리 파라미터에서 추출된 place_id: {place_id}")
-                    return place_id
+                    return place_id_match.group(1)
             
-            logger.warning("URL에서 place_id를 찾을 수 없습니다.")
+            try:
+                iframe_elements = driver.find_elements("css selector", "iframe#entryIframe")
+                if iframe_elements:
+                    iframe_src = iframe_elements[0].get_attribute("src")
+                    logger.info(f"Entry iframe 소스 발견: {iframe_src}")
+                    
+                    iframe_place_id_match = re.search(r'/place/(\d+)', iframe_src)
+                    if iframe_place_id_match:
+                        return iframe_place_id_match.group(1)
+            except Exception as iframe_error:
+                logger.warning(f"Entry iframe 확인 중 오류: {iframe_error}")
+                
+            try:
+                time.sleep(2)
+                
+                search_iframe = None
+                try:
+                    search_iframe = driver.find_element("css selector", "iframe#searchIframe")
+                    logger.info("검색 iframe 발견")
+                except Exception as e:
+                    logger.warning(f"검색 iframe 찾기 실패: {e}")
+                    
+                if search_iframe:
+                    driver.switch_to.frame(search_iframe)
+                    
+                    selectors = [
+                        "li.UEzoS.rTjJo", 
+                        "li.VLTHu", 
+                        "li[data-laim-exp-id]", 
+                        "ul.Place_list__W5R4u > li", 
+                        "ul.lst_site > li", 
+                        "div.panel_wrap > div.panel_content > div.panel_content_flexible > div.search_result > ul > li",
+                        "div.search_result > ul > li",
+                        "ul > li.item_search",
+                        "li.sc-ebcc9e2e-0",
+                        "li:first-child",  
+                    ]
+                    
+                    for selector in selectors:
+                        try:
+                            logger.info(f"선택자 시도: {selector}")
+                            elements = driver.find_elements("css selector", selector)
+                            if elements:
+                                logger.info(f"선택자 '{selector}'로 {len(elements)}개 요소 발견")
+                                elements[0].click()
+                                logger.info("첫 번째 검색 결과 클릭 성공")
+                                break
+                        except Exception as e:
+                            logger.warning(f"선택자 '{selector}' 시도 실패: {e}")
+                    
+                    driver.switch_to.default_content()
+                    
+                    # 클릭 후 추가 로딩 시간
+                    time.sleep(3)
+                    
+                    # 현재 URL 다시 확인
+                    current_url = driver.current_url
+                    place_id_match = re.search(r'/place/(\d+)', current_url)
+                    if place_id_match:
+                        logger.info(f"클릭 후 URL에서 place_id 발견: {place_id_match.group(1)}")
+                        return place_id_match.group(1)
+                    
+                    # entry iframe 다시 확인
+                    try:
+                        entry_iframe = driver.find_element("css selector", "iframe#entryIframe")
+                        iframe_src = entry_iframe.get_attribute("src")
+                        logger.info(f"클릭 후 entry iframe 소스: {iframe_src}")
+                        
+                        # iframe 소스에서 place_id 추출
+                        iframe_place_id_match = re.search(r'/place/(\d+)', iframe_src)
+                        if iframe_place_id_match:
+                            return iframe_place_id_match.group(1)
+                    except Exception as e:
+                        logger.warning(f"클릭 후 entry iframe 확인 실패: {e}")
+                        
+            except Exception as click_error:
+                logger.warning(f"검색 결과 클릭 시도 중 오류: {click_error}")
+                
+            try:
+                scripts = [
+                    "return document.querySelector('iframe#entryIframe')?.src",
+                    "return document.querySelector('iframe#searchIframe')?.src",
+                    "return document.body.innerHTML.match(/\\/place\\/(\\d+)/)?.[1]",
+                    "return window.location.href"
+                ]
+                
+                for script in scripts:
+                    try:
+                        result = driver.execute_script(script)
+                        if result:
+                            logger.info(f"JavaScript 실행 결과: {result}")
+                            if isinstance(result, str) and 'place' in result:
+                                place_match = re.search(r'/place/(\d+)', result)
+                                if place_match:
+                                    return place_match.group(1)
+                    except Exception as script_error:
+                        logger.warning(f"JavaScript 실행 오류: {script_error}")
+                
+            except Exception as js_error:
+                logger.warning(f"JavaScript 실행 중 오류: {js_error}")
+                
+            try:
+                page_source = driver.page_source
+                logger.info("HTML 소스에서 place_id 찾기 시도")
+                
+                place_id_pattern = re.compile(r'place/(\d+)')
+                place_matches = place_id_pattern.findall(page_source)
+                
+                if place_matches:
+                    logger.info(f"소스에서 place_id 발견: {place_matches[0]}")
+                    return place_matches[0]
+                    
+                alt_patterns = [
+                    r'\"id\":\"(\d+)\"',
+                    r'placeId\":\"(\d+)\"',
+                    r'placeId=(\d+)',
+                    r'place_id=(\d+)'
+                ]
+                
+                for pattern in alt_patterns:
+                    matches = re.findall(pattern, page_source)
+                    if matches:
+                        logger.info(f"대체 패턴으로 ID 발견: {matches[0]}")
+                        return matches[0]
+                        
+            except Exception as source_error:
+                logger.warning(f"HTML 소스 분석 중 오류: {source_error}")
+
+            logger.warning("모든 방법으로 place_id를 찾지 못했습니다.")
             return None
-            
+
         except Exception as e:
             logger.error(f"Selenium으로 place_id 추출 중 오류 발생: {e}")
             return None
+
         finally:
             if driver:
                 try:
@@ -218,7 +346,13 @@ class SimpleStoreService:
                     await loop.run_in_executor(None, driver.quit)
                 except RuntimeError:
                     driver.quit()
-                logger.info("WebDriver 종료됨")
+            logger.info("WebDriver 종료됨")
+
+            try:
+                shutil.rmtree(user_data_dir)
+                logger.info(f"user-data-dir '{user_data_dir}' 삭제 완료")
+            except Exception as e:
+                logger.warning(f"user-data-dir 삭제 실패: {e}")
     
     def _clean_text(self, text: str) -> str:
         """HTML 태그 및 특수문자 제거"""

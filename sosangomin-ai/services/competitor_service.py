@@ -114,7 +114,7 @@ class CompetitorService:
             analysis_result = {
                 "competitor_name": competitor_info.get("store_name"),
                 "place_id": place_id,
-                "reviews": analyzed_reviews[:10],  
+                "reviews": analyzed_reviews,  
                 "review_count": total_reviews,
                 "average_rating": round(avg_rating, 1),
                 "sentiment_distribution": sentiment_counts,
@@ -137,17 +137,21 @@ class CompetitorService:
                 "message": f"경쟁사 리뷰 분석 중 오류가 발생했습니다: {str(e)}"
             }
 
-    async def compare_with_competitor(self, store_id: int, competitor_place_id: str, analysis_id: Optional[str] = None) -> Dict[str, Any]:
+    async def compare_with_competitor(
+    self, 
+    store_id: int, 
+    competitor_place_id: str, 
+    analysis_id: Optional[str] = None,
+    competitor_analyzed_reviews: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
         """
         내 점포와 경쟁사 리뷰 비교 분석 (결과는 DB에 저장)
         
-        Args:
             store_id: 내 매장 ID
             competitor_place_id: 경쟁사 네이버 플레이스 ID
             analysis_id: 내 점포 분석 ID (없으면 최신 분석 사용)
+            competitor_analyzed_reviews: 이미 분석된 경쟁사 리뷰 (없으면 새로 가져옴)
             
-        Returns:
-            Dict: 비교 분석 결과
         """
         try:
             reviews_collection = mongo_instance.get_collection("StoreReviews")
@@ -164,21 +168,22 @@ class CompetitorService:
                     "message": "내 매장의 리뷰 분석 결과가 없습니다. 먼저 리뷰 분석을 진행해주세요."
                 }
             
-            competitor_reviews = await review_service.fetch_reviews_with_selenium(competitor_place_id)
+            if not competitor_analyzed_reviews:
+                competitor_reviews = await review_service.fetch_reviews_with_selenium(competitor_place_id)
+                
+                if not competitor_reviews:
+                    return {
+                        "status": "error",
+                        "message": "경쟁사의 리뷰를 가져올 수 없습니다."
+                    }
+                
+                competitor_analyzed_reviews = await review_service.analyze_sentiment(competitor_reviews)
             
-            if not competitor_reviews:
-                return {
-                    "status": "error",
-                    "message": "경쟁사의 리뷰를 가져올 수 없습니다."
-                }
-            
-            competitor_analyzed_reviews = await review_service.analyze_sentiment(competitor_reviews)
             competitor_word_cloud = await review_service.generate_word_cloud_data(competitor_analyzed_reviews)
             
             competitor_info = None
             try:
                 from services.store_service import store_service
-                competitor_reviews_text = " ".join([r.get("text", "") for r in competitor_reviews[:5]])
                 competitor_name = competitor_place_id
             except Exception:
                 competitor_name = f"경쟁사 (ID: {competitor_place_id})"
