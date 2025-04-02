@@ -159,9 +159,17 @@ async def one_click_analyze_competitor(request: CompetitorAnalysisRequest):
         if not competitor_place_id:
             raise HTTPException(status_code=400, detail="경쟁사의 네이버 플레이스 ID를 찾을 수 없습니다.")
         
+        # 이미 분석된 경쟁사 리뷰 데이터 전달
+        competitor_analyzed_reviews = analysis_result.get("analysis_result", {}).get("reviews", [])
+        
+        # 모든 리뷰 데이터를 사용하기 위해 reviews 키를 확인하고 없으면 분석 결과에서 가져옴
+        if not competitor_analyzed_reviews or len(competitor_analyzed_reviews) < 5:  # 최소 5개 이상의 리뷰가 필요하다고 가정
+            competitor_analyzed_reviews = analysis_result.get("analysis_result", {}).get("reviews", [])
+        
         comparison_result = await competitor_service.compare_with_competitor(
             request.store_id,
-            competitor_place_id
+            competitor_place_id,
+            competitor_analyzed_reviews=competitor_analyzed_reviews
         )
         
         if comparison_result.get("status") == "error":
