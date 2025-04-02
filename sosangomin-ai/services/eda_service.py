@@ -206,7 +206,13 @@ class EdaService:
             overall_summary = await eda_chat_service.generate_overall_summary(chart_data)
             
             predict_result = await autoanalysis_service.predict_next_30_sales(combined_df)
+            raw_predictions = predict_summary.get("predictions", [])
+            predict_value = {
+                "날짜": [item["날짜"] for item in raw_predictions],
+                "예측 매출": [item["예측 매출"] for item in raw_predictions]
+            }
             cluster_result = await autoanalysis_service.cluster_items(combined_df)
+            cluster_value = cluster_result["clusters"]
             
             predict_summary = await autoanalysis_chat_service.generate_sales_predict_summary(predict_result)
             cluster_summary = await autoanalysis_chat_service.generate_cluster_summary(cluster_result)
@@ -223,8 +229,8 @@ class EdaService:
                     "summary": overall_summary
                 },
                 "auto_analysis_results": {
-                    "predict": predict_result,
-                    "cluster": cluster_result,
+                    "predict": predict_value,
+                    "cluster": cluster_value,
                     "summaries": {
                         "predict_summary": predict_summary,
                         "cluster_summary": cluster_summary
@@ -250,8 +256,8 @@ class EdaService:
                     "summary": overall_summary
                 },
                 "auto_analysis_results": {
-                    "predict": predict_result,
-                    "cluster": cluster_result,
+                    "predict": predict_value,
+                    "cluster": cluster_value,
                     "summaries": {
                         "predict_summary": predict_summary,
                         "cluster_summary": cluster_summary

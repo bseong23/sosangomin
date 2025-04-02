@@ -105,8 +105,18 @@ class AutoAnalysisChatService:
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            return response.content[0].text.strip()
+            raw_text = response.content[0].text.strip()
 
+            # ```json 제거
+            if raw_text.startswith("```json"):
+                raw_text = raw_text[len("```json"):].strip()
+            if raw_text.endswith("```"):
+                raw_text = raw_text[:-len("```")].strip()
+
+            # 문자열을 딕셔너리로 파싱
+            result_dict = json.loads(raw_text)
+            return result_dict
+        
         except Exception as e:
             logger.error(f"매출 예측 설명 생성 중 오류: {str(e)}")
             return "향후 30일의 매출 흐름을 기반으로 장사 준비에 도움이 될 정보를 제공할 수 있습니다."
@@ -168,8 +178,18 @@ class AutoAnalysisChatService:
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            return response.content[0].text.strip()
+            raw_text = response.content[0].text.strip()
 
+            # ```json 제거
+            if raw_text.startswith("```json"):
+                raw_text = raw_text[len("```json"):].strip()
+            if raw_text.endswith("```"):
+                raw_text = raw_text[:-len("```")].strip()
+
+            # 문자열을 딕셔너리로 파싱
+            result_dict = json.loads(raw_text)
+            return result_dict
+        
         except Exception as e:
             logger.error(f"클러스터링 설명 생성 중 오류: {str(e)}")
             return "비슷한 상품들을 묶어 장사에 도움이 되는 방향으로 분석할 수 있습니다."
