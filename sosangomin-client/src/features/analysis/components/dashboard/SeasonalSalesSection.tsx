@@ -1,0 +1,52 @@
+import React from "react";
+import { AnalysisResultData } from "../../types/analysis";
+
+interface SeasonalSalesSectionProps {
+  data: AnalysisResultData;
+}
+
+const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
+  data
+}) => {
+  // 시즌 매출 데이터
+  const seasonSales = data?.result_data?.season_sales?.data || {};
+  const seasonSalesSummary = data?.result_data?.season_sales?.summary || "";
+
+  // 요약 텍스트 축약 함수
+  const truncateSummary = (summary: string, maxLength: number = 200) => {
+    if (!summary) return "";
+    return summary.length > maxLength
+      ? summary.substring(0, maxLength) + "..."
+      : summary;
+  };
+
+  return (
+    <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-4 text-comment">
+        시즌별 매출 분석
+      </h2>
+      <div className="p-4 mb-4">
+        {Object.entries(seasonSales).map(([season, amount], idx) => (
+          <div key={idx} className="mb-3">
+            <div className="flex justify-between mb-1">
+              <span className="font-medium text-comment">{season}</span>
+              <span className="text-comment">
+                ₩{(amount as number).toLocaleString("ko-KR")}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="bg-bit-main h-2.5 rounded-full w-full"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <p className="text-sm text-comment-text">
+          {truncateSummary(seasonSalesSummary)}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default SeasonalSalesSection;
