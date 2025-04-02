@@ -247,6 +247,21 @@ class SimpleStoreService:
                             elements = driver.find_elements("css selector", selector)
                             if elements:
                                 logger.info(f"선택자 '{selector}'로 {len(elements)}개 요소 발견")
+                                try:
+                                    link_element = elements[0].find_element("css selector", "a")
+                                    href = link_element.get_attribute("href")
+                                    logger.info(f"첫 번째 검색 결과 href: {href}")
+                                    if href and '/place/' in href:
+                                        driver.switch_to.default_content()
+                                        driver.get(href)
+                                        time.sleep(3)
+                                        new_url = driver.current_url
+                                        logger.info(f"href 이동 후 URL: {new_url}")
+                                        match = re.search(r'/place/(\d+)', new_url)
+                                        if match:
+                                            return match.group(1)
+                                except Exception as href_error:
+                                    logger.warning(f"href 추출 및 이동 중 오류: {href_error}")
                                 elements[0].click()
                                 logger.info("첫 번째 검색 결과 클릭 성공")
                                 break
