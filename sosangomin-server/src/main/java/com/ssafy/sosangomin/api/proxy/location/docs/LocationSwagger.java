@@ -102,4 +102,36 @@ public interface LocationSwagger {
             }
     )
     ResponseEntity<Object> recommendMapLocations(@RequestBody LocationRecommendRequest request);
+
+    @Operation(
+            summary = "초기 히트맵 데이터 조회",
+            description = "지도 히트맵 시각화를 위한 초기 데이터를 제공합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Object.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"히트맵 데이터 호출 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_HEATMAP_DATA_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<Object> getHeatmapData();
 }
