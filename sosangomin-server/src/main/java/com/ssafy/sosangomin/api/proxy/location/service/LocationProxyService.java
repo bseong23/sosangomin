@@ -61,4 +61,20 @@ public class LocationProxyService {
                 .bodyToMono(Object.class)
                 .map(ResponseEntity::ok);
     }
+
+    public Mono<ResponseEntity<Object>> getHeatmapData() {
+        return webClient.get()
+                .uri("/api/location/heatmap")
+                .retrieve()
+                .onStatus(
+                        status -> status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("Error from FastAPI heatmap data: {}", errorBody);
+                                    return Mono.error(new InternalServerException(ErrorMessage.ERR_INTERNAL_SERVER_ERROR));
+                                })
+                )
+                .bodyToMono(Object.class)
+                .map(ResponseEntity::ok);
+    }
 }

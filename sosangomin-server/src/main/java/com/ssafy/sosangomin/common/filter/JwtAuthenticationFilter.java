@@ -111,7 +111,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/api/board/page") ||
                 path.equals("/api/board/page_count") ||
                 path.startsWith("/api/notice/page") ||
-                path.equals(("/api/notice/page_count"));
+                path.equals(("/api/notice/page_count")) ||
+                path.startsWith("/api/proxy/location/");
     }
 
     private String detachBearer(String token) {
