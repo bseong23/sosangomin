@@ -19,7 +19,60 @@ class LocationRecomService:
         json_dir = os.path.join(base_dir, "..", "data")
 
         with open(os.path.join(json_dir, "area_data.json"), "r", encoding="utf-8") as f:
-            self.area_data = json.load(f) 
+            self.area_data = json.load(f)
+
+    def prepare_initial_heatmap_data(self) -> pd.DataFrame:
+        """상권분석 페이지 초기 히트맵을 위한 데이터 처리"""
+        # 1. 인구 정보
+        pop_rows = self.db.query(Population).all()
+        pop_data = []
+        for row in pop_rows:
+            try:    
+                pop_data.append({
+                    "행정동명": row.region_name,
+                    "유동인구": row.tot_fpop or 0,
+                    "직장인구": row.tot_wrpop or 0,
+                    "거주인구": row.tot_repop or 0
+                })
+            except Exception as e:
+                logger.warning(f"히트맵 인구 데이터 처리 오류: {e}")
+
+        df_pop = pd.DataFrame(pop_data)
+
+        # 2. 점포 수 정보
+        latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
+        store_rows = self.db.query(StoreCategories).filter(
+            StoreCategories.year == latest_store.year,
+            StoreCategories.quarter == latest_store.quarter,
+            StoreCategories.main_category == "외식업"
+        ).all()
+
+        store_data = [
+            {
+                'region_name': row.region_name,
+                'store_count': row.store_count,
+                'open_rate': row.open_rate,
+                'close_rate': row.close_rate
+            }
+            for row in store_rows
+        ]
+
+        df_sales = pd.DataFrame(store_data)
+
+        # 행정동 단위로 계산
+        df_sales_group = df_sales.groupby('region_name').agg({
+                'store_count': 'sum',
+                'open_rate': 'mean',
+                'close_rate': 'mean'
+            }).reset_index()
+        df_sales_group.columns = ['행정동명', '총 업소 수', '평균 개업률', '평균 폐업률']
+        df_sales_group['평균 개업률'] = df_sales_group['평균 개업률'].round(2)
+        df_sales_group['평균 폐업률'] = df_sales_group['평균 폐업률'].round(2)
+
+        merged = df_pop.merge(df_sales_group, on="행정동명", how="left")
+        merged = merged.fillna(0)
+        result = merged.to_dict(orient="records")
+        return result
 
     def get_integrated_location_dataframe(self, target_age: str, industry_name: str) -> pd.DataFrame:
         """입지추천을 위한 데이터 병합 수행(타겟연령, 업종 반영)"""
@@ -44,7 +97,7 @@ class LocationRecomService:
                     "거주인구": row.tot_repop or 0
                 })
             except Exception as e:
-                logger.warning(f"인구 데이터 처리 오류: {e}")
+                logger.warning(f"입지추천 인구 데이터 처리 오류: {e}")
 
         df_pop = pd.DataFrame(pop_data)
 
@@ -258,6 +311,7 @@ if __name__ == "__main__":
     "priority": ["타겟연령", "임대료","거주인구"]
     }
     async def main():
-        result = location_recommendation_service.recommend_location(user_input)
+        # result = location_recommendation_service.recommend_location(user_input)
+        result = location_recommendation_service.prepare_initial_heatmap_data()
         print(json.dumps(result, ensure_ascii=False, indent=4))
     asyncio.run(main())
