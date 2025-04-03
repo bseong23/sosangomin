@@ -34,7 +34,6 @@ def recommend_location(
     db = database_instance.pre_session()
     try:
         result = location_recommendation_service.recommend_location(
-                db=db,
                 user_input={
                     "industry_name": industry_name,
                     "target_age": target_age,
@@ -59,7 +58,6 @@ def recommend_map_locations(
     db = database_instance.pre_session()
     try:
         result = location_recommendation_service.recommend_location(
-                db=db,
                 user_input={
                     "industry_name": industry_name,
                     "target_age": target_age,
