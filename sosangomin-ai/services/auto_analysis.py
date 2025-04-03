@@ -132,8 +132,9 @@ class AutoAnalysisService:
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
                 df = df.loc[:, df.nunique() > 1]  
                 
-                # 매출 변수명 통일
-                df.columns = ['매출' if col in ['총매출', '실매출'] else col for col in df.columns]
+                # 매출 
+                df = df.drop(columns=['총매출', '실매출'], errors='ignore') 
+                df['매출'] = (df['단가'] * df['수량']).astype(int)
             
             # 파일 형식 확인
             df = self.validate_and_normalize_pos(df, pos_type)
