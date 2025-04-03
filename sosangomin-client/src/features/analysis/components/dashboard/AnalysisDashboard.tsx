@@ -13,6 +13,12 @@ import AnalysisSelector from "./AnalysisSelector";
 import Loading from "@/components/common/Loading";
 import useAnalysisStore from "@/store/useAnalysisStore";
 import useStoreStore from "@/store/storeStore";
+import WeatherSalesSection from "./WeatherSalesSection";
+import TemperatureSalesSection from "./TemperatureSalesSection";
+import PredictedSalesSection from "./PredictedSalesSection";
+import ProductClusterSection from "./ProductClusterSection";
+import ProductShareSection from "./ProductShareSection";
+import { getAnalysisResult } from "../../api/analysisApi";
 
 const AnalysisDashboard: React.FC = () => {
   const { analysisId } = useParams<{ analysisId?: string }>();
@@ -30,10 +36,14 @@ const AnalysisDashboard: React.FC = () => {
     listError,
     fetchStoreAnalysisList,
     fetchAnalysisResult,
-    selectedAnalysisId: storeSelectedAnalysisId, // 스토어에서 선택된 분석 ID 가져오기
-    setSelectedAnalysisId, // 스토어의 선택된 분석 ID 설정 함수
-    debugState // 디버깅용 함수 추가
+    selectedAnalysisId: storeSelectedAnalysisId,
+    setSelectedAnalysisId,
+    debugState
   } = useAnalysisStore();
+
+  // 원본 API 데이터를 저장하기 위한 상태
+  const [originalApiData, setOriginalApiData] = useState<any>(null);
+  const [loadingApiData, setLoadingApiData] = useState<boolean>(false);
 
   // 현재 선택된 분석 ID 상태 - URL 파라미터, 스토어 값, 로컬 상태 중 우선순위가 높은 값 사용
   const [localSelectedAnalysisId, setLocalSelectedAnalysisId] = useState<
@@ -52,7 +62,6 @@ const AnalysisDashboard: React.FC = () => {
       localSelectedAnalysisId
     });
 
-    // 특별 디버깅: 스토어 상태도 체크
     if (debugState) {
       debugState();
     }
@@ -70,6 +79,23 @@ const AnalysisDashboard: React.FC = () => {
       return;
     }
   }, [representativeStore]);
+
+  // 직접 API 호출을 통해 원본 데이터 가져오기
+  useEffect(() => {
+    if (localSelectedAnalysisId) {
+      setLoadingApiData(true);
+      getAnalysisResult(localSelectedAnalysisId)
+        .then((response) => {
+          console.log("직접 API 호출 결과:", response);
+          setOriginalApiData(response);
+          setLoadingApiData(false);
+        })
+        .catch((err) => {
+          console.error("직접 API 호출 오류:", err);
+          setLoadingApiData(false);
+        });
+    }
+  }, [localSelectedAnalysisId]);
 
   // URL 또는 스토어의 선택된 분석 ID가 변경되면 로컬 상태 업데이트
   useEffect(() => {
@@ -89,12 +115,7 @@ const AnalysisDashboard: React.FC = () => {
       }
 
       // 분석 결과가 없으면 해당 분석 결과 로드
-      if (
-        !currentAnalysis ||
-        (currentAnalysis._id !== newSelectedId &&
-          currentAnalysis.analysis_id !== newSelectedId &&
-          currentAnalysis.id !== newSelectedId)
-      ) {
+      if (!currentAnalysis) {
         console.log(`분석 ID ${newSelectedId}의 결과 로드 시도`);
         fetchAnalysisResult(newSelectedId)
           .then((success) => {
@@ -131,7 +152,6 @@ const AnalysisDashboard: React.FC = () => {
         }`
       );
 
-      // 스토어 상태 로깅
       if (debugState) {
         debugState();
       }
@@ -253,7 +273,7 @@ const AnalysisDashboard: React.FC = () => {
   );
 
   // 통합 로딩 상태
-  const isLoadingData = isLoading || isLoadingList;
+  const isLoadingData = isLoading || isLoadingList || loadingApiData;
   const anyError = error || listError;
 
   // 대표 매장이 없는 경우 로딩 화면 표시
@@ -268,7 +288,7 @@ const AnalysisDashboard: React.FC = () => {
         데이터를 불러오는데 실패했습니다: {anyError}
       </div>
     );
-  if (!currentAnalysis) {
+  if (!currentAnalysis && !originalApiData) {
     return (
       <div className="text-center py-10">
         분석 데이터가 없습니다. 분석을 실행해주세요.
@@ -276,23 +296,51 @@ const AnalysisDashboard: React.FC = () => {
     );
   }
 
-  console.log("API 응답:", currentAnalysis);
+  // API 응답 구조 로깅
+  console.log("API 응답 (Zustand):", currentAnalysis);
+  console.log("API 응답 (직접 호출):", originalApiData);
 
-  // result_data를 그대로 사용 (useAnalysisStore에서 이미 적절히 변환됨)
-  const resultData = currentAnalysis.result_data;
-  console.log("추출된 결과 데이터:", resultData);
+  // 직접 호출한 API 데이터가 있으면 그것을 사용하고, 없으면 currentAnalysis 사용
+  let resultData, autoAnalysisResults, summary;
 
-  // 데이터가 API 응답 형식에 맞게 구성
+  if (originalApiData && originalApiData.analysis_result) {
+    // 직접 API 호출로 가져온 데이터 사용
+    const analysisResult = originalApiData.analysis_result;
+    resultData = analysisResult.eda_result?.result_data || {};
+    autoAnalysisResults = analysisResult.auto_analysis_results || {};
+    summary = analysisResult.eda_result?.summary || "";
+
+    console.log("원본 API 데이터로부터 가져온 값:");
+    console.log("EDA 결과 데이터:", resultData);
+    console.log("자동 분석 결과:", autoAnalysisResults);
+    console.log("예측 데이터:", autoAnalysisResults.predict);
+    console.log("클러스터 데이터:", autoAnalysisResults.cluster);
+    console.log("요약 데이터:", autoAnalysisResults.summaries);
+  } else {
+    // currentAnalysis 사용 (이미 변환된 형태)
+    resultData = currentAnalysis.result_data || {};
+    autoAnalysisResults = currentAnalysis.auto_analysis_results || {};
+    summary = currentAnalysis.summary || "";
+
+    console.log("Zustand 스토어로부터 가져온 값:");
+    console.log("결과 데이터:", resultData);
+    console.log("자동 분석 결과:", autoAnalysisResults);
+  }
+
+  // 컴포넌트에 전달할 데이터 구조화
   const data = {
     result_data: resultData,
-    summary: currentAnalysis.summary,
-    analysis_id: currentAnalysis._id,
-    created_at: currentAnalysis.created_at,
-    status: currentAnalysis.status
+    summary: summary,
+    analysis_id:
+      currentAnalysis?._id || originalApiData?.analysis_result?._id || "",
+    created_at:
+      currentAnalysis?.created_at ||
+      originalApiData?.analysis_result?.created_at ||
+      "",
+    status:
+      currentAnalysis?.status || originalApiData?.analysis_result?.status || "",
+    auto_analysis_results: autoAnalysisResults
   };
-
-  console.log("변환된 데이터 구조:", data);
-  console.log("기본 통계 데이터:", resultData?.basic_stats?.data);
 
   // 기본 통계 데이터
   const basicStats = resultData?.basic_stats?.data || {
@@ -306,7 +354,7 @@ const AnalysisDashboard: React.FC = () => {
   const basicStatsSummary = resultData?.basic_stats?.summary || "";
 
   // 전체 요약
-  const overallSummary = currentAnalysis?.summary || "";
+  const overallSummary = summary;
 
   return (
     <div>
@@ -379,6 +427,37 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 요일별 매출 현황 섹션 */}
         <WeekdaySalesSection data={data} />
+
+        {/* 날씨별 매출 섹션 */}
+        <WeatherSalesSection data={data} />
+
+        {/* 기온별 매출 섹션 */}
+        <TemperatureSalesSection data={data} />
+
+        {/* 제품 점유율 섹션 */}
+        <ProductShareSection data={data} />
+
+        {/* 예측 매출 섹션 */}
+        {originalApiData && (
+          <PredictedSalesSection
+            data={{
+              ...data,
+              auto_analysis_results:
+                originalApiData.analysis_result.auto_analysis_results
+            }}
+          />
+        )}
+
+        {/* 상품 클러스터 분석 섹션 */}
+        {originalApiData && (
+          <ProductClusterSection
+            data={{
+              ...data,
+              auto_analysis_results:
+                originalApiData.analysis_result.auto_analysis_results
+            }}
+          />
+        )}
 
         {/* 시즌 매출 & 영업 전략 제안 섹션 */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">

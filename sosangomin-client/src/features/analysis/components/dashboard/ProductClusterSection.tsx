@@ -1,0 +1,135 @@
+import React, { useEffect } from "react";
+import { AnalysisResultData } from "../../types/analysis";
+
+interface ProductClusterSectionProps {
+  data: AnalysisResultData;
+}
+
+const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
+  data
+}) => {
+  // 클러스터 데이터 - 수정된 경로로 접근
+  const clusters = data?.auto_analysis_results?.cluster || {};
+  const clusterSummary =
+    data?.auto_analysis_results?.summaries?.cluster_summary || {};
+
+  // 데이터 구조를 로깅하여 디버깅
+  useEffect(() => {
+    console.log("클러스터 데이터 경로:", {
+      autoAnalysisResults: data?.auto_analysis_results,
+      clusters: clusters,
+      summaries: data?.auto_analysis_results?.summaries,
+      clusterSummary: clusterSummary
+    });
+  }, [data, clusters, clusterSummary]);
+
+  // 요약 텍스트 축약 함수
+  const truncateSummary = (summary: string, maxLength = 300): string => {
+    if (!summary) return "";
+    return summary.length > maxLength
+      ? `${summary.substring(0, maxLength)}...`
+      : summary;
+  };
+
+  // 클러스터 데이터가 없으면 디버깅 정보 출력 후 빈 컴포넌트 반환
+  if (!clusters || Object.keys(clusters).length === 0) {
+    console.log("클러스터 데이터가 없습니다:", clusters);
+    return (
+      <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-lg font-semibold mb-4 text-comment">
+          상품 클러스터 분석
+        </h2>
+        <div className="p-4 bg-gray-100 rounded-lg">
+          <p className="text-sm text-gray-500">
+            클러스터 분석 데이터가 없습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // group_characteristics가 없으면 디버깅 정보 출력
+  if (!clusterSummary || !clusterSummary.group_characteristics) {
+    console.log("클러스터 요약 데이터가 없거나 형식이 다릅니다:", {
+      clusterSummary,
+      hasGroupCharacteristics:
+        clusterSummary && "group_characteristics" in clusterSummary,
+      type: clusterSummary && typeof clusterSummary.group_characteristics
+    });
+
+    // 기본 요약만 보여주는 컴포넌트 렌더링
+    return (
+      <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-lg font-semibold mb-4 text-comment">
+          상품 클러스터 분석
+        </h2>
+        <div className="p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-base font-medium mb-2 text-comment">
+            클러스터 분석 요약
+          </h3>
+          <p className="text-sm text-comment-text">
+            {truncateSummary(clusterSummary.summary || "")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 클러스터 데이터가 있고 group_characteristics가 있는 경우 전체 컴포넌트 렌더링
+  return (
+    <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+      <h2 className="text-lg font-semibold mb-4 text-comment">
+        상품 클러스터 분석
+      </h2>
+      <div className="space-y-4">
+        {Array.isArray(clusterSummary.group_characteristics) ? (
+          clusterSummary.group_characteristics.map((group) => (
+            <div key={group.group_id} className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-base font-semibold mb-2 text-comment">
+                {group.group_name}
+              </h3>
+              <p className="text-sm text-comment-text mb-2">
+                {group.description}
+              </p>
+              <div className="bg-white p-3 rounded">
+                <h4 className="text-sm font-medium mb-1">대표 상품</h4>
+                <ul className="list-disc list-inside text-xs text-gray-600">
+                  {group.representative_items
+                    ?.slice(0, 3)
+                    .map((item, itemIndex) => (
+                      <li key={itemIndex}>{item}</li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="p-4 bg-gray-100 rounded-lg">
+            <p className="text-sm text-gray-500">
+              그룹 특성 데이터가 배열 형식이 아닙니다:{" "}
+              {JSON.stringify(clusterSummary.group_characteristics)}
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+        <h3 className="text-base font-medium mb-2 text-comment">
+          클러스터 분석 요약
+        </h3>
+        <p className="text-sm text-comment-text">
+          {truncateSummary(clusterSummary.summary || "")}
+        </p>
+        {clusterSummary.recommendation && (
+          <div className="mt-2 pt-2 border-t border-gray-200">
+            <h4 className="text-sm font-medium mb-1 text-comment">추천 사항</h4>
+            <p className="text-xs text-comment-text">
+              {truncateSummary(clusterSummary.recommendation, 500)}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ProductClusterSection;
