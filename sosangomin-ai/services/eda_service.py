@@ -145,12 +145,17 @@ class EdaService:
             
             preprocessed_data = []
             local_files = []
+
+            all_date_ranges = []
             
             for source_id in source_ids:
                 source = data_sources.find_one({"_id": ObjectId(source_id), "store_id": store_id, "status": "active"})
                 
                 if not source:
                     raise ValueError(f"ID가 {source_id}인 유효한 데이터소스를 찾을 수 없습니다.")
+                
+                if "date_range" in source:
+                    all_date_ranges.append(source["date_range"])
                 
                 s3_key = source.get("file_path")
                 if not s3_key:
@@ -184,6 +189,8 @@ class EdaService:
                 except Exception as e:
                     raise ValueError(f"파일 {filename} 처리 중 오류 발생: {str(e)}")
             
+            overall_date_range = self._calculate_overall_date_range(all_date_ranges)
+
             if not preprocessed_data:
                 raise ValueError("처리할 유효한 데이터 소스가 없습니다.")
             
@@ -223,7 +230,8 @@ class EdaService:
                 "_id": ObjectId(),
                 "store_id": store_id,
                 "source_ids": [ObjectId(sid) for sid in source_ids],
-                "analysis_type": "combined_analysis",  
+                "analysis_type": "combined_analysis",
+                "data_range": overall_date_range,  
                 "created_at": datetime.now(),
                 "status": "completed",
                 "eda_result": {
@@ -253,6 +261,7 @@ class EdaService:
                 "message": "종합 분석이 완료되었습니다.",
                 "analysis_id": str(result_id),
                 "source_ids": source_ids,
+                "data_range": overall_date_range,
                 "eda_results": {
                     "result_data": eda_result_data,
                     "summary": overall_summary
@@ -275,6 +284,31 @@ class EdaService:
             for path in local_files:
                 if os.path.exists(path):
                     os.remove(path)
+
+    def _calculate_overall_date_range(self, date_ranges):
+        """여러 데이터 소스의 날짜 범위를 병합하여 전체 범위 계산"""
+        if not date_ranges:
+            return None
+        
+        start_months = []
+        end_months = []
+        
+        for date_range in date_ranges:
+            if "start_month" in date_range:
+                start_months.append(date_range["start_month"])
+            if "end_month" in date_range:
+                end_months.append(date_range["end_month"])
+        
+        if not start_months or not end_months:
+            return None
+        
+        earliest_start = min(start_months)
+        latest_end = max(end_months)
+        
+        return {
+            "start_month": earliest_start,
+            "end_month": latest_end
+        }
     # async def perform_eda(self,store_id, source_id):
     #     """데이터소스에 대한 EDA를 수행하고 결과를 MongoDB에 저장"""
     #     try:
