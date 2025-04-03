@@ -24,7 +24,7 @@ def prepare_initial_heatmap_data():
     finally:
         db.close()
 
-@router.post("/recommend/top3")
+@router.post("/recommend")
 def recommend_location(
     industry_name: str = Body(..., description="창업 업종명"),
     target_age: str = Body(..., description="타겟 연령대 (예: '20')"),
@@ -49,7 +49,7 @@ def recommend_location(
     finally:
         db.close()
 
-@router.post("/recommend/map")
+@router.post("/map")
 def recommend_map_locations(
     industry_name: str = Body(..., description="창업 업종명"),
     target_age: str = Body(..., description="타겟 연령대 (예: '20')"),
