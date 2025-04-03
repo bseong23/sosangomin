@@ -10,19 +10,19 @@ import { persist } from "zustand/middleware";
 
 interface AnalysisStore {
   // 상태
-  currentAnalysis: any; // API 응답 그대로 사용
+  currentAnalysis: any;
   isLoading: boolean;
   error: string | null;
 
   // 분석 목록 관련
-  analysisList: any; // API 응답 그대로 사용
+  analysisList: any;
   isLoadingList: boolean;
   listError: string | null;
 
   // 분석 작업들 캐시
   analysisCache: Record<string, any>;
 
-  // 선택된 분석 ID (추가)
+  // 선택된 분석 ID
   selectedAnalysisId: string | null;
 
   // 액션
@@ -33,11 +33,7 @@ interface AnalysisStore {
   clearCurrentAnalysis: () => void;
   clearError: () => void;
   clearCache: () => void;
-
-  // 선택된 분석 ID 설정 (추가)
   setSelectedAnalysisId: (analysisId: string) => void;
-
-  // 디버깅용 함수 (추가)
   debugState: () => any;
 }
 
@@ -53,7 +49,7 @@ const useAnalysisStore = create<AnalysisStore>()(
       isLoadingList: false,
       listError: null,
       analysisCache: {},
-      selectedAnalysisId: null, // 추가된 상태
+      selectedAnalysisId: null,
 
       // 분석 요청 액션
       requestAnalysis: async (params: AnalysisRequest) => {
@@ -71,10 +67,14 @@ const useAnalysisStore = create<AnalysisStore>()(
             return null;
           }
 
-          // API 응답에서 데이터 추출 및 형식 변환
+          // API 응답에서 데이터 추출 (analysis_result 필드가 있을 경우 사용)
+          const analysisResult = response.analysis_result || response;
           const analysisId =
-            response.analysis_id || response._id || response.id;
-          console.log("API 응답에서 찾은 분석 ID:", analysisId, response);
+            analysisResult._id ||
+            analysisResult.analysis_id ||
+            analysisResult.id;
+
+          console.log("API 응답에서 찾은 분석 ID:", analysisId);
 
           if (!analysisId) {
             console.error("API 응답에서 분석 ID를 찾을 수 없음:", response);
@@ -85,27 +85,16 @@ const useAnalysisStore = create<AnalysisStore>()(
             return null;
           }
 
-          const analysisResult = response.analysis_result;
-
-          // 컴포넌트가 기대하는 형식으로 데이터 구조화
-          const formattedData = {
-            result_data: analysisResult?.eda_result?.result_data || {},
-            summary: analysisResult?.eda_result?.summary || "",
-            _id: analysisResult?._id || analysisId,
-            created_at: analysisResult?.created_at,
-            status: analysisResult?.status
-          };
-
-          // 캐시와 현재 분석 상태 업데이트
+          // 응답 그대로 저장
           set((state) => ({
-            currentAnalysis: formattedData,
+            currentAnalysis: response,
             isLoading: false,
             error: null,
             analysisCache: {
               ...state.analysisCache,
-              [analysisId]: formattedData
+              [analysisId]: response
             },
-            selectedAnalysisId: analysisId // 새 분석을 선택된 분석으로 설정 (추가)
+            selectedAnalysisId: analysisId
           }));
 
           return analysisId;
@@ -132,7 +121,11 @@ const useAnalysisStore = create<AnalysisStore>()(
             cachedResult &&
             (cachedResult.status === "completed" ||
               cachedResult.status === "success" ||
-              cachedResult.status === "failed")
+              cachedResult.status === "failed" ||
+              (cachedResult.analysis_result &&
+                (cachedResult.analysis_result.status === "completed" ||
+                  cachedResult.analysis_result.status === "success" ||
+                  cachedResult.analysis_result.status === "failed")))
           ) {
             set({
               currentAnalysis: cachedResult,
@@ -154,28 +147,14 @@ const useAnalysisStore = create<AnalysisStore>()(
             return false;
           }
 
-          // API 응답에서 분석 결과 추출
-          const analysisResult = response.analysis_result;
-
-          // 컴포넌트가 기대하는 형식으로 데이터 구조화
-          const formattedData = {
-            result_data: analysisResult?.eda_result?.result_data || {},
-            summary: analysisResult?.eda_result?.summary || "",
-            _id: analysisResult?._id || analysisId,
-            id: analysisResult?.id || analysisId,
-            analysis_id: analysisResult?.analysis_id || analysisId,
-            created_at: analysisResult?.created_at,
-            status: analysisResult?.status
-          };
-
-          // 캐시와 현재 분석 상태 업데이트
+          // 응답 그대로 저장
           set((state) => ({
-            currentAnalysis: formattedData,
+            currentAnalysis: response,
             isLoading: false,
             error: null,
             analysisCache: {
               ...state.analysisCache,
-              [analysisId]: formattedData
+              [analysisId]: response
             }
           }));
 
@@ -216,7 +195,7 @@ const useAnalysisStore = create<AnalysisStore>()(
             listError: null
           });
 
-          // 분석 목록이 로드되었고 선택된 분석이 없는 경우, 첫 번째 항목을 자동 선택 (추가)
+          // 분석 목록이 로드되었고 선택된 분석이 없는 경우, 첫 번째 항목을 자동 선택
           const state = get();
           if (!state.selectedAnalysisId && response) {
             const list = response.analysisList || response.analyses || [];
@@ -242,7 +221,7 @@ const useAnalysisStore = create<AnalysisStore>()(
 
       // 분석 목록에서 특정 분석 결과 선택
       setAnalysisFromList: async (analysisId: string) => {
-        // 선택된 분석 ID 업데이트 (추가)
+        // 선택된 분석 ID 업데이트
         set({ selectedAnalysisId: analysisId });
 
         // 이미 해당 분석 결과가 캐시에 있는지 확인
@@ -272,19 +251,21 @@ const useAnalysisStore = create<AnalysisStore>()(
         set({ analysisCache: {} });
       },
 
-      // 선택된 분석 ID 직접 설정 (추가)
+      // 선택된 분석 ID 직접 설정
       setSelectedAnalysisId: (analysisId: string) => {
         console.log(`선택된 분석 ID 설정: ${analysisId}`);
         set({ selectedAnalysisId: analysisId });
       },
 
-      // 디버깅용 함수 (추가)
+      // 디버깅용 함수
       debugState: () => {
         const state = get();
         const debug = {
           selectedAnalysisId: state.selectedAnalysisId,
           hasCurrentAnalysis: !!state.currentAnalysis,
-          currentAnalysisId: state.currentAnalysis?._id,
+          currentAnalysisId:
+            state.currentAnalysis?._id ||
+            state.currentAnalysis?.analysis_result?._id,
           hasAnalysisList: !!state.analysisList,
           analysisListLength: state.analysisList
             ? (

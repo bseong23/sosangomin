@@ -24,18 +24,38 @@ export interface AnalysisRequest {
 }
 
 export interface AutoAnalysisResults {
-  predict: {
-    total_sales: number;
-    predictions_30: Record<string, number>; // 날짜별 매출 예측
+  predict?: {
+    total_sales?: number;
+    predictions_30?: Record<string, number>; // 날짜별 매출 예측
   };
-  cluster: { [key: string]: string[] }; // 예: cluster0: ["공기밥"]
-  summaries: { [key: string]: { summary: string } }; // 예측 요약
+  cluster?: { [key: string]: string[] }; // 예: cluster0: ["공기밥"]
+  summaries?: {
+    predict_summary?: {
+      summary?: string;
+      sales_pattern?: string;
+      weekend_effect?: string;
+      comparison_with_last_month?: string;
+      recommendation?: string;
+    };
+    cluster_summary?: {
+      summary?: string;
+      group_insight?: string;
+      group_characteristics?: Array<{
+        group_id: string | number;
+        group_name: string;
+        description: string;
+        representative_items?: string[];
+      }>;
+      recommendation?: string;
+    };
+    [key: string]: any;
+  };
 }
 
 // 분석 결과 인터페이스 (API 응답 구조)
 export interface AnalysisResultResponse {
   status: string;
-  analysis_result: {
+  result_data: {
     _id: string;
     store_id: number;
     source_ids: string | string[];
@@ -51,6 +71,9 @@ export interface AnalysisResultResponse {
         time_period_sales: DataModule<TimePeriodSalesData>;
         holiday_sales: DataModule<HolidaySalesData>;
         season_sales: DataModule<SeasonSalesData>;
+        weather_sales?: DataModule<WeatherSalesData>;
+        temperature_sales?: DataModule<TemperatureSalesData>;
+        product_share?: DataModule<ProductShareData>;
         [key: string]: any;
       };
       summary: string;
@@ -99,6 +122,18 @@ export interface SeasonSalesData {
   [key: string]: number; // 예: "봄": 14000000
 }
 
+export interface WeatherSalesData {
+  [key: string]: number; // 예: "맑음": 8000000, "비": 4000000
+}
+
+export interface TemperatureSalesData {
+  [key: string]: number; // 예: "0~10℃": 5000000, "10~20℃": 8000000
+}
+
+export interface ProductShareData {
+  [key: string]: number; // 예: "제품군A": 45.5, "제품군B": 32.8 (%)
+}
+
 // 분석 결과 데이터 전체 구조 (컴포넌트에서 사용하는 형식)
 export interface AnalysisResultData {
   result_data: {
@@ -109,12 +144,16 @@ export interface AnalysisResultData {
     time_period_sales: DataModule<TimePeriodSalesData>;
     holiday_sales: DataModule<HolidaySalesData>;
     season_sales: DataModule<SeasonSalesData>;
+    weather_sales?: DataModule<WeatherSalesData>;
+    temperature_sales?: DataModule<TemperatureSalesData>;
+    product_share?: DataModule<ProductShareData>;
     [key: string]: any; // 다른 필드도 허용
   };
   summary: string;
   analysis_id?: string;
   created_at?: string;
   status?: string;
+  auto_analysis_results?: AutoAnalysisResults; // 자동 분석 결과 타입 추가
 }
 
 // 분석 항목 인터페이스
