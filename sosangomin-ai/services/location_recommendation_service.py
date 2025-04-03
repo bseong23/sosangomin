@@ -26,7 +26,7 @@ class LocationRecomService:
         db = database_instance.pre_session()
         try:
             # 1. 인구 정보
-            pop_rows = self.db.query(Population).all()
+            pop_rows = db.query(Population).all()
             pop_data = []
             for row in pop_rows:
                 try:    
@@ -42,8 +42,8 @@ class LocationRecomService:
             df_pop = pd.DataFrame(pop_data)
 
             # 2. 점포 수 정보
-            latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
-            store_rows = self.db.query(StoreCategories).filter(
+            latest_store = db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
+            store_rows = db.query(StoreCategories).filter(
                 StoreCategories.year == latest_store.year,
                 StoreCategories.quarter == latest_store.quarter,
                 StoreCategories.main_category == "외식업"
@@ -87,7 +87,7 @@ class LocationRecomService:
         db = database_instance.pre_session()
         try:
             # 1. 인구 정보
-            pop_rows = self.db.query(Population).all()
+            pop_rows = db.query(Population).all()
             pop_data = []
             for row in pop_rows:
                 try:
@@ -112,8 +112,8 @@ class LocationRecomService:
             df_pop = pd.DataFrame(pop_data)
 
             # 2. 시설 정보 - 가장 최근 연도/분기 데이터만 사용
-            latest_facility = self.db.query(Facilities.year, Facilities.quarter).order_by(Facilities.year.desc(), Facilities.quarter.desc()).limit(1).first()
-            facility_rows = self.db.query(Facilities).filter(
+            latest_facility = db.query(Facilities.year, Facilities.quarter).order_by(Facilities.year.desc(), Facilities.quarter.desc()).limit(1).first()
+            facility_rows = db.query(Facilities).filter(
                 Facilities.year == latest_facility.year,
                 Facilities.quarter == latest_facility.quarter
             ).all()
@@ -131,16 +131,16 @@ class LocationRecomService:
             df_facility = pd.DataFrame(facility_data)
 
             # 3. 매출 정보 - 최신 연도/분기 기준
-            latest_sales = self.db.query(SalesData.year, SalesData.quarter).order_by(SalesData.year.desc(), SalesData.quarter.desc()).first()
-            sales_rows = self.db.query(SalesData).filter(
+            latest_sales = db.query(SalesData.year, SalesData.quarter).order_by(SalesData.year.desc(), SalesData.quarter.desc()).first()
+            sales_rows = db.query(SalesData).filter(
                 SalesData.year == latest_sales.year,
                 SalesData.quarter == latest_sales.quarter,
                 SalesData.industry_name == industry_name
             ).all()
 
             # 4. 점포 수 정보 - 최신 기준
-            latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
-            storecat_rows = self.db.query(StoreCategories).filter(
+            latest_store = db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
+            storecat_rows = db.query(StoreCategories).filter(
                 StoreCategories.year == latest_store.year,
                 StoreCategories.quarter == latest_store.quarter,
                 StoreCategories.industry_name == industry_name
@@ -165,8 +165,8 @@ class LocationRecomService:
             df_storecat = pd.DataFrame(storecat_data)
 
             # 5. 임대료 
-            latest_rent = self.db.query(RentInfo.STRD_YR_CD, RentInfo.STRD_QTR_CD).order_by(RentInfo.STRD_YR_CD.desc(), RentInfo.STRD_QTR_CD.desc()).first()
-            rent_rows = self.db.query(RentInfo).filter(
+            latest_rent = db.query(RentInfo.STRD_YR_CD, RentInfo.STRD_QTR_CD).order_by(RentInfo.STRD_YR_CD.desc(), RentInfo.STRD_QTR_CD.desc()).first()
+            rent_rows = db.query(RentInfo).filter(
                 RentInfo.STRD_YR_CD == latest_rent.STRD_YR_CD,
                 RentInfo.STRD_QTR_CD == latest_rent.STRD_QTR_CD,
                 RentInfo.LET_CURPRC_FLR_CLSF_CD_NM == "전체층"
@@ -304,7 +304,7 @@ class LocationRecomService:
         total = result.copy()
         total = total.round(2)
         total = self.assign_grades_by_quantile(total)
-        total = total.drop(columns="점수").head(3)
+        total = total.drop(columns="점수")
 
         return {
             "top_n":{
