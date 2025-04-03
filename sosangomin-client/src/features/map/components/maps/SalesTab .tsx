@@ -119,7 +119,6 @@ const SalesTab: React.FC<SalesTabProps> = ({
     title="분기별 매출 비교"
     height={300}
   />;
-  console.log(salesData);
   const seoulDonutData = prepareDonutChartData("서울시");
   const districtDonutData = prepareDonutChartData("자치구");
   const neighborhoodDonutData = prepareDonutChartData("행정동");

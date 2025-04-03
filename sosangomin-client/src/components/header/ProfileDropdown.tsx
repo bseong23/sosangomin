@@ -5,6 +5,7 @@ import profileImage from "@/assets/profileImage.svg";
 import useAuthStore from "@/store/useAuthStore";
 import { clearAuthData } from "@/features/auth/api/userStorage";
 import useStoreStore from "@/store/storeStore";
+
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   userName,
   userProfileUrl
@@ -45,6 +46,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     window.location.href = "/";
   };
 
+  // 마이페이지 클릭 후 드롭다운 닫기
+  const handleMyPageClick = () => {
+    setIsOpen(false);
+  };
+
   // userInfo가 없는 경우 대체 처리
   if (!userInfo) {
     return null;
@@ -75,9 +81,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         <div className="absolute right-0 mt-2 w-[180px] h-[120px] bg-white rounded-md shadow-lg z-10 border border-gray-200 flex items-center">
           <ul className="w-full">
             <li className="px-4 py-2 hover:bg-gray-100 text-center">
+              {/* 마이페이지 클릭 시 드롭다운 닫기 */}
               <Link
                 to="/mypage"
                 className="flex items-center justify-center pb-[10px]"
+                onClick={handleMyPageClick}
               >
                 마이페이지
               </Link>
