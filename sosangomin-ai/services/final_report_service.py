@@ -43,7 +43,7 @@ class FinalReportService:
             
             data = {
                 "model": "claude-3-7-sonnet-20250219",
-                "max_tokens": 4000,
+                "max_tokens": 7000,
                 "messages": [
                     {"role": "user", "content": prompt}
                 ],
@@ -135,13 +135,13 @@ class FinalReportService:
     async def extract_swot_from_response(self, response_text: str) -> Dict[str, Any]:
         """Claude API 응답에서 SWOT 분석 결과를 추출하여 JSON 형태로 반환"""
         try:
-            # JSON 형식 찾기 시도
             matches = re.findall(r'```json\s*([\s\S]*?)\s*```', response_text)
             if matches:
                 try:
+                    logger.debug(f"찾은 JSON 문자열 (처음 100자): {matches[0][:100]}...")
                     return json.loads(matches[0])
-                except json.JSONDecodeError:
-                    logger.warning("JSON 포맷 추출 실패, 직접 파싱 시도")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"JSON 포맷 추출 실패: {e}, 직접 파싱 시도")
             
             # 직접 파싱 시도
             swot = {
@@ -168,7 +168,6 @@ class FinalReportService:
                             swot[key] = [item.strip() for item in items if item.strip()]
                             break
             
-            # 요약 추출
             summary_pattern = r'(?i)#{1,3}\s*요약.*?(?=#{1,3}\s*|$)'
             summary_matches = re.findall(summary_pattern, response_text, re.DOTALL)
             
@@ -246,7 +245,7 @@ class FinalReportService:
             # 최종 보고서 DB에 저장
             final_report_doc = {
                 "store_id": store_id,
-                "store_name": store_info.get("name", "알 수 없음") if store_info else "알 수 없음",
+                "store_name": store_info.get("store_name", "알 수 없음") if store_info else "알 수 없음",
                 "created_at": datetime.now(),
                 "swot_analysis": swot_analysis,
                 "full_response": response_content,
@@ -260,12 +259,8 @@ class FinalReportService:
             final_reports = mongo_instance.get_collection("FinalReports")
             report_id = final_reports.insert_one(final_report_doc).inserted_id
             
-            return {
-                "status": "success",
-                "message": "SWOT 분석 보고서가 성공적으로 생성되었습니다.",
-                "report_id": str(report_id),
-                "swot_analysis": swot_analysis
-            }
+            logger.debug(f"최종 반환 데이터 (swot_analysis): {swot_analysis}")
+            return final_report_doc
             
         except Exception as e:
             logger.error(f"SWOT 보고서 생성 중 오류: {str(e)}")
@@ -397,7 +392,6 @@ class FinalReportService:
                             prompt += f"{day}({sales:,.0f}원) "
                     prompt += "\n"
                 
-                # 시간대별 매출 추가
                 time_period_sales = eda_results.get('result_data', {}).get('time_period_sales', {}).get('data', {})
                 if time_period_sales:
                     prompt += f"""
@@ -406,25 +400,22 @@ class FinalReportService:
                         prompt += f"{period}({sales:,.0f}원) "
                     prompt += "\n"
                 
-                # 상위 제품 추가
                 top_products = eda_results.get('result_data', {}).get('top_products', {}).get('data', {})
                 if top_products:
                     prompt += f"""
             - 상위 판매 제품: """
                     count = 0
                     for product, sales in top_products.items():
-                        if count < 3:  # 상위 3개 제품만 표시
+                        if count < 5:  # 상위 3개 제품만 표시
                             prompt += f"{product}({sales:,.0f}원) "
                             count += 1
                     prompt += "\n"
         
-        # 경쟁사 비교 분석 데이터 추가
         if "competitor_analysis" in results:
             comp_data = results["competitor_analysis"]
             insight = comp_data.get('comparison_insight', '')
             comparison = comp_data.get('comparison_data', {})
             
-            # 백슬래시 처리를 f-string 외부로 빼기
             cleaned_insight = insight.replace('\n', ' ').strip()[:300]
             
             prompt += f"""

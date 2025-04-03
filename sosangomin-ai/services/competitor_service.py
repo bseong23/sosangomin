@@ -140,7 +140,8 @@ class CompetitorService:
     async def compare_with_competitor(
     self, 
     store_id: int, 
-    competitor_place_id: str, 
+    competitor_place_id: str,
+    competitor_name: str, 
     analysis_id: Optional[str] = None,
     competitor_analyzed_reviews: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
@@ -180,13 +181,6 @@ class CompetitorService:
                 competitor_analyzed_reviews = await review_service.analyze_sentiment(competitor_reviews)
             
             competitor_word_cloud = await review_service.generate_word_cloud_data(competitor_analyzed_reviews)
-            
-            competitor_info = None
-            try:
-                from services.store_service import store_service
-                competitor_name = competitor_place_id
-            except Exception:
-                competitor_name = f"경쟁사 (ID: {competitor_place_id})"
             
             my_review_count = my_analysis.get("review_count", 0)
             my_sentiment = my_analysis.get("sentiment_distribution", {})
