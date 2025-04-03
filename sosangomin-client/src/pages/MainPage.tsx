@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import HeroSection from "@/features/main/components/HeroSection";
 import FeatureSection from "@/features/main/components/FeatureSection";
 import CTASection from "@/features/main/components/CTASection";
-
+import { getStoreList } from "@/features/auth/api/mypageApi";
+import useStoreStore from "@/store/storeStore";
+import { StoreListResponse } from "@/features/auth/types/mypage";
 const MainPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,6 +16,45 @@ const MainPage: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, []);
+  const [, setStoreListData] = useState<StoreListResponse | null>(null);
+  const { representativeStore, setRepresentativeStore } = useStoreStore();
+
+  useEffect(() => {
+    const checkAndFetchStores = async () => {
+      // store-storage 확인
+      const storeStorage = localStorage.getItem("store-storage");
+      const isDefaultStoreState =
+        !storeStorage ||
+        storeStorage ===
+          '{"state":{"representativeStore":null,"stores":[]},"version":0}';
+
+      // auth-storage 확인
+      const authStorage = localStorage.getItem("auth-storage");
+      const isDefaultAuthState =
+        !authStorage ||
+        authStorage === '{"state":{"userInfo":null},"version":0}';
+      // store-storage가 기본 상태이고 auth-storage가 기본 상태가 아닐 때만 API 호출
+      if (isDefaultStoreState && !isDefaultAuthState) {
+        try {
+          const response = await getStoreList();
+          // 상태 업데이트에 setter 함수만 사용하여 미사용 변수 경고 제거
+          setStoreListData(response);
+
+          if (
+            response.status === "success" &&
+            response.stores.length > 0 &&
+            !representativeStore
+          ) {
+            setRepresentativeStore(response.stores[0]);
+          }
+        } catch (error) {
+          console.error("가게 목록 불러오기 실패:", error);
+        }
+      }
+    };
+
+    checkAndFetchStores();
+  }, [representativeStore, setRepresentativeStore]);
 
   // 스크롤 관련 최적화를 위한 설정
   useEffect(() => {
