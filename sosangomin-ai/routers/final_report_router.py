@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 from services.final_report_service import final_report_service
 import re
+from datetime import datetime
 
 router = APIRouter(
     prefix="/api/final-reports",
@@ -11,11 +12,15 @@ router = APIRouter(
 )
 
 class FinalReportResponse(BaseModel):
-    status: str
-    message: Optional[str] = None
-    report_id: Optional[str] = None
-    swot_analysis: Optional[Dict[str, Any]] = None
-    missing_analyses: Optional[List[str]] = None
+    _id: Optional[str] = None
+    store_id: int
+    store_name: str
+    created_at: datetime
+    swot_analysis: Dict[str, Any]
+    full_response: str
+    related_analyses: Dict[str, Any]
+    status: Optional[str] = "success"
+    message: Optional[str] = "SWOT 분석 보고서가 성공적으로 생성되었습니다."
     
 class FinalReportListResponse(BaseModel):
     status: str
@@ -95,9 +100,10 @@ async def generate_final_report(
             "missing_analyses": result.get("missing_analyses", [])
         }
     
-    return {
-        "status": "success",
-        "message": "SWOT 분석 보고서가 성공적으로 생성되었습니다.",
-        "report_id": result.get("report_id"),
-        "swot_analysis": result.get("swot_analysis")
-    }
+    if "_id" in result:
+        result["_id"] = str(result["_id"])
+    
+    result["status"] = "success"
+    result["message"] = "SWOT 분석 보고서가 성공적으로 생성되었습니다."
+    
+    return result

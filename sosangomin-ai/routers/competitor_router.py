@@ -169,6 +169,7 @@ async def one_click_analyze_competitor(request: CompetitorAnalysisRequest):
         comparison_result = await competitor_service.compare_with_competitor(
             request.store_id,
             competitor_place_id,
+            request.competitor_name,
             competitor_analyzed_reviews=competitor_analyzed_reviews
         )
         

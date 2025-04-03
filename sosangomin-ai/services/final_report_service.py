@@ -43,7 +43,7 @@ class FinalReportService:
             
             data = {
                 "model": "claude-3-7-sonnet-20250219",
-                "max_tokens": 4000,
+                "max_tokens": 7000,
                 "messages": [
                     {"role": "user", "content": prompt}
                 ],
@@ -135,13 +135,15 @@ class FinalReportService:
     async def extract_swot_from_response(self, response_text: str) -> Dict[str, Any]:
         """Claude API 응답에서 SWOT 분석 결과를 추출하여 JSON 형태로 반환"""
         try:
-            # JSON 형식 찾기 시도
+            # JSON 형식 찾기 시도 - 패턴 강화
             matches = re.findall(r'```json\s*([\s\S]*?)\s*```', response_text)
             if matches:
                 try:
+                    # 로깅 추가
+                    logger.debug(f"찾은 JSON 문자열 (처음 100자): {matches[0][:100]}...")
                     return json.loads(matches[0])
-                except json.JSONDecodeError:
-                    logger.warning("JSON 포맷 추출 실패, 직접 파싱 시도")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"JSON 포맷 추출 실패: {e}, 직접 파싱 시도")
             
             # 직접 파싱 시도
             swot = {
@@ -246,7 +248,7 @@ class FinalReportService:
             # 최종 보고서 DB에 저장
             final_report_doc = {
                 "store_id": store_id,
-                "store_name": store_info.get("name", "알 수 없음") if store_info else "알 수 없음",
+                "store_name": store_info.get("store_name", "알 수 없음") if store_info else "알 수 없음",
                 "created_at": datetime.now(),
                 "swot_analysis": swot_analysis,
                 "full_response": response_content,
@@ -260,12 +262,8 @@ class FinalReportService:
             final_reports = mongo_instance.get_collection("FinalReports")
             report_id = final_reports.insert_one(final_report_doc).inserted_id
             
-            return {
-                "status": "success",
-                "message": "SWOT 분석 보고서가 성공적으로 생성되었습니다.",
-                "report_id": str(report_id),
-                "swot_analysis": swot_analysis
-            }
+            logger.debug(f"최종 반환 데이터 (swot_analysis): {swot_analysis}")
+            return final_report_doc
             
         except Exception as e:
             logger.error(f"SWOT 보고서 생성 중 오류: {str(e)}")

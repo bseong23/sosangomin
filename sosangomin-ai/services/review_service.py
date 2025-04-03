@@ -241,12 +241,6 @@ class ReviewService:
             if driver:
                 driver.quit()
                 logger.info("WebDriver 종료됨")
-
-            try:
-                shutil.rmtree(user_data_dir)
-                logger.info(f"user-data-dir '{user_data_dir}' 삭제 완료")
-            except Exception as e:
-                logger.warning(f"user-data-dir 삭제 실패: {e}")
     
     def _analyze_single_review(self, review: Dict[str, Any]) -> Dict[str, Any]:
         """KoNLPy를 활용한 단일 리뷰 분석"""
