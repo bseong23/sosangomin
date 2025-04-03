@@ -194,19 +194,17 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               yAxisTitle="업소 수"
             />
           </div>
-
-          <div className="grid grid-rows-3 gap-4 md:px-10 justify-center md:w-1/4">
-            <div>
-              <p className="text-sm text-gray-600">가장 많은 업종</p>
-              <p className="text-2xl font-bold">외식업</p>
-              <p className="text-sm text-gray-600">
-                {foodServiceData[foodServiceData.length - 1]}개 업소
+          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
+            <div className="p-4 bg-white shadow rounded-lg">
+              <p className="text-base text-gray-600">가장 많은 업종</p>
+              <p className="text-base font-bold">
+                외식업 {foodServiceData[foodServiceData.length - 1]}개 업소
               </p>
             </div>
 
-            <div>
-              <p className="text-sm text-gray-600">외식업 비율</p>
-              <p className="text-2xl font-bold">
+            <div className="p-4 bg-white shadow rounded-lg">
+              <p className="text-base text-gray-600">외식업 비율</p>
+              <p className="text-base font-bold">
                 {Math.round(
                   (foodServiceData[foodServiceData.length - 1] /
                     (foodServiceData[foodServiceData.length - 1] +
@@ -219,9 +217,9 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               </p>
             </div>
 
-            <div>
-              <p className="text-sm text-gray-600">전체 업소 수</p>
-              <p className="text-2xl font-bold">
+            <div className="p-4 bg-white shadow rounded-lg">
+              <p className="text-base text-gray-600">전체 업소 수</p>
+              <p className="text-base font-bold">
                 {foodServiceData[foodServiceData.length - 1] +
                   wholesaleData[wholesaleData.length - 1] +
                   serviceData[serviceData.length - 1] +

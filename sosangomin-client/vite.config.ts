@@ -1,69 +1,70 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite';
-import { VitePWA } from 'vite-plugin-pwa'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // 👇 __dirname 직접 정의 (ES Module 환경 대응)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    react(),tailwindcss(),
+    react(),
+    tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      registerType: "autoUpdate",
+      injectRegister: "auto",
 
       pwaAssets: {
         disabled: false,
-        config: true,
+        config: true
       },
 
       manifest: {
-        name: 'sosangomin-client',
-        short_name: 'sosangomin-client',
-        description: 'sosangomin-client',
-        theme_color: '#ffffff',
+        name: "소상고민",
+        short_name: "소상고민",
+        description: "소상고민",
+        theme_color: "#ffffff",
         icons: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: "pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png"
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png"
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable"
           }
         ]
       },
 
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: true,
+        skipWaiting: true
       },
 
       devOptions: {
         enabled: true,
-        navigateFallback: 'index.html',
+        navigateFallback: "index.html",
         suppressWarnings: true,
-        type: 'module',
-      },
-    }),
+        type: "module"
+      }
+    })
   ],
 
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-})
+      "@": path.resolve(__dirname, "./src")
+    }
+  }
+});

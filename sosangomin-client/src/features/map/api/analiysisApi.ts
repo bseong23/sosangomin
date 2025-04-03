@@ -57,7 +57,22 @@ export const getBuiness = async (regionName: string, industryName: string) => {
     );
     return response.data;
   } catch (error) {
-    console.error("업종종 상세 조회 실패:", error);
+    console.error("업종 상세 조회 실패:", error);
+    throw error;
+  }
+};
+
+export const getSales = async (regionName: string, industryName: string) => {
+  try {
+    const response = await axiosInstance.get("/api/proxy/area-analysis/sales", {
+      params: {
+        regionName,
+        industryName
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("매출 상세 조회 실패:", error);
     throw error;
   }
 };

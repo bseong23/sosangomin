@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 // 탭별 컴포넌트 import
 import PopulationTab from "@/features/map/components/maps/PopulationTab ";
 import BusinessTab from "@/features/map/components/maps/BusinessTab ";
-import EtcTab from "@/features/map/components/maps/EtcTab ";
+import SalesTab from "@/features/map/components/maps/SalesTab ";
 
 const AnalysisModal: React.FC<AnalysisModalProps> = ({
   isOpen,
@@ -49,7 +49,12 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
           />
         );
       case "매출":
-        return <EtcTab selectedAdminName={selectedAdminName} />;
+        return (
+          <SalesTab
+            selectedAdminName={selectedAdminName}
+            selectedCategory={selectedCategory}
+          />
+        );
       default:
         return null;
     }
@@ -73,7 +78,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg ${
+                  className={`px-2 py-1 md:px-4 md:py-2 rounded-lg ${
                     activeTab === tab
                       ? "bg-bit-main text-white"
                       : "bg-gray-100 hover:bg-gray-200"
