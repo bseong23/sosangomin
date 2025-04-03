@@ -44,8 +44,9 @@ const CTASection: React.FC = () => {
                   shadow-[0_0_15px_rgba(0,0,0,0.1)] 
                   border border-white border-opacity-20 
                   flex flex-col items-center justify-center
-                  transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(0,0,0,0.15)]"
+                 "
               >
+                {/* transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(0,0,0,0.15)] */}
                 <div className="mb-4 sm:mb-6 h-28 sm:h-32 md:h-40 w-28 sm:w-32 md:w-40 flex items-center justify-center">
                   <img
                     src={cardImages[i].src}
