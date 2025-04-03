@@ -11,6 +11,9 @@ const Layout: React.FC = () => {
   // 메인 페이지 여부 확인
   const isMainPage = location.pathname === "/";
   const isMapPage = location.pathname.startsWith("/map");
+  const isLoginPage = location.pathname === "/login";
+  const isPasswordPage = location.pathname === "/password";
+  const isSignupPage = location.pathname === "/signup";
 
   const showSidebar =
     location.pathname.startsWith("/community") ||
@@ -36,7 +39,8 @@ const Layout: React.FC = () => {
     location.pathname.startsWith("/data-analysis");
 
   // ChatBot 표시 여부 결정 - 지도 페이지에서는 표시하지 않음
-  const showChatBot = !isMapPage;
+  const showChatBot =
+    !isMapPage && !isLoginPage && !isPasswordPage && !isSignupPage;
 
   const showTopButton = !isMapPage;
 

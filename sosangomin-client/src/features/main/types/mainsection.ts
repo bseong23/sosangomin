@@ -1,8 +1,9 @@
+import React from "react";
+
 // 피처 데이터 타입 정의
 export interface Feature {
   title: string;
-  shortTitle: string;
-  text: string;
+  text: React.ReactNode;
 }
 
 export interface IntroSectionProps {

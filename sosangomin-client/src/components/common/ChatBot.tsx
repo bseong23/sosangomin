@@ -20,6 +20,10 @@ const ChatBot: React.FC = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleChat = () => {
+    if (!userId) {
+      alert("로그인 후 이용해 주세요");
+      return;
+    }
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
 

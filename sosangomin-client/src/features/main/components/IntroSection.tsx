@@ -28,7 +28,7 @@ const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
           이런 액션이 가능합니다.
         </h2>
 
-        <div className="max-w-md sm:max-w-3xl md:max-w-5xl w-full mx-auto">
+        <div className="max-w-md sm:max-w-3xl md:max-w-6xl w-full mx-auto">
           {isMobile || isTablet ? (
             // 모바일/태블릿용 (세로 정렬 - 일렬로 나란히)
             <div className="w-full flex flex-col items-center space-y-12 px-4 sm:px-6 md:px-8 mt-8 mb-10">
@@ -49,7 +49,7 @@ const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
 
                   {/* Step Text */}
                   <p className="text-md sm:text-lg md:text-xl font-medium text-gray-800">
-                    {item.shortTitle}
+                    {item.text}
                   </p>
                 </div>
               ))}
@@ -76,7 +76,7 @@ const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
                         }}
                       />
                       <div
-                        className="relative flex items-center justify-center text-white text-sm font-semibold text-center rounded-full w-32 h-32 md:w-36 md:h-36 p-4 md:p-6 z-10"
+                        className="relative flex items-center justify-center text-white text-xs font-semibold text-center rounded-full w-34 h-34 md:w-36 md:h-36 p-4 md:p-6 z-10"
                         style={{ backgroundColor: mainColor }}
                       >
                         {item.text}
