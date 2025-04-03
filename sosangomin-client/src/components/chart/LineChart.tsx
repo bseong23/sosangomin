@@ -112,7 +112,8 @@ const LineChart: React.FC<LineChartProps> = ({
         }
       },
       y: {
-        beginAtZero: true,
+        // beginAtZero: true, // 이 줄 제거
+        // min 속성 제거
         grid: {
           color: "rgba(0, 0, 0, 0.05)"
         },

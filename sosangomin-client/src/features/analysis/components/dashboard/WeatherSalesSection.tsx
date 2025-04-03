@@ -1,5 +1,7 @@
 import React from "react";
 import { AnalysisResultData } from "../../types/analysis";
+import Sun from "@/assets/sun.png";
+import Cloud from "@/assets/cloud.png";
 
 interface WeatherSalesSectionProps {
   data: AnalysisResultData;
@@ -23,41 +25,37 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
       : summary;
   };
 
+  // 날씨 아이콘 매핑
+  const weatherIcons: { [key: string]: string } = {
+    맑음: Sun,
+    "비/눈": Cloud
+  };
+
   return (
-    <div className="w-full mb-10 bg-basic-white p-6 rounded-lg shadow-md">
+    <div className="w-full mb-6 bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         날씨별 매출 분석
       </h2>
-      <div className="space-y-3">
+
+      <div className="grid grid-cols-2 gap-4">
         {Object.entries(weatherSales).map(([weather, amount], idx) => {
           const percentage = ((amount / total) * 100).toFixed(1);
-          const bgColors = [
-            "bg-blue-500 bg-opacity-70",
-            "bg-red-500 bg-opacity-70"
-          ];
 
           return (
-            <div key={idx} className="w-full">
-              <div className="flex justify-between text-xs mb-1">
-                <span>{weather}</span>
-                <span>
-                  ₩{amount.toLocaleString("ko-KR")} ({percentage}%)
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  className={`${
-                    bgColors[idx % bgColors.length]
-                  } h-2.5 rounded-full`}
-                  style={{ width: `${percentage}%` }}
-                ></div>
-              </div>
+            <div key={idx} className="flex flex-col items-center">
+              <img
+                src={weatherIcons[weather]}
+                alt={`${weather} 날씨 아이콘`}
+                className="w-50 h-50 mb-2"
+              />
+              <p className="text-sm font-semibold">{weather}</p>
+              <p className="text-sm">{percentage}%</p>
             </div>
           );
         })}
       </div>
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <p className="text-sm text-comment-text">
+      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+        <p className="text-sm text-comment">
           {truncateSummary(weatherSalesSummary)}
         </p>
       </div>

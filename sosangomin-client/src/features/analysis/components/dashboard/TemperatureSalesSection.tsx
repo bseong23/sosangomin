@@ -40,12 +40,12 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
   };
 
   return (
-    <div className="bg-basic-white p-6 mb-10 rounded-lg shadow-md ">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
+    <div className="bg-basic-white p-6 mb-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
+      <h2 className="text-lg font-semibold mb-10 text-comment">
         기온별 매출 분석
       </h2>
       <div
-        className="mb-4"
+        className="mb-10"
         style={{ width: "100%", height: "350px", overflow: "hidden" }}
       >
         <BarChart
@@ -58,9 +58,8 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
         />
       </div>
       <div className="mt-2 mb-2">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-base font-medium mb-2 text-comment">기온 분석</h3>
-          <p className="text-sm text-comment-text">
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <p className="text-sm text-comment">
             {truncateSummary(temperatureSalesSummary)}
           </p>
         </div>

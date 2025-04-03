@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { AnalysisResultData } from "../../types/analysis";
 
 interface ProductClusterSectionProps {
-  data: AnalysisResultData;
+  data: AnalysisResultData | null | undefined;
 }
 
 const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
@@ -31,9 +31,8 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
       : summary;
   };
 
-  // 클러스터 데이터가 없으면 디버깅 정보 출력 후 빈 컴포넌트 반환
-  if (!clusters || Object.keys(clusters).length === 0) {
-    console.log("클러스터 데이터가 없습니다:", clusters);
+  // 데이터가 없을 경우 null 반환
+  if (!data || !clusters || Object.keys(clusters).length === 0) {
     return (
       <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-lg font-semibold mb-4 text-comment">
@@ -59,7 +58,7 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
 
     // 기본 요약만 보여주는 컴포넌트 렌더링
     return (
-      <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
         <h2 className="text-lg font-semibold mb-4 text-comment">
           상품 클러스터 분석
         </h2>
@@ -77,23 +76,23 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
 
   // 클러스터 데이터가 있고 group_characteristics가 있는 경우 전체 컴포넌트 렌더링
   return (
-    <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+    <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         상품 클러스터 분석
       </h2>
-      <div className="space-y-4">
+      <div className="flex gap-4">
         {Array.isArray(clusterSummary.group_characteristics) ? (
           clusterSummary.group_characteristics.map((group) => (
-            <div key={group.group_id} className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-base font-semibold mb-2 text-comment">
+            <div key={group.group_id} className="p-4 rounded-lg">
+              <h3 className="text-base font-semibold mb-4 text-comment">
                 {group.group_name}
               </h3>
-              <p className="text-sm text-comment-text mb-2">
+              <p className="text-sm text-comment-text mb-4">
                 {group.description}
               </p>
-              <div className="bg-white p-3 rounded">
+              <div className="bg-blue-50 rounded-lg p-3">
                 <h4 className="text-sm font-medium mb-1">대표 상품</h4>
-                <ul className="list-disc list-inside text-xs text-gray-600">
+                <ul className="list-disc list-inside text-xs text-comment">
                   {group.representative_items
                     ?.slice(0, 3)
                     .map((item, itemIndex) => (
@@ -112,11 +111,11 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
           </div>
         )}
       </div>
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+      <div className="mt-4 p-4 rounded-lg">
         <h3 className="text-base font-medium mb-2 text-comment">
           클러스터 분석 요약
         </h3>
-        <p className="text-sm text-comment-text">
+        <p className="text-sm text-comment bg-blue-50 p-4 rounded-lg">
           {truncateSummary(clusterSummary.summary || "")}
         </p>
         {clusterSummary.recommendation && (
