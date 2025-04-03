@@ -506,7 +506,7 @@ class ReviewService:
             
             data = {
                 "model": "claude-3-7-sonnet-20250219",
-                "max_tokens": 1024,
+                "max_tokens": 2000,
                 "messages": [
                     {"role": "user", "content": prompt}
                 ]
