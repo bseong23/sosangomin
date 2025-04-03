@@ -351,8 +351,6 @@ const AnalysisDashboard: React.FC = () => {
     customer_avg: 0
   };
 
-  const basicStatsSummary = resultData?.basic_stats?.summary || "";
-
   // 전체 요약
   const overallSummary = summary;
 
@@ -360,8 +358,11 @@ const AnalysisDashboard: React.FC = () => {
     <div>
       <div className="max-w-[1200px] mx-auto p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-comment">
-            {representativeStore.store_name} 매장 분석
+          <h1 className="text-xl font-bold text-comment">
+            <span className="text-bit-main font-bold text-2xl">
+              {representativeStore.store_name}
+            </span>{" "}
+            매장 분석
           </h1>
 
           {/* 분석 선택기 - API에서 로드된 분석 목록 전달 */}
@@ -380,7 +381,7 @@ const AnalysisDashboard: React.FC = () => {
         <SummarySection summary={overallSummary} />
 
         {/* 기본 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
           <StatsCard
             title="총 매출"
             value={basicStats.total_sales}
@@ -403,17 +404,6 @@ const AnalysisDashboard: React.FC = () => {
             subValue={`${basicStats.unique_products}개 고유 제품`}
             colorClass="text-bit-main"
           />
-          <StatsCard
-            title="시즌 매출"
-            value={`봄 ₩${basicStats.total_sales.toLocaleString("ko-KR")}`}
-            subValue="계절별 분석"
-            colorClass="text-bit-main"
-          />
-        </div>
-
-        {/* 기본 통계 요약 */}
-        <div className="bg-basic-white p-4 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-          <p className="text-sm text-comment">{basicStatsSummary}</p>
         </div>
 
         {/* 시간별 매출 섹션 */}
@@ -462,7 +452,13 @@ const AnalysisDashboard: React.FC = () => {
         {/* 시즌 매출 & 영업 전략 제안 섹션 */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
           <SeasonalSalesSection data={data} />
-          <StrategySection />
+          <StrategySection
+            data={{
+              ...data,
+              auto_analysis_results:
+                originalApiData.analysis_result.auto_analysis_results
+            }}
+          />
         </div>
       </div>
     </div>

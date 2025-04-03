@@ -1,6 +1,13 @@
 import React from "react";
 import { AnalysisResultData } from "../../types/analysis";
 
+const seasonColors = {
+  봄: "#FFB6C1", // 연한 핑크 (벚꽃 색상)
+  여름: "#1E90FF", // 밝은 파랑 (여름 하늘)
+  가을: "#FF8C00", // 주황 (단풍)
+  겨울: "#87CEEB" // 하늘색 (겨울 하늘)
+};
+
 interface SeasonalSalesSectionProps {
   data: AnalysisResultData;
 }
@@ -35,7 +42,14 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div className="bg-bit-main h-2.5 rounded-full w-full"></div>
+              <div
+                className="h-2.5 rounded-full w-full"
+                style={{
+                  backgroundColor:
+                    seasonColors[season as keyof typeof seasonColors] ||
+                    "#CBD5E1"
+                }}
+              ></div>
             </div>
           </div>
         ))}

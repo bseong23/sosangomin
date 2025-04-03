@@ -33,17 +33,6 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
     }
   ];
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (
-    summary: string | undefined,
-    maxLength = 300
-  ): string => {
-    if (!summary) return "";
-    return summary.length > maxLength
-      ? `${summary.substring(0, maxLength)}...`
-      : summary;
-  };
-
   // 예측 데이터가 없으면 디버깅 정보 출력 후 빈 컴포넌트 반환
   if (!predictions || Object.keys(predictions).length === 0) {
     console.log("예측 데이터가 없습니다:", {
@@ -52,7 +41,7 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
     });
 
     return (
-      <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
         <h2 className="text-lg font-semibold mb-4 text-comment">
           30일 매출 예측
         </h2>
@@ -64,7 +53,7 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
   }
 
   return (
-    <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
+    <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-10">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         30일 매출 예측
       </h2>
@@ -76,35 +65,44 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
         />
       </div>
       <div className="mt-2 mb-2">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-base font-medium mb-2 text-comment">예측 분석</h3>
-          <p className="text-sm text-comment-text">
-            {truncateSummary(predictSummary?.summary)}
-          </p>
+        <div className="grid grid-cols-4 gap-10 bg-white rounded-lg">
+          <div className="flex flex-col">
+            <h4 className="text-sm text-center px-6 font-medium mb-1">
+              예측 분석
+            </h4>
+            <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
+              {predictSummary?.summary}
+            </p>
+          </div>
 
-          {/* 추가 정보가 있는 경우 표시 */}
           {predictSummary?.sales_pattern && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
-              <h4 className="text-sm font-medium mb-1">매출 패턴</h4>
-              <p className="text-xs text-gray-600">
+            <div className="flex flex-col">
+              <h4 className="text-sm text-center px-6 font-medium mb-1">
+                매출 패턴
+              </h4>
+              <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
                 {predictSummary.sales_pattern}
               </p>
             </div>
           )}
 
           {predictSummary?.weekend_effect && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
-              <h4 className="text-sm font-medium mb-1">주말 효과</h4>
-              <p className="text-xs text-gray-600">
+            <div className="flex flex-col">
+              <h4 className="text-sm text-center px-6 font-medium mb-1">
+                주말 효과
+              </h4>
+              <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
                 {predictSummary.weekend_effect}
               </p>
             </div>
           )}
 
           {predictSummary?.recommendation && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
-              <h4 className="text-sm font-medium mb-1">추천 사항</h4>
-              <p className="text-xs text-gray-600">
+            <div className="flex flex-col">
+              <h4 className="text-sm text-center px-6 font-medium mb-1">
+                추천 사항
+              </h4>
+              <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
                 {predictSummary.recommendation}
               </p>
             </div>

@@ -44,11 +44,9 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
         />
       </div>
       <div className="mt-2 mb-2">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-base font-medium mb-2 text-comment">
-            데이터 분석
-          </h3>
-          <p className="text-sm text-comment-text">
+        {/* <h3 className="text-base font-medium mb-2 text-comment">차트 분석</h3> */}
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <p className="text-base text-comment">
             {truncateSummary(hourlySalesSummary)}
           </p>
         </div>
