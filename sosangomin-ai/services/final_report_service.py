@@ -135,11 +135,9 @@ class FinalReportService:
     async def extract_swot_from_response(self, response_text: str) -> Dict[str, Any]:
         """Claude API 응답에서 SWOT 분석 결과를 추출하여 JSON 형태로 반환"""
         try:
-            # JSON 형식 찾기 시도 - 패턴 강화
             matches = re.findall(r'```json\s*([\s\S]*?)\s*```', response_text)
             if matches:
                 try:
-                    # 로깅 추가
                     logger.debug(f"찾은 JSON 문자열 (처음 100자): {matches[0][:100]}...")
                     return json.loads(matches[0])
                 except json.JSONDecodeError as e:
@@ -170,7 +168,6 @@ class FinalReportService:
                             swot[key] = [item.strip() for item in items if item.strip()]
                             break
             
-            # 요약 추출
             summary_pattern = r'(?i)#{1,3}\s*요약.*?(?=#{1,3}\s*|$)'
             summary_matches = re.findall(summary_pattern, response_text, re.DOTALL)
             
@@ -395,7 +392,6 @@ class FinalReportService:
                             prompt += f"{day}({sales:,.0f}원) "
                     prompt += "\n"
                 
-                # 시간대별 매출 추가
                 time_period_sales = eda_results.get('result_data', {}).get('time_period_sales', {}).get('data', {})
                 if time_period_sales:
                     prompt += f"""
@@ -404,25 +400,22 @@ class FinalReportService:
                         prompt += f"{period}({sales:,.0f}원) "
                     prompt += "\n"
                 
-                # 상위 제품 추가
                 top_products = eda_results.get('result_data', {}).get('top_products', {}).get('data', {})
                 if top_products:
                     prompt += f"""
             - 상위 판매 제품: """
                     count = 0
                     for product, sales in top_products.items():
-                        if count < 3:  # 상위 3개 제품만 표시
+                        if count < 5:  # 상위 3개 제품만 표시
                             prompt += f"{product}({sales:,.0f}원) "
                             count += 1
                     prompt += "\n"
         
-        # 경쟁사 비교 분석 데이터 추가
         if "competitor_analysis" in results:
             comp_data = results["competitor_analysis"]
             insight = comp_data.get('comparison_insight', '')
             comparison = comp_data.get('comparison_data', {})
             
-            # 백슬래시 처리를 f-string 외부로 빼기
             cleaned_insight = insight.replace('\n', ' ').strip()[:300]
             
             prompt += f"""
