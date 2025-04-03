@@ -79,7 +79,7 @@ class EdaChatService:
             
             response = self.client.messages.create(
                 model="claude-3-5-haiku-20241022",
-                max_tokens=150, 
+                max_tokens=300, 
                 temperature=0.2,
                 system=self.system_prompt,
                 messages=[
