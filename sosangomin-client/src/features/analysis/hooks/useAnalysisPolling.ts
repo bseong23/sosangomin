@@ -1,7 +1,7 @@
 // features/analysis/hooks/useAnalysisPolling.ts
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getAnalysisResult } from "../api/analysisApi";
-import { AnalysisState, AnalysisResultData } from "../types/analysis";
+import { AnalysisState } from "../types/analysis";
 
 interface UseAnalysisPollingOptions {
   pollingInterval?: number; // 폴링 간격 (ms)
@@ -61,41 +61,20 @@ export const useAnalysisPolling = (
 
     const fetchAnalysisStatus = async () => {
       try {
-        if (attemptCountRef.current >= maxAttempts) {
-          setAnalysisState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: "분석 결과 확인 시간이 초과되었습니다"
-          }));
-          stopPolling(); // 여기서 호출하되, 의존성 배열에서 제거
-          return;
-        }
-
-        attemptCountRef.current += 1;
         const response = await getAnalysisResult(analysisId);
 
-        if ("error" in response && "message" in response) {
-          setAnalysisState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: response.error
-          }));
-          stopPolling();
-          return;
-        }
-
-        setAnalysisState({
-          data: response as AnalysisResultData,
-          isLoading: polling,
-          error: null
-        });
-
         if (response.status === "success" || response.status === "failed") {
+          // 즉시 로딩 상태 false로 변경
+          setAnalysisState({
+            data: response,
+            isLoading: false,
+            error: null
+          });
+
+          // 폴링 즉시 중지
           stopPolling();
           return;
         }
-
-        timeoutRef.current = setTimeout(fetchAnalysisStatus, pollingInterval);
       } catch (error) {
         setAnalysisState((prev) => ({
           ...prev,

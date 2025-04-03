@@ -12,11 +12,13 @@ import StrategySection from "./StrategySection";
 import AnalysisSelector from "./AnalysisSelector";
 import Loading from "@/components/common/Loading";
 import useAnalysisStore from "@/store/useAnalysisStore";
+import useStoreStore from "@/store/storeStore";
 
 const AnalysisDashboard: React.FC = () => {
-  // 매장 ID를 1로 고정 (추후 Zustand에서 관리하는 상태로 변경 가능)
-  const storeId = "1hGScLSIMYqWR9OwRajVxw";
   const { analysisId } = useParams<{ analysisId?: string }>();
+
+  // Zustand에서 대표 매장 정보 가져오기
+  const { representativeStore } = useStoreStore();
 
   // 스토어에서 상태와 액션 가져오기
   const {
@@ -27,28 +29,116 @@ const AnalysisDashboard: React.FC = () => {
     error,
     listError,
     fetchStoreAnalysisList,
-    fetchAnalysisResult
+    fetchAnalysisResult,
+    selectedAnalysisId: storeSelectedAnalysisId, // 스토어에서 선택된 분석 ID 가져오기
+    setSelectedAnalysisId, // 스토어의 선택된 분석 ID 설정 함수
+    debugState // 디버깅용 함수 추가
   } = useAnalysisStore();
 
-  // 현재 선택된 분석 ID 상태
-  const [selectedAnalysisId, setSelectedAnalysisId] = useState<
+  // 현재 선택된 분석 ID 상태 - URL 파라미터, 스토어 값, 로컬 상태 중 우선순위가 높은 값 사용
+  const [localSelectedAnalysisId, setLocalSelectedAnalysisId] = useState<
     string | undefined
-  >(analysisId);
+  >(analysisId || storeSelectedAnalysisId || undefined);
 
   // 변환된 분석 목록 및 선택된 분석 항목 상태
   const [displayAnalysisList, setDisplayAnalysisList] = useState<any[]>([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState<any | null>(null);
 
+  // 마운트 시 상태 로깅
+  useEffect(() => {
+    console.log("대시보드 마운트 시 분석 ID 정보:", {
+      storeSelectedAnalysisId,
+      urlParamAnalysisId: analysisId,
+      localSelectedAnalysisId
+    });
+
+    // 특별 디버깅: 스토어 상태도 체크
+    if (debugState) {
+      debugState();
+    }
+  }, [
+    storeSelectedAnalysisId,
+    analysisId,
+    localSelectedAnalysisId,
+    debugState
+  ]);
+
+  // 대표 매장이 없는 경우 처리
+  useEffect(() => {
+    if (!representativeStore) {
+      console.error("대표 매장이 선택되지 않았습니다.");
+      return;
+    }
+  }, [representativeStore]);
+
+  // URL 또는 스토어의 선택된 분석 ID가 변경되면 로컬 상태 업데이트
+  useEffect(() => {
+    // 우선순위: URL 파라미터 > 스토어 값 > 기존 로컬 값
+    const newSelectedId =
+      analysisId || storeSelectedAnalysisId || localSelectedAnalysisId;
+
+    if (newSelectedId && newSelectedId !== localSelectedAnalysisId) {
+      console.log(
+        `선택된 분석 ID 업데이트: ${localSelectedAnalysisId} -> ${newSelectedId}`
+      );
+      setLocalSelectedAnalysisId(newSelectedId);
+
+      // 스토어의 selectedAnalysisId도 동기화
+      if (newSelectedId !== storeSelectedAnalysisId) {
+        setSelectedAnalysisId(newSelectedId);
+      }
+
+      // 분석 결과가 없으면 해당 분석 결과 로드
+      if (
+        !currentAnalysis ||
+        (currentAnalysis._id !== newSelectedId &&
+          currentAnalysis.analysis_id !== newSelectedId &&
+          currentAnalysis.id !== newSelectedId)
+      ) {
+        console.log(`분석 ID ${newSelectedId}의 결과 로드 시도`);
+        fetchAnalysisResult(newSelectedId)
+          .then((success) => {
+            console.log(
+              `분석 결과 로드 ${success ? "성공" : "실패"}: ${newSelectedId}`
+            );
+          })
+          .catch((err) => {
+            console.error("분석 결과 로드 오류:", err);
+          });
+      }
+    }
+  }, [
+    storeSelectedAnalysisId,
+    analysisId,
+    localSelectedAnalysisId,
+    currentAnalysis,
+    setSelectedAnalysisId,
+    fetchAnalysisResult
+  ]);
+
   // 분석 목록 로드
   useEffect(() => {
-    if (!storeId) return;
+    if (!representativeStore?.store_id) return;
 
     const loadAnalysisList = async () => {
-      await fetchStoreAnalysisList(storeId);
+      console.log(
+        `매장 ID ${representativeStore.store_id}의 분석 목록 로드 시작`
+      );
+      const result = await fetchStoreAnalysisList(representativeStore.store_id);
+      console.log(
+        `매장 ID ${representativeStore.store_id}의 분석 목록 로드 ${
+          result ? "성공" : "실패"
+        }`
+      );
+
+      // 스토어 상태 로깅
+      if (debugState) {
+        debugState();
+      }
     };
 
     loadAnalysisList();
-  }, [storeId, fetchStoreAnalysisList]);
+  }, [representativeStore, fetchStoreAnalysisList, debugState]);
 
   // 분석 목록이 로드되면, 목록을 컴포넌트가 이해할 수 있는 형식으로 변환
   useEffect(() => {
@@ -59,55 +149,117 @@ const AnalysisDashboard: React.FC = () => {
       const convertedList = list.map((item: any) => ({
         analysis_id: item.analysisId || item.analysis_id,
         created_at: item.createdAt || item.created_at,
-        store_id: storeId,
+        store_id: representativeStore?.store_id,
         status: "success" // API에서 상태 정보가 없으면 success로 가정
       }));
 
       setDisplayAnalysisList(convertedList);
 
       // 선택된 분석 ID가 없으면 첫 번째 항목 선택
-      if (!selectedAnalysisId && convertedList.length > 0) {
+      if (!localSelectedAnalysisId && convertedList.length > 0) {
         const firstAnalysisId = convertedList[0].analysis_id;
-        setSelectedAnalysisId(firstAnalysisId);
+        console.log(`분석 목록에서 첫 번째 항목 선택: ${firstAnalysisId}`);
+        setLocalSelectedAnalysisId(firstAnalysisId);
+        setSelectedAnalysisId(firstAnalysisId); // 스토어에도 설정
         setSelectedAnalysis(convertedList[0]);
         fetchAnalysisResult(firstAnalysisId);
-      } else if (selectedAnalysisId) {
+      } else if (localSelectedAnalysisId) {
         // 선택된 분석이 있으면 해당 분석 정보 설정
         const selected = convertedList.find(
-          (item: any) => item.analysis_id === selectedAnalysisId
+          (item: any) => item.analysis_id === localSelectedAnalysisId
         );
         if (selected) {
           setSelectedAnalysis(selected);
-          fetchAnalysisResult(selectedAnalysisId);
+          fetchAnalysisResult(localSelectedAnalysisId);
+        } else {
+          console.warn(
+            `선택된 분석 ID ${localSelectedAnalysisId}를 목록에서 찾을 수 없음`
+          );
         }
       }
     }
-  }, [analysisList, selectedAnalysisId, fetchAnalysisResult, storeId]);
+  }, [
+    analysisList,
+    localSelectedAnalysisId,
+    fetchAnalysisResult,
+    representativeStore,
+    setSelectedAnalysisId
+  ]);
 
   useEffect(() => {
     console.log("analysisList:", analysisList);
     console.log("currentAnalysis:", currentAnalysis);
-  }, [analysisList, currentAnalysis]);
+    console.log("selectedAnalysisId:", localSelectedAnalysisId);
+
+    // 데이터 로딩이 끝났는데도 currentAnalysis가 없는 경우
+    if (!isLoading && !currentAnalysis && localSelectedAnalysisId) {
+      console.log(
+        `선택된 분석 ID ${localSelectedAnalysisId}가 있지만 분석 결과가 없음, 다시 로드 시도`
+      );
+      fetchAnalysisResult(localSelectedAnalysisId)
+        .then((success) => {
+          console.log(
+            `재시도 분석 결과 로드 ${
+              success ? "성공" : "실패"
+            }: ${localSelectedAnalysisId}`
+          );
+        })
+        .catch((err) => {
+          console.error("재시도 분석 결과 로드 오류:", err);
+        });
+    }
+  }, [
+    analysisList,
+    currentAnalysis,
+    localSelectedAnalysisId,
+    isLoading,
+    fetchAnalysisResult
+  ]);
+
   // 분석 선택 핸들러
   const handleAnalysisSelect = useCallback(
     (analysisId: string) => {
+      console.log(`사용자가 분석 ID ${analysisId}를 선택함`);
+
+      // 로컬 상태 업데이트
+      setLocalSelectedAnalysisId(analysisId);
+
+      // Zustand 스토어 상태 업데이트
       setSelectedAnalysisId(analysisId);
+
+      // 선택된 분석 항목 설정
       const selected = displayAnalysisList.find(
         (item) => item.analysis_id === analysisId
       );
       if (selected) {
         setSelectedAnalysis(selected);
+      } else {
+        console.warn(`선택한 분석 ID ${analysisId}를 목록에서 찾을 수 없음`);
       }
 
       // 분석 결과 가져오기
-      fetchAnalysisResult(analysisId);
+      console.log(`분석 ID ${analysisId}의 결과 로드 시도 (사용자 선택)`);
+      fetchAnalysisResult(analysisId)
+        .then((success) => {
+          console.log(
+            `분석 결과 로드 ${success ? "성공" : "실패"}: ${analysisId}`
+          );
+        })
+        .catch((err) => {
+          console.error("분석 결과 로드 오류:", err);
+        });
     },
-    [displayAnalysisList, fetchAnalysisResult]
+    [displayAnalysisList, fetchAnalysisResult, setSelectedAnalysisId]
   );
 
   // 통합 로딩 상태
   const isLoadingData = isLoading || isLoadingList;
   const anyError = error || listError;
+
+  // 대표 매장이 없는 경우 로딩 화면 표시
+  if (!representativeStore) {
+    return <div className="text-center py-10">대표 매장을 선택해주세요.</div>;
+  }
 
   if (isLoadingData) return <Loading />;
   if (anyError)
@@ -160,14 +312,16 @@ const AnalysisDashboard: React.FC = () => {
     <div>
       <div className="max-w-[1200px] mx-auto p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-2xl font-bold text-comment">지금 우리 가게는?</h1>
+          <h1 className="text-2xl font-bold text-comment">
+            {representativeStore.store_name} 매장 분석
+          </h1>
 
           {/* 분석 선택기 - API에서 로드된 분석 목록 전달 */}
           <div className="flex items-center">
             <AnalysisSelector
-              storeId={Number(storeId)}
+              storeId={representativeStore.store_id}
               analysisList={displayAnalysisList}
-              currentAnalysisId={selectedAnalysisId}
+              currentAnalysisId={localSelectedAnalysisId}
               selectedAnalysis={selectedAnalysis}
               onAnalysisSelect={handleAnalysisSelect}
             />

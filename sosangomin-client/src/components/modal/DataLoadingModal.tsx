@@ -34,8 +34,7 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     quizEnded,
     showCompletionNotice,
     analysisCompleted,
-    // isModalOpen, // 모달 상태 추가
-    closeModal, // 모달 닫기 액션 추가
+    closeModal,
 
     initGame,
     selectOption,
@@ -119,17 +118,24 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     analysisId
   ]);
 
-  // 로딩 상태 변경 감지
+  // 로딩 상태 변경 감지 및 자동 상태 업데이트
   useEffect(() => {
     // 이전에 로딩 중이었고 현재 로딩이 완료되었을 때
     if (prevIsLoadingRef.current && !isLoading) {
+      console.log("로딩 상태 변경 감지: 로딩 완료됨");
       // 로딩 완료 알림 표시 - Zustand 액션 사용
       completeLoading();
+
+      // 로딩이 끝난 후에도 분석 완료 상태가 설정되지 않았다면 여기서 설정
+      if (!analysisCompleted) {
+        console.log("분석 완료 상태 설정");
+        setAnalysisCompleted(true);
+      }
     }
 
     // 이전 로딩 상태 업데이트
     prevIsLoadingRef.current = isLoading;
-  }, [isLoading, completeLoading]);
+  }, [isLoading, completeLoading, analysisCompleted, setAnalysisCompleted]);
 
   // 옵션 선택 처리
   const handleOptionSelect = (optionIndex: number) => {
@@ -159,11 +165,48 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     }
   }, [gameActive, selectedQuizzes.length, initGame]);
 
+  // 분석 완료 상태 변경 감지
+  useEffect(() => {
+    if (analysisCompleted && isOpen && !isLoading) {
+      console.log("분석 완료 상태 변경됨, UI 업데이트");
+      // 명시적으로 로딩 완료 상태 설정
+      completeLoading();
+    }
+  }, [analysisCompleted, isOpen, isLoading, completeLoading]);
+
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    if (!isLoading) {
+      // 분석이 완료된 상태인지 확인하고, 아니라면 설정
+      if (!analysisCompleted) {
+        setAnalysisCompleted(true);
+      }
+
+      // 모달 닫기 콜백 호출
+      onLoadingComplete();
+
+      // 명시적으로 모달 닫기 상태 설정
+      closeModal();
+    }
+  };
+
   if (!isOpen) return null;
+
+  // 디버깅 정보 - 개발용
+  console.log("모달 상태:", {
+    isOpen,
+    isLoading,
+    analysisCompleted,
+    showCompletionNotice
+  });
 
   // 분석 완료 시 메인 화면 (퀴즈 없이)
   const renderCompletionScreen = () => {
-    if (!isLoading && showCompletionNotice && !gameActive) {
+    // analysisCompleted 상태가 우선 (더 신뢰할 수 있는 상태)
+    if (
+      (!isLoading && analysisCompleted) ||
+      (!isLoading && showCompletionNotice && !gameActive)
+    ) {
       return (
         <div className="text-center p-5">
           <div className="flex justify-center mb-4">
@@ -207,16 +250,6 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     return null;
   };
 
-  // 모달 닫기 핸들러
-  const handleCloseModal = () => {
-    if (!isLoading) {
-      // 모달 닫기 콜백 호출
-      onLoadingComplete();
-      // 명시적으로 모달 닫기 상태 설정
-      closeModal();
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden relative">
@@ -236,12 +269,12 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
             {/* 상단 상태 표시 */}
             <div
               className={`p-3 text-center ${
-                !isLoading && showCompletionNotice
+                !isLoading && (analysisCompleted || showCompletionNotice)
                   ? "bg-green-100"
                   : "bg-blue-50"
               }`}
             >
-              {!isLoading && showCompletionNotice ? (
+              {!isLoading && (analysisCompleted || showCompletionNotice) ? (
                 <p className="text-green-800 font-medium">
                   데이터 분석이 완료되었습니다!
                 </p>
@@ -269,25 +302,27 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
               </div>
             )}
 
-            {/* 분석 완료되었지만 아직 퀴즈가 진행 중이지 않을 때 (새로 추가) */}
-            {!isLoading && showCompletionNotice && !gameActive && (
-              <div className="p-4 text-center">
-                <div className="flex justify-between mt-4">
-                  <button
-                    onClick={handleViewResults}
-                    className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors mr-2"
-                  >
-                    결과 보기
-                  </button>
-                  <button
-                    onClick={handleContinueQuiz}
-                    className="flex-1 bg-bit-main text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors ml-2"
-                  >
-                    퀴즈 풀어보기
-                  </button>
+            {/* 분석 완료되었지만 아직 퀴즈가 진행 중이지 않을 때 */}
+            {!isLoading &&
+              (analysisCompleted || showCompletionNotice) &&
+              !gameActive && (
+                <div className="p-4 text-center">
+                  <div className="flex justify-between mt-4">
+                    <button
+                      onClick={handleViewResults}
+                      className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors mr-2"
+                    >
+                      결과 보기
+                    </button>
+                    <button
+                      onClick={handleContinueQuiz}
+                      className="flex-1 bg-bit-main text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors ml-2"
+                    >
+                      퀴즈 풀어보기
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* 퀴즈 섹션 */}
             {gameActive && (
@@ -332,14 +367,15 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                         다시 도전하기
                       </button>
 
-                      {!isLoading && (
-                        <button
-                          onClick={handleViewResults}
-                          className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
-                        >
-                          분석 결과 보기
-                        </button>
-                      )}
+                      {!isLoading &&
+                        (analysisCompleted || showCompletionNotice) && (
+                          <button
+                            onClick={handleViewResults}
+                            className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
+                          >
+                            분석 결과 보기
+                          </button>
+                        )}
                     </div>
                   </div>
                 ) : (
@@ -422,14 +458,15 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                               : "결과 보기"}
                           </button>
 
-                          {!isLoading && (
-                            <button
-                              onClick={handleViewResults}
-                              className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
-                            >
-                              결과 보기
-                            </button>
-                          )}
+                          {!isLoading &&
+                            (analysisCompleted || showCompletionNotice) && (
+                              <button
+                                onClick={handleViewResults}
+                                className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
+                              >
+                                결과 보기
+                              </button>
+                            )}
                         </div>
                       </div>
                     )}
