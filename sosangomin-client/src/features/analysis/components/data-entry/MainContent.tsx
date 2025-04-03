@@ -35,7 +35,11 @@ const MainContent: React.FC = () => {
   } = useFileModalStore();
 
   // 분석 스토어에서 액션 가져오기
-  const { requestAnalysis: saveAnalysisToStore } = useAnalysisStore();
+  const {
+    requestAnalysis: saveAnalysisToStore,
+    setSelectedAnalysisId,
+    fetchAnalysisResult
+  } = useAnalysisStore();
 
   // 파일 업로드 훅 사용
   const {
@@ -97,29 +101,37 @@ const MainContent: React.FC = () => {
         // 로딩 상태 업데이트
         completeLoading();
 
-        // 모달을 명시적으로 열림 상태로 유지
+        // 분석 완료 상태를 즉시, 명시적으로 설정
+        setAnalysisCompleted(false);
+
+        // 모달을 즉시 결과 상태로 변경
         openModal();
 
-        if (status === "success") {
-          console.log("분석 완료:", pollingAnalysisState.data);
+        // 중요: 폴링 중지
+        stopPolling();
 
-          // 새로운 코드: 분석 결과를 Zustand 스토어에 저장
-          // API 응답을 분석 스토어가 이해할 수 있는 형태로 변환해야 할 수 있음
+        // 추가: 분석 결과 즉시 스토어에 저장
+        if (status === "success") {
+          saveAnalysisToStore({
+            store_id: representativeStore?.store_id || "",
+            source_ids: [],
+            pos_type: representativeStore?.pos_type || "",
+            analysis_result: pollingAnalysisState.data
+          });
+
+          // 현재 분석 결과를 즉시 선택된 상태로 설정
+          const analysisId =
+            pollingAnalysisState.data.analysis_id ||
+            pollingAnalysisState.data._id ||
+            pollingAnalysisState.data.id;
+
           if (analysisId) {
-            // 분석 ID와 함께 결과 데이터를 스토어에 저장
-            // 이 함수는 내부적으로 캐시에도 저장함
-            saveAnalysisToStore({
-              store_id:
-                typeof representativeStore?.store_id === "string"
-                  ? representativeStore.store_id
-                  : "",
-              source_ids: [], // 이미 분석이 완료되었으므로 여기서는 빈 배열
-              pos_type: representativeStore?.pos_type || "",
-              analysis_result: pollingAnalysisState.data // 폴링 결과를 그대로 전달
-            });
+            // 선택된 분석 ID 즉시 업데이트
+            setSelectedAnalysisId(analysisId);
+
+            // 분석 결과 즉시 로드
+            fetchAnalysisResult(analysisId);
           }
-        } else {
-          console.error("분석 실패:", pollingAnalysisState.error);
         }
       }
     }
@@ -127,9 +139,11 @@ const MainContent: React.FC = () => {
     pollingAnalysisState,
     completeLoading,
     openModal,
-    analysisId,
     representativeStore,
-    saveAnalysisToStore
+    saveAnalysisToStore,
+    setSelectedAnalysisId,
+    fetchAnalysisResult,
+    stopPolling
   ]);
 
   // 컴포넌트 마운트 시 스토어 ID 설정 확인
@@ -208,6 +222,9 @@ const MainContent: React.FC = () => {
       return;
     }
 
+    // 분석 완료 상태 초기화 (추가)
+    setAnalysisCompleted(false);
+
     // 유효한 스토어 ID 가져오기
     const storeId = getValidStoreId(representativeStore);
     if (!storeId) {
@@ -259,23 +276,24 @@ const MainContent: React.FC = () => {
       // 분석 요청 로깅
       console.log("분석 요청 파라미터:", JSON.stringify(analysisRequest));
 
-      // 3. 분석 요청 보내기
-      const result = await requestAnalysis(analysisRequest);
+      // 3. 분석 요청 보내기 - 직접 ID 받기
+      const analysisIdResult = await requestAnalysis(analysisRequest);
+      console.log("분석 요청에서 받은 ID:", analysisIdResult);
 
-      if (!result) {
-        console.error("분석 요청 실패");
+      if (analysisIdResult) {
+        // 분석 ID 설정 (로컬 상태)
+        setAnalysisId(analysisIdResult);
+
+        // Zustand 스토어의 selectedAnalysisId도 바로 업데이트
+        setSelectedAnalysisId(analysisIdResult);
+        console.log(`초기 분석 ID ${analysisIdResult}가 설정되었습니다.`);
+
+        // 분석 상태 폴링 시작
+        startPolling();
+      } else {
+        console.error("분석 요청에서 ID를 받지 못함");
         setLoading(false);
         return;
-      }
-
-      // 4. 분석 ID 저장 및 폴링 시작
-      const newAnalysisId = analysisState.data?.analysis_id;
-      if (newAnalysisId) {
-        setAnalysisId(newAnalysisId);
-        startPolling(); // 분석 상태 폴링 시작
-      } else {
-        console.error("분석 ID를 받지 못했습니다");
-        setLoading(false);
       }
     } catch (error) {
       console.error("분석 프로세스 중 오류 발생:", error);

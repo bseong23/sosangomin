@@ -36,7 +36,8 @@ export const useAnalysis = () => {
    * 분석 요청 함수
    */
   const requestAnalysis = useCallback(
-    async (params: AnalysisRequest): Promise<boolean> => {
+    async (params: AnalysisRequest): Promise<string | null> => {
+      // 반환 타입 변경
       setAnalysisState((prev) => ({
         ...prev,
         isLoading: true,
@@ -45,6 +46,7 @@ export const useAnalysis = () => {
 
       try {
         const response = await performAnalysis(params);
+        console.log("API 응답 전체:", response);
 
         if ("error" in response && "message" in response) {
           setAnalysisState((prev) => ({
@@ -52,19 +54,29 @@ export const useAnalysis = () => {
             isLoading: false,
             error: response.error
           }));
-          return false;
+          return null;
         }
 
-        // API 응답에서 데이터 추출 및 형식 변환
-        const analysisResult = response.analysis_result;
+        // 루트 레벨에서 analysis_id 직접 추출
+        const analysisId = response.analysis_id;
+        console.log("응답에서 추출한 분석 ID:", analysisId);
+
+        // 응답 구조 확인용 로깅
+        console.log("응답 구조:", {
+          hasAnalysisId: !!response.analysis_id,
+          hasAnalysisResult: !!response.analysis_result,
+          analysisId: response.analysis_id
+        });
 
         // 컴포넌트가 기대하는 형식으로 데이터 구조화
         const formattedData = {
-          result_data: analysisResult?.eda_result?.result_data || {},
-          summary: analysisResult?.eda_result?.summary || "",
-          analysis_id: analysisResult?._id,
-          created_at: analysisResult?.created_at,
-          status: analysisResult?.status
+          result_data: response.eda_results?.result_data || {},
+          summary: response.eda_results?.summary || "",
+          analysis_id: analysisId,
+          _id: analysisId,
+          id: analysisId,
+          created_at: response.created_at,
+          status: response.status
         };
 
         setAnalysisState({
@@ -72,14 +84,17 @@ export const useAnalysis = () => {
           isLoading: false,
           error: null
         });
-        return true;
+
+        // 분석 ID 반환
+        return analysisId;
       } catch (error) {
+        console.error("분석 요청 중 오류:", error);
         setAnalysisState((prev) => ({
           ...prev,
           isLoading: false,
           error: "분석 요청 중 예기치 않은 오류가 발생했습니다"
         }));
-        return false;
+        return null;
       }
     },
     []
