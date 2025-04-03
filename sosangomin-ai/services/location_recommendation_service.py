@@ -7,13 +7,13 @@ from db_models import Population, Facilities, SalesData, RentInfo, StoreCategori
 from sklearn.preprocessing import MinMaxScaler
 from typing import List
 import logging
+from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 
 class LocationRecomService:
     def __init__(self):
         logger.info("LocationRecomService 초기화 완료")
-        self.db = database_instance.pre_session()
 
         base_dir = os.path.dirname(os.path.abspath(__file__))
         json_dir = os.path.join(base_dir, "..", "data")
@@ -23,184 +23,200 @@ class LocationRecomService:
 
     def prepare_initial_heatmap_data(self) -> pd.DataFrame:
         """상권분석 페이지 초기 히트맵을 위한 데이터 처리"""
-        # 1. 인구 정보
-        pop_rows = self.db.query(Population).all()
-        pop_data = []
-        for row in pop_rows:
-            try:    
-                pop_data.append({
-                    "행정동명": row.region_name,
-                    "유동인구": row.tot_fpop or 0,
-                    "직장인구": row.tot_wrpop or 0,
-                    "거주인구": row.tot_repop or 0
-                })
-            except Exception as e:
-                logger.warning(f"히트맵 인구 데이터 처리 오류: {e}")
+        db = database_instance.pre_session()
+        try:
+            # 1. 인구 정보
+            pop_rows = self.db.query(Population).all()
+            pop_data = []
+            for row in pop_rows:
+                try:    
+                    pop_data.append({
+                        "행정동명": row.region_name,
+                        "유동인구": row.tot_fpop or 0,
+                        "직장인구": row.tot_wrpop or 0,
+                        "거주인구": row.tot_repop or 0
+                    })
+                except Exception as e:
+                    logger.warning(f"히트맵 인구 데이터 처리 오류: {e}")
 
-        df_pop = pd.DataFrame(pop_data)
+            df_pop = pd.DataFrame(pop_data)
 
-        # 2. 점포 수 정보
-        latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
-        store_rows = self.db.query(StoreCategories).filter(
-            StoreCategories.year == latest_store.year,
-            StoreCategories.quarter == latest_store.quarter,
-            StoreCategories.main_category == "외식업"
-        ).all()
+            # 2. 점포 수 정보
+            latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
+            store_rows = self.db.query(StoreCategories).filter(
+                StoreCategories.year == latest_store.year,
+                StoreCategories.quarter == latest_store.quarter,
+                StoreCategories.main_category == "외식업"
+            ).all()
 
-        store_data = [
-            {
-                'region_name': row.region_name,
-                'store_count': row.store_count,
-                'open_rate': row.open_rate,
-                'close_rate': row.close_rate
-            }
-            for row in store_rows
-        ]
+            store_data = [
+                {
+                    'region_name': row.region_name,
+                    'store_count': row.store_count,
+                    'open_rate': row.open_rate,
+                    'close_rate': row.close_rate
+                }
+                for row in store_rows
+            ]
 
-        df_sales = pd.DataFrame(store_data)
+            df_sales = pd.DataFrame(store_data)
 
-        # 행정동 단위로 계산
-        df_sales_group = df_sales.groupby('region_name').agg({
-                'store_count': 'sum',
-                'open_rate': 'mean',
-                'close_rate': 'mean'
-            }).reset_index()
-        df_sales_group.columns = ['행정동명', '총 업소 수', '평균 개업률', '평균 폐업률']
-        df_sales_group['평균 개업률'] = df_sales_group['평균 개업률'].round(2)
-        df_sales_group['평균 폐업률'] = df_sales_group['평균 폐업률'].round(2)
+            # 행정동 단위로 계산
+            df_sales_group = df_sales.groupby('region_name').agg({
+                    'store_count': 'sum',
+                    'open_rate': 'mean',
+                    'close_rate': 'mean'
+                }).reset_index()
+            df_sales_group.columns = ['행정동명', '총 업소 수', '평균 개업률', '평균 폐업률']
+            df_sales_group['평균 개업률'] = df_sales_group['평균 개업률'].round(2)
+            df_sales_group['평균 폐업률'] = df_sales_group['평균 폐업률'].round(2)
 
-        merged = df_pop.merge(df_sales_group, on="행정동명", how="left")
-        merged = merged.fillna(0)
-        result = merged.to_dict(orient="records")
-        return result
+            merged = df_pop.merge(df_sales_group, on="행정동명", how="left")
+            merged = merged.fillna(0)
+            result = merged.to_dict(orient="records")
+            return result
+        except Exception as e:
+            db.rollback()
+            logger.error(f'히트맵 데이터 처리 중 오류: {e}')
+            raise HTTPException(status_code=401)
+        finally:
+            db.close()
 
     def get_integrated_location_dataframe(self, target_age: str, industry_name: str) -> pd.DataFrame:
         """입지추천을 위한 데이터 병합 수행(타겟연령, 업종 반영)"""
-        # 1. 인구 정보
-        pop_rows = self.db.query(Population).all()
-        pop_data = []
-        for row in pop_rows:
-            try:
-                total_pop = (row.tot_fpop or 0) + (row.tot_wrpop or 0) + (row.tot_repop or 0)
-                target_total = (
-                    (getattr(row, f"female_{target_age}_fpop", 0) or 0) + (getattr(row, f"male_{target_age}_fpop", 0) or 0) +
-                    (getattr(row, f"female_{target_age}_repop", 0) or 0) + (getattr(row, f"male_{target_age}_repop", 0) or 0) +
-                    (getattr(row, f"female_{target_age}_wrpop", 0) or 0) + (getattr(row, f"male_{target_age}_wrpop", 0) or 0)
-                )
-                target_ratio = target_total / total_pop if total_pop else 0
-                pop_data.append({
+        db = database_instance.pre_session()
+        try:
+            # 1. 인구 정보
+            pop_rows = self.db.query(Population).all()
+            pop_data = []
+            for row in pop_rows:
+                try:
+                    total_pop = (row.tot_fpop or 0) + (row.tot_wrpop or 0) + (row.tot_repop or 0)
+                    target_total = (
+                        (getattr(row, f"female_{target_age}_fpop", 0) or 0) + (getattr(row, f"male_{target_age}_fpop", 0) or 0) +
+                        (getattr(row, f"female_{target_age}_repop", 0) or 0) + (getattr(row, f"male_{target_age}_repop", 0) or 0) +
+                        (getattr(row, f"female_{target_age}_wrpop", 0) or 0) + (getattr(row, f"male_{target_age}_wrpop", 0) or 0)
+                    )
+                    target_ratio = target_total / total_pop if total_pop else 0
+                    pop_data.append({
+                        "행정동명": row.region_name,
+                        f"타겟연령_비율": target_ratio,
+                        f"타겟연령_수": target_total,
+                        "유동인구": row.tot_fpop or 0,
+                        "직장인구": row.tot_wrpop or 0,
+                        "거주인구": row.tot_repop or 0
+                    })
+                except Exception as e:
+                    logger.warning(f"입지추천 인구 데이터 처리 오류: {e}")
+
+            df_pop = pd.DataFrame(pop_data)
+
+            # 2. 시설 정보 - 가장 최근 연도/분기 데이터만 사용
+            latest_facility = self.db.query(Facilities.year, Facilities.quarter).order_by(Facilities.year.desc(), Facilities.quarter.desc()).limit(1).first()
+            facility_rows = self.db.query(Facilities).filter(
+                Facilities.year == latest_facility.year,
+                Facilities.quarter == latest_facility.quarter
+            ).all()
+            facility_data = [
+                {
                     "행정동명": row.region_name,
-                    f"타겟연령_비율": target_ratio,
-                    f"타겟연령_수": target_total,
-                    "유동인구": row.tot_fpop or 0,
-                    "직장인구": row.tot_wrpop or 0,
-                    "거주인구": row.tot_repop or 0
+                    "접근성_합": (
+                        (row.arprt_co or 0) + (row.rlroad_statn_co or 0) +
+                        (row.bus_trminl_co or 0) + (row.subway_statn_co or 0) + (row.bus_sttn_co or 0)
+                    ),
+                    "집객시설": row.viatr_fclty_co or 0
+                }
+                for row in facility_rows
+            ]
+            df_facility = pd.DataFrame(facility_data)
+
+            # 3. 매출 정보 - 최신 연도/분기 기준
+            latest_sales = self.db.query(SalesData.year, SalesData.quarter).order_by(SalesData.year.desc(), SalesData.quarter.desc()).first()
+            sales_rows = self.db.query(SalesData).filter(
+                SalesData.year == latest_sales.year,
+                SalesData.quarter == latest_sales.quarter,
+                SalesData.industry_name == industry_name
+            ).all()
+
+            # 4. 점포 수 정보 - 최신 기준
+            latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
+            storecat_rows = self.db.query(StoreCategories).filter(
+                StoreCategories.year == latest_store.year,
+                StoreCategories.quarter == latest_store.quarter,
+                StoreCategories.industry_name == industry_name
+            ).all()
+            storecat_dict = {row.region_name: row.store_count or 0 for row in storecat_rows}
+
+            sales_data = []
+            for row in sales_rows:
+                store_count = storecat_dict.get(row.region_name, 0)
+                avg_sales = (row.sales_amount / store_count) if store_count else 0
+                sales_data.append({
+                    "행정동명": row.region_name,
+                    "업종_평균_매출": avg_sales
                 })
-            except Exception as e:
-                logger.warning(f"입지추천 인구 데이터 처리 오류: {e}")
+            df_sales = pd.DataFrame(sales_data)
 
-        df_pop = pd.DataFrame(pop_data)
+            storecat_data = [
+                {"행정동명": row.region_name, 
+                "동일업종_수": row.store_count or 0}
+                for row in storecat_rows
+            ]
+            df_storecat = pd.DataFrame(storecat_data)
 
-        # 2. 시설 정보 - 가장 최근 연도/분기 데이터만 사용
-        latest_facility = self.db.query(Facilities.year, Facilities.quarter).order_by(Facilities.year.desc(), Facilities.quarter.desc()).limit(1).first()
-        facility_rows = self.db.query(Facilities).filter(
-            Facilities.year == latest_facility.year,
-            Facilities.quarter == latest_facility.quarter
-        ).all()
-        facility_data = [
-            {
-                "행정동명": row.region_name,
-                "접근성_합": (
-                    (row.arprt_co or 0) + (row.rlroad_statn_co or 0) +
-                    (row.bus_trminl_co or 0) + (row.subway_statn_co or 0) + (row.bus_sttn_co or 0)
-                ),
-                "집객시설": row.viatr_fclty_co or 0
-            }
-            for row in facility_rows
-        ]
-        df_facility = pd.DataFrame(facility_data)
+            # 5. 임대료 
+            latest_rent = self.db.query(RentInfo.STRD_YR_CD, RentInfo.STRD_QTR_CD).order_by(RentInfo.STRD_YR_CD.desc(), RentInfo.STRD_QTR_CD.desc()).first()
+            rent_rows = self.db.query(RentInfo).filter(
+                RentInfo.STRD_YR_CD == latest_rent.STRD_YR_CD,
+                RentInfo.STRD_QTR_CD == latest_rent.STRD_QTR_CD,
+                RentInfo.LET_CURPRC_FLR_CLSF_CD_NM == "전체층"
+            ).all()
+            rent_data = [
+                {"행정동명": row.ADSTRD_CD_NM, "임대료": row.EXCHE_RENTCG_AVE or 0}
+                for row in rent_rows
+            ]
+            df_rent = pd.DataFrame(rent_data)
 
-        # 3. 매출 정보 - 최신 연도/분기 기준
-        latest_sales = self.db.query(SalesData.year, SalesData.quarter).order_by(SalesData.year.desc(), SalesData.quarter.desc()).first()
-        sales_rows = self.db.query(SalesData).filter(
-            SalesData.year == latest_sales.year,
-            SalesData.quarter == latest_sales.quarter,
-            SalesData.industry_name == industry_name
-        ).all()
-
-        # 4. 점포 수 정보 - 최신 기준
-        latest_store = self.db.query(StoreCategories.year, StoreCategories.quarter).order_by(StoreCategories.year.desc(), StoreCategories.quarter.desc()).first()
-        storecat_rows = self.db.query(StoreCategories).filter(
-            StoreCategories.year == latest_store.year,
-            StoreCategories.quarter == latest_store.quarter,
-            StoreCategories.industry_name == industry_name
-        ).all()
-        storecat_dict = {row.region_name: row.store_count or 0 for row in storecat_rows}
-
-        sales_data = []
-        for row in sales_rows:
-            store_count = storecat_dict.get(row.region_name, 0)
-            avg_sales = (row.sales_amount / store_count) if store_count else 0
-            sales_data.append({
-                "행정동명": row.region_name,
-                "업종_평균_매출": avg_sales
-            })
-        df_sales = pd.DataFrame(sales_data)
-
-        storecat_data = [
-            {"행정동명": row.region_name, 
-             "동일업종_수": row.store_count or 0}
-            for row in storecat_rows
-        ]
-        df_storecat = pd.DataFrame(storecat_data)
-
-        # 5. 임대료 
-        latest_rent = self.db.query(RentInfo.STRD_YR_CD, RentInfo.STRD_QTR_CD).order_by(RentInfo.STRD_YR_CD.desc(), RentInfo.STRD_QTR_CD.desc()).first()
-        rent_rows = self.db.query(RentInfo).filter(
-            RentInfo.STRD_YR_CD == latest_rent.STRD_YR_CD,
-            RentInfo.STRD_QTR_CD == latest_rent.STRD_QTR_CD,
-            RentInfo.LET_CURPRC_FLR_CLSF_CD_NM == "전체층"
-        ).all()
-        rent_data = [
-            {"행정동명": row.ADSTRD_CD_NM, "임대료": row.EXCHE_RENTCG_AVE or 0}
-            for row in rent_rows
-        ]
-        df_rent = pd.DataFrame(rent_data)
-
-        merged = df_pop.merge(df_facility, on="행정동명", how="left")
-        merged = merged.merge(df_sales, on="행정동명", how="left")
-        merged = merged.merge(df_storecat, on="행정동명", how="left")
-        merged = merged.merge(df_rent, on="행정동명", how="left")
-        merged['면적(㎢)'] = pd.to_numeric(merged['행정동명'].map(self.area_data))
+            merged = df_pop.merge(df_facility, on="행정동명", how="left")
+            merged = merged.merge(df_sales, on="행정동명", how="left")
+            merged = merged.merge(df_storecat, on="행정동명", how="left")
+            merged = merged.merge(df_rent, on="행정동명", how="left")
+            merged['면적(㎢)'] = pd.to_numeric(merged['행정동명'].map(self.area_data))
 
 
-        merged_unique = merged.groupby("행정동명").agg({
-            "타겟연령_비율": "mean",
-            "타겟연령_수": "mean",
-            "업종_평균_매출": "mean",
-            "임대료": "mean",
-            "유동인구": "mean",
-            "직장인구": "mean",
-            "거주인구": "mean",
-            "동일업종_수": "mean",
-            "집객시설": "mean",
-            "접근성_합": "mean",
-            "면적(㎢)": "mean" 
-        }).reset_index()
+            merged_unique = merged.groupby("행정동명").agg({
+                "타겟연령_비율": "mean",
+                "타겟연령_수": "mean",
+                "업종_평균_매출": "mean",
+                "임대료": "mean",
+                "유동인구": "mean",
+                "직장인구": "mean",
+                "거주인구": "mean",
+                "동일업종_수": "mean",
+                "집객시설": "mean",
+                "접근성_합": "mean",
+                "면적(㎢)": "mean" 
+            }).reset_index()
 
-        for col in ["유동인구", "직장인구", "거주인구", "동일업종_수", "집객시설", "접근성_합"]:
-            if col in merged_unique.columns:
-                merged_unique[f"{col}(면적당)"] = merged_unique[col] / merged_unique["면적(㎢)"]
-        merged_unique.rename(columns={"접근성_합(면적당)": "접근성"}, inplace=True)
-        merged_unique = merged_unique.drop(columns=["면적(㎢)", "유동인구", "직장인구", "거주인구", "동일업종_수", "집객시설", "접근성_합"], errors="ignore")
+            for col in ["유동인구", "직장인구", "거주인구", "동일업종_수", "집객시설", "접근성_합"]:
+                if col in merged_unique.columns:
+                    merged_unique[f"{col}(면적당)"] = merged_unique[col] / merged_unique["면적(㎢)"]
+            merged_unique.rename(columns={"접근성_합(면적당)": "접근성"}, inplace=True)
+            merged_unique = merged_unique.drop(columns=["면적(㎢)", "유동인구", "직장인구", "거주인구", "동일업종_수", "집객시설", "접근성_합"], errors="ignore")
 
-        # print("======================")
-        # print("merged_unique")
-        # print(merged_unique["행정동명"].nunique())
-        # print("======================")
+            # print("======================")
+            # print("merged_unique")
+            # print(merged_unique["행정동명"].nunique())
+            # print("======================")
 
-        return merged_unique.fillna(0)
-
+            return merged_unique.fillna(0)
+        
+        except Exception as e:
+            db.rollback()
+            logger.error(f'데이터 병합 중 오류: {e}')
+            raise HTTPException(status_code=401)
+        finally:
+            db.close()
 
     def calculate_location_scores(self, df: pd.DataFrame, priority: List[str]) -> pd.DataFrame:
         "입지추천을 위한 행정동별 점수 계산"

@@ -31,7 +31,6 @@ def recommend_location(
     priority: List[str] = Body(..., description="우선순위 리스트 (예: ['타겟연령', '유동인구', '임대료'])"),
     top_n: int = Body(3, description="추천받을 상위 행정동 개수")
 ):
-    db = database_instance.pre_session()
     try:
         result = location_recommendation_service.recommend_location(
                 user_input={
@@ -45,8 +44,6 @@ def recommend_location(
     except Exception as e:
         logger.error(f"입지 추천 중 오류 발생: {e}")
         raise HTTPException(status_code=500, detail="입지 추천 중 오류가 발생했습니다.")
-    finally:
-        db.close()
 
 @router.post("/map")
 def recommend_map_locations(
@@ -55,7 +52,6 @@ def recommend_map_locations(
     priority: List[str] = Body(..., description="우선순위 리스트 (예: ['타겟연령', '유동인구', '임대료'])"),
     top_n: int = Body(3, description="추천받을 상위 행정동 개수")
 ):
-    db = database_instance.pre_session()
     try:
         result = location_recommendation_service.recommend_location(
                 user_input={
@@ -69,8 +65,7 @@ def recommend_map_locations(
     except Exception as e:
         logger.error(f"입지 등급 맵 호출 중 오류 발생: {e}")
         raise HTTPException(status_code=500, detail="입지 등급 맵 호출 중 오류가 발생했습니다.")
-    finally:
-        db.close()
+
 
 # 테스트 전용 실행 
 # PYTHON=. python -m routers.location_recommendation_router
