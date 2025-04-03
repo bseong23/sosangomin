@@ -65,6 +65,7 @@ services:
       - TRADE_AREA_CHANGE_KEY=${TRADE_AREA_CHANGE_KEY}
       - SALES_API_KEY=${SALES_API_KEY}
       - NTS_SERVICE_KEY=${NTS_SERVICE_KEY}
+      - FACILITY_API_KEY=${FACILITY_API_KEY}
     networks:
       - sosangomin-network
 
