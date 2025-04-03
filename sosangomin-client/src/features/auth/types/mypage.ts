@@ -12,6 +12,7 @@ export interface StoreInfo {
   category: string;
   pos_type: string;
   place_id: string;
+  analysis_id: string;
 }
 
 export interface StoreProps {
