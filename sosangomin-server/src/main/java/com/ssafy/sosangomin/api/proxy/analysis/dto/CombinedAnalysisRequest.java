@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record CombinedAnalysisRequest(
-        @Schema(description = "매장 ID", required = true, example = "1")
+        @Schema(description = "매장 ID", required = true, example = "abcd1234efghi")
         @JsonProperty("store_id")
         String storeId,
 
