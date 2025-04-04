@@ -5,9 +5,9 @@ import {
   getCompetitorComparisons
 } from "@/features/competitor/api/competitorApi";
 import { ComparisonData } from "@/features/competitor/types/competitor";
-import CompetitorReportSection from "@/features/competitor/components/CompetitorReportSection";
 import { getCompetitorComparisonResult } from "@/features/competitor/api/competitorApi";
 import SearchableMapModal from "@/features/competitor/components/SearchableMapModel";
+import ImprovedCompetitorReportSection from "@/features/competitor/components/ImprovedCompetitorReportSection";
 
 // ✅ 새 타입 정의
 interface CompetitorComparisonSummaryWithData {
@@ -165,12 +165,21 @@ const ReviewCompare: React.FC = () => {
     }
   };
 
-  const formatDateKorean = (dateString: string) => {
+  // 날짜 포맷팅 함수 - 한국 시간(UTC+9)으로 변환하여 표시
+  const formatDateKorean = (dateString: string): string => {
     const date = new Date(dateString);
-    return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}월 ${String(date.getDate()).padStart(2, "0")}일`;
+
+    // UTC 시간을 한국 시간으로 변환 (UTC+9)
+    const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
+    return new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Seoul" // 명시적으로 한국 시간대 설정
+    }).format(koreaTime);
   };
 
   // If no representative store is set, display guidance
@@ -206,23 +215,25 @@ const ReviewCompare: React.FC = () => {
   return (
     <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
       {/* 매장 정보 영역 */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-        <h2 className="text-2xl font-bold">{representativeStore.store_name}</h2>
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-800">
+          {representativeStore.store_name}
+        </h2>
       </div>
 
       {/* 상단 헤더 및 버튼 영역 */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h3 className="text-lg font-bold">
-          <span className="text-xl text-blue-400">경쟁사 리뷰</span>와 비교하여
-          우리 가게의 장단점을 파악해보세요
+          <span className="text-xl text-blue-400">경쟁사</span>와 비교하여 우리
+          가게의 장단점을 파악해보세요
         </h3>
         <div className="flex flex-col md:flex-row gap-3 items-center">
           {/* 분석 결과 선택 드롭다운 */}
           {comparisonResults.length > 0 && (
-            <div className="relative">
+            <div className="relative w-64">
               <select
                 onChange={(e) => handleSelectComparison(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="appearance-none w-full bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
               >
                 <option value="">비교 분석 결과 선택</option>
                 {comparisonResults.map((item) => (
@@ -231,7 +242,7 @@ const ReviewCompare: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
                 <svg
                   className="w-4 h-4"
                   fill="currentColor"
@@ -241,7 +252,7 @@ const ReviewCompare: React.FC = () => {
                     fillRule="evenodd"
                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                     clipRule="evenodd"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>
@@ -352,11 +363,8 @@ const ReviewCompare: React.FC = () => {
 
       {/* 비교 분석 결과 표시 영역 */}
       {selectedComparison && !loading && (
-        <div className="bg-basic-white p-6 rounded-md shadow mb-6">
-          <h2 className="text-lg font-bold text-comment mb-4">
-            경쟁사 비교 분석 결과
-          </h2>
-          <CompetitorReportSection data={selectedComparison} />
+        <div>
+          <ImprovedCompetitorReportSection data={selectedComparison} />
         </div>
       )}
 

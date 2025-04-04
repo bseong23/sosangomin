@@ -31,7 +31,7 @@ import NoticePostDetailPage from "./pages/NoticePostDetailPage";
 import DataUploadPage from "@/pages/DataUploadPage";
 import ResearchPage from "@/pages/ResearchPage";
 import Map from "@/pages/Map";
-import ReviewDashBoard from "./features/review/components/ReviewDashBoard";
+import ReviewDashBoard from "./pages/ReviewDashBoard";
 import ReviewCompare from "@/pages/ReviewCompare";
 import ResultPage from "@/pages/ResultPage";
 

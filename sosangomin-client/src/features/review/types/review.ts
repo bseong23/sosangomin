@@ -41,6 +41,8 @@ export interface ReviewAnalysisResult {
   store_name: string;
   /** 분석 상태 (success, pending, failed 등) */
   status: string;
+  /** 리뷰 목록 */
+  reviews?: [];
   /** 리뷰 개수 */
   review_count: number;
   /** 평균 평점 */

@@ -2,9 +2,10 @@
 import React, { useEffect } from "react";
 import BarChart from "@/components/chart/BarChart";
 import DoughnutChart from "@/components/chart/DoughnutChart";
-import WordCloud from "./WordCloud";
+import WordCloud from "../features/review/components/WordCloud";
 import { useReviewStore } from "@/store/useReviewStore";
 import useStoreStore from "@/store/storeStore";
+import Markdown from "react-markdown";
 
 const ReviewDashBoard: React.FC = () => {
   // Zustand store에서 가게 정보 가져오기
@@ -150,12 +151,21 @@ const ReviewDashBoard: React.FC = () => {
   const foodKeywordValues = Object.values(foodCategoryKeywords) as number[];
 
   // 날짜를 한국어 형식으로 변환 (ISO 문자열 -> YYYY년 MM월 DD일)
-  const formatDateKorean = (dateString: string) => {
+  // 날짜 포맷팅 함수 - 한국 시간(UTC+9)으로 변환하여 표시
+  const formatDateKorean = (dateString: string): string => {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}년 ${month}월 ${day}일`;
+
+    // UTC 시간을 한국 시간으로 변환 (UTC+9)
+    const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
+    return new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Seoul" // 명시적으로 한국 시간대 설정
+    }).format(koreaTime);
   };
 
   // 선택된 분석의 생성 날짜 찾기
@@ -406,7 +416,71 @@ const ReviewDashBoard: React.FC = () => {
             <h2 className="text-lg font-bold text-comment mb-4">
               리뷰 분석 리포트
             </h2>
-            <p>{analysisData.insights || "분석 리포트가 없습니다."}</p>
+            {typeof analysisData.insights === "string" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                {(() => {
+                  const raw = analysisData.insights as string;
+                  const parts = raw.split(/##\s[1-3]\.\s/);
+
+                  if (parts.length < 4) {
+                    return (
+                      <div className="col-span-full text-red-500">
+                        분석 리포트 형식이 올바르지 않아요 🥲
+                      </div>
+                    );
+                  }
+
+                  const sections = [
+                    {
+                      title: "1. 고객들이 가장 만족하는 점",
+                      content: parts[1],
+                      color: "text-green-700",
+                      bg: "bg-green-50"
+                    },
+                    {
+                      title: "2. 개선이 필요한 부분",
+                      content: parts[2],
+                      color: "text-yellow-700",
+                      bg: "bg-yellow-50"
+                    },
+                    {
+                      title: "3. 매장 운영에 도움이 될만한 구체적인 제안",
+                      content: parts[3],
+                      color: "text-blue-700",
+                      bg: "bg-blue-50"
+                    }
+                  ];
+
+                  return sections.map((section, idx) => (
+                    <div
+                      key={idx}
+                      className={`${section.bg} p-4 rounded-lg shadow text-xs whitespace-pre-wrap`}
+                    >
+                      <h3
+                        className={`text-lg font-semibold mb-2 ${section.color}`}
+                      >
+                        {section.title}
+                      </h3>
+                      <ul className="list-disc pl-4 space-y-1">
+                        {section.content
+                          .split("\n")
+                          .filter(
+                            (line: string) =>
+                              line.trim() &&
+                              !line.trim().startsWith("###") &&
+                              !/^[0-9]+\./.test(line.trim())
+                          )
+                          .map((line: string, i: number) => (
+                            <Markdown key={i}>
+                              {line.replace(/^[-*]\s?/, "").trim()}
+                            </Markdown>
+                          ))}
+                      </ul>
+                    </div>
+                  ));
+                })()}
+              </div>
+            )}
           </div>
         </>
       )}

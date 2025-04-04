@@ -2,6 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { WordCloudProps, WordPosition } from "@/features/review/types/review";
 
+const excludeWords = ["보기", "여자", "남자"]; // 제외할 단어들
+
+const filterWords = (words: Record<string, number>, exclude: string[]) => {
+  return Object.fromEntries(
+    Object.entries(words).filter(([word]) => !exclude.includes(word))
+  );
+};
+
 const WordCloud: React.FC<WordCloudProps> = ({
   words = {},
   title,
@@ -9,6 +17,8 @@ const WordCloud: React.FC<WordCloudProps> = ({
   maxWords = 15,
   height = "h-72"
 }) => {
+  const filteredWords = filterWords(words, excludeWords);
+
   // 상위 단어만 추출하는 함수
   const getTopWords = (words: Record<string, number>, count: number) => {
     return Object.entries(words)
@@ -18,7 +28,7 @@ const WordCloud: React.FC<WordCloudProps> = ({
   };
 
   // 상위 단어만 추출
-  const topWords = getTopWords(words, maxWords);
+  const topWords = getTopWords(filteredWords, maxWords);
 
   // 단어들의 애니메이션 완료 상태
   const [animationComplete, setAnimationComplete] = useState(false);
@@ -118,14 +128,14 @@ const WordCloud: React.FC<WordCloudProps> = ({
       {/* 제목 영역 (있을 경우) */}
       {title && (
         <div className="absolute inset-x-0 top-0 h-12 flex items-center justify-center border-b border-gray-100 bg-white z-10">
-          <h3 className="text-lg font-bold" style={{ color: colors.primary }}>
+          <h3 className="text-lg font-bold " style={{ color: colors.primary }}>
             {title}
           </h3>
         </div>
       )}
 
       {/* 워드 클라우드 영역 */}
-      <div className={`absolute inset-0 overflow-hidden`}>
+      <div className={`absolute inset-0 overflow-hidden `}>
         {/* 단어들 */}
         {topWords.map((word, index) => {
           if (positionsRef.current.length <= index) {
