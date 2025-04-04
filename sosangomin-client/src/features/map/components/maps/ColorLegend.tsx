@@ -3,14 +3,14 @@ import { LegendItem, ColorLegendProps } from "@/features/map/types/map";
 
 const ColorLegend: React.FC<ColorLegendProps> = ({
   position = "bottom-right",
-  title = "인구 분포 범례"
+  title = "유동인구 범례"
 }) => {
   const legendItems: LegendItem[] = [
-    { color: "#FF0000", label: "30,000명 초과" },
-    { color: "#FF8C00", label: "20,000 ~ 30,000명" },
-    { color: "#FFFF00", label: "10,000 ~ 20,000명" },
-    { color: "#00FF00", label: "5,000 ~ 10,000명" },
-    { color: "#0000FF", label: "5,000명 이하" }
+    { color: "#FF0000", label: "100,000명 초과" },
+    { color: "#FF8C00", label: "50,000 ~ 100,000명" },
+    { color: "#FFFF00", label: "30,000 ~ 50,000명" },
+    { color: "#00FF00", label: "10,000 ~ 30,000명" },
+    { color: "#0000FF", label: "10,000명 이하" }
   ];
 
   // 위치에 따른 클래스 설정

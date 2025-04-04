@@ -22,7 +22,7 @@ const MapPage: React.FC = () => {
     "역삼2동"
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
+  const [recommendationData, setRecommendationData] = useState<any[]>([]);
   // 로컬스토리지에서 대표 가게 정보 가져오기
   useEffect(() => {
     try {
@@ -121,6 +121,10 @@ const MapPage: React.FC = () => {
       setShowSidebar(true);
     }
   };
+  const handleMapRecommendation = (data: any[]) => {
+    if (!data || !data.length) return;
+    setRecommendationData(data); // ✅ 추천 데이터 상태 저장
+  };
 
   return (
     <div className="flex flex-col w-full h-full relative">
@@ -132,6 +136,7 @@ const MapPage: React.FC = () => {
           level={6}
           markers={markers}
           geoJsonData={seoulDistrictsData}
+          recommendedAreas={recommendationData} // ✅ 전달
           onPolygonSelect={handlePolygonSelect}
         />
       </div>
@@ -158,13 +163,13 @@ const MapPage: React.FC = () => {
           </svg>
         </button>
       )}
-
       {showSidebar && (
         <MapSidebar
-          onClose={toggleSidebar}
           onSearch={handleSearch}
+          onClose={toggleSidebar}
           selectedAdminName={selectedAdminName}
           selectedCategory={selectedCategory}
+          onMapRecommendation={handleMapRecommendation} // ✅ 꼭 있어야 함!
         />
       )}
 

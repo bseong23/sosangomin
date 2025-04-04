@@ -15,6 +15,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   minLevel = 1,
   maxLevel = 6,
   markers = [],
+  recommendedAreas = [],
   geoJsonData, // GeoJSON 데이터 prop
   onPolygonSelect
 }) => {
@@ -55,7 +56,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       // Geolocation을 지원하지 않는 브라우저에서는 기본 center 값이 사용됨
     }
   }, []);
-
+  console.log(recommendedAreas);
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const initializeMap = async () => {
@@ -79,8 +80,9 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
   // 인구 데이터 가져오기
   useEffect(() => {
-    const getPopulationData = async () => {
+    const loadPopulationData = async () => {
       try {
+        // API에서 유동인구 데이터만 가져오기
         const data = await fetchPopulationData();
         setPopulationData(data);
       } catch (err) {
@@ -88,8 +90,8 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       }
     };
 
-    getPopulationData();
-  }, []);
+    loadPopulationData();
+  }, []); // recommendedAreas 의존성 제거
 
   // 사용자 위치 마커 제거 함수
   const removeUserMarker = () => {
@@ -127,7 +129,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
   // 폴리곤 클릭 핸들러
   const handlePolygonClick = (
-    AdminName: string,
+    adminName: string,
     polygonCenter: { lat: number; lng: number }
   ) => {
     // 맵 중심 이동
@@ -139,10 +141,11 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
       // 부모 컴포넌트로 선택된 행정동 이름 전달
       if (onPolygonSelect) {
-        onPolygonSelect(AdminName);
+        onPolygonSelect(adminName);
       }
     }
   };
+
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
     if (mapInstance && geoJsonData && populationData.size > 0) {

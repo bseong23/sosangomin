@@ -1,3 +1,4 @@
+import axiosInstance from "@/api/axios";
 // 카카오맵 API 스크립트 로드
 export const loadKakaoMapScript = (appKey: string): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -92,57 +93,60 @@ export const searchLocation = (
 };
 
 // mapApi.ts 파일에 추가
-import workingPopData from "@/assets/residentpop.json";
 
+// 유동인구 데이터를 기반으로 색상 결정 함수
+export const getColorByPopulation = (population: number): string => {
+  if (population > 100000) return "#800000"; // 빨강 (매우 많음)
+  if (population > 50000) return "#FF8C00"; // 주황
+  if (population > 30000) return "#FFD700"; // 노랑
+  if (population > 10000) return "#32CD32"; // 초록
+  return "#0000FF"; // 파랑 (낮음)
+};
+
+// 유동인구 데이터를 가져오는 함수
 export const fetchPopulationData = async (): Promise<Map<string, number>> => {
   try {
-    // Map 객체 생성하여 행정동 이름과 인구수 매핑
-    const populationMap = new Map<string, number>();
+    // ➡️ API 호출
+    const response = await axiosInstance.get("/api/proxy/location/heatmap");
 
-    workingPopData.forEach(
-      (item: { adstrd_cd_nm: string; tot_repop: number }) => {
-        populationMap.set(item.adstrd_cd_nm, item.tot_repop);
-      }
-    );
+    // 데이터를 Map으로 변환 ("행정동명"을 키로 설정)
+    const populationMap = new Map<string, number>();
+    response.data.forEach((item: any) => {
+      const adminName = item.행정동명;
+      populationMap.set(`${adminName}_유동인구`, item.유동인구);
+      populationMap.set(`${adminName}_직장인구`, item.직장인구);
+      populationMap.set(`${adminName}_거주인구`, item.거주인구);
+    });
+
     return populationMap;
   } catch (error) {
-    console.error("인구 데이터를 가져오는 중 오류 발생:", error);
-    return new Map<string, number>();
+    console.error("유동인구 데이터 가져오기 실패:", error);
+    return new Map();
   }
 };
 
-// 인구 수에 따른 색상 결정 함수
-export const getColorByPopulation = (population: number): string => {
-  // 인구 단계별 색상 설정
-  if (population > 30000) return "#FF0000"; // 빨강 - 인구 많음
-  if (population > 20000) return "#FF8C00"; // 주황
-  if (population > 10000) return "#FFFF00"; // 노랑
-  if (population > 5000) return "#00FF00"; // 초록
-  return "#0000FF"; // 파랑 - 인구 적음
-};
-
-// GeoJSON 데이터를 카카오맵 폴리곤으로 변환하여 표시 (수정된 버전)
+// GeoJSON 데이터를 지도에 표시하는 함수
 export const displayGeoJsonPolygon = (
   map: any,
   geoJsonData: any,
   options: {
+    populationData?: Map<string, number>; // 유동인구 데이터
+    getColorByPopulation?: (population: number) => string; // 색상 결정 함수
     strokeColor?: string;
     strokeOpacity?: number;
     strokeWeight?: number;
     fillColor?: string;
     fillOpacity?: number;
-    populationData?: Map<string, number>;
-    getColorByPopulation?: (population: number) => string;
     fitBounds?: boolean;
     onPolygonClick?: (
       adminName: string,
       center: { lat: number; lng: number }
-    ) => void; // 클릭 이벤트 핸들러 추가
+    ) => void;
   }
 ) => {
   if (!map || !geoJsonData) return;
 
-  // 기본 스타일 설정
+  // 기본 스타일
   const defaultStyle = {
     strokeColor: options.strokeColor || "#FF0000",
     strokeOpacity: options.strokeOpacity || 0.8,
@@ -151,10 +155,7 @@ export const displayGeoJsonPolygon = (
     fillOpacity: options.fillOpacity || 0.3
   };
 
-  // 경계 계산을 위한 객체
   const bounds = new window.kakao.maps.LatLngBounds();
-
-  // 커스텀 오버레이 생성 (툴팁용)
   const customOverlay = new window.kakao.maps.CustomOverlay({
     position: new window.kakao.maps.LatLng(0, 0),
     content: "",
@@ -168,12 +169,16 @@ export const displayGeoJsonPolygon = (
     const coordinates = feature.geometry.coordinates;
     const properties = feature.properties;
 
-    // 행정동 이름 추출 (예: "서울특별시 종로구 사직동" -> "사직동")
+    // 행정동 이름 추출
     const adminName = properties.adm_nm || "";
     const simpleName = adminName.split(" ").pop() || adminName;
-
-    // 인구 데이터 찾기
-    const population = options.populationData?.get(simpleName) || 0;
+    // 유동인구 데이터 찾기
+    const population =
+      options.populationData?.get(`${simpleName}_유동인구`) || 0;
+    const workplacePopulation =
+      options.populationData?.get(`${simpleName}_직장인구`) || 0;
+    const residentPopulation =
+      options.populationData?.get(`${simpleName}_거주인구`) || 0;
 
     // 인구 데이터 기반 색상 결정
     let fillColor = defaultStyle.fillColor;
@@ -181,13 +186,11 @@ export const displayGeoJsonPolygon = (
       fillColor = options.getColorByPopulation(population);
     }
 
-    // 다각형 경로 생성
     let paths: any[] = [];
     let polygonCenter = { lat: 0, lng: 0 };
     let pointCount = 0;
 
     if (feature.geometry.type === "MultiPolygon") {
-      // 다중 다각형 처리
       coordinates.forEach((polygon: any) => {
         polygon.forEach((ring: any) => {
           const path = ring.map(
@@ -196,7 +199,6 @@ export const displayGeoJsonPolygon = (
           );
           paths.push(path);
 
-          // 경계 확장 및 중심점 계산을 위한 좌표 합산
           path.forEach((latLng: any) => {
             bounds.extend(latLng);
             polygonCenter.lat += latLng.getLat();
@@ -206,14 +208,12 @@ export const displayGeoJsonPolygon = (
         });
       });
     } else if (feature.geometry.type === "Polygon") {
-      // 단일 다각형 처리
       coordinates.forEach((ring: any) => {
         const path = ring.map(
           (coord: number[]) => new window.kakao.maps.LatLng(coord[1], coord[0])
         );
         paths.push(path);
 
-        // 경계 확장 및 중심점 계산을 위한 좌표 합산
         path.forEach((latLng: any) => {
           bounds.extend(latLng);
           polygonCenter.lat += latLng.getLat();
@@ -223,13 +223,11 @@ export const displayGeoJsonPolygon = (
       });
     }
 
-    // 중심점 계산
     if (pointCount > 0) {
       polygonCenter.lat /= pointCount;
       polygonCenter.lng /= pointCount;
     }
 
-    // 다각형 생성 및 지도에 추가
     const polygon = new window.kakao.maps.Polygon({
       map: map,
       path: paths,
@@ -240,36 +238,40 @@ export const displayGeoJsonPolygon = (
       fillOpacity: defaultStyle.fillOpacity
     });
 
-    // 툴팁 스타일 정의
-    const tooltipStyle =
-      "background: white; padding: 5px 10px; border-radius: 4px; " +
-      "border: 1px solid #ccc; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); " +
-      "position: relative; white-space: nowrap;";
-
-    // 마우스 오버 시 툴팁 표시
+    const tooltipStyle = `
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    position: relative;
+    white-space: nowrap;
+    line-height: 1.5;
+  `;
     window.kakao.maps.event.addListener(
       polygon,
       "mouseover",
       function (mouseEvent: any) {
-        // 폴리곤 스타일 변경
         polygon.setOptions({
           fillOpacity: defaultStyle.fillOpacity + 0.2
         });
 
-        // 툴팁 내용 설정
-        customOverlay.setContent(
-          `<div style="${tooltipStyle}">${simpleName} (인구: ${population.toLocaleString()}명)</div>`
-        );
+        customOverlay.setContent(`
+      <div style="${tooltipStyle}">
+        <strong style="color: #333; font-size: 14px;">${simpleName}</strong><br/>
+        <span style="color: #ff5733;">유동인구:</span> ${population.toLocaleString()}명<br/>
+       <span style="color: #3399ff;">직장인구:</span> ${workplacePopulation.toLocaleString()}명<br/>
+    <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명
+      </div>
+    `);
 
-        // 툴팁 위치 설정
         customOverlay.setPosition(mouseEvent.latLng);
-
-        // 툴팁 표시
         customOverlay.setMap(map);
       }
     );
 
-    // 마우스 이동 시 툴팁 위치 업데이트
     window.kakao.maps.event.addListener(
       polygon,
       "mousemove",
@@ -278,31 +280,23 @@ export const displayGeoJsonPolygon = (
       }
     );
 
-    // 마우스 아웃 시 툴팁 제거
     window.kakao.maps.event.addListener(polygon, "mouseout", function () {
-      // 폴리곤 스타일 복원
       polygon.setOptions({
         fillOpacity: defaultStyle.fillOpacity
       });
-
-      // 툴팁 제거
       customOverlay.setMap(null);
     });
 
-    // 폴리곤 클릭 이벤트 추가
     window.kakao.maps.event.addListener(polygon, "click", function () {
-      // 폴리곤 클릭 시 콜백 함수 호출
       if (options.onPolygonClick) {
         options.onPolygonClick(simpleName, polygonCenter);
       }
 
-      // 클릭한 폴리곤 강조 표시
       polygon.setOptions({
         fillOpacity: defaultStyle.fillOpacity + 0.3,
         strokeWeight: defaultStyle.strokeWeight + 1
       });
 
-      // 일정 시간 후 스타일 복원
       setTimeout(() => {
         polygon.setOptions({
           fillOpacity: defaultStyle.fillOpacity,
@@ -311,26 +305,8 @@ export const displayGeoJsonPolygon = (
       }, 1500);
     });
   });
+
+  if (options.fitBounds) {
+    map.setBounds(bounds);
+  }
 };
-
-// 인구 데이터 가져오기
-// export const fetchPopulationData = async (): Promise<Map<string, number>> => {
-//   try {
-//     // 여기에 실제 API 호출 코드 작성
-//     // 예: const response = await fetch('인구데이터API주소');
-//     // const data = await response.json();
-
-//     // 결과를 행정동 코드/이름을 키로 하는 Map으로 변환
-//     const populationMap = new Map<string, number>();
-
-//     // 예시 데이터 처리
-//     // data.forEach(item => {
-//     //   populationMap.set(item.adm_cd, item.population);
-//     // });
-
-//     return populationMap;
-//   } catch (error) {
-//     console.error("인구 데이터 가져오기 실패:", error);
-//     return new Map();
-//   }
-// };
