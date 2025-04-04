@@ -5,12 +5,12 @@ import React, { useState } from "react";
 interface AnalysisItem {
   analysis_id: string;
   created_at: string;
-  store_id: number;
+  store_id: number | string; // storeId가 string으로 전달될 수 있으므로 타입 수정
   status: "success" | "pending" | "failed";
 }
 
 interface AnalysisSelectorProps {
-  storeId: number;
+  storeId: number | string;
   analysisList: AnalysisItem[]; // 부모 컴포넌트에서 이미 로드된 분석 목록
   currentAnalysisId?: string;
   selectedAnalysis: AnalysisItem | null;
@@ -25,16 +25,21 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  // 날짜 포맷팅 함수
+  // 날짜 포맷팅 함수 - 한국 시간(UTC+9)으로 변환하여 표시
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
+
+    // UTC 시간을 한국 시간으로 변환 (UTC+9)
+    const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
     return new Intl.DateTimeFormat("ko-KR", {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
-    }).format(date);
+      minute: "2-digit",
+      timeZone: "Asia/Seoul" // 명시적으로 한국 시간대 설정
+    }).format(koreaTime);
   };
 
   // 분석 선택 핸들러
@@ -47,7 +52,7 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
     <div className="relative">
       <div className="flex items-center">
         <span className="text-sm font-medium text-gray-600 mr-2">
-          분석 일자:
+          분석 일자 (KST):
         </span>
         <div className="relative">
           <button
