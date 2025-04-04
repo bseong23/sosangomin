@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { ReportData } from "../types";
+import { FinalReportDetail } from "../types/finalReport";
 
 // 실제 프로젝트에서는 react-markdown 또는 다른 마크다운 렌더링 라이브러리를 사용할 수 있습니다
 // import ReactMarkdown from 'react-markdown';
 
 interface FullAnalysisComponentProps {
-  data: ReportData;
+  data: FinalReportDetail;
 }
 
 const FullAnalysisComponent: React.FC<FullAnalysisComponentProps> = ({

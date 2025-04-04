@@ -1,8 +1,9 @@
+// src/features/finalreport/components/SwotDetailComponent.tsx
 import React from "react";
-import { ReportData } from "../types";
+import { FinalReportDetail } from "../types/finalReport";
 
 interface SwotDetailComponentProps {
-  data: ReportData;
+  data: FinalReportDetail;
 }
 
 const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({ data }) => {
@@ -163,7 +164,7 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({ data }) => {
 
         {/* Decorative center element to enhance visual appeal - now larger */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center z-10">
-          <div className="w-20 h-20 rounded-full bg-bit-main flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center">
             <span className="text-white text-base text-center font-bold">
               SWOT
               <br />

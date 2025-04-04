@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { ReportData } from "../types";
+import { FinalReportDetail } from "../types/finalReport";
 
 interface RecommendationsComponentProps {
-  data: ReportData;
+  data: FinalReportDetail;
 }
 
 const RecommendationsComponent: React.FC<RecommendationsComponentProps> = ({
