@@ -18,17 +18,17 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
 
   // 데이터가 있는지 확인
   const hasData = data && data.top_locations && data.top_locations.length > 0;
-
+  console.log(data);
   return createPortal(
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-hidden">
       {/* 모달 컨테이너 */}
-      <div className="bg-white w-[90%] md:w-[80%] max-h-[90vh] mx-auto rounded-lg shadow-xl overflow-hidden">
+      <div className="bg-white w-[90%] md:w-[80%] max-h-[90vh] mx-auto rounded-lg shadow-xl overflow-hidden flex flex-col">
         {/* 모달 헤더 */}
-        <div className="flex justify-between items-center border-b px-6 py-4 bg-bit-main text-white">
-          <h2 className="text-xl font-bold">최적의 위치 추천 결과</h2>
+        <div className="flex justify-between items-center border-b px-6 py-4 bg-white">
+          <h2 className="text-base font-bold">최적의 위치 추천 결과</h2>
 
           {/* 닫기 버튼 */}
-          <button onClick={onClose} className="text-white hover:text-gray-200">
+          <button onClick={onClose} className="hover:text-gray-200">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -114,7 +114,10 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           유동인구:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.유동인구면적당))}/㎢
+                          {formatNumber(
+                            Math.round(location["유동인구(면적당)"])
+                          )}
+                          명
                         </span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
@@ -122,7 +125,10 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           직장인구:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.직장인구면적당))}/㎢
+                          {formatNumber(
+                            Math.round(location["직장인구(면적당)"])
+                          )}
+                          명
                         </span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
@@ -130,7 +136,10 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           거주인구:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.거주인구면적당))}/㎢
+                          {formatNumber(
+                            Math.round(location["거주인구(면적당)"])
+                          )}
+                          명
                         </span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
@@ -138,8 +147,10 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           동일업종 수:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.동일업종_수면적당))}
-                          /㎢
+                          {formatNumber(
+                            Math.round(location["동일업종_수(면적당)"])
+                          )}
+                          개
                         </span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
@@ -147,7 +158,10 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           집객시설:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.집객시설면적당))}/㎢
+                          {formatNumber(
+                            Math.round(location["집객시설(면적당)"])
+                          )}
+                          개
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -179,6 +193,7 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                       {formatNumber(
                         Math.round(data.average_values.타겟연령_수)
                       )}
+                      명
                     </p>
                   </div>
                   <div className="p-3 bg-white rounded-lg shadow-sm">
@@ -187,12 +202,13 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                       {formatNumber(
                         Math.round(data.average_values.업종_평균_매출)
                       )}
+                      원
                     </p>
                   </div>
                   <div className="p-3 bg-white rounded-lg shadow-sm">
                     <p className="text-sm text-gray-500">평균 임대료</p>
                     <p className="font-bold text-lg">
-                      {formatNumber(Math.round(data.average_values.임대료))}
+                      {formatNumber(Math.round(data.average_values.임대료))}원
                     </p>
                   </div>
                 </div>
@@ -222,16 +238,6 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
               </p>
             </div>
           )}
-        </div>
-
-        {/* 모달 푸터 */}
-        <div className="flex justify-center border-t p-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-bit-main text-white rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            닫기
-          </button>
         </div>
       </div>
     </div>,

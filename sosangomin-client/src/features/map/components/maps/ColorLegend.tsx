@@ -6,10 +6,10 @@ const ColorLegend: React.FC<ColorLegendProps> = ({
   title = "유동인구 범례"
 }) => {
   const legendItems: LegendItem[] = [
-    { color: "#FF0000", label: "150,000명 초과" },
-    { color: "#FF8C00", label: "70,000 ~ 150,000명" },
-    { color: "#FFFF00", label: "40,000 ~ 70,000명" },
-    { color: "#00FF00", label: "10,000 ~ 40,000명" },
+    { color: "#FF0000", label: "100,000명 초과" },
+    { color: "#FF8C00", label: "50,000 ~ 100,000명" },
+    { color: "#FFFF00", label: "30,000 ~ 50,000명" },
+    { color: "#00FF00", label: "10,000 ~ 30,000명" },
     { color: "#0000FF", label: "10,000명 이하" }
   ];
 

@@ -37,7 +37,6 @@ const StoreList: React.FC = () => {
     setRepresentativeStore(store);
     alert(`${store.store_name}이(가) 대표 가게로 설정되었습니다.`);
   };
-
   if (!storeListData) {
     return <div className="text-center py-8">데이터를 불러오는 중...</div>;
   }

@@ -96,9 +96,9 @@ export const searchLocation = (
 
 // 유동인구 데이터를 기반으로 색상 결정 함수
 export const getColorByPopulation = (population: number): string => {
-  if (population > 150000) return "#800000"; // 빨강 (매우 많음)
-  if (population > 70000) return "#FF8C00"; // 주황
-  if (population > 40000) return "#FFD700"; // 노랑
+  if (population > 100000) return "#800000"; // 빨강 (매우 많음)
+  if (population > 50000) return "#FF8C00"; // 주황
+  if (population > 30000) return "#FFD700"; // 노랑
   if (population > 10000) return "#32CD32"; // 초록
   return "#0000FF"; // 파랑 (낮음)
 };
@@ -112,7 +112,10 @@ export const fetchPopulationData = async (): Promise<Map<string, number>> => {
     // 데이터를 Map으로 변환 ("행정동명"을 키로 설정)
     const populationMap = new Map<string, number>();
     response.data.forEach((item: any) => {
-      populationMap.set(item.행정동명, item.유동인구);
+      const adminName = item.행정동명;
+      populationMap.set(`${adminName}_유동인구`, item.유동인구);
+      populationMap.set(`${adminName}_직장인구`, item.직장인구);
+      populationMap.set(`${adminName}_거주인구`, item.거주인구);
     });
 
     return populationMap;
@@ -169,9 +172,13 @@ export const displayGeoJsonPolygon = (
     // 행정동 이름 추출
     const adminName = properties.adm_nm || "";
     const simpleName = adminName.split(" ").pop() || adminName;
-
     // 유동인구 데이터 찾기
-    const population = options.populationData?.get(simpleName) || 0;
+    const population =
+      options.populationData?.get(`${simpleName}_유동인구`) || 0;
+    const workplacePopulation =
+      options.populationData?.get(`${simpleName}_직장인구`) || 0;
+    const residentPopulation =
+      options.populationData?.get(`${simpleName}_거주인구`) || 0;
 
     // 인구 데이터 기반 색상 결정
     let fillColor = defaultStyle.fillColor;
@@ -231,11 +238,18 @@ export const displayGeoJsonPolygon = (
       fillOpacity: defaultStyle.fillOpacity
     });
 
-    const tooltipStyle =
-      "background: white; padding: 5px 10px; border-radius: 4px; " +
-      "border: 1px solid #ccc; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); " +
-      "position: relative; white-space: nowrap;";
-
+    const tooltipStyle = `
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    position: relative;
+    white-space: nowrap;
+    line-height: 1.5;
+  `;
     window.kakao.maps.event.addListener(
       polygon,
       "mouseover",
@@ -244,9 +258,15 @@ export const displayGeoJsonPolygon = (
           fillOpacity: defaultStyle.fillOpacity + 0.2
         });
 
-        customOverlay.setContent(
-          `<div style="${tooltipStyle}">${simpleName} (유동인구: ${population.toLocaleString()}명)</div>`
-        );
+        customOverlay.setContent(`
+      <div style="${tooltipStyle}">
+        <strong style="color: #333; font-size: 14px;">${simpleName}</strong><br/>
+        <span style="color: #ff5733;">유동인구:</span> ${population.toLocaleString()}명<br/>
+       <span style="color: #3399ff;">직장인구:</span> ${workplacePopulation.toLocaleString()}명<br/>
+    <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명
+      </div>
+    `);
+
         customOverlay.setPosition(mouseEvent.latLng);
         customOverlay.setMap(map);
       }

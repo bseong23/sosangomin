@@ -8,16 +8,20 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
   onSearch,
   onClose,
   selectedAdminName,
-  selectedCategory
+  selectedCategory,
+  onMapRecommendation
 }) => {
   const [activeTab, setActiveTab] = useState<"상권분석" | "입지추천">(
     "상권분석"
   );
-
+  const handleMapRecommendation = (data: any) => {
+    if (onMapRecommendation) {
+      onMapRecommendation(data);
+    }
+  };
   const handleTabChange = (selected: string) => {
     setActiveTab(selected as "상권분석" | "입지추천");
   };
-
   return (
     <div className="absolute max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:h-[80%] md:top-9 md:left-8 md:h-[90%] md:w-100 bg-white shadow-lg rounded-lg z-10">
       {/* 닫기 버튼 */}
@@ -58,7 +62,7 @@ const MapSidebar: React.FC<MapSidebarProps> = ({
             selectedCategory={selectedCategory}
           />
         ) : (
-          <Recommendmap />
+          <Recommendmap onMapData={handleMapRecommendation} /> // ✅ 콜백 넘겨줌
         )}
       </div>
     </div>

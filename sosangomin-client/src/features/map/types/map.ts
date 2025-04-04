@@ -24,8 +24,9 @@ export interface Marker {
 export interface MapSidebarProps {
   onSearch: (address: string) => void;
   onClose: () => void;
-  selectedAdminName?: string | null;
-  selectedCategory?: string | null;
+  selectedAdminName: string | null;
+  selectedCategory: string | null;
+  onMapRecommendation?: (data: any[]) => void; // ✅ optional로 변경
 }
 
 export interface KakaoMapAPI {
@@ -46,7 +47,8 @@ export interface ToggleSwitchProps {
 
 export interface KakaomapProps extends MapProps {
   markers?: Marker[];
-  geoJsonData?: any; // GeoJSON 데이터를 위한 prop 추가
+  geoJsonData?: any;
+  recommendedAreas?: RecommendedArea[]; // ✅ 추천된 행정동 이름 목록
 }
 
 export interface LegendItem {
@@ -112,4 +114,10 @@ export interface RecommendModalProps {
 }
 export interface TabProps {
   selectedAdminName?: string;
+}
+export interface RecommendedArea {
+  adminName: string;
+  floatingPopulation: number;
+  workingPopulation: number;
+  residentialPopulation: number;
 }

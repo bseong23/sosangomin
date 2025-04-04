@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { getTopRecommendedLocations } from "@/features/map/api/recommendApi"; // API 호출 함수 가져오기
+import {
+  getTopRecommendedLocations,
+  getTopRecommendedMap
+} from "@/features/map/api/recommendApi"; // API 호출 함수 가져오기
 import RecommendModal from "./RecommendModal";
-
-const Recommendmap: React.FC = () => {
+interface RecommendmapProps {
+  onMapData?: (data: any) => void; // 콜백을 선택적 props로 추가
+}
+const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
   // 업종 선택 상태 (하나만 선택 가능)
   const [selectedBusinessType, setSelectedBusinessType] = useState<
     string | null
   >(null);
+  const [, setMapRecommendationData] = useState<any>(null);
 
   // 타겟 연령대 선택 상태 (하나만 선택 가능)
   const [selectedAgeGroup, setSelectedAgeGroup] = useState<string | null>(null);
@@ -39,6 +45,34 @@ const Recommendmap: React.FC = () => {
         return prev;
       }
     });
+  };
+  // 지도에서 보기 버튼 클릭 핸들러
+  const handleShowOnMap = async () => {
+    if (
+      !selectedBusinessType ||
+      !selectedAgeGroup ||
+      selectedPriorities.length === 0
+    ) {
+      alert("업종, 연령대, 우선 순위를 선택해주세요.");
+      return;
+    }
+
+    try {
+      const response = await getTopRecommendedMap(
+        selectedBusinessType,
+        selectedAgeGroup.replace("대", ""),
+        selectedPriorities,
+        3
+      );
+
+      setMapRecommendationData(response); // 자기 내부 상태로 저장
+      if (onMapData) {
+        onMapData(response); // ✅ 부모에 데이터 전달
+      }
+    } catch (error) {
+      console.error("지도 추천 조회 실패:", error);
+      alert("지도로 추천 지역을 불러오는데 실패했습니다.");
+    }
   };
 
   // 분석 요청
@@ -155,13 +189,47 @@ const Recommendmap: React.FC = () => {
         </p>
       </div>
 
-      {/* 분석하기 버튼 */}
-      <button
-        onClick={handleAnalyze}
-        className="w-full bg-bit-main hover:bg-blue-900 text-white py-3 rounded-md font-medium"
-      >
-        분석 하기
-      </button>
+      <div className="space-y-4 mt-6">
+        {/* 분석하기 버튼 */}
+        <button
+          onClick={handleAnalyze}
+          className="w-full bg-bit-main hover:bg-blue-800 text-white py-3.5 rounded-md font-medium transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+              clipRule="evenodd"
+            />
+          </svg>
+          분석하기
+        </button>
+
+        {/* 지도에서 보기 버튼 */}
+        <button
+          onClick={handleShowOnMap}
+          className="w-full bg-white border-2 border-bit-main text-bit-main hover:bg-gray-50 py-3.5 rounded-md font-medium transition-colors duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+              clipRule="evenodd"
+            />
+          </svg>
+          지도에서 보기
+        </button>
+      </div>
 
       {/* RecommendModal */}
       <RecommendModal
