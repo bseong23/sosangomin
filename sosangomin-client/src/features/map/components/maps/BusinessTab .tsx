@@ -236,9 +236,9 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
         <div className="pb-5">
           <Legend categories={categoryColors} />
         </div>
-        <div className="flex flex-wrap justify-between">
+        <div className="flex flex-wrap justify-between px-15 py-4">
           {/* 서울시 */}
-          <div className="w-full md:w-1/4 mb-4">
+          <div className="w-full md:w-1/4 mb-4 ">
             <h4 className="text-md font-medium mb-2">서울시</h4>
             <div className="">
               <DoughnutChart
