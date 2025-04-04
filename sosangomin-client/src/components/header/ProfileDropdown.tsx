@@ -5,6 +5,8 @@ import profileImage from "@/assets/profileImage.svg";
 import useAuthStore from "@/store/useAuthStore";
 import { clearAuthData } from "@/features/auth/api/userStorage";
 import useStoreStore from "@/store/storeStore";
+import { useReviewStore } from "@/store/useReviewStore";
+import { useCompetitorStore } from "@/store/useCompetitorStore";
 
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   userName,
@@ -40,9 +42,15 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   // 로그아웃 처리
   const handleLogout = () => {
     const resetStore = useStoreStore.getState().resetStore;
+    const resetReviewStore = useReviewStore.getState().resetStore;
+    const resetCompetitorStore = useCompetitorStore.getState().clearCache; // 추가
+
     clearAuthData();
     clearUserInfo();
     resetStore(); // 스토어 상태 초기화
+    resetReviewStore();
+    resetCompetitorStore();
+
     window.location.href = "/";
   };
 

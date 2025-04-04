@@ -7,6 +7,9 @@ import { getAccessToken, clearAuthData } from "@/features/auth/api/userStorage";
 import profileImage from "@/assets/profileImage.svg";
 import { SidebarProps } from "@/types/sidebar";
 import useStoreStore from "@/store/storeStore";
+import { useReviewStore } from "@/store/useReviewStore";
+import { useCompetitorStore } from "@/store/useCompetitorStore";
+
 const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
   // Zustand 스토어에서 유저 정보 가져오기
@@ -18,8 +21,14 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   // 로그아웃 처리
   const handleLogout = () => {
     const resetStore = useStoreStore.getState().resetStore;
+    const resetReviewStore = useReviewStore.getState().resetStore;
+    const resetCompetitorStore = useCompetitorStore.getState().clearCache;
+
     clearAuthData();
     resetStore();
+    resetReviewStore();
+    resetCompetitorStore();
+
     window.location.href = "/";
   };
 

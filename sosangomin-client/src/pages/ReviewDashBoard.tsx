@@ -17,7 +17,6 @@ const ReviewDashBoard: React.FC = () => {
     error,
     analysisListCache,
     analysisDetailCache,
-    latestAnalysisIdByStore,
     selectedAnalysisId,
     getAnalysisList,
     getAnalysisDetail,
@@ -38,30 +37,18 @@ const ReviewDashBoard: React.FC = () => {
   // 컴포넌트 마운트 시 기존 분석 결과 목록 불러오기
   useEffect(() => {
     const fetchData = async () => {
-      // 매장 ID가 있고, 캐시에 해당 매장의 분석 목록이 없거나 비어있을 때만 API 호출
-      if (
-        selectedStore?.store_id &&
-        (!analysisListCache[selectedStore.store_id] ||
-          analysisListCache[selectedStore.store_id].length === 0)
-      ) {
-        // 분석 목록 가져오기
-        await getAnalysisList(selectedStore.store_id);
+      if (selectedStore?.store_id) {
+        const storeId = selectedStore.store_id;
+        const list = await getAnalysisList(storeId);
 
-        // 최신 분석 ID가 있으면 해당 분석 선택 및 상세 정보 가져오기
-        const latestId = latestAnalysisIdByStore[selectedStore.store_id];
-        if (latestId) {
+        // 목록이 있고 최신 ID가 있으면 자동으로 상세정보 가져오기
+        if (list.length > 0) {
+          const latestId = list[0].analysis_id;
           setSelectedAnalysisId(latestId);
 
-          // 캐시에 상세 정보가 없는 경우에만 API 호출
           if (!analysisDetailCache[latestId]) {
             await getAnalysisDetail(latestId);
           }
-        }
-      } else if (selectedStore?.store_id) {
-        // 캐시에 있는 경우, 가장 최신 분석 ID 선택
-        const latestId = latestAnalysisIdByStore[selectedStore.store_id];
-        if (latestId && selectedAnalysisId !== latestId) {
-          setSelectedAnalysisId(latestId);
         }
       }
     };

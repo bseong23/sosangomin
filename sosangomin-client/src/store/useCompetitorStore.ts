@@ -134,20 +134,6 @@ export const useCompetitorStore = create<CompetitorState>()(
                   [storeId]: response.comparisons
                 }
               }));
-
-              // 목록이 있으면 첫 번째 항목 자동 선택
-              if (
-                response.comparisons.length > 0 &&
-                !get().selectedComparisonId
-              ) {
-                const firstComparisonId = response.comparisons[0].comparison_id;
-                set({ selectedComparisonId: firstComparisonId });
-
-                // 캐시에 없는 경우에만 상세 정보 요청
-                if (!get().comparisonDetailCache[firstComparisonId]) {
-                  await get().getComparisonDetail(firstComparisonId);
-                }
-              }
             }
           } catch (err) {
             console.error("경쟁사 비교 목록 조회 오류:", err);
