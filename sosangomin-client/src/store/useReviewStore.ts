@@ -91,6 +91,7 @@ interface ReviewState {
   requestNewAnalysis: (storeId: string, placeId: string) => Promise<boolean>;
   setSelectedAnalysisId: (analysisId: string | null) => void;
   clearError: () => void;
+  resetStore: () => void;
 }
 
 export const useReviewStore = create<ReviewState>()(
@@ -265,10 +266,21 @@ export const useReviewStore = create<ReviewState>()(
       // 오류 메시지 초기화
       clearError: () => {
         set({ error: null });
+      },
+      resetStore: () => {
+        set({
+          analysisListCache: {},
+          analysisDetailCache: {},
+          latestAnalysisIdByStore: {},
+          loading: false,
+          error: null,
+          selectedAnalysisId: null
+        });
       }
     }),
     {
       name: "review-store",
+      skipHydration: true,
       partialize: (state) => ({
         // 필요한 상태만 로컬 스토리지에 저장
         analysisListCache: state.analysisListCache,
