@@ -1,6 +1,5 @@
 // features/competitor/components/ImprovedCompetitorReportSection.tsx
 import React, { useState } from "react";
-import DoughnutChart from "@/components/chart/DoughnutChart";
 import WordCloud from "@/features/review/components/WordCloud";
 import { ComparisonData } from "@/features/competitor/types/competitor";
 import PercentageDoughnutChart from "./PercentageDoughnutChart";
