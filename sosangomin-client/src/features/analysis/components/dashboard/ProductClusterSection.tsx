@@ -39,7 +39,7 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
           상품 클러스터 분석
         </h2>
         <div className="p-4 bg-gray-100 rounded-lg">
-          <p className="text-sm text-gray-500">
+          <p className="text-base text-gray-500">
             클러스터 분석 데이터가 없습니다.
           </p>
         </div>
@@ -87,11 +87,11 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
               <h3 className="text-base font-semibold mb-4 text-comment">
                 {group.group_name}
               </h3>
-              <p className="text-sm text-comment-text mb-4">
+              <p className="text-base text-comment-text mb-4">
                 {group.description}
               </p>
               <div className="bg-blue-50 rounded-lg p-3">
-                <h4 className="text-sm font-medium mb-1">대표 상품</h4>
+                <h4 className="text-base font-medium mb-1">대표 상품</h4>
                 <ul className="list-disc list-inside text-xs text-comment">
                   {group.representative_items
                     ?.slice(0, 3)
@@ -115,17 +115,12 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
         <h3 className="text-base font-medium mb-2 text-comment">
           클러스터 분석 요약
         </h3>
-        <p className="text-sm text-comment bg-blue-50 p-4 rounded-lg">
-          {truncateSummary(clusterSummary.summary || "")}
-        </p>
-        {clusterSummary.recommendation && (
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <h4 className="text-sm font-medium mb-1 text-comment">추천 사항</h4>
-            <p className="text-xs text-comment-text">
-              {truncateSummary(clusterSummary.recommendation, 500)}
-            </p>
-          </div>
-        )}
+        <div className="text-base text-comment bg-blue-50 p-4 rounded-lg">
+          <p>{truncateSummary(clusterSummary.summary || "")}</p>
+          {clusterSummary.group_insight && (
+            <p>{truncateSummary(clusterSummary.group_insight, 500)}</p>
+          )}
+        </div>
       </div>
     </div>
   );

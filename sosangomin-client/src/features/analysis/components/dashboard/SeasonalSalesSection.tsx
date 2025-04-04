@@ -28,7 +28,7 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
   };
 
   return (
-    <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
+    <div className="w-full bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         시즌별 매출 분석
       </h2>

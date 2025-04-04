@@ -428,7 +428,7 @@ const AnalysisDashboard: React.FC = () => {
         <ProductShareSection data={data} />
 
         {/* 예측 매출 섹션 */}
-        {originalApiData && (
+        {originalApiData?.analysis_result && (
           <PredictedSalesSection
             data={{
               ...data,
@@ -439,7 +439,7 @@ const AnalysisDashboard: React.FC = () => {
         )}
 
         {/* 상품 클러스터 분석 섹션 */}
-        {originalApiData && (
+        {originalApiData?.analysis_result && (
           <ProductClusterSection
             data={{
               ...data,
@@ -450,14 +450,18 @@ const AnalysisDashboard: React.FC = () => {
         )}
 
         {/* 시즌 매출 & 영업 전략 제안 섹션 */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <SeasonalSalesSection data={data} />
           <StrategySection
-            data={{
-              ...data,
-              auto_analysis_results:
-                originalApiData.analysis_result.auto_analysis_results
-            }}
+            data={
+              originalApiData?.analysis_result
+                ? {
+                    ...data,
+                    auto_analysis_results:
+                      originalApiData.analysis_result.auto_analysis_results
+                  }
+                : data
+            }
           />
         </div>
       </div>

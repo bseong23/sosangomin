@@ -6,30 +6,84 @@ const StrategySection: React.FC<{ data: AnalysisResultData }> = ({ data }) => {
   const clusterSummary =
     data?.auto_analysis_results?.summaries?.cluster_summary || {};
 
+  // 디버깅 로그 추가
+  console.log("StrategySection 데이터:", {
+    clusterSummary,
+    predictSummary: data?.auto_analysis_results?.summaries?.predict_summary,
+    fullData: data
+  });
+
+  // 추천 텍스트 가져오기 - 다양한 위치에서 찾아본다
   const recommendationText =
     clusterSummary.recommendation ||
     data?.auto_analysis_results?.summaries?.predict_summary?.recommendation ||
     "";
 
+  console.log("추천 텍스트:", recommendationText);
+
   const preprocessRecommendations = (text: string) => {
     if (!text) return [];
 
-    // 한글 숫자와 기호 포함한 정규표현식
-    const recommendationRegex = /[①②③④⑤⑥⑦⑧⑨⑩][\s)]*(.*?)(?=[①②③④⑤⑥⑦⑧⑨⑩]|$)/g;
+    // 추천 사항 형식이 다양할 수 있으므로 여러 정규식 시도
 
-    const matches = [...text.matchAll(recommendationRegex)];
+    // 1. 한글 숫자(①②③)로 시작하는 경우
+    const koreanNumRegex = /[①②③④⑤⑥⑦⑧⑨⑩][\s)]*(.*?)(?=[①②③④⑤⑥⑦⑧⑨⑩]|$)/g;
 
+    // 2. 숫자 + 점(1. 2. 등)으로 시작하는 경우
+    const numDotRegex = /(\d+)[\.\s)]+(.*?)(?=\d+[\.\s)]|$)/g;
+
+    // 3. '-' 또는 '*' 기호로 시작하는 경우
+    const bulletRegex = /[-\*][\s)]+(.*?)(?=[-\*][\s)]|$)/g;
+
+    // 여러 정규식으로 시도하고 결과 반환
+    let matches = [...text.matchAll(koreanNumRegex)];
+
+    if (matches.length === 0) {
+      matches = [...text.matchAll(numDotRegex)];
+    }
+
+    if (matches.length === 0) {
+      matches = [...text.matchAll(bulletRegex)];
+    }
+
+    // 정규식으로 매칭되지 않으면 줄바꿈으로 분리
+    if (matches.length === 0 && text.includes("\n")) {
+      return text
+        .split("\n")
+        .filter((line) => line.trim().length > 0)
+        .map((line, index) => ({
+          number: index + 1,
+          text: line
+            .trim()
+            .replace(/^[-\*\d\.\s①②③④⑤⑥⑦⑧⑨⑩]+/, "")
+            .trim()
+        }));
+    }
+
+    // 정규식 매칭 결과 반환
     return matches.map((match, index) => ({
       number: index + 1,
-      text: match[1].trim()
+      text: match[match.length - 1].trim()
     }));
   };
 
-  const recommendations = preprocessRecommendations(recommendationText);
+  // 추천 사항이 없는 경우 전체 텍스트를 하나의 항목으로 표시
+  let recommendations = preprocessRecommendations(recommendationText);
+
+  if (recommendations.length === 0 && recommendationText) {
+    recommendations = [
+      {
+        number: 1,
+        text: recommendationText
+      }
+    ];
+  }
+
+  console.log("파싱된 추천 사항:", recommendations);
 
   return (
-    <div className="w-full lg:w-1/2 bg-basic-white p-6 rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
+    <div className="w-full bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
+      <h2 className="text-lg font-semibold mb-10 text-comment">
         영업 전략 제안
       </h2>
       <div className="p-4 bg-blue-50 rounded-lg">
