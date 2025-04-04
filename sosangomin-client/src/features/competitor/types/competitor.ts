@@ -1,12 +1,54 @@
 // features/competitor/types/competitor.ts
 
+export interface Review {
+  text: string;
+  rating: number;
+  date: string;
+  sentiment: "positive" | "neutral" | "negative";
+  keywords: string[];
+  sentiment_score: number;
+  matched_sentiment_words: string[];
+}
+
+export interface AnalysisResult {
+  competitor_name: string;
+  place_id: string;
+  reviews: Review[];
+  review_count: number;
+  average_rating: number;
+  sentiment_distribution: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  word_cloud_data: {
+    positive_words: Record<string, number>;
+    negative_words: Record<string, number>;
+  };
+  insights: string;
+  analysis_time: string;
+}
+
+export interface CompetitorAnalysis {
+  status: string;
+  message: string;
+  competitor_info: {
+    store_name: string;
+    address: string;
+    place_id: string;
+    category: string;
+    phone: string;
+    latitude: number;
+    longitude: number;
+  };
+  analysis_result: AnalysisResult;
+}
+
 /**
  * 경쟁사 분석 요청 파라미터
  */
 export interface CompetitorAnalysisRequest {
-  /** 내 매장 ID (string 형식) */
   store_id: string;
-  /** 경쟁사 이름 */
   competitor_name: string;
 }
 
@@ -14,12 +56,10 @@ export interface CompetitorAnalysisRequest {
  * 경쟁사 분석 응답
  */
 export interface CompetitorAnalysisResponse {
-  /** 성공 여부 */
   status: string;
-  /** 응답 메시지 */
   message: string;
   /** 경쟁사 분석 데이터 */
-  competitor_analysis?: any;
+  competitor_analysis?: CompetitorAnalysis;
   /** 비교 분석 결과 */
   comparisonResult: CompetitorComparisonResult;
 }
@@ -32,19 +72,12 @@ export interface CompetitorComparisonResult {
   _id: string;
   /** 비교 분석 ID (클라이언트용) */
   comparison_id: string;
-  /** 매장 ID */
   store_id: string | number;
-  /** 경쟁사 이름 */
   competitor_name: string;
-  /** 경쟁사 장소 ID */
   competitor_place_id?: string;
-  /** 비교 분석 데이터 */
   comparison_data: ComparisonData;
-  /** 분석 인사이트 요약 */
   comparison_insight: string;
-  /** 인사이트 */
   summary?: string;
-  /** 생성 시간 */
   created_at: string;
 }
 
@@ -71,23 +104,17 @@ export interface ComparisonData {
  * 매장 정보
  */
 export interface StoreData {
-  /** 매장 이름 */
   name?: string;
-  /** 리뷰 수 */
   review_count: number;
-  /** 평균 평점 */
   average_rating: number;
-  /** 감정 분석 분포 */
   sentiment_distribution: {
     positive: number;
     neutral: number;
     negative: number;
   };
-  /** 긍정 리뷰 비율 */
   positive_rate: number;
-  /** 샘플 리뷰 */
   sample_reviews: string[];
-  /** 카테고리 인사이트 */
+  reviews?: Review[];
   category_insights?: Record<string, any>;
 }
 
@@ -95,9 +122,7 @@ export interface StoreData {
  * 워드 클라우드 비교 데이터
  */
 export interface WordCloudComparisonData {
-  /** 내 매장 워드 클라우드 */
   my_store: WordCloudData;
-  /** 경쟁사 워드 클라우드 */
   competitor: WordCloudData;
 }
 
@@ -105,9 +130,7 @@ export interface WordCloudComparisonData {
  * 워드 클라우드 데이터
  */
 export interface WordCloudData {
-  /** 긍정 단어 목록 */
   positive_words: Record<string, number>;
-  /** 부정 단어 목록 */
   negative_words: Record<string, number>;
 }
 
@@ -115,7 +138,6 @@ export interface WordCloudData {
  * 경쟁사 비교 목록 응답
  */
 export interface CompetitorComparisonListResponse {
-  /** 성공 여부 */
   status: string;
   /** 비교 분석 수 */
   count: number;
@@ -127,15 +149,10 @@ export interface CompetitorComparisonListResponse {
  * 경쟁사 비교 요약
  */
 export interface CompetitorComparisonSummary {
-  /** 비교 분석 ID */
   comparison_id: string;
-  /** 경쟁사 이름 */
   competitor_name: string;
-  /** 경쟁사 장소 ID */
   competitor_place_id: string;
-  /** 생성 시간 */
   created_at: string;
-  /** 인사이트 요약 */
   summary: string;
 }
 
