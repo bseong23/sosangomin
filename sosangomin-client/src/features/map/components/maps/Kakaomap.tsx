@@ -4,7 +4,8 @@ import {
   loadKakaoMapScript,
   displayGeoJsonPolygon,
   fetchPopulationData,
-  getColorByPopulation
+  getColorByPopulation,
+  displayrecommendPolygon
 } from "@/features/map/api/mapApi";
 
 const Kakaomap: React.FC<KakaomapProps> = ({
@@ -33,6 +34,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
     lng: number;
   } | null>(null);
 
+  const polygonsRef = useRef<any[]>([]);
   // 사용자 위치 가져오기
   useEffect(() => {
     if (navigator.geolocation) {
@@ -56,7 +58,6 @@ const Kakaomap: React.FC<KakaomapProps> = ({
       // Geolocation을 지원하지 않는 브라우저에서는 기본 center 값이 사용됨
     }
   }, []);
-  console.log(recommendedAreas);
   // 카카오맵 스크립트 로드
   useEffect(() => {
     const initializeMap = async () => {
@@ -148,28 +149,49 @@ const Kakaomap: React.FC<KakaomapProps> = ({
 
   // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
-    if (mapInstance && geoJsonData && populationData.size > 0) {
-      // 인구 데이터를 기반으로 폴리곤 표시
+    if (
+      mapInstance &&
+      geoJsonData &&
+      recommendedAreas &&
+      recommendedAreas.length > 0
+    ) {
+      // 기존 폴리곤 제거
+      polygonsRef.current.forEach((polygon) => polygon.setMap(null));
+      polygonsRef.current = [];
+
+      // 추천 지역 데이터로 폴리곤 생성
+      displayrecommendPolygon(
+        mapInstance,
+        geoJsonData, // GeoJSON 데이터 추가
+        recommendedAreas,
+        {
+          strokeColor: "#333333",
+          strokeOpacity: 0.5,
+          strokeWeight: 1,
+          fillOpacity: 0.1,
+          fitBounds: true,
+          polygonsRef: polygonsRef,
+          onPolygonClick: handlePolygonClick
+        }
+      );
+    } else if (mapInstance && geoJsonData) {
+      // 기존 폴리곤 제거
+      polygonsRef.current.forEach((polygon) => polygon.setMap(null));
+      polygonsRef.current = [];
+
+      // GeoJSON 데이터로 일반 폴리곤 생성
       displayGeoJsonPolygon(mapInstance, geoJsonData, {
-        strokeColor: "#333333", // 경계선 색상을 더 어둡게 설정
+        strokeColor: "#333333",
         strokeOpacity: 0.5,
         strokeWeight: 1,
-        fillOpacity: 0.2, // 투명도 조정 (더 선명하게)
+        fillOpacity: 0.1,
         populationData: populationData,
-        getColorByPopulation: getColorByPopulation, // 인구 기반 색상 함수 전달
+        getColorByPopulation: getColorByPopulation,
         fitBounds: false,
-        onPolygonClick: handlePolygonClick // 폴리곤 클릭 핸들러 전달
-      });
-    } else if (mapInstance && geoJsonData) {
-      // 인구 데이터가 없는 경우 기본 색상으로 표시
-      displayGeoJsonPolygon(mapInstance, geoJsonData, {
-        strokeColor: "#FF0000",
-        fillColor: "#FF8888",
-        fillOpacity: 0.2,
-        onPolygonClick: handlePolygonClick // 폴리곤 클릭 핸들러 전달
+        onPolygonClick: handlePolygonClick
       });
     }
-  }, [mapInstance, geoJsonData, populationData]);
+  }, [mapInstance, geoJsonData, recommendedAreas, populationData]);
 
   // 마커 생성 및 업데이트
   useEffect(() => {

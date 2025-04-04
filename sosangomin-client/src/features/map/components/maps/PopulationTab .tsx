@@ -148,7 +148,10 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-4 bg-white shadow rounded-lg">
               <p className="text-base text-gray-600">총 상주인구</p>
               <p className="text-base font-bold">
-                {populationData.resident_pop.총_상주인구.toLocaleString()}명
+                {(
+                  populationData.resident_pop.총_상주인구 || 0
+                ).toLocaleString()}
+                명
               </p>
             </div>
             <div className="p-4 bg-white shadow rounded-lg">
@@ -164,10 +167,14 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-4 bg-white shadow rounded-lg">
               <p className="text-base text-gray-600">최다 인구 그룹</p>
               <p className="text-base">
-                {populationData.resident_pop.가장_많은_성별_연령대.구분}
+                {populationData.resident_pop.가장_많은_성별_연령대?.구분 ||
+                  "데이터 없음"}
                 <span className="ml-2 text-gray-500">
                   (
-                  {populationData.resident_pop.가장_많은_성별_연령대.인구수.toLocaleString()}
+                  {(
+                    populationData.resident_pop.가장_많은_성별_연령대?.인구수 ||
+                    0
+                  ).toLocaleString()}
                   명)
                 </span>
               </p>
@@ -206,7 +213,8 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-4 bg-white shadow rounded-lg">
               <p className="text-base text-gray-600">총 직장인구</p>
               <p className="text-base font-bold">
-                {populationData.working_pop.총_직장인구.toLocaleString()}명
+                {(populationData.working_pop.총_직장인구 || 0).toLocaleString()}
+                명
               </p>
             </div>
             <div className="p-4 bg-white shadow rounded-lg">
@@ -225,7 +233,9 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 {populationData.working_pop.가장_많은_성별_연령대.구분}
                 <span className="ml-2 text-gray-500">
                   (
-                  {populationData.working_pop.가장_많은_성별_연령대.인구수.toLocaleString()}
+                  {(
+                    populationData.working_pop.가장_많은_성별_연령대.인구수 || 0
+                  ).toLocaleString()}
                   명)
                 </span>
               </p>
@@ -264,7 +274,10 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-4 bg-white shadow rounded-lg">
               <p className="text-base text-gray-600">총 유동인구</p>
               <p className="text-base font-bold">
-                {populationData.floating_pop.총_유동인구.toLocaleString()}명
+                {(
+                  populationData.floating_pop.총_유동인구 || 0
+                ).toLocaleString()}
+                명
               </p>
             </div>
             <div className="p-4 bg-white shadow rounded-lg">
@@ -283,7 +296,10 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 {populationData.floating_pop.가장_많은_성별_연령대.구분}
                 <span className="ml-2 text-gray-500">
                   (
-                  {populationData.floating_pop.가장_많은_성별_연령대.인구수.toLocaleString()}
+                  {(
+                    populationData.floating_pop.가장_많은_성별_연령대.인구수 ||
+                    0
+                  ).toLocaleString()}
                   명)
                 </span>
               </p>
@@ -314,7 +330,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 유동인구가 가장 많은 시간대
               </p>
               <p className="text-base font-bold py-2">
-                {populationData.floating_pop.가장_많은_시간대}
+                {populationData.floating_pop.가장_많은_시간대 || "데이터 없음"}
               </p>
             </div>
             <div className="p-4 bg-white shadow rounded-lg">
