@@ -1,3 +1,4 @@
+// src/pages/ResultPage.tsx
 import React, { useEffect, useState } from "react";
 import HeaderComponent from "../features/finalreport/components/HeaderComponent";
 import SwotDetailComponent from "../features/finalreport/components/SwotDetailComponent";
@@ -5,53 +6,123 @@ import RecommendationsComponent from "../features/finalreport/components/Recomme
 import VisualizationComponent from "../features/finalreport/components/VisualizationComponent";
 import FullAnalysisComponent from "../features/finalreport/components/FullAnalysisComponent";
 import RelatedAnalysesComponent from "../features/finalreport/components/RelatedAnalysesComponent";
-import { ReportData, mockReportData } from "../features/finalreport/types";
-import Loading from "@/components/common/Loading";
+import useFinalReportManager from "@/features/finalreport/hooks/useFinalReportManager";
+import useStoreStore from "../store/storeStore";
+import Loading from "../components/common/Loading";
 
 const ResultPage: React.FC = () => {
-  const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // 스토어에서 대표 매장 정보 가져오기
+  const { representativeStore } = useStoreStore();
+  const storeId = representativeStore?.store_id || "1"; // 기본값 설정
 
-  console.log(setError);
+  // URL 파라미터에서 reportId 추출
+  const getReportIdFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("reportId");
+  };
+
+  // 현재 URL에서 reportId 가져오기
+  const [currentReportId, setCurrentReportId] = useState<string | undefined>(
+    getReportIdFromUrl() || undefined
+  );
+
+  // 보고서 관련 상태 관리
+  const {
+    reportDetail,
+    reportList,
+    isLoadingDetail,
+    isLoadingList,
+    isCreating,
+    detailError,
+    listError,
+    handleSelectReport,
+    handleCreateReport
+  } = useFinalReportManager(storeId);
+
+  // URL 변경 시 reportId 업데이트
   useEffect(() => {
-    // 실제 API 연동 시에는 아래 주석을 해제하고 mockReportData를 제거합니다.
-    /*
-    const fetchReportData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/report/1'); // 실제 API 엔드포인트로 교체
-        
-        if (!response.ok) {
-          throw new Error('데이터를 가져오는데 실패했습니다.');
-        }
-        
-        const data = await response.json();
-        setReportData(data);
-        setError(null);
-      } catch (err) {
-        setError('보고서 데이터를 불러오는 중 오류가 발생했습니다.');
-        console.error(err);
-      } finally {
-        setLoading(false);
+    const handleUrlChange = () => {
+      const newReportId = getReportIdFromUrl();
+      if (newReportId !== currentReportId) {
+        setCurrentReportId(newReportId || undefined);
       }
     };
-    
-    fetchReportData();
-    */
 
-    // 개발 중에는 목업 데이터 사용
-    setTimeout(() => {
-      setReportData(mockReportData);
-      setLoading(false);
-    }, 500); // 로딩 상태를 시뮬레이션하기 위한 지연
-  }, []);
+    // popstate 이벤트로 뒤로가기/앞으로가기 감지
+    window.addEventListener("popstate", handleUrlChange);
+    return () => {
+      window.removeEventListener("popstate", handleUrlChange);
+    };
+  }, [currentReportId]);
 
-  if (loading) {
-    return <Loading />;
+  // 목록이 로드되면 자동으로 최신 보고서 선택
+  useEffect(() => {
+    if (reportList && reportList.length > 0 && !currentReportId) {
+      const latestReportId = reportList[0].report_id;
+
+      // URL 업데이트
+      const url = new URL(window.location.href);
+      url.searchParams.set("reportId", latestReportId);
+      window.history.pushState({}, "", url.toString());
+
+      // 상태 업데이트
+      setCurrentReportId(latestReportId);
+      handleSelectReport(latestReportId);
+    }
+  }, [reportList, currentReportId, handleSelectReport]);
+
+  // reportId 변경 시 보고서 선택
+  useEffect(() => {
+    if (currentReportId) {
+      handleSelectReport(currentReportId);
+    }
+  }, [currentReportId, handleSelectReport]);
+
+  // 보고서 선택 핸들러
+  const handleReportSelection = (newReportId: string) => {
+    // URL 업데이트 (페이지 새로고침 없이)
+    const url = new URL(window.location.href);
+    url.searchParams.set("reportId", newReportId);
+    window.history.pushState({}, "", url.toString());
+
+    // 상태 업데이트
+    setCurrentReportId(newReportId);
+    handleSelectReport(newReportId);
+  };
+
+  // 새 보고서 생성 핸들러
+  const handleCreateNewReport = async () => {
+    if (isCreating) return; // 이미 생성 중이면 중복 요청 방지
+
+    try {
+      const newReport = await handleCreateReport(storeId);
+      if (newReport && newReport._id) {
+        // 새로 생성된 보고서로 URL 업데이트
+        const url = new URL(window.location.href);
+        url.searchParams.set("reportId", newReport._id);
+        window.history.pushState({}, "", url.toString());
+
+        // 상태 업데이트
+        setCurrentReportId(newReport._id);
+      }
+    } catch (error) {
+      console.error("보고서 생성 중 오류 발생:", error);
+    }
+  };
+
+  // 로딩 상태 처리
+  const isLoading = isLoadingDetail || isLoadingList || isCreating;
+  if ((isLoading && !reportDetail) || !representativeStore) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Loading />
+      </div>
+    );
   }
 
-  if (error || !reportData) {
+  // 에러 상태 처리
+  const error = detailError || listError;
+  if (error || (!reportDetail && !isLoading && !isCreating)) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
@@ -73,7 +144,8 @@ const ResultPage: React.FC = () => {
             오류가 발생했습니다
           </h2>
           <p className="text-gray-600 text-center">
-            {error || "알 수 없는 오류가 발생했습니다."}
+            {error?.message ||
+              "보고서 데이터를 불러오는 중 오류가 발생했습니다."}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -86,23 +158,98 @@ const ResultPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-white p-12">
-      <div className="max-w-6xl mx-auto px-4">
-        <HeaderComponent data={reportData} />
-        <SwotDetailComponent data={reportData} />
-
-        {/* 두 섹션의 높이를 맞추기 위해 flex 사용 */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          <div className="lg:w-2/3">
-            <VisualizationComponent data={reportData} />
-          </div>
-          <div className="lg:w-1/3">
-            <RecommendationsComponent data={reportData} />
-          </div>
+  // 보고서 목록이 있지만 보고서가 없는 경우 (생성 필요)
+  if (reportList && reportList.length === 0 && !reportDetail && !isCreating) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            보고서가 없습니다
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {representativeStore.store_name}의 분석 보고서가 없습니다. 새
+            보고서를 생성해 주세요.
+          </p>
+          <button
+            onClick={handleCreateNewReport}
+            className={`py-2 px-4 ${
+              isCreating
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            } text-white rounded-md transition duration-200 flex items-center justify-center`}
+            disabled={isCreating}
+          >
+            {isCreating ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                분석 중...
+              </>
+            ) : (
+              "분석하기"
+            )}
+          </button>
         </div>
-        <FullAnalysisComponent data={reportData} />
-        <RelatedAnalysesComponent data={reportData} />
+      </div>
+    );
+  }
+
+  // 데이터가 없는 경우의 처리
+  if (!reportDetail) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            보고서를 불러오는 중입니다
+          </h2>
+          <Loading />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white p-6 md:p-12">
+      <div className="max-w-6xl mx-auto px-4">
+        <HeaderComponent
+          data={reportDetail}
+          reportList={reportList}
+          onReportSelect={handleReportSelection}
+          onCreateReport={isCreating ? undefined : handleCreateNewReport}
+        />
+
+        {isLoadingDetail ? (
+          <div className="flex justify-center py-10">
+            <Loading />
+          </div>
+        ) : (
+          <>
+            <SwotDetailComponent data={reportDetail} />
+
+            <RecommendationsComponent data={reportDetail} />
+            <VisualizationComponent data={reportDetail} />
+            <FullAnalysisComponent data={reportDetail} />
+            <RelatedAnalysesComponent data={reportDetail} />
+          </>
+        )}
       </div>
     </div>
   );

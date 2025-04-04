@@ -1,17 +1,16 @@
+// src/features/finalreport/components/VisualizationComponent.tsx
 import React from "react";
-import { ReportData } from "../types";
+import { FinalReportDetail } from "../types/finalReport";
 
 interface VisualizationComponentProps {
-  data: ReportData;
+  data: FinalReportDetail;
 }
 
 const VisualizationComponent: React.FC<VisualizationComponentProps> = ({
   data
 }) => {
   return (
-    <div className="bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)]  rounded-lg p-6 mb-6">
-      {/* 제거: SWOT 매트릭스 시각화 부분 */}
-
+    <div className="bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-lg p-6 mb-6">
       {/* 추천사항 우선순위 차트 */}
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         개선 제안 우선순위
@@ -20,8 +19,8 @@ const VisualizationComponent: React.FC<VisualizationComponentProps> = ({
         <div className="space-y-3">
           {data.swot_analysis.recommendations.map((recommendation, idx) => (
             <div key={idx} className="flex items-center">
-              <div className="w-32 text-sm text-gray-700 flex-shrink-0">
-                {recommendation}
+              <div className="w-32 text-sm text-gray-700 flex-shrink-0 truncate">
+                {recommendation.split(":")[0]}
               </div>
               <div className="flex-grow">
                 <div

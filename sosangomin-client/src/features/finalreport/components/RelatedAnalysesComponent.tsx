@@ -1,8 +1,8 @@
 import React from "react";
-import { ReportData } from "../types";
+import { FinalReportDetail } from "../types/finalReport";
 
 interface RelatedAnalysesComponentProps {
-  data: ReportData;
+  data: FinalReportDetail;
 }
 
 const RelatedAnalysesComponent: React.FC<RelatedAnalysesComponentProps> = ({
