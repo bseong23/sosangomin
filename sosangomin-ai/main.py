@@ -13,6 +13,7 @@ from routers import chat_router, news_router, data_analysis_router, s3_router, d
 from schedulers.news_scheduler import start_news_scheduler
 from schedulers.area_analysis_scheduler import start_area_scheduler
 from schedulers.transport_scheduler import start_subway_station_scheduler
+import fcntl
 
 # 환경 변수 로드
 load_dotenv("./config/.env")
@@ -60,22 +61,45 @@ def read_root():
 
 @app.on_event("startup")
 async def startup_event():
-    is_main_process = int(os.environ.get("GUNICORN_WORKER_ID", "0")) == 0
+    lock_file_path = "/tmp/scheduler.lock"
     
-    if is_main_process:
-        start_news_scheduler()
-        logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
+    try:
+        lock_file = open(lock_file_path, "w+")
+        
+        try:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            
+            logger.info("메인 프로세스로 스케줄러 시작")
+            
+            start_news_scheduler()
+            logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
 
-        start_area_scheduler()
-        logger.info("상권분석 스케줄링 완료")
+            start_area_scheduler()
+            logger.info("상권분석 스케줄링 완료")
+        
+            start_subway_station_scheduler()
+            logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+            
+            app.state.lock_file = lock_file
+            
+        except IOError:
+            lock_file.close()
+            logger.info("다른 프로세스가 이미 스케줄러를 실행 중입니다.")
     
-        start_subway_station_scheduler()
-        logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
-    else:
-        logger.info(f"워커 프로세스 {os.environ.get('GUNICORN_WORKER_ID')} 시작됨. 스케줄러는 메인 프로세스에서만 실행됩니다.")
+    except Exception as e:
+        logger.error(f"스케줄러 시작 중 오류 발생: {e}")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    if hasattr(app.state, "lock_file"):
+        try:
+            fcntl.flock(app.state.lock_file, fcntl.LOCK_UN)
+            app.state.lock_file.close()
+            logger.info("스케줄러 락 해제 완료")
+        except Exception as e:
+            logger.error(f"스케줄러 락 해제 중 오류 발생: {e}")
+    
     logger.info("애플리케이션 종료")
 
 if __name__ == "__main__":
