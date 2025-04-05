@@ -28,7 +28,7 @@ const SearchableMapModal: React.FC<SearchableMapModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-auto">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-medium">경쟁사 매장 검색</h3>
