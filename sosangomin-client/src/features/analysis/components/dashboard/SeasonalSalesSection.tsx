@@ -28,8 +28,8 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
   };
 
   return (
-    <div className="w-full bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
+    <div className="w-full bg-basic-white mb-6 p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
+      <h2 className="text-lg font-semibold mb-10 text-comment">
         시즌별 매출 분석
       </h2>
       <div className="p-4 mb-4">
@@ -54,8 +54,8 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
           </div>
         ))}
       </div>
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <p className="text-sm text-comment-text">
+      <div className="p-4 bg-blue-50 rounded-lg">
+        <p className="text-sm text-commentt">
           {truncateSummary(seasonSalesSummary)}
         </p>
       </div>

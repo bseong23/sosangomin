@@ -357,7 +357,7 @@ const AnalysisDashboard: React.FC = () => {
   return (
     <div>
       <div className="max-w-[1200px] mx-auto p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-15 gap-4">
           <h1 className="text-xl font-bold text-comment">
             <span className="text-bit-main font-bold text-2xl">
               {representativeStore.store_name}
@@ -380,52 +380,32 @@ const AnalysisDashboard: React.FC = () => {
         {/* 전체 요약 섹션 */}
         <SummarySection summary={overallSummary} />
 
+        <StrategySection
+          data={
+            originalApiData?.analysis_result
+              ? {
+                  ...data,
+                  auto_analysis_results:
+                    originalApiData.analysis_result.auto_analysis_results
+                }
+              : data
+          }
+        />
+
         {/* 기본 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          <StatsCard
-            title="총 매출"
-            value={basicStats.total_sales}
-            subValue={`${basicStats.total_transactions}건의 거래`}
-            colorClass="text-bit-main"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+          <StatsCard title="총 매출" value={basicStats.total_sales} />
           <StatsCard
             title="평균 거래 금액"
             value={`₩${Math.round(basicStats.avg_transaction).toLocaleString(
               "ko-KR"
             )}`}
-            subValue={`고객당 평균 ₩${Math.round(
-              basicStats.customer_avg
-            ).toLocaleString("ko-KR")}`}
-            colorClass="text-bit-main"
           />
           <StatsCard
             title="총 거래 건수"
             value={`${basicStats.total_transactions}건`}
-            subValue={`${basicStats.unique_products}개 고유 제품`}
-            colorClass="text-bit-main"
           />
         </div>
-
-        {/* 시간별 매출 섹션 */}
-        <HourlySalesSection data={data} />
-
-        {/* 평일/휴일 매출 비율 & 시간대별 매출 분석 섹션 */}
-        <DistributionSection data={data} />
-
-        {/* 인기 메뉴 랭킹 섹션 */}
-        <TopProductsSection data={data} />
-
-        {/* 요일별 매출 현황 섹션 */}
-        <WeekdaySalesSection data={data} />
-
-        {/* 날씨별 매출 섹션 */}
-        <WeatherSalesSection data={data} />
-
-        {/* 기온별 매출 섹션 */}
-        <TemperatureSalesSection data={data} />
-
-        {/* 제품 점유율 섹션 */}
-        <ProductShareSection data={data} />
 
         {/* 예측 매출 섹션 */}
         {originalApiData?.analysis_result && (
@@ -437,6 +417,11 @@ const AnalysisDashboard: React.FC = () => {
             }}
           />
         )}
+        {/* 인기 메뉴 랭킹 섹션 */}
+        <TopProductsSection data={data} />
+
+        {/* 제품 점유율 섹션 */}
+        <ProductShareSection data={data} />
 
         {/* 상품 클러스터 분석 섹션 */}
         {originalApiData?.analysis_result && (
@@ -449,21 +434,26 @@ const AnalysisDashboard: React.FC = () => {
           />
         )}
 
+        {/* 평일/휴일 매출 비율 & 시간대별 매출 분석 섹션 */}
+        <DistributionSection data={data} />
+
+        {/* 요일별 매출 현황 섹션 */}
+        <WeekdaySalesSection data={data} />
+
+        {/* 시간별 매출 섹션 */}
+        <HourlySalesSection data={data} />
+
         {/* 시즌 매출 & 영업 전략 제안 섹션 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <SeasonalSalesSection data={data} />
-          <StrategySection
-            data={
-              originalApiData?.analysis_result
-                ? {
-                    ...data,
-                    auto_analysis_results:
-                      originalApiData.analysis_result.auto_analysis_results
-                  }
-                : data
-            }
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 날씨별 매출 섹션 */}
+          <WeatherSalesSection data={data} />
+
+          {/* 기온별 매출 섹션 */}
+          <TemperatureSalesSection data={data} />
         </div>
+
+        {/* 계절별 매출 섹션 */}
+        <SeasonalSalesSection data={data} />
       </div>
     </div>
   );

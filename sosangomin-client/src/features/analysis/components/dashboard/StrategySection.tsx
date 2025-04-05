@@ -82,9 +82,9 @@ const StrategySection: React.FC<{ data: AnalysisResultData }> = ({ data }) => {
   console.log("파싱된 추천 사항:", recommendations);
 
   return (
-    <div className="w-full bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
+    <div className="w-full bg-basic-white p-6 mb-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
       <h2 className="text-lg font-semibold mb-10 text-comment">
-        영업 전략 제안
+        소상고민이 제안하는 추천 운영 방안
       </h2>
       <div className="p-4 bg-blue-50 rounded-lg">
         <ul className="space-y-3">

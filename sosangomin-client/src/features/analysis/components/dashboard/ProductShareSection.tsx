@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PieChart from "@/components/chart/PieChart";
 import { AnalysisResultData } from "../../types/analysis";
 
@@ -11,70 +11,91 @@ const ProductShareSection: React.FC<ProductShareSectionProps> = ({ data }) => {
   const productShare = data?.result_data?.product_share?.data || {};
   const productShareSummary = data?.result_data?.product_share?.summary || "";
 
+  // 상위 5개 제품만 표시하고 나머지는 기타로 처리
+  const processedData = useMemo(() => {
+    // 제품 점유율을 내림차순으로 정렬
+    const sortedEntries = Object.entries(productShare).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    // 상위 5개와 나머지 분리
+    const top5 = sortedEntries.slice(0, 5);
+    const others = sortedEntries.slice(5);
+
+    // 나머지 항목들의 점유율 합계
+    const othersSum = others.reduce((sum, [_, value]) => sum + value, 0);
+
+    // 상위 5개 + 기타로 새로운 객체 생성
+    const result = Object.fromEntries(top5);
+
+    if (others.length > 0) {
+      result["기타 상품"] = othersSum;
+    }
+
+    return result;
+  }, [productShare]);
+
+  // 색상 배열 (상위 5개 + 기타)
+  const colors = [
+    "rgba(255, 99, 132, 0.6)", // 분홍색
+    "rgba(54, 162, 235, 0.6)", // 파란색
+    "rgba(255, 206, 86, 0.6)", // 노란색
+    "rgba(75, 192, 192, 0.6)", // 청록색
+    "rgba(153, 102, 255, 0.6)", // 보라색
+    "rgba(128, 128, 128, 0.6)" // 회색 (기타)
+  ];
+
+  const borderColors = colors.map((color) => color.replace("0.6", "1"));
+
   // 파이 차트 데이터 준비
   const productShareChartData = {
-    labels: Object.keys(productShare),
+    labels: Object.keys(processedData),
     datasets: [
       {
         label: "제품 점유율",
-        data: Object.values(productShare),
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
-          "rgba(153, 102, 255, 0.6)",
-          "rgba(255, 159, 64, 0.6)",
-          "rgba(199, 199, 199, 0.6)"
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)",
-          "rgba(199, 199, 199, 1)"
-        ],
+        data: Object.values(processedData),
+        backgroundColor: colors.slice(0, Object.keys(processedData).length),
+        borderColor: borderColors.slice(0, Object.keys(processedData).length),
         borderWidth: 1
       }
     ]
   };
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength = 300): string => {
-    return summary.length > maxLength
-      ? `${summary.substring(0, maxLength)}...`
-      : summary;
-  };
-
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
-        제품 점유율 분석
+      <h2 className="text-lg font-semibold mb-6 text-comment">
+        우리가게 효자 제품은?
       </h2>
-      <div className="flex flex-col md:flex-row items-center">
-        <div className="w-full md:w-1/2 mb-4 md:mb-0">
-          <PieChart chartData={productShareChartData} />
+      <div className="flex flex-col md:flex-row items-center justify-between">
+        <div className="w-full md:w-2/5 mb-4 md:mb-0">
+          <div className="w-full max-w-xs mx-auto">
+            <PieChart chartData={productShareChartData} />
+          </div>
         </div>
-        <div className="w-full md:w-1/2 md:pl-4">
-          <div className="space-y-2">
-            {Object.entries(productShare).map(([product, share], idx) => (
+        <div className="w-full md:w-3/5 md:pl-6 flex items-center">
+          <div className="space-y-2 w-full">
+            {Object.entries(processedData).map(([product, share], idx) => (
               <div
                 key={idx}
-                className="flex justify-between items-center text-sm"
+                className="grid grid-cols-2 items-center text-sm py-1"
               >
-                <span>{product}</span>
-                <span className="font-semibold">{share.toFixed(1)}%</span>
+                <div className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: colors[idx] }}
+                  ></div>
+                  <span>{product}</span>
+                </div>
+                <div className="text-right font-semibold">
+                  {Number(share).toFixed(1)}%
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-comment">
-          {truncateSummary(productShareSummary)}
-        </p>
+      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+        <p className="text-sm text-comment">{productShareSummary}</p>
       </div>
     </div>
   );

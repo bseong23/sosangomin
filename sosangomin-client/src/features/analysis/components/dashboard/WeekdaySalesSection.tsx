@@ -32,23 +32,12 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
     }
   ];
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength: number = 300) => {
-    if (!summary) return "";
-    return summary.length > maxLength
-      ? summary.substring(0, maxLength) + "..."
-      : summary;
-  };
-
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
       <h2 className="text-lg font-semibold mb-4 text-comment">
         요일별 매출 현황
       </h2>
-      <div
-        className="mb-4"
-        style={{ width: "100%", height: "350px", overflow: "hidden" }}
-      >
+      <div className="mb-10" style={{ width: "100%", height: "350px" }}>
         <SalesRankingCard
           title=""
           labels={weekdaySalesLabels}
@@ -58,9 +47,7 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
       </div>
       <div className="mt-2 mb-2">
         <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-comment">
-            {truncateSummary(weekdaySalesSummary)}
-          </p>
+          <p className="text-sm text-comment">{weekdaySalesSummary}</p>
         </div>
       </div>
     </div>

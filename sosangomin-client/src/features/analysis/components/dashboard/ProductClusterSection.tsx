@@ -36,11 +36,11 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
     return (
       <div className="bg-basic-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-lg font-semibold mb-4 text-comment">
-          상품 클러스터 분석
+          연관 상품 분석
         </h2>
         <div className="p-4 bg-gray-100 rounded-lg">
           <p className="text-base text-gray-500">
-            클러스터 분석 데이터가 없습니다.
+            연관 상품 분석 데이터가 없습니다.
           </p>
         </div>
       </div>
@@ -60,11 +60,11 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
     return (
       <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
         <h2 className="text-lg font-semibold mb-4 text-comment">
-          상품 클러스터 분석
+          연관 상품 분석
         </h2>
         <div className="p-4 bg-gray-50 rounded-lg">
           <h3 className="text-base font-medium mb-2 text-comment">
-            클러스터 분석 요약
+            연관 상품 요약
           </h3>
           <p className="text-sm text-comment-text">
             {truncateSummary(clusterSummary.summary || "")}
@@ -78,7 +78,7 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
       <h2 className="text-lg font-semibold mb-4 text-comment">
-        상품 클러스터 분석
+        연관 상품 분석
       </h2>
       <div className="flex gap-4">
         {Array.isArray(clusterSummary.group_characteristics) ? (
@@ -113,7 +113,7 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
       </div>
       <div className="mt-4 p-4 rounded-lg">
         <h3 className="text-base font-medium mb-2 text-comment">
-          클러스터 분석 요약
+          연관 상품 요약
         </h3>
         <div className="text-base text-comment bg-blue-50 p-4 rounded-lg">
           <p>{truncateSummary(clusterSummary.summary || "")}</p>

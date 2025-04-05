@@ -38,6 +38,7 @@ interface LineChartProps {
     fill?: boolean;
   }[];
   yAxisTitle?: string;
+  legend?: boolean;
 }
 
 /**
@@ -47,8 +48,9 @@ const LineChart: React.FC<LineChartProps> = ({
   title = "",
   labels,
   datasets,
-  yAxisTitle
-}) => {
+  yAxisTitle,
+  legend
+}: LineChartProps) => {
   // 차트 옵션
   const options = {
     responsive: true,
@@ -56,6 +58,7 @@ const LineChart: React.FC<LineChartProps> = ({
     plugins: {
       legend: {
         position: "top" as const,
+        display: legend,
         labels: {
           font: {
             size: 12

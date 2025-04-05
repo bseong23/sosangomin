@@ -26,7 +26,7 @@ const SalesTrendCard: React.FC<SalesTrendCardProps> = ({
           title=""
           labels={labels}
           datasets={datasets}
-          yAxisTitle="금액 (원)"
+          legend={false}
         />
       </div>
       {comment && <p className="text-sm text-gray-600 mt-2">{comment}</p>}

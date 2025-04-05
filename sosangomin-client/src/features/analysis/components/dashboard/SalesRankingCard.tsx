@@ -26,8 +26,8 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
           labels={labels}
           datasets={datasets}
           height={height}
-          yAxisLabel="금액 (원)"
           horizontal={horizontal}
+          legend={false}
         />
         {comment && <p className="text-sm text-gray-600 mt-2">{comment}</p>}
       </div>
