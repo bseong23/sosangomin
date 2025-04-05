@@ -8,7 +8,7 @@ import {
 } from "@/features/competitor/api/competitorApi";
 import {
   CompetitorComparisonSummary,
-  ComparisonData
+  CompetitorComparisonResult
 } from "@/features/competitor/types/competitor";
 
 interface CompetitorState {
@@ -16,7 +16,7 @@ interface CompetitorState {
   loading: boolean;
   error: string | null;
   comparisonListCache: Record<string, CompetitorComparisonSummary[]>; // storeId를 키로 캐싱
-  comparisonDetailCache: Record<string, ComparisonData>; // comparisonId를 키로 캐싱
+  comparisonDetailCache: Record<string, CompetitorComparisonResult>; // comparisonId를 키로 캐싱
   selectedComparisonId: string | null;
 
   // 액션
@@ -28,7 +28,7 @@ interface CompetitorState {
   requestAnalysis: (
     storeId: string,
     competitorName: string
-  ) => Promise<string | null>;
+  ) => Promise<string | null | undefined>;
   getComparisonList: (storeId: string) => Promise<void>;
   getComparisonDetail: (comparisonId: string) => Promise<void>;
   clearCache: () => void;
@@ -52,6 +52,8 @@ export const useCompetitorStore = create<CompetitorState>()(
           set({ selectedComparisonId: id }),
 
         // 새 경쟁사 분석 요청
+        //
+
         requestAnalysis: async (storeId: string, competitorName: string) => {
           try {
             set({ loading: true, error: null });
@@ -70,9 +72,11 @@ export const useCompetitorStore = create<CompetitorState>()(
               set((state) => ({
                 comparisonDetailCache: {
                   ...state.comparisonDetailCache,
-                  [comparisonId]: response.comparisonResult.comparison_data
+                  [comparisonId]: response.comparisonResult
                 }
               }));
+              console.log("🧩 저장할 ID:", comparisonId);
+              console.log("🧩 저장할 상세 데이터:", response.comparisonResult);
 
               // 캐시에 목록 정보 업데이트
               set((state) => {
@@ -86,7 +90,7 @@ export const useCompetitorStore = create<CompetitorState>()(
                     response.comparisonResult.competitor_place_id || "",
                   created_at: response.comparisonResult.created_at,
                   summary:
-                    response.comparisonResult.comparison_data.comparison_insight?.substring(
+                    response.comparisonResult.comparison_insight?.substring(
                       0,
                       100
                     ) + "..." || ""
@@ -97,19 +101,18 @@ export const useCompetitorStore = create<CompetitorState>()(
                     ...state.comparisonListCache,
                     [storeId]: [summary, ...currentList]
                   },
+                  // 새 분석 결과를 자동으로 선택 상태로 설정
                   selectedComparisonId: comparisonId
                 };
               });
-
+              await get().getComparisonDetail(comparisonId);
               return comparisonId;
             } else {
               set({ error: "경쟁사 분석 요청이 실패했습니다." });
               return null;
             }
           } catch (err) {
-            console.error("경쟁사 분석 요청 오류:", err);
-            set({ error: "경쟁사 분석 요청 중 오류가 발생했습니다." });
-            return null;
+            // 오류 처리...
           } finally {
             set({ loading: false });
           }
@@ -157,10 +160,19 @@ export const useCompetitorStore = create<CompetitorState>()(
             const response = await getCompetitorComparisonResult(comparisonId);
 
             if (response.status === "success" && response.comparison_result) {
+              const fullData = {
+                ...response.comparison_result,
+                comparison_data: {
+                  ...response.comparison_result.comparison_data,
+                  comparison_insight:
+                    response.comparison_result.comparison_insight || ""
+                }
+              };
+
               set((state) => ({
                 comparisonDetailCache: {
                   ...state.comparisonDetailCache,
-                  [comparisonId]: response.comparison_result.comparison_data
+                  [comparisonId]: fullData
                 },
                 selectedComparisonId: comparisonId
               }));
@@ -174,7 +186,6 @@ export const useCompetitorStore = create<CompetitorState>()(
             set({ loading: false });
           }
         },
-
         // 캐시 초기화
         clearCache: () =>
           set({

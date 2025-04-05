@@ -79,6 +79,7 @@ export interface CompetitorComparisonResult {
   comparison_insight: string;
   summary?: string;
   created_at: string;
+  message?: string;
 }
 
 /**
@@ -143,6 +144,7 @@ export interface CompetitorComparisonListResponse {
   count: number;
   /** 비교 분석 목록 */
   comparisons: CompetitorComparisonSummary[];
+  message?: string;
 }
 
 /**
@@ -164,4 +166,5 @@ export interface CompetitorComparisonResultResponse {
   status: string;
   /** 비교 분석 결과 */
   comparison_result: CompetitorComparisonResult;
+  message?: string;
 }

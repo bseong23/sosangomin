@@ -63,35 +63,6 @@ const ImprovedCompetitorReportSection: React.FC<
     };
   };
 
-  const renderComparisonItem = (
-    title: string,
-    myValue: any,
-    competitorValue: any,
-    type: string = "text"
-  ) => {
-    return (
-      <div className="grid grid-cols-3 items-center mb-4 py-4">
-        <div className="text-gray-700 font-medium text-sm">{title}</div>
-
-        <div className="flex items-center justify-center">
-          {type === "percent" && (
-            <div className="text-blue-600 font-medium">
-              {myValue.toFixed(1)}%
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-center">
-          {type === "percent" && (
-            <div className="text-red-600 font-medium">
-              {competitorValue.toFixed(1)}%
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   // 현재 토글 상태에 따라 표시할 단어들 필터링
   const filteredMyStoreWords = showPositive
     ? filterWords(
@@ -143,71 +114,19 @@ const ImprovedCompetitorReportSection: React.FC<
 
   // 리뷰 렌더링 함수
   const renderReview = (review: string) => {
+    const cleanedReview = review.endsWith("더보기")
+      ? review.slice(0, -3)
+      : review;
+
     return (
       <div className="bg-gray-50 p-3 rounded-lg mb-3 border border-gray-200">
-        <p className="text-sm text-gray-700">{review}</p>
+        <p className="text-sm text-gray-700">{cleanedReview}</p>
       </div>
     );
   };
 
   return (
     <div className="space-y-6">
-      {/* 매장 제목 비교 */}
-      <h2 className="text-lg font-bold text-gray-800 mb-4">매장 비교 분석</h2>
-      <div className="p-6 rounded-xl border border-gray-200 shadow-sm">
-        <div className="grid grid-cols-12 gap-4 text-center">
-          <div className="col-span-5"></div>
-          <div className="col-span-2 text-blue-600 font-bold text-lg">
-            <div className="text-sm text-gray-500">내 매장</div>
-            {representativeStore?.store_name}
-          </div>
-          <div className="col-span-5 text-red-600 font-bold text-lg">
-            <div className="text-sm text-gray-500">경쟁사</div>
-            {data.competitor.name}
-          </div>
-        </div>
-        <section className="bg-white p-6">
-          {renderComparisonItem(
-            "긍정 리뷰 비율",
-            data.my_store.positive_rate,
-            data.competitor.positive_rate,
-            "percent"
-          )}
-        </section>
-      </div>
-
-      {/* 감정 분포 비교 */}
-      <h2 className="text-lg font-bold mb-4 text-gray-800">감정 분포 비교</h2>
-      <section className="bg-white p-6 rounded-xl shadow border border-gray-100">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-5 flex flex-col justify-center items-center">
-            <div className="font-medium text-gray-700 mb-2">
-              {representativeStore?.store_name || "내 매장"}
-            </div>
-            <PercentageDoughnutChart
-              chartData={makeSentimentData(
-                data.my_store.sentiment_distribution
-              )}
-            />
-          </div>
-
-          <div className="col-span-2 flex items-center justify-center text-center">
-            <div className="font-bold text-gray-800">vs</div>
-          </div>
-
-          <div className="col-span-5 flex flex-col justify-center items-center">
-            <div className="font-medium text-gray-700 mb-2">
-              {data.competitor.name}
-            </div>
-            <PercentageDoughnutChart
-              chartData={makeSentimentData(
-                data.competitor.sentiment_distribution
-              )}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* 토글 방식 워드클라우드 및 샘플 리뷰 */}
       <h2 className="text-lg font-bold mb-4 text-gray-800">
         리뷰 주요 키워드 비교
@@ -247,7 +166,7 @@ const ImprovedCompetitorReportSection: React.FC<
         {/* 워드클라우드 비교 영역 */}
         <div className="grid grid-cols-12 gap-4 mb-8">
           <div className="col-span-5 flex flex-col justify-center items-center">
-            <div className="font-medium text-gray-700 mb-2">
+            <div className="font-bold text-xl text-bit-main mb-2">
               {representativeStore?.store_name || "내 매장"}
             </div>
             <WordCloud
@@ -263,7 +182,7 @@ const ImprovedCompetitorReportSection: React.FC<
           </div>
 
           <div className="col-span-5 flex flex-col justify-center items-center">
-            <div className="font-medium text-gray-700 mb-2">
+            <div className="font-bold text-xl text-bit-main mb-2">
               {data.competitor.name}
             </div>
             <WordCloud
@@ -279,14 +198,8 @@ const ImprovedCompetitorReportSection: React.FC<
         {(myStoreSampleReviews.length > 0 ||
           competitorSampleReviews.length > 0) && (
           <>
-            <h3 className="text-md font-bold text-gray-700 mb-4 mt-6 text-center">
-              {showPositive ? "긍정 샘플 리뷰" : "부정 샘플 리뷰"}
-            </h3>
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-5">
-                <div className="font-medium text-blue-600 mb-2 text-center">
-                  {representativeStore?.store_name || "내 매장"}
-                </div>
                 <div className="overflow-auto max-h-64">
                   {filteredMyReviews.length > 0 ? (
                     filteredMyReviews.map((review, index) => (
@@ -294,20 +207,19 @@ const ImprovedCompetitorReportSection: React.FC<
                     ))
                   ) : (
                     <p className="text-center text-gray-500 text-sm py-4">
-                      표시할 샘플 리뷰가 없습니다.
+                      표시할 리뷰가 없습니다.
                     </p>
                   )}
                 </div>
               </div>
 
               <div className="col-span-2 flex items-center justify-center">
-                <div className="font-bold text-gray-400">샘플 리뷰</div>
+                <h3 className="text-md font-bold text-gray-700 mb-4 mt-6 text-center">
+                  {showPositive ? "긍정 리뷰" : "부정 리뷰"}
+                </h3>
               </div>
 
               <div className="col-span-5">
-                <div className="font-medium text-red-600 mb-2 text-center">
-                  {data.competitor.name}
-                </div>
                 <div className="overflow-auto max-h-64">
                   {filteredCompetitorReviews.length > 0 ? (
                     filteredCompetitorReviews.map((review, index) => (
@@ -315,7 +227,7 @@ const ImprovedCompetitorReportSection: React.FC<
                     ))
                   ) : (
                     <p className="text-center text-gray-500 text-sm py-4">
-                      표시할 샘플 리뷰가 없습니다.
+                      표시할 리뷰가 없습니다.
                     </p>
                   )}
                 </div>
@@ -323,6 +235,47 @@ const ImprovedCompetitorReportSection: React.FC<
             </div>
           </>
         )}
+      </section>
+
+      {/* 감정 분포 비교 */}
+      <h2 className="text-lg font-bold mb-4 text-gray-800">감정 분포 비교</h2>
+      <section className="bg-white p-6 rounded-xl shadow border border-gray-100">
+        <div className="grid grid-cols-12 gap-4">
+          {/* 내 매장 영역 */}
+          <div className="col-span-5 flex flex-col items-center">
+            <div className="font-bold text-lg text-bit-main mb-2">
+              {representativeStore?.store_name || "내 매장"}
+            </div>
+            <PercentageDoughnutChart
+              chartData={makeSentimentData(
+                data.my_store.sentiment_distribution
+              )}
+            />
+            <div className="mt-2 text-sm text-bit-main font-semibold">
+              긍정 리뷰 비율: {data.my_store.positive_rate.toFixed(1)}%
+            </div>
+          </div>
+
+          {/* 중앙 'vs' */}
+          <div className="col-span-2 flex items-center justify-center text-center">
+            <div className="font-bold text-gray-800">vs</div>
+          </div>
+
+          {/* 경쟁사 영역 */}
+          <div className="col-span-5 flex flex-col items-center">
+            <div className="font-bold text-bit-main text-lg mb-2">
+              {data.competitor.name}
+            </div>
+            <PercentageDoughnutChart
+              chartData={makeSentimentData(
+                data.competitor.sentiment_distribution
+              )}
+            />
+            <div className="mt-2 text-sm text-bit-main font-semibold">
+              긍정 리뷰 비율: {data.competitor.positive_rate.toFixed(1)}%
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* AI 인사이트 */}
