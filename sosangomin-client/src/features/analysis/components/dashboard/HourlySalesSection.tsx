@@ -22,17 +22,9 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
     }
   ];
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength: number = 300) => {
-    if (!summary) return "";
-    return summary.length > maxLength
-      ? summary.substring(0, maxLength) + "..."
-      : summary;
-  };
-
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
+      <h2 className="text-lg font-semibold mb-10 text-comment">
         우리 가게 시간별 매출액
       </h2>
       <div className="mb-20" style={{ width: "100%", height: "350px" }}>
@@ -44,11 +36,9 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
         />
       </div>
       <div className="mt-2 mb-2">
-        {/* <h3 className="text-base font-medium mb-2 text-comment">차트 분석</h3> */}
+        {/* 요약 - 축약 없이 전체 텍스트 표시 */}
         <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-base text-comment">
-            {truncateSummary(hourlySalesSummary)}
-          </p>
+          <p className="text-base text-comment">{hourlySalesSummary}</p>
         </div>
       </div>
     </div>

@@ -18,13 +18,6 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
     0
   );
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength = 200): string => {
-    return summary.length > maxLength
-      ? `${summary.substring(0, maxLength)}...`
-      : summary;
-  };
-
   // 날씨 아이콘 매핑
   const weatherIcons: { [key: string]: string } = {
     맑음: Sun,
@@ -33,11 +26,11 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
 
   return (
     <div className="w-full mb-6 bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
-      <h2 className="text-lg font-semibold mb-4 text-comment">
+      <h2 className="text-lg font-semibold mb-15 text-comment">
         날씨별 매출 분석
       </h2>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex justify-around items-center gap-4 h-[350px]">
         {Object.entries(weatherSales).map(([weather, amount], idx) => {
           const percentage = ((amount / total) * 100).toFixed(1);
 
@@ -46,7 +39,7 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
               <img
                 src={weatherIcons[weather]}
                 alt={`${weather} 날씨 아이콘`}
-                className="w-50 h-50 mb-2"
+                className="w-30 h-30 mb-10"
               />
               <p className="text-sm font-semibold">{weather}</p>
               <p className="text-sm">{percentage}%</p>
@@ -55,9 +48,7 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
         })}
       </div>
       <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-comment">
-          {truncateSummary(weatherSalesSummary)}
-        </p>
+        <p className="text-sm text-comment">{weatherSalesSummary}</p>
       </div>
     </div>
   );

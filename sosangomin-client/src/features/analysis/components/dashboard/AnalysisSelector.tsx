@@ -25,21 +25,21 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  // 날짜 포맷팅 함수 - 한국 시간(UTC+9)으로 변환하여 표시
+  // 날짜 포맷팅 함수 - YY.MM.DD HH:MM 형식
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
 
     // UTC 시간을 한국 시간으로 변환 (UTC+9)
     const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
 
-    return new Intl.DateTimeFormat("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Seoul" // 명시적으로 한국 시간대 설정
-    }).format(koreaTime);
+    // YY.MM.DD HH:MM 형식으로 변환 (앞의 20을 생략)
+    const year = koreaTime.getFullYear().toString().slice(2); // 앞의 두 자리(20) 제거
+    const month = String(koreaTime.getMonth() + 1).padStart(2, "0");
+    const day = String(koreaTime.getDate()).padStart(2, "0");
+    const hours = String(koreaTime.getHours()).padStart(2, "0");
+    const minutes = String(koreaTime.getMinutes()).padStart(2, "0");
+
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
   // 분석 선택 핸들러
@@ -52,7 +52,7 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
     <div className="relative">
       <div className="flex items-center">
         <span className="text-sm font-medium text-gray-600 mr-2">
-          분석 일자 (KST):
+          분석 일자 :
         </span>
         <div className="relative">
           <button

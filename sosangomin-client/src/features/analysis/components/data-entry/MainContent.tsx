@@ -317,19 +317,6 @@ const MainContent: React.FC = () => {
         </p>
 
         <h4 className="text-lg font-medium text-bit-main mb-3 mt-5">
-          파일 형식별 특징
-        </h4>
-        <p className="mb-2">
-          <span className="font-medium">엑셀 파일</span>: 영수증 데이터가 표
-          형식으로 정리되어 있어야 합니다. 첫 번째 행에는 열 제목이 포함되어야
-          합니다.
-        </p>
-        <p className="mb-3">
-          <span className="font-medium">CSV 파일</span>: 표준 영수증 형식의
-          데이터로, 자동으로 항목과 금액이 인식됩니다.
-        </p>
-
-        <h4 className="text-lg font-medium text-bit-main mb-3 mt-5">
           분석 과정
         </h4>
         <p>
@@ -480,7 +467,7 @@ const MainContent: React.FC = () => {
               <span className="text-sm font-medium">
                 {representativeStore.store_name}
                 {representativeStore.pos_type && (
-                  <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 rounded text-xs">
+                  <span className="ml-4 px-2 py-0.5 bg-bit-main text-white rounded text-xs">
                     {representativeStore.pos_type}
                   </span>
                 )}
@@ -491,10 +478,7 @@ const MainContent: React.FC = () => {
 
         {/* 날짜 범위 선택기 */}
         <div className="mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h2 className="text-base font-medium text-gray-700 mb-3">
-              분석 기간 설정
-            </h2>
+          <div className="flex justify-end items-centerp-4 rounded-lg ">
             <DateRangePicker
               startMonth={dateRange.startMonth}
               endMonth={dateRange.endMonth}
