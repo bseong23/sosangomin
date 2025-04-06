@@ -49,6 +49,10 @@ public record Store(
         @JsonProperty("pos_type")
         String posType,
 
+        @Schema(description = "대표 가게 여부", example = "true")
+        @JsonProperty("is_main")
+        Boolean isMain,
+
         @Schema(description = "생성 시간", example = "2025-03-15T09:30:00")
         @JsonProperty("created_at")
         String createdAt,

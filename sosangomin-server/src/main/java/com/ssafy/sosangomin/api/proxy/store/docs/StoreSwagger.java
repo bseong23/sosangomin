@@ -1,9 +1,5 @@
 package com.ssafy.sosangomin.api.proxy.store.docs;
-import com.ssafy.sosangomin.api.proxy.store.dto.StoreDetailResponse;
-import com.ssafy.sosangomin.api.proxy.store.dto.StoreListResponse;
-import com.ssafy.sosangomin.api.proxy.store.dto.StoreRegisterResponse;
-import com.ssafy.sosangomin.api.proxy.store.dto.StoreRegisterWithBusinessRequest;
-import com.ssafy.sosangomin.api.proxy.store.dto.StoreAnalysisListResponse;
+import com.ssafy.sosangomin.api.proxy.store.dto.*;
 import com.ssafy.sosangomin.common.annotation.DecryptedId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -240,5 +236,72 @@ public interface StoreSwagger {
             @PathVariable
             @Parameter(schema = @Schema(type = "string"))
             Long encryptedStoreId);
+
+    @Operation(
+            summary = "대표 가게 설정",
+            description = "특정 매장을 사용자의 대표 가게로 설정합니다. 해당 사용자의 다른 가게들은 대표 상태가 해제됩니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "설정 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"success\",\n" +
+                                                    "  \"message\": \"대표 가게가 성공적으로 변경되었습니다.\",\n" +
+                                                    "  \"store_id\": \"ABC123XYZ789\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"유효하지 않은 매장 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_STORE_ID\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "매장을 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"해당 ID의 가게를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_STORE_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"대표 가게 설정 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_SET_MAIN_STORE_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<Object> setMainStore(@RequestBody SetMainStoreRequest request);
 
 }
