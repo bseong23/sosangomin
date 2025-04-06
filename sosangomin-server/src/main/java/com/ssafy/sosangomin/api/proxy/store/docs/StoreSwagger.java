@@ -304,4 +304,71 @@ public interface StoreSwagger {
     )
     ResponseEntity<Object> setMainStore(@RequestBody SetMainStoreRequest request);
 
+    @Operation(
+            summary = "매장 삭제",
+            description = "특정 매장을 삭제합니다."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "삭제 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"status\": \"success\",\n" +
+                                                    "  \"message\": \"가게가 성공적으로 삭제되었습니다.\",\n" +
+                                                    "  \"store_id\": \"ABC123XYZ789\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"유효하지 않은 매장 ID입니다\",\n" +
+                                                    "  \"message\": \"ERR_INVALID_STORE_ID\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "매장을 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"해당 ID의 가게를 찾을 수 없습니다\",\n" +
+                                                    "  \"message\": \"ERR_STORE_NOT_FOUND\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "object",
+                                            example = "{\n" +
+                                                    "  \"error\": \"가게 삭제 중 오류가 발생했습니다\",\n" +
+                                                    "  \"message\": \"ERR_STORE_DELETE_ERROR\"\n" +
+                                                    "}"
+                                    )
+                            )
+                    )
+            }
+    )
+    ResponseEntity<Object> deleteStore(@PathVariable String encryptedStoreId);
+
 }

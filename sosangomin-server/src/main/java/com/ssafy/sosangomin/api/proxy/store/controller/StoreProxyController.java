@@ -65,4 +65,10 @@ public class StoreProxyController implements StoreSwagger {
 
         return storeProxyService.setMainStore(decryptedStoreId).block();
     }
+
+    @DeleteMapping("/{encryptedStoreId}")
+    public ResponseEntity<Object> deleteStore(@PathVariable String encryptedStoreId) {
+        log.info("Received request to delete store with ID: {}", encryptedStoreId);
+        return storeProxyService.deleteStore(encryptedStoreId).block();
+    }
 }
