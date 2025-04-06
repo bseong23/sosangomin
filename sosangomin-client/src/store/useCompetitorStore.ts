@@ -11,7 +11,7 @@ import {
   CompetitorComparisonResult
 } from "@/features/competitor/types/competitor";
 
-interface CompetitorState {
+export interface CompetitorState {
   // 상태
   loading: boolean;
   error: string | null;
@@ -55,6 +55,9 @@ export const useCompetitorStore = create<CompetitorState>()(
         //
 
         requestAnalysis: async (storeId: string, competitorName: string) => {
+          console.log("🐛 분석 요청 받은 storeId:", storeId); // ✅ 이거 먼저 확인
+          console.log("🐛 competitorName:", competitorName);
+
           try {
             set({ loading: true, error: null });
 
@@ -63,38 +66,52 @@ export const useCompetitorStore = create<CompetitorState>()(
               competitor_name: competitorName
             });
 
-            if (response.status === "success" && response.comparisonResult) {
+            const { comparison_result } = response;
+
+            console.log("📦 올바른 comparison_result:", comparison_result);
+
+            if (response.status === "success" && comparison_result) {
               const comparisonId =
-                response.comparisonResult._id ||
-                response.comparisonResult.comparison_id;
+                comparison_result._id || comparison_result.comparison_id;
+
+              console.log("✅ 최종 comparisonId:", comparisonId);
 
               // 캐시에 상세 정보 저장
               set((state) => ({
                 comparisonDetailCache: {
                   ...state.comparisonDetailCache,
-                  [comparisonId]: response.comparisonResult
+                  [comparisonId]: comparison_result
                 }
               }));
-              console.log("🧩 저장할 ID:", comparisonId);
-              console.log("🧩 저장할 상세 데이터:", response.comparisonResult);
 
               // 캐시에 목록 정보 업데이트
               set((state) => {
                 const currentList = state.comparisonListCache[storeId] || [];
 
+                console.log("✅ storeId:", storeId);
+                console.log("✅ currentList:", currentList);
+
                 // 새 요약 정보 생성
                 const summary: CompetitorComparisonSummary = {
                   comparison_id: comparisonId,
-                  competitor_name: response.comparisonResult.competitor_name,
+                  competitor_name: comparison_result.competitor_name,
                   competitor_place_id:
-                    response.comparisonResult.competitor_place_id || "",
-                  created_at: response.comparisonResult.created_at,
-                  summary:
-                    response.comparisonResult.comparison_insight?.substring(
-                      0,
-                      100
-                    ) + "..." || ""
+                    comparison_result.competitor_place_id || "",
+                  created_at: comparison_result.created_at,
+                  summary: comparison_result.comparison_insight
+                    ? comparison_result.comparison_insight.substring(0, 100) +
+                      "..."
+                    : "요약 정보 없음",
+                  comparison_insight: comparison_result.comparison_insight || ""
                 };
+
+                const newCache = {
+                  ...state.comparisonListCache,
+                  [storeId]: [summary, ...currentList]
+                };
+
+                // ✅ 이거도 추가!
+                console.log("🧩 업데이트 될 comparisonListCache:", newCache);
 
                 return {
                   comparisonListCache: {
@@ -106,13 +123,16 @@ export const useCompetitorStore = create<CompetitorState>()(
                 };
               });
               await get().getComparisonDetail(comparisonId);
+              set({ selectedComparisonId: comparisonId });
+
               return comparisonId;
             } else {
               set({ error: "경쟁사 분석 요청이 실패했습니다." });
               return null;
             }
           } catch (err) {
-            // 오류 처리...
+            console.error("경쟁사 분석 요청 실패:", err);
+            set({ error: "경쟁사 분석 중 오류가 발생했습니다." });
           } finally {
             set({ loading: false });
           }
@@ -199,7 +219,8 @@ export const useCompetitorStore = create<CompetitorState>()(
         partialize: (state) => ({
           // 클라이언트 스토리지에 유지할 데이터만 선택
           comparisonListCache: state.comparisonListCache,
-          comparisonDetailCache: state.comparisonDetailCache
+          comparisonDetailCache: state.comparisonDetailCache,
+          selectedComparisonId: state.selectedComparisonId
         })
       }
     )

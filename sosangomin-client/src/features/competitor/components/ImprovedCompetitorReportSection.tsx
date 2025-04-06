@@ -1,12 +1,12 @@
 // features/competitor/components/ImprovedCompetitorReportSection.tsx
 import React, { useState } from "react";
 import WordCloud from "@/features/review/components/WordCloud";
-import { ComparisonData } from "@/features/competitor/types/competitor";
 import PercentageDoughnutChart from "./PercentageDoughnutChart";
 import useStoreStore from "@/store/storeStore";
+import { CompetitorComparisonResult } from "@/features/competitor/types/competitor";
 
 interface ImprovedCompetitorReportSectionProps {
-  data: ComparisonData;
+  data: CompetitorComparisonResult;
 }
 
 interface SentimentDistribution {
@@ -66,21 +66,21 @@ const ImprovedCompetitorReportSection: React.FC<
   // 현재 토글 상태에 따라 표시할 단어들 필터링
   const filteredMyStoreWords = showPositive
     ? filterWords(
-        data.word_cloud_comparison.my_store.positive_words,
+        data.comparison_data.word_cloud_comparison.my_store.positive_words,
         excludeWords
       )
     : filterWords(
-        data.word_cloud_comparison.my_store.negative_words,
+        data.comparison_data.word_cloud_comparison.my_store.negative_words,
         excludeWords
       );
 
   const filteredCompetitorWords = showPositive
     ? filterWords(
-        data.word_cloud_comparison.competitor.positive_words,
+        data.comparison_data.word_cloud_comparison.competitor.positive_words,
         excludeWords
       )
     : filterWords(
-        data.word_cloud_comparison.competitor.negative_words,
+        data.comparison_data.word_cloud_comparison.competitor.negative_words,
         excludeWords
       );
 
@@ -91,8 +91,10 @@ const ImprovedCompetitorReportSection: React.FC<
 
   // 샘플 리뷰 확인
   // 샘플 리뷰 구조는 배열로 되어있음
-  const myStoreSampleReviews = data.my_store.sample_reviews || [];
-  const competitorSampleReviews = data.competitor.sample_reviews || [];
+  const myStoreSampleReviews =
+    data.comparison_data.my_store.sample_reviews || [];
+  const competitorSampleReviews =
+    data.comparison_data.competitor.sample_reviews || [];
 
   // 현재 토글 상태에 맞는 리뷰만 필터링 (임시 로직)
   // 실제 API에서 positive/negative 속성을 제공하지 않으므로 임의로 구분
@@ -183,7 +185,7 @@ const ImprovedCompetitorReportSection: React.FC<
 
           <div className="col-span-5 flex flex-col justify-center items-center">
             <div className="font-bold text-xl text-bit-main mb-2">
-              {data.competitor.name}
+              {data.comparison_data.competitor.name}
             </div>
             <WordCloud
               words={filteredCompetitorWords}
@@ -248,11 +250,12 @@ const ImprovedCompetitorReportSection: React.FC<
             </div>
             <PercentageDoughnutChart
               chartData={makeSentimentData(
-                data.my_store.sentiment_distribution
+                data.comparison_data.my_store.sentiment_distribution
               )}
             />
             <div className="mt-2 text-sm text-bit-main font-semibold">
-              긍정 리뷰 비율: {data.my_store.positive_rate.toFixed(1)}%
+              긍정 리뷰 비율:{" "}
+              {data.comparison_data.my_store.positive_rate.toFixed(1)}%
             </div>
           </div>
 
@@ -264,15 +267,16 @@ const ImprovedCompetitorReportSection: React.FC<
           {/* 경쟁사 영역 */}
           <div className="col-span-5 flex flex-col items-center">
             <div className="font-bold text-bit-main text-lg mb-2">
-              {data.competitor.name}
+              {data.comparison_data.competitor.name}
             </div>
             <PercentageDoughnutChart
               chartData={makeSentimentData(
-                data.competitor.sentiment_distribution
+                data.comparison_data.competitor.sentiment_distribution
               )}
             />
             <div className="mt-2 text-sm text-bit-main font-semibold">
-              긍정 리뷰 비율: {data.competitor.positive_rate.toFixed(1)}%
+              긍정 리뷰 비율:{" "}
+              {data.comparison_data.competitor.positive_rate.toFixed(1)}%
             </div>
           </div>
         </div>

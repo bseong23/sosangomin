@@ -192,9 +192,32 @@ const ReviewDashBoard: React.FC = () => {
 
       {loading && (
         <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6 animate-pulse">
-          <p className="text-blue-800 text-lg mb-4">네이버 리뷰 분석 중...</p>
+          {/* 로딩 아이콘 */}
+          <svg
+            className="w-12 h-12 text-blue-400 mx-auto mb-4 animate-spin"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+
+          {/* 매장 이름 포함한 로딩 텍스트 */}
+          <p className="text-blue-800 text-lg mb-4">
+            {selectedStore?.store_name
+              ? `'${selectedStore.store_name}' 리뷰 분석 중...`
+              : "리뷰 분석 중..."}
+          </p>
           <p className="text-blue-600">
-            리뷰 데이터를 수집하고 AI로 분석하는 중입니다. 잠시만 기다려주세요.
+            리뷰 데이터를 수집하고 AI로 분석하는 중입니다.
+            <br />
+            잠시만 기다려주세요.
           </p>
         </div>
       )}
