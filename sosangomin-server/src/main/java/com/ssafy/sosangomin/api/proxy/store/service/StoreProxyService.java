@@ -8,6 +8,7 @@ import com.ssafy.sosangomin.common.exception.NotFoundException;
 import com.ssafy.sosangomin.common.util.IdEncryptionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -184,5 +185,84 @@ public class StoreProxyService {
                                 })
                 )
                 .bodyToMono(Object.class);
+    }
+
+    public Mono<ResponseEntity<Object>> setMainStore(Long storeId) {
+        log.info("Setting main store with ID: {}", storeId);
+
+        return webClient.post()
+                .uri("/api/store/set-main")
+                .bodyValue(Map.of("store_id", storeId))
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("Error from FastAPI set main store: {}", errorBody);
+
+                                    if (response.statusCode().value() == 404) {
+                                        return Mono.error(new NotFoundException(ErrorMessage.ERR_STORE_NOT_FOUND));
+                                    } else if (response.statusCode().is4xxClientError()) {
+                                        return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_STORE_ID));
+                                    } else {
+                                        return Mono.error(new InternalServerException(ErrorMessage.ERR_SET_MAIN_STORE_ERROR));
+                                    }
+                                })
+                )
+                .bodyToMono(Object.class)
+                .map(response -> {
+                    if (response instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) response;
+                        if (responseMap.containsKey("store_id")) {
+                            Number storeIdNumber = (Number) responseMap.get("store_id");
+                            String encryptedStoreId = idEncryptionUtil.encrypt(storeIdNumber.longValue());
+                            responseMap.remove("store_id");
+                            responseMap.put("store_id", encryptedStoreId);
+                        }
+                    }
+                    return ResponseEntity.ok(response);
+                });
+    }
+
+    public Mono<ResponseEntity<Object>> deleteStore(String encryptedStoreId) {
+        log.info("Deleting store with encrypted ID: {}", encryptedStoreId);
+
+        Long storeId;
+        try {
+            storeId = idEncryptionUtil.decrypt(encryptedStoreId);
+        } catch (Exception e) {
+            log.error("Error decrypting store ID: {}", e.getMessage());
+            return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_STORE_ID));
+        }
+
+        return webClient.delete()
+                .uri("/api/store/{storeId}", storeId)
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("Error from FastAPI delete store: {}", errorBody);
+
+                                    if (response.statusCode().value() == 404) {
+                                        return Mono.error(new NotFoundException(ErrorMessage.ERR_STORE_NOT_FOUND));
+                                    } else if (response.statusCode().is4xxClientError()) {
+                                        return Mono.error(new BadRequestException(ErrorMessage.ERR_INVALID_STORE_ID));
+                                    } else {
+                                        return Mono.error(new InternalServerException(ErrorMessage.ERR_STORE_DELETE_ERROR));
+                                    }
+                                })
+                )
+                .bodyToMono(Object.class)
+                .map(response -> {
+                    if (response instanceof Map) {
+                        Map<String, Object> responseMap = (Map<String, Object>) response;
+                        if (responseMap.containsKey("store_id")) {
+                            responseMap.remove("store_id");
+                            responseMap.put("store_id", encryptedStoreId);
+                        }
+                    }
+                    return ResponseEntity.ok(response);
+                });
     }
 }
