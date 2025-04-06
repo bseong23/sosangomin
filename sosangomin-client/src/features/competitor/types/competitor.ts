@@ -62,6 +62,7 @@ export interface CompetitorAnalysisResponse {
   competitor_analysis?: CompetitorAnalysis;
   /** 비교 분석 결과 */
   comparisonResult: CompetitorComparisonResult;
+  comparison_result?: CompetitorComparisonResult;
 }
 
 /**
@@ -156,6 +157,7 @@ export interface CompetitorComparisonSummary {
   competitor_place_id: string;
   created_at: string;
   summary: string;
+  comparison_insight: string;
 }
 
 /**
