@@ -224,48 +224,53 @@ const ReviewDashBoard: React.FC = () => {
 
       {analysisData && !loading && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <WordCloud
-              words={analysisData.word_cloud_data?.positive_words || {}}
-              title="긍정적 키워드"
-              colors={{ primary: "#1E40AF", secondary: "#3056D3" }}
-              maxWords={15}
-            />
-            <WordCloud
-              words={analysisData.word_cloud_data?.negative_words || {}}
-              title="부정적 키워드"
-              colors={{ primary: "#B91C1C", secondary: "#EF4444" }}
-              maxWords={15}
-            />
+          <h2 className="text-lg font-bold text-comment mb-4">
+            키워드 워드클라우드
+          </h2>
+          {/* ✅ 워드클라우드 섹션 */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <WordCloud
+                words={analysisData.word_cloud_data?.positive_words || {}}
+                title="긍정적 키워드"
+                colors={{ primary: "#1E40AF", secondary: "#3056D3" }}
+                maxWords={15}
+              />
+              <WordCloud
+                words={analysisData.word_cloud_data?.negative_words || {}}
+                title="부정적 키워드"
+                colors={{ primary: "#B91C1C", secondary: "#EF4444" }}
+                maxWords={15}
+              />
+            </div>
+            <div className="mt-4 flex justify-end gap-4 text-sm text-gray-600 px-3">
+              <span>
+                <span className="text-blue-500 font-semibold">
+                  {percentages.positive}%
+                </span>{" "}
+                긍정
+              </span>
+              <span>
+                <span className="text-green-600 font-semibold">
+                  {percentages.neutral}%
+                </span>{" "}
+                중립
+              </span>
+              <span>
+                <span className="text-red-600 font-semibold">
+                  {percentages.negative}%
+                </span>{" "}
+                부정
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
-              <p className="text-sm text-comment-text">긍정 리뷰 비율</p>
-              <p className="text-2xl font-bold text-blue-500">
-                {percentages.positive}%
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
-              <p className="text-sm text-comment-text">중립 리뷰 비율</p>
-              <p className="text-2xl font-bold text-green-600">
-                {percentages.neutral}%
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 bg-basic-white p-11 rounded-md shadow">
-              <p className="text-sm text-comment-text">부정 리뷰 비율</p>
-              <p className="text-2xl font-bold text-red-600">
-                {percentages.negative}%
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-6 mb-6">
-            {/* ✅ 왼쪽 바 차트 */}
-            <div className="md:w-2/3 w-full bg-white border border-gray-100 p-5 rounded-lg shadow">
-              <h2 className="text-base font-semibold text-gray-800 mb-4">
-                카테고리별 긍정 리뷰 수
-              </h2>
+          {/* ✅ 바 차트 + 요약 카드 섹션 */}
+          <h2 className="text-lg font-bold text-comment mb-4">
+            카테고리별 긍정/부정 리뷰 수
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="md:col-span-2 border rounded-xl border-gray-100 p-6 shadow-sm bg-white">
               <BarChart
                 labels={Object.keys(analysisData.category_insights || {})}
                 datasets={[
@@ -275,42 +280,50 @@ const ReviewDashBoard: React.FC = () => {
                       analysisData.category_insights || {}
                     ).map((item: any) => item.positive || 0),
                     backgroundColor: "rgba(54, 162, 235, 0.7)"
+                  },
+                  {
+                    label: "부정 리뷰 수",
+                    data: Object.values(
+                      analysisData.category_insights || {}
+                    ).map((item: any) => item.negative || 0),
+                    backgroundColor: "rgba(255, 99, 132, 0.7)"
                   }
                 ]}
                 height={300}
                 xAxisLabel="카테고리"
-                yAxisLabel="긍정 수"
+                yAxisLabel="리뷰 수"
               />
             </div>
 
-            {/* ✅ 오른쪽 요약 카드 (심플하게) */}
-            <div className="md:w-1/3 w-full flex flex-col gap-2">
-              <h3 className="text-sm font-medium text-gray-700 mb-1 pl-1">
-                카테고리별 요약
+            <div className="border rounded-xl border-gray-100 p-6 shadow-sm bg-white flex flex-col">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                카테고리 요약
               </h3>
-              {Object.entries(analysisData?.category_insights || {}).map(
-                ([category, values]: any, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 flex justify-between items-center"
-                  >
-                    <span className="text-sm text-gray-800 font-medium">
-                      {category}
-                    </span>
-                    <span className="text-xs text-gray-600 whitespace-nowrap">
-                      👍 {values.positive} / 👎 {values.negative}
-                    </span>
-                  </div>
-                )
-              )}
+              <div className="flex flex-col gap-2">
+                {Object.entries(analysisData?.category_insights || {}).map(
+                  ([category, values]: any, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 flex justify-between items-center"
+                    >
+                      <span className="text-sm text-gray-800 font-medium">
+                        {category}
+                      </span>
+                      <span className="text-xs text-gray-600 whitespace-nowrap">
+                        👍 {values.positive} / 👎 {values.negative}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           </div>
 
           {/* ✅ 인사이트 리포트 */}
-          <div className="bg-basic-white p-6 rounded-md shadow mb-6 whitespace-pre-wrap">
-            <h2 className="text-lg font-bold text-comment mb-4">
-              리뷰 분석 리포트
-            </h2>
+          <h2 className="text-lg font-bold text-comment mb-4">
+            리뷰 분석 리포트
+          </h2>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             {typeof analysisData.insights === "string" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 {(() => {
