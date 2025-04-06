@@ -1,5 +1,5 @@
 // src/features/analysis/components/MainContent.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DataUploadArea from "./DataUploadArea";
 import FilePreview from "./FilePreview";
 import AnalysisButton from "./AnalysisButton";
@@ -8,14 +8,13 @@ import DateRangePicker from "./DateRangePicker";
 import DataLoadingModal from "@/components/modal/DataLoadingModal";
 import useFileModalStore from "@/store/modalStore";
 import useStoreStore from "@/store/storeStore";
-import useAnalysisStore from "@/store/useAnalysisStore"; // 추가: 분석 결과 스토어
+import useAnalysisStore from "@/store/useAnalysisStore";
 import { StoreInfo } from "@/features/auth/types/mypage";
 
 // 분석 API 및 파일 API 연동
 import useFileUpload from "@/features/analysis/hooks/useFileUpload";
 import { AnalysisRequest } from "@/features/analysis/types/analysis";
 import useAnalysis from "@/features/analysis/hooks/useAnalysis";
-import useAnalysisPolling from "@/features/analysis/hooks/useAnalysisPolling";
 
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
@@ -31,7 +30,9 @@ const MainContent: React.FC = () => {
     setLoading,
     setFileData,
     completeLoading,
-    setAnalysisCompleted
+    setAnalysisCompleted,
+    analysisCompleted,
+    showCompletionNotice
   } = useFileModalStore();
 
   // 분석 스토어에서 액션 가져오기
@@ -54,18 +55,59 @@ const MainContent: React.FC = () => {
   // 분석 훅 사용
   const { analysisState, requestAnalysis } = useAnalysis();
 
-  // 분석 폴링 훅 (상태가 "processing"인 경우 주기적으로 상태 확인)
-  const [analysisId, setAnalysisId] = useState<string | null>(null);
-  const {
-    analysisState: pollingAnalysisState,
-    startPolling,
-    stopPolling
-  } = useAnalysisPolling(analysisId);
-
-  // Zustand 스토어에서 스토어 정보 가져오기
   const { representativeStore } = useStoreStore() as {
     representativeStore: StoreInfo | null;
   };
+
+  // 분석 완료 처리 콜백 함수
+  const handleAnalysisCompleted = useCallback(
+    (data: any) => {
+      console.log("분석 완료 감지:", data);
+
+      // 모달 상태 업데이트 - 명시적으로 isLoading도 false로 설정
+      setLoading(false);
+      completeLoading();
+
+      // 분석 완료 상태 설정
+      setAnalysisCompleted(true);
+
+      // 결과 저장 및 선택
+      if (data && representativeStore) {
+        // API 응답 구조에 맞게 분석 결과 저장
+        saveAnalysisToStore({
+          store_id: representativeStore.store_id || "",
+          source_ids: data.source_ids || [],
+          pos_type: representativeStore.pos_type || "",
+          analysis_result: data
+        });
+
+        // 현재 분석 결과를 즉시 선택된 상태로 설정
+        const resultId = data.analysis_id;
+        if (resultId) {
+          console.log(`분석 ID ${resultId} 선택됨`);
+          setSelectedAnalysisId(resultId);
+          fetchAnalysisResult(resultId);
+        }
+      }
+
+      // 중요: 모달이 닫혀있다면 다시 열기
+      if (!isModalOpen) {
+        console.log("모달 다시 열기");
+        openModal();
+      }
+    },
+    [
+      completeLoading,
+      setAnalysisCompleted,
+      representativeStore,
+      saveAnalysisToStore,
+      setSelectedAnalysisId,
+      fetchAnalysisResult,
+      isModalOpen,
+      openModal,
+      setLoading
+    ]
+  );
 
   // 로컬 상태
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
@@ -73,6 +115,16 @@ const MainContent: React.FC = () => {
     startMonth: getFormattedMonth(-3), // 3개월 전
     endMonth: getFormattedMonth(0) // 현재 월
   });
+
+  // 디버깅 로그 추가
+  useEffect(() => {
+    console.log("모달 상태 변경:", {
+      isLoading,
+      analysisCompleted,
+      showCompletionNotice,
+      isModalOpen
+    });
+  }, [isLoading, analysisCompleted, showCompletionNotice, isModalOpen]);
 
   // 기본 날짜 설정 함수 (YYYY-MM 형식)
   function getFormattedMonth(monthsOffset: number): string {
@@ -91,61 +143,6 @@ const MainContent: React.FC = () => {
     }
   }, [files.length, representativeStore, setFileData]);
 
-  // 분석 결과 폴링에 따른 상태 업데이트
-  useEffect(() => {
-    if (pollingAnalysisState.data && !pollingAnalysisState.isLoading) {
-      const status = pollingAnalysisState.data.status;
-
-      // 분석이 완료되거나 실패한 경우
-      if (status === "success" || status === "failed") {
-        // 로딩 상태 업데이트
-        completeLoading();
-
-        // 분석 완료 상태를 즉시, 명시적으로 설정
-        setAnalysisCompleted(false);
-
-        // 모달을 즉시 결과 상태로 변경
-        openModal();
-
-        // 중요: 폴링 중지
-        stopPolling();
-
-        // 추가: 분석 결과 즉시 스토어에 저장
-        if (status === "success") {
-          saveAnalysisToStore({
-            store_id: representativeStore?.store_id || "",
-            source_ids: [],
-            pos_type: representativeStore?.pos_type || "",
-            analysis_result: pollingAnalysisState.data
-          });
-
-          // 현재 분석 결과를 즉시 선택된 상태로 설정
-          const analysisId =
-            pollingAnalysisState.data.analysis_id ||
-            pollingAnalysisState.data._id ||
-            pollingAnalysisState.data.id;
-
-          if (analysisId) {
-            // 선택된 분석 ID 즉시 업데이트
-            setSelectedAnalysisId(analysisId);
-
-            // 분석 결과 즉시 로드
-            fetchAnalysisResult(analysisId);
-          }
-        }
-      }
-    }
-  }, [
-    pollingAnalysisState,
-    completeLoading,
-    openModal,
-    representativeStore,
-    saveAnalysisToStore,
-    setSelectedAnalysisId,
-    fetchAnalysisResult,
-    stopPolling
-  ]);
-
   // 컴포넌트 마운트 시 스토어 ID 설정 확인
   useEffect(() => {
     // 대표 스토어가 없는 경우 경고 표시 또는 다른 처리를 할 수 있습니다.
@@ -156,13 +153,6 @@ const MainContent: React.FC = () => {
       console.log("대표 매장 정보:", representativeStore);
     }
   }, [representativeStore]);
-
-  // 컴포넌트 언마운트 시 폴링 중지
-  useEffect(() => {
-    return () => {
-      stopPolling();
-    };
-  }, [stopPolling]);
 
   const handleFileUpload = (files: FileList): void => {
     addFiles(Array.from(files));
@@ -194,19 +184,13 @@ const MainContent: React.FC = () => {
   const handleAnalysisComplete = () => {
     // 분석 상태를 완료로 설정
     setAnalysisCompleted(true);
-    // 이제 의도적으로 모달을 닫았을 때만 closeModal()이 호출됩니다
   };
 
   // 안전하게 스토어 ID 가져오기
   const getValidStoreId = (store: StoreInfo | null): string => {
     if (!store) return "";
 
-    // store_id 필드 확인 (StoreInfo 인터페이스에서는 id로 정의되어 있을 수 있지만 실제로는 store_id로 전달됨)
-    if (store.store_id && typeof store.store_id === "string") {
-      return store.store_id;
-    }
-
-    // id 필드도 확인 (백업)
+    // store_id 필드 확인
     if (store.store_id && typeof store.store_id === "string") {
       return store.store_id;
     }
@@ -222,7 +206,7 @@ const MainContent: React.FC = () => {
       return;
     }
 
-    // 분석 완료 상태 초기화 (추가)
+    // 분석 완료 상태 초기화
     setAnalysisCompleted(false);
 
     // 유효한 스토어 ID 가져오기
@@ -255,7 +239,7 @@ const MainContent: React.FC = () => {
 
       // 업로드된 파일 ID 직접 사용
       const fileIds = uploadResult.objectIds;
-      console.log("업로드된 파일 ID 목록 (직접):", fileIds);
+      console.log("업로드된 파일 ID 목록:", fileIds);
 
       // ID 목록이 비어 있는지 확인
       if (!fileIds || fileIds.length === 0) {
@@ -269,31 +253,22 @@ const MainContent: React.FC = () => {
       // 2. 분석 요청 파라미터 설정
       const analysisRequest: AnalysisRequest = {
         store_id: storeId,
-        source_ids: fileIds, // 직접 받은 파일 ID 목록 사용
+        source_ids: fileIds,
         pos_type: representativeStore.pos_type
       };
 
       // 분석 요청 로깅
       console.log("분석 요청 파라미터:", JSON.stringify(analysisRequest));
 
-      // 3. 분석 요청 보내기 - 직접 ID 받기
-      const analysisIdResult = await requestAnalysis(analysisRequest);
-      console.log("분석 요청에서 받은 ID:", analysisIdResult);
+      // 3. 분석 요청 보내기 및 즉시 결과 처리
+      const analysisResult = await requestAnalysis(analysisRequest);
 
-      if (analysisIdResult) {
-        // 분석 ID 설정 (로컬 상태)
-        setAnalysisId(analysisIdResult);
-
-        // Zustand 스토어의 selectedAnalysisId도 바로 업데이트
-        setSelectedAnalysisId(analysisIdResult);
-        console.log(`초기 분석 ID ${analysisIdResult}가 설정되었습니다.`);
-
-        // 분석 상태 폴링 시작
-        startPolling();
+      if (analysisResult) {
+        // 분석 완료 처리
+        handleAnalysisCompleted(analysisResult);
       } else {
-        console.error("분석 요청에서 ID를 받지 못함");
+        console.error("분석 요청 실패");
         setLoading(false);
-        return;
       }
     } catch (error) {
       console.error("분석 프로세스 중 오류 발생:", error);
@@ -526,14 +501,13 @@ const MainContent: React.FC = () => {
         content={modalContent}
       />
 
-      {/* 새로운 구조의 데이터 로딩 모달 - 분석 ID 전달 */}
+      {/* 데이터 로딩 모달 - 분석 ID 전달 */}
       <DataLoadingModal
         isOpen={isModalOpen}
         fileCount={fileCount}
         posType={representativeStore?.pos_type || ""}
         isLoading={isLoading}
         onLoadingComplete={handleAnalysisComplete}
-        analysisId={analysisId} // 분석 ID 전달
       />
     </div>
   );

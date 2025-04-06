@@ -28,43 +28,34 @@ export const useAnalysis = () => {
     error: null
   });
 
-  const requestAnalysis = useCallback(
-    async (params: AnalysisRequest): Promise<string | null> => {
-      setAnalysisState((prev) => ({ ...prev, isLoading: true, error: null }));
-      try {
-        const response = await performAnalysis(params);
-        if ("error" in response && "message" in response) {
-          setAnalysisState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: response.error
-          }));
-          return null;
-        }
-        const analysisId = response.analysis_id;
-        setAnalysisState({
-          data: {
-            eda_result: response.eda_results || {},
-            auto_analysis: response.auto_analysis || {},
-            analysis_id: analysisId,
-            created_at: response.created_at,
-            status: response.status
-          },
-          isLoading: false,
-          error: null
-        });
-        return analysisId;
-      } catch (error) {
-        setAnalysisState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: "분석 요청 중 오류 발생"
-        }));
-        return null;
-      }
-    },
-    []
-  );
+  const requestAnalysis = async (params: AnalysisRequest) => {
+    setAnalysisState({
+      data: null,
+      isLoading: true, // 요청 시작
+      error: null
+    });
+
+    try {
+      const response = await performAnalysis(params);
+
+      // 성공 시 즉시 로딩 상태 변경
+      setAnalysisState({
+        data: response,
+        isLoading: false, // 요청 완료
+        error: null
+      });
+
+      return response.analysis_id;
+    } catch (error) {
+      // 에러 시에도 로딩 상태 변경
+      setAnalysisState({
+        data: null,
+        isLoading: false, // 요청 종료
+        error: "분석 요청 중 오류 발생"
+      });
+      return null;
+    }
+  };
 
   const fetchAnalysisResult = useCallback(
     async (analysisId: string): Promise<boolean> => {
