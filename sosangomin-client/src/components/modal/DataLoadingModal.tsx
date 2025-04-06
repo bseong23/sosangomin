@@ -20,10 +20,9 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   onLoadingComplete,
   analysisId
 }) => {
-  // 라우팅을 위한 useNavigate 훅 사용
   const navigate = useNavigate();
+  const [showQuitConfirmModal, setShowQuitConfirmModal] = useState(false);
 
-  // Zustand 스토어에서 상태와 액션 가져오기
   const {
     gameActive,
     selectedQuizzes,
@@ -44,66 +43,88 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     completeLoading
   } = useFileModalStore();
 
-  // 이전 로딩 상태와 모달 상태를 기억하기 위한 ref
   const prevIsLoadingRef = useRef<boolean>(true);
   const prevIsOpenRef = useRef<boolean>(false);
-
-  // 결과 페이지로 이동 여부를 트래킹하기 위한 상태
   const [shouldNavigate, setShouldNavigate] = useState(false);
 
-  // 모달을 닫고 리서치 페이지로 이동
   const handleViewResults = () => {
-    // 네비게이션 플래그 설정
     setShouldNavigate(true);
-    // 분석 완료 상태 설정
     setAnalysisCompleted(true);
-    // 모달 닫기 콜백 호출
     onLoadingComplete();
-    // 명시적으로 모달 상태 업데이트
     closeModal();
   };
 
-  // 퀴즈 계속하기
   const handleContinueQuiz = () => {
     if (!gameActive) {
       initGame(quizData);
     }
-    // Zustand 액션 사용
     completeLoading();
   };
 
-  // 모달이 닫힐 때 네비게이션 수행
+  // 퀴즈 중단 확인 모달 컴포넌트
+  const QuitConfirmModal = () => {
+    const handleContinueQuiz = () => {
+      setShowQuitConfirmModal(false);
+    };
+
+    const handleQuitQuiz = () => {
+      setShouldNavigate(true);
+      setAnalysisCompleted(true);
+      onLoadingComplete();
+      closeModal();
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div className="bg-white rounded-lg p-6 text-center">
+          <h3 className="text-xl font-medium mb-4">퀴즈를 그만두시겠습니까?</h3>
+          <p className="mb-4">
+            현재까지 획득한 점수 {score}점으로 결과 페이지로 이동합니다.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={handleContinueQuiz}
+              className="flex-1 bg-gray-200 text-black py-2 px-4 rounded-md"
+            >
+              계속 풀기
+            </button>
+            <button
+              onClick={handleQuitQuiz}
+              className="flex-1 bg-bit-main text-white py-2 px-4 rounded-md"
+            >
+              그만두기
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
-    // 이전에 열려있다가 닫힌 경우에만 네비게이션 실행
     if (
       prevIsOpenRef.current &&
       !isOpen &&
       (analysisCompleted || shouldNavigate)
     ) {
-      // 리서치 페이지로 이동
       navigate("/data-analysis/research", {
         state: {
           analysisData: {
             posType: posType,
             fileCount: fileCount,
             timestamp: new Date().toISOString(),
-            // 퀴즈 결과도 함께 전달
             quizResults: gameActive
               ? {
                   score: score,
                   totalQuestions: selectedQuizzes.length
                 }
               : null,
-            // 분석 ID가 있으면 함께 전달
             analysisId: analysisId
           }
         }
       });
-      // 네비게이션 플래그 초기화
       setShouldNavigate(false);
     }
 
-    // 이전 모달 상태 업데이트
     prevIsOpenRef.current = isOpen;
   }, [
     isOpen,
@@ -118,81 +139,61 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     analysisId
   ]);
 
-  // 로딩 상태 변경 감지 및 자동 상태 업데이트
   useEffect(() => {
-    // 이전에 로딩 중이었고 현재 로딩이 완료되었을 때
     if (prevIsLoadingRef.current && !isLoading) {
       console.log("로딩 상태 변경 감지: 로딩 완료됨");
-      // 로딩 완료 알림 표시 - Zustand 액션 사용
       completeLoading();
 
-      // 로딩이 끝난 후에도 분석 완료 상태가 설정되지 않았다면 여기서 설정
       if (!analysisCompleted) {
         console.log("분석 완료 상태 설정");
         setAnalysisCompleted(true);
       }
     }
 
-    // 이전 로딩 상태 업데이트
     prevIsLoadingRef.current = isLoading;
   }, [isLoading, completeLoading, analysisCompleted, setAnalysisCompleted]);
 
-  // 옵션 선택 처리
   const handleOptionSelect = (optionIndex: number) => {
-    // Zustand 액션 사용
     selectOption(optionIndex);
   };
 
-  // 다음 문제로 넘어가기
   const handleNextQuiz = () => {
-    // Zustand 액션 사용
     nextQuiz();
   };
 
-  // 모달이 닫힐 때 게임 상태 초기화
-  useEffect(() => {
-    if (!isOpen) {
-      // Zustand 액션 사용
-      resetGame();
-    }
-  }, [isOpen, resetGame]);
-
-  // 퀴즈 게임 초기화
-  useEffect(() => {
-    if (gameActive && selectedQuizzes.length === 0) {
-      // Zustand 액션 사용
-      initGame(quizData);
-    }
-  }, [gameActive, selectedQuizzes.length, initGame]);
-
-  // 분석 완료 상태 변경 감지
-  useEffect(() => {
-    if (analysisCompleted && isOpen && !isLoading) {
-      console.log("분석 완료 상태 변경됨, UI 업데이트");
-      // 명시적으로 로딩 완료 상태 설정
-      completeLoading();
-    }
-  }, [analysisCompleted, isOpen, isLoading, completeLoading]);
-
-  // 모달 닫기 핸들러
   const handleCloseModal = () => {
-    if (!isLoading) {
-      // 분석이 완료된 상태인지 확인하고, 아니라면 설정
+    if (gameActive) {
+      setShowQuitConfirmModal(true);
+    } else {
       if (!analysisCompleted) {
         setAnalysisCompleted(true);
       }
-
-      // 모달 닫기 콜백 호출
       onLoadingComplete();
-
-      // 명시적으로 모달 닫기 상태 설정
       closeModal();
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      resetGame();
+    }
+  }, [isOpen, resetGame]);
+
+  useEffect(() => {
+    if (gameActive && selectedQuizzes.length === 0) {
+      initGame(quizData);
+    }
+  }, [gameActive, selectedQuizzes.length, initGame]);
+
+  useEffect(() => {
+    if (analysisCompleted && isOpen && !isLoading) {
+      console.log("분석 완료 상태 변경됨, UI 업데이트");
+      completeLoading();
+    }
+  }, [analysisCompleted, isOpen, isLoading, completeLoading]);
+
   if (!isOpen) return null;
 
-  // 디버깅 정보 - 개발용
   console.log("모달 상태:", {
     isOpen,
     isLoading,
@@ -200,12 +201,12 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     showCompletionNotice
   });
 
-  // 분석 완료 시 메인 화면 (퀴즈 없이)
   const renderCompletionScreen = () => {
-    // analysisCompleted 상태가 우선 (더 신뢰할 수 있는 상태)
+    // gameActive가 false일 때만 렌더링
     if (
-      (!isLoading && analysisCompleted) ||
-      (!isLoading && showCompletionNotice && !gameActive)
+      !gameActive &&
+      ((!isLoading && analysisCompleted) ||
+        (!isLoading && showCompletionNotice))
     ) {
       return (
         <div className="text-center p-5">
@@ -253,7 +254,6 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden relative">
-        {/* 닫기 버튼 - 로딩 중에는 비활성화 */}
         <button
           onClick={handleCloseModal}
           className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -263,10 +263,10 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
           ✕
         </button>
 
-        {/* 메인 콘텐츠 */}
+        {showQuitConfirmModal && <QuitConfirmModal />}
+
         {renderCompletionScreen() || (
           <>
-            {/* 상단 상태 표시 */}
             <div
               className={`p-3 text-center ${
                 !isLoading && (analysisCompleted || showCompletionNotice)
@@ -286,7 +286,6 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
               )}
             </div>
 
-            {/* 로딩 중이고 퀴즈가 시작되지 않았을 때 */}
             {isLoading && !gameActive && (
               <div className="p-4 text-center">
                 <p className="text-sm text-gray-700 mb-3">
@@ -302,7 +301,6 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
               </div>
             )}
 
-            {/* 분석 완료되었지만 아직 퀴즈가 진행 중이지 않을 때 */}
             {!isLoading &&
               (analysisCompleted || showCompletionNotice) &&
               !gameActive && (
@@ -324,10 +322,8 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                 </div>
               )}
 
-            {/* 퀴즈 섹션 */}
             {gameActive && (
               <div className="p-4">
-                {/* 퀴즈 완료 결과 화면 */}
                 {quizEnded ? (
                   <div className="text-center">
                     <h4 className="text-lg font-medium mb-3">소상공인 퀴즈</h4>
@@ -379,7 +375,6 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                     </div>
                   </div>
                 ) : (
-                  // 퀴즈 진행 화면
                   <div>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-xs text-gray-500">
@@ -458,14 +453,23 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                               : "결과 보기"}
                           </button>
 
+                          {/* 분석 완료 상태일 때 추가 버튼들 */}
                           {!isLoading &&
                             (analysisCompleted || showCompletionNotice) && (
-                              <button
-                                onClick={handleViewResults}
-                                className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
-                              >
-                                결과 보기
-                              </button>
+                              <div className="flex gap-3 w-full">
+                                <button
+                                  onClick={handleViewResults}
+                                  className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
+                                >
+                                  결과 보기
+                                </button>
+                                <button
+                                  onClick={handleContinueQuiz}
+                                  className="flex-1 bg-bit-main text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                                >
+                                  퀴즈 계속하기
+                                </button>
+                              </div>
                             )}
                         </div>
                       </div>

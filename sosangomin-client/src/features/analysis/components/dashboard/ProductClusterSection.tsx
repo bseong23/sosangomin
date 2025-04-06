@@ -52,7 +52,11 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
     console.log("클러스터 요약 데이터가 없거나 형식이 다릅니다:", {
       clusterSummary,
       hasGroupCharacteristics:
-        clusterSummary && "group_characteristics" in clusterSummary,
+        clusterSummary &&
+        Object.prototype.hasOwnProperty.call(
+          clusterSummary,
+          "group_characteristics"
+        ),
       type: clusterSummary && typeof clusterSummary.group_characteristics
     });
 
