@@ -428,9 +428,17 @@ class SimpleStoreService:
                         "place_id": existing_store.place_id,
                         "category": existing_store.category,
                         "business_number": existing_store.business_number,
-                        "is_verified": existing_store.is_verified
+                        "is_verified": existing_store.is_verified,
+                        "is_main": existing_store.is_main
                     }
                 }
+            
+            existing_main_store = db_session.query(Store).filter(
+                Store.user_id == user_id,
+                Store.is_main == True
+            ).first()
+            
+            is_main = not existing_main_store
             
             current_time = datetime.now()
             
@@ -449,7 +457,8 @@ class SimpleStoreService:
                 is_verified=is_verified,
                 created_at=current_time,
                 updated_at=current_time,
-                pos_type=pos_type
+                pos_type=pos_type,
+                is_main=is_main  # 새 필드 추가
             )
             
             db_session.add(new_store)
@@ -470,7 +479,8 @@ class SimpleStoreService:
                     "place_id": store_info.get("place_id"),
                     "category": store_info.get("category"),
                     "business_number": store_info.get("business_number"),
-                    "is_verified": is_verified
+                    "is_verified": is_verified,
+                    "is_main": is_main
                 }
             }
             
@@ -480,6 +490,66 @@ class SimpleStoreService:
             return {
                 "status": "error",
                 "message": f"가게 저장 중 오류가 발생했습니다: {str(e)}"
+            }
+        finally:
+            db_session.close()
+    
+    async def set_main_store(self, store_id: int) -> Dict[str, Any]:
+        """
+        특정 가게를 사용자의 대표 가게로 설정
+        기존 대표 가게가 있다면 대표 상태를 해제
+        
+        Args:
+            store_id: 대표 가게로 설정할 가게 ID
+        
+        Returns:
+            Dict: 처리 결과
+        """
+        db_session = database_instance.pre_session()
+        
+        try:
+            # 요청된 가게 정보 조회
+            target_store = db_session.query(Store).filter(
+                Store.store_id == store_id
+            ).first()
+            
+            if not target_store:
+                return {
+                    "status": "error",
+                    "message": "해당 ID의 가게를 찾을 수 없습니다."
+                }
+            
+            user_id = target_store.user_id
+            
+            if target_store.is_main:
+                return {
+                    "status": "success",
+                    "message": "이미 대표 가게로 설정되어 있습니다.",
+                    "store_id": store_id
+                }
+            
+            db_session.query(Store).filter(
+                Store.user_id == user_id,
+                Store.is_main == True
+            ).update({"is_main": False})
+            
+            target_store.is_main = True
+            target_store.updated_at = datetime.now()
+            
+            db_session.commit()
+            
+            return {
+                "status": "success",
+                "message": "대표 가게가 성공적으로 변경되었습니다.",
+                "store_id": store_id
+            }
+                
+        except Exception as e:
+            db_session.rollback()
+            logger.error(f"대표 가게 설정 중 오류: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"대표 가게 설정 중 오류가 발생했습니다: {str(e)}"
             }
         finally:
             db_session.close()

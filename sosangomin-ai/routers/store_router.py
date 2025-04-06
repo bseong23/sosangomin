@@ -29,6 +29,48 @@ class StoreRegisterWithBusinessRequest(BaseModel):
     pos_type: str
     category: str
 
+class SetMainStoreRequest(BaseModel):
+    store_id: int
+
+@router.post("/set-main")
+async def set_main_store(
+    request: SetMainStoreRequest
+):
+    """
+    특정 가게를 사용자의 대표 가게로 설정
+    
+    이 엔드포인트는 지정된 가게를 사용자의 대표 가게로 설정합니다.
+    이전에 다른 가게가 대표 가게로 설정되어 있었다면 해당 가게의 대표 상태가 해제됩니다.
+    
+    요청 본문으로 store_id를 받아 해당 가게의 user_id를 조회한 후 대표 가게로 설정합니다.
+    """
+    try:
+        db_session = database_instance.pre_session()
+        try:
+            store = db_session.query(Store).filter(Store.store_id == request.store_id).first()
+            if not store:
+                raise HTTPException(status_code=404, detail="해당 ID의 가게를 찾을 수 없습니다.")
+            
+            user_id = store.user_id
+        finally:
+            db_session.close()
+            
+        result = await simple_store_service.set_main_store(
+            store_id=request.store_id
+        )
+        
+        if result.get("status") == "error":
+            raise HTTPException(status_code=400, detail=result.get("message", "대표 가게 설정 중 오류가 발생했습니다."))
+            
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"대표 가게 설정 API 호출 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"대표 가게 설정 중 오류가 발생했습니다: {str(e)}")
+
+
 # @router.post("/register")
 # async def register_store_by_name(request: StoreRegisterRequest):
 #     """
@@ -154,6 +196,7 @@ async def get_store_list(user_id: int = Path(..., description="사용자 ID")):
                     "business_number": store.business_number,
                     "is_verified": store.is_verified,
                     "pos_type": store.pos_type,
+                    "is_main": store.is_main,
                     "created_at": store.created_at.isoformat() if store.created_at else None
                 })
             
@@ -203,6 +246,7 @@ async def get_store_detail(store_id: int = Path(..., description="가게 ID")):
                 "business_number": store.business_number,
                 "is_verified": store.is_verified,
                 "pos_type": store.pos_type,
+                "is_main": store.is_main,
                 "created_at": store.created_at.isoformat() if store.created_at else None,
                 "updated_at": store.updated_at.isoformat() if store.updated_at else None
             }
@@ -225,3 +269,47 @@ async def get_store_detail(store_id: int = Path(..., description="가게 ID")):
     except Exception as e:
         logger.error(f"가게 상세 정보 조회 API 호출 중 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=f"가게 상세 정보 조회 중 오류가 발생했습니다: {str(e)}")
+    
+@router.delete("/{store_id}")
+async def delete_store(store_id: int = Path(..., description="가게 ID")):
+    """
+    가게 ID를 기준으로 가게를 삭제하는 API
+    
+    Args:
+        store_id: 삭제할 가게 ID
+        
+    Returns:
+        Dict: 삭제 결과
+    """
+    try:
+        db_session = database_instance.pre_session()
+        
+        try:
+            # 해당 ID의 가게 존재 여부 확인
+            store = db_session.query(Store).filter(Store.store_id == store_id).first()
+            
+            if not store:
+                raise HTTPException(status_code=404, detail="해당 ID의 가게를 찾을 수 없습니다.")
+            
+            # 가게 삭제
+            db_session.delete(store)
+            db_session.commit()
+            
+            return {
+                "status": "success",
+                "message": "가게가 성공적으로 삭제되었습니다.",
+                "store_id": store_id
+            }
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            db_session.rollback()
+            logger.error(f"가게 삭제 중 오류: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"가게 삭제 중 오류가 발생했습니다: {str(e)}")
+        finally:
+            db_session.close()
+            
+    except Exception as e:
+        logger.error(f"가게 삭제 API 호출 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"가게 삭제 중 오류가 발생했습니다: {str(e)}")

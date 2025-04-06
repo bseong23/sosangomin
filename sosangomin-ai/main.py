@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 from dotenv import load_dotenv
 import os
+import platform
 
 # 라우터 
 from routers import chat_router, news_router, data_analysis_router, s3_router, data_router, eda_router, review_router, store_router, competitor_router, area_analysis_router, final_report_router, location_recommendation_router
@@ -13,7 +14,10 @@ from routers import chat_router, news_router, data_analysis_router, s3_router, d
 from schedulers.news_scheduler import start_news_scheduler
 from schedulers.area_analysis_scheduler import start_area_scheduler
 from schedulers.transport_scheduler import start_subway_station_scheduler
-import fcntl
+
+is_windows = platform.system() == "Windows"
+if not is_windows:
+    import fcntl
 
 # 환경 변수 로드
 load_dotenv("./config/.env")
@@ -61,6 +65,18 @@ def read_root():
 
 @app.on_event("startup")
 async def startup_event():
+    if is_windows:
+        # Windows 환경에서는 스케줄러를 단순히 시작
+        logger.info("Windows 환경에서 스케줄러 시작 (파일 잠금 없음)")
+        start_news_scheduler()
+        logger.info("애플리케이션 시작 및 뉴스 업데이트 작업 스케줄링 완료")
+        start_area_scheduler()
+        logger.info("상권분석 스케줄링 완료")
+        start_subway_station_scheduler()
+        logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+        return
+    
+    # Linux/Unix 환경
     lock_file_path = "/tmp/scheduler.lock"
     
     try:
@@ -92,6 +108,10 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    if is_windows:
+        logger.info("Windows 환경에서 애플리케이션 종료")
+        return
+        
     if hasattr(app.state, "lock_file"):
         try:
             fcntl.flock(app.state.lock_file, fcntl.LOCK_UN)

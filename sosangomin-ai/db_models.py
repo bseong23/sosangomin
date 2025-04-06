@@ -89,6 +89,7 @@ class Store(Base):
     pos_type = Column(String(255))
     business_number = Column(String(12), nullable=True, comment="사업자등록번호")
     is_verified = Column(Boolean, default=False, nullable=False, comment="사업자번호 인증 여부")
+    is_main = Column(Boolean, default=False, nullable=False, comment="사용자의 대표 가게 여부")
     
 class SubwayStation(Base):
     __tablename__ = "subway_stations"
