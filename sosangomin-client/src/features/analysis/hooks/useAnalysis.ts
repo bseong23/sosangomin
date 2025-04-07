@@ -77,7 +77,8 @@ export const useAnalysis = () => {
             auto_analysis: analysisResult?.auto_analysis || {},
             analysis_id: analysisResult?._id,
             created_at: analysisResult?.created_at,
-            status: analysisResult?.status
+            status: analysisResult?.status,
+            data_range: analysisResult?.data_range || undefined // 새 필드 추가
           },
           isLoading: false,
           error: null
@@ -115,7 +116,8 @@ export const useAnalysis = () => {
             auto_analysis: analysisResult?.auto_analysis || {},
             analysis_id: analysisResult?._id,
             created_at: analysisResult?.created_at,
-            status: analysisResult?.status
+            status: analysisResult?.status,
+            data_range: analysisResult?.data_range || undefined // 새 필드 추가
           },
           isLoading: false,
           error: null

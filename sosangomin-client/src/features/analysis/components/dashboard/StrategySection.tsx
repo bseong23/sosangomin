@@ -6,20 +6,11 @@ const StrategySection: React.FC<{ data: AnalysisResultData }> = ({ data }) => {
   const clusterSummary =
     data?.auto_analysis_results?.summaries?.cluster_summary || {};
 
-  // 디버깅 로그 추가
-  console.log("StrategySection 데이터:", {
-    clusterSummary,
-    predictSummary: data?.auto_analysis_results?.summaries?.predict_summary,
-    fullData: data
-  });
-
   // 추천 텍스트 가져오기 - 다양한 위치에서 찾아본다
   const recommendationText =
     clusterSummary.recommendation ||
     data?.auto_analysis_results?.summaries?.predict_summary?.recommendation ||
     "";
-
-  console.log("추천 텍스트:", recommendationText);
 
   const preprocessRecommendations = (text: string) => {
     if (!text) return [];
@@ -78,8 +69,6 @@ const StrategySection: React.FC<{ data: AnalysisResultData }> = ({ data }) => {
       }
     ];
   }
-
-  console.log("파싱된 추천 사항:", recommendations);
 
   return (
     <div className="w-full bg-basic-white p-6 mb-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
