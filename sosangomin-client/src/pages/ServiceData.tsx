@@ -1,17 +1,44 @@
 import React from "react";
 import ServiceOverview from "@/features/service/ServiceOverview";
 import FeatureCard from "@/features/service/FeatureCard";
-import InsightSection from "@/features/service/InsightSection";
+import InsightCards from "@/features/main/components/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
 import CtaSection from "@/features/service/CtaSection";
 
+const FeatureItem: React.FC<{ title: string; description: string }> = ({
+  title,
+  description
+}) => {
+  return (
+    <div className="w-full bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm transition hover:shadow-md">
+      <div className="flex items-center text-bit-main mb-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-2"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          ></path>
+        </svg>
+        <h3 className="text-base font-semibold">{title}</h3>
+      </div>
+      <p className="text-sm text-gray-700 leading-relaxed min-h-[48px]">
+        {description}
+      </p>
+    </div>
+  );
+};
+
 const FeatureIntroductionPage: React.FC = () => {
-  // 기능 카드에 사용할 데이터
   const featureCardsData = [
     {
       title: "매출 데이터 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "매출 트렌드 차트 이미지 (추후 추가)",
+      imagePlaceholder: "/images/sales-trend.png",
       points: [
         {
           title: "일별, 월별, 연도별 매출 추이",
@@ -32,7 +59,7 @@ const FeatureIntroductionPage: React.FC = () => {
     {
       title: "상품 판매 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "상품 판매량 차트 이미지 (추후 추가)",
+      imagePlaceholder: "/images/product-chart.png",
       points: [
         {
           title: "상품별 판매량 및 매출 기여도",
@@ -46,35 +73,14 @@ const FeatureIntroductionPage: React.FC = () => {
         {
           title: "상품 조합 분석",
           description:
-            "함께 판매되는 상품 패턴을 분석하여 효과적인 번들링 전략을 수립할 수 있습니다."
-        }
-      ]
-    },
-    {
-      title: "고객 행동 분석",
-      headerColor: "bg-bit-main",
-      imagePlaceholder: "고객 세그먼트 차트 이미지 (추후 추가)",
-      points: [
-        {
-          title: "방문 빈도 및 재방문율",
-          description: "고객의 재방문 패턴을 분석하여 충성도를 측정합니다."
-        },
-        {
-          title: "고객 세그먼트 분석",
-          description:
-            "구매 패턴에 따라 고객을 분류하여 타겟 마케팅이 가능합니다."
-        },
-        {
-          title: "단골 고객 분석",
-          description:
-            "핵심 고객층을 파악하여 고객 관계 관리를 강화할 수 있습니다."
+            "함께 판매되는 상품 패턴을 분석하여 번들링 전략을 수립합니다."
         }
       ]
     },
     {
       title: "결제 방식 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "결제 수단 분포 차트 이미지 (추후 추가)",
+      imagePlaceholder: "/images/payment-method.png",
       points: [
         {
           title: "결제 수단 선호도",
@@ -87,13 +93,12 @@ const FeatureIntroductionPage: React.FC = () => {
         {
           title: "결제 수단별 트렌드",
           description:
-            "시간에 따른 결제 방식의 변화를 추적하여 시장 트렌드를 파악합니다."
+            "시간에 따른 결제 방식의 변화를 추적하여 트렌드를 파악합니다."
         }
       ]
     }
   ];
 
-  // 인사이트와 추천사항 데이터
   const insights = [
     "월요일과 목요일에 신규 고객 방문이 20% 증가했습니다.",
     "아메리카노와 베이글을 함께 구매하는 패턴이 35% 증가했습니다.",
@@ -101,12 +106,11 @@ const FeatureIntroductionPage: React.FC = () => {
   ];
 
   const recommendations = [
-    "월요일과 목요일에 '아침 시작 세트' 프로모션을 진행하여 신규 고객을 유치하세요.",
-    "아메리카노와 베이글 세트 메뉴를 구성하여 10% 할인된 가격에 제공하세요.",
-    "저녁 피크 타임에 추가 인력을 배치하여 고객 대기 시간을 줄이고 매출을 극대화하세요."
+    "월요일과 목요일에 '아침 시작 세트' 프로모션을 진행해보세요.",
+    "아메리카노와 베이글 세트 메뉴를 구성해 10% 할인된 가격에 제공하세요.",
+    "저녁 피크 타임에 인력을 보강해 대기 시간을 줄이고 매출을 극대화하세요."
   ];
 
-  // 이용 방법 단계
   const steps = [
     {
       number: 1,
@@ -130,36 +134,82 @@ const FeatureIntroductionPage: React.FC = () => {
     }
   ];
 
-  // CTA 섹션 데이터
   const ctaData = {
-    title: "지금 바로 시작하세요!",
+    title: "지금 바로 데이터 분석을 시작하세요!",
     description:
-      "소상공인 데이터 분석 서비스로 비즈니스 성과를 높이고 효율적인 운영 전략을 수립하세요. 데이터를 통한 인사이트로 더 나은 비즈니스 의사결정을 지원합니다.",
-    buttonText: "서비스 시작하기"
+      "POS 데이터를 업로드하면 자동으로 인사이트를 도출해드립니다. 우리 서비스와 함께 더 스마트한 운영 전략을 세워보세요.",
+    buttonText: "데이터 분석 시작하기"
   };
 
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto px-4 py-8">
-        <ServiceOverview />
+    <div className="bg-white">
+      <main className="max-w-screen-xl mx-auto px-6 py-20 space-y-32">
+        {/* 타이틀 섹션 수정 */}
+        <section className="grid md:grid-cols-2 gap-16 items-start min-h-[300px]">
+          <div className="flex items-center h-full">
+            <h2 className="text-8xl font-bold text-bit-main flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-10 h-10 mr-3 text-bit-main"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M6,5 L3,19 L8,19 L8,5 Z M13,5 L10,19 L15,19 L15,5 Z" />
+              </svg>
+              데이터 분석
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-10 h-10 ml-3 text-bit-main"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M9,5 L9,19 L14,19 L11,5 Z M16,5 L16,19 L21,19 L18,5 Z" />
+              </svg>
+            </h2>
+          </div>
 
-        <h2 className="text-2xl font-bold text-center mb-8 text-bit-main">
-          핵심 분석 기능
-        </h2>
+          <div className="space-y-4">
+            {[
+              {
+                title: "간편한 데이터 업로드",
+                description: "POS기 데이터를 간단하게 업로드하고 분석 시작"
+              },
+              {
+                title: "직관적인 데이터 시각화",
+                description: "차트와 그래프로 분석 결과를 쉽게 이해"
+              },
+              {
+                title: "맞춤형 비즈니스 인사이트",
+                description: "실행 가능한 개선 방안을 자동으로 도출"
+              }
+            ].map((item, idx) => (
+              <FeatureItem
+                key={idx}
+                title={item.title}
+                description={item.description}
+              />
+            ))}
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {featureCardsData.map((card, index) => (
-            <FeatureCard
-              key={index}
-              title={card.title}
-              headerColor={card.headerColor}
-              imagePlaceholder={card.imagePlaceholder}
-              points={card.points}
-            />
-          ))}
-        </div>
+        <section>
+          <h2 className="text-3xl font-bold text-center mb-12 text-bit-main">
+            POS 데이터 분석 핵심 기능
+          </h2>
+          <div className="space-y-12">
+            {featureCardsData.map((card, index) => (
+              <FeatureCard
+                key={index}
+                title={card.title}
+                headerColor={card.headerColor}
+                imagePlaceholder={card.imagePlaceholder}
+                points={card.points}
+              />
+            ))}
+          </div>
+        </section>
 
-        <InsightSection insights={insights} recommendations={recommendations} />
+        <InsightCards insights={insights} recommendations={recommendations} />
 
         <StepGuide steps={steps} />
 
@@ -167,7 +217,7 @@ const FeatureIntroductionPage: React.FC = () => {
           title={ctaData.title}
           description={ctaData.description}
           buttonText={ctaData.buttonText}
-          onButtonClick={() => console.log("서비스 시작하기 버튼 클릭")}
+          onButtonClick={() => console.log("분석 시작하기 클릭")}
         />
       </main>
     </div>
