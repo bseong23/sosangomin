@@ -12,28 +12,28 @@ interface SalesData {
 
 interface SalesTabSalesCountProps {
   salesData: SalesData;
+  selectedAdminName?: string;
+  selectedCategory?: string;
 }
 
 const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
-  salesData
+  salesData,
+  selectedAdminName,
+  selectedCategory
 }) => {
   const [activeTab, setActiveTab] = useState(0);
 
+  // 탭 구성 변경 - 4개 탭으로 수정
   const tabData = [
     {
-      name: "날짜별",
-      data: [
-        "weekday",
-        "weekend",
-        "mon",
-        "tues",
-        "wed",
-        "thur",
-        "fri",
-        "sat",
-        "sun"
-      ],
-      labels: ["평일", "주말", "월", "화", "수", "목", "금", "토", "일"]
+      name: "주중/주말",
+      data: ["weekday", "weekend"],
+      labels: ["평일", "주말"]
+    },
+    {
+      name: "요일별",
+      data: ["mon", "tues", "wed", "thur", "fri", "sat", "sun"],
+      labels: ["월", "화", "수", "목", "금", "토", "일"]
     },
     {
       name: "시간별",
@@ -45,7 +45,14 @@ const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
         "time_17_21",
         "time_21_24"
       ],
-      labels: ["0~6시", "6~11시", "11~14시", "14~17시", "17~21시", "21~24시"]
+      labels: [
+        "0시~6시",
+        "6시~11시",
+        "11시~14시",
+        "14시~17시",
+        "17시~21시",
+        "21시~24시"
+      ]
     },
     {
       name: "연령대별",
@@ -88,11 +95,14 @@ const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
   return (
     <div>
       {/* 탭 버튼 */}
-      <div className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 mb-4">
+      <h3 className="text-lg font-semibold mb-4">
+        {selectedAdminName} {selectedCategory} 매출 금액 상세
+      </h3>
+      <div className="flex flex-wrap lg:flex-nowrap space-x-1 rounded-xl bg-blue-900/20 p-1 mb-4">
         {tabData.map((tab, index) => (
           <button
             key={index}
-            className={`w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium leading-5 
               ${
                 activeTab === index
                   ? "bg-bit-main shadow text-white"
@@ -110,14 +120,22 @@ const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
           labels={chartLabels}
           datasets={chartDatasets}
           height={300}
-          title={`${currentTabData.name} 매출 금액 비교`}
           legend={true}
           legendPosition="top"
           responsive={true}
           maintainAspectRatio={false}
           animation={true}
+          yAxisLabel="매출 금액"
+          unit="원"
           stacked={false}
           beginAtZero={true}
+          customOptions={{
+            scales: {
+              y: {
+                min: 0
+              }
+            }
+          }}
         />
       </div>
       {/* 테이블 영역 */}
@@ -129,7 +147,7 @@ const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
                 구분
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                내 지역
+                {selectedAdminName}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 서울 평균

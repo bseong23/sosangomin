@@ -54,6 +54,7 @@ export interface KakaomapProps extends MapProps {
 export interface LegendItem {
   color: string;
   label: string;
+  description?: string;
 }
 
 export interface ColorLegendProps {

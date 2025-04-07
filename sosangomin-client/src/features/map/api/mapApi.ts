@@ -105,15 +105,15 @@ export const getColorByPopulation = (population: number): string => {
 
 export const getColorByGrade = (grade: string): string => {
   switch (grade) {
-    case "5등급":
+    case "1등급":
       return "#FF0000"; // 빨강 (최상위 등급)
-    case "4등급":
+    case "2등급":
       return "#FF8C00"; // 주황
     case "3등급":
       return "#FFD700"; // 노랑
-    case "2등급":
+    case "4등급":
       return "#32CD32"; // 초록
-    case "1등급":
+    case "5등급":
       return "#0000FF"; // 파랑
     default:
       return "#808080"; // 기본값 (회색)
@@ -409,7 +409,7 @@ export const displayrecommendPolygon = (
     const workplacePopulation = recommendedArea["직장인구(면적당)"] || 0;
     const residentPopulation = recommendedArea["거주인구(면적당)"] || 0;
     const grade = recommendedArea.등급 || "";
-    const targetAgeRatio = recommendedArea.타겟연령_비율 || 0;
+    const targetAgeRatio = recommendedArea.타겟연령_수 || 0;
     const rent = recommendedArea.임대료 || 0;
     // const similarBusinessCount = recommendedArea["동일업종_수(면적당)"] || 0;
     // const facilities = recommendedArea["집객시설(면적당)"] || 0;
@@ -532,12 +532,12 @@ export const displayrecommendPolygon = (
               <span style="color: #33cc33;">거주인구:</span> ${formatNumber(
                 residentPopulation
               )}/㎢<br/>
-              <span style="color: #9966cc;">타겟연령 비율:</span> ${(
+              <span style="color: #9966cc;">타겟연령 수:</span> ${(
                 targetAgeRatio * 100
-              ).toFixed(1)}%<br/>
+              ).toFixed(1)}명<br/>
               <span style="color: #ff9900;">임대료:</span> ${formatNumber(
                 rent
-              )}원/㎡
+              )}원/평
             </div>
           </div>
         `);

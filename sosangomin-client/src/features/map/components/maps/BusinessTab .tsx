@@ -43,11 +43,13 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
   const sortedQuarterData = [...businessData.main_category_store_count].sort(
     (a, b) => a.quarter - b.quarter
   );
-
+  const quarterLabel = [
+    "2024년 1분기",
+    "2024년 2분기",
+    "2024년 3분기",
+    "2024년 4분기"
+  ];
   // 차트 데이터 준비
-  const quarters = sortedQuarterData.map(
-    (item) => `${item.year} Q${item.quarter}`
-  );
 
   // 각 카테고리별 데이터 추출
   const foodServiceData = sortedQuarterData.map(
@@ -83,7 +85,6 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
     const top5Entries = Object.entries(donutData)
       .sort((a, b) => b[1] - a[1]) // 내림차순 정렬
       .slice(0, 5); // 상위 5개 선택
-
     return {
       labels: top5Entries.map(([key]) => key),
       datasets: [
@@ -148,11 +149,14 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
       </h3>
       {/* 분기별 업종 카테고리 추이 차트 */}
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
+        <h3 className="text-lg font-semibold mb-4">
+          업종별 업소수 변화율 추이
+        </h3>
         <div className="flex flex-col px-2 py-4 md:flex-row">
           <div className="w-full md:w-3/4">
             <LineChart
-              title={`${selectedAdminName} 분기별 업종 현황 (${sortedQuarterData[0].year})`}
-              labels={quarters}
+              labels={quarterLabel}
+              referenceYear="2024년"
               datasets={[
                 {
                   label: "외식업",
@@ -192,39 +196,57 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 }
               ]}
               yAxisTitle="업소 수"
+              unit="개"
             />
           </div>
-          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="text-base text-gray-600">가장 많은 업종</p>
-              <p className="text-base font-bold">
-                외식업 {foodServiceData[foodServiceData.length - 1]}개 업소
-              </p>
+          <div className="flex flex-col gap-4 md:px-4 md:w-100">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">가장 많은 업종</p>
+                <p className="text-lg font-bold text-gray-900">
+                  외식업{" "}
+                  <span className="text-blue-600">
+                    {foodServiceData[foodServiceData.length - 1]}
+                  </span>
+                  개 업소
+                </p>
+              </div>
             </div>
 
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="text-base text-gray-600">외식업 비율</p>
-              <p className="text-base font-bold">
-                {Math.round(
-                  (foodServiceData[foodServiceData.length - 1] /
-                    (foodServiceData[foodServiceData.length - 1] +
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">외식업 비율</p>
+                <p className="text-lg font-bold text-gray-900">
+                  <span className="text-green-600">
+                    {Math.round(
+                      (foodServiceData[foodServiceData.length - 1] /
+                        (foodServiceData[foodServiceData.length - 1] +
+                          wholesaleData[wholesaleData.length - 1] +
+                          serviceData[serviceData.length - 1] +
+                          otherData[otherData.length - 1])) *
+                        100
+                    )}
+                    %
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">전체 업소 수</p>
+                <p className="text-lg font-bold text-gray-900">
+                  <span className="text-purple-600">
+                    {(
+                      foodServiceData[foodServiceData.length - 1] +
                       wholesaleData[wholesaleData.length - 1] +
                       serviceData[serviceData.length - 1] +
-                      otherData[otherData.length - 1])) *
-                    100
-                )}
-                %
-              </p>
-            </div>
-
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="text-base text-gray-600">전체 업소 수</p>
-              <p className="text-base font-bold">
-                {foodServiceData[foodServiceData.length - 1] +
-                  wholesaleData[wholesaleData.length - 1] +
-                  serviceData[serviceData.length - 1] +
-                  otherData[otherData.length - 1]}
-              </p>
+                      otherData[otherData.length - 1]
+                    ).toLocaleString()}
+                  </span>
+                  개
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -238,7 +260,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
         </div>
         <div className="flex flex-wrap justify-between px-15 py-4">
           {/* 서울시 */}
-          <div className="w-full md:w-1/4 mb-4 ">
+          <div className="w-full md:w-1/5 mb-4 ">
             <h4 className="text-md font-medium mb-2">서울시</h4>
             <div className="">
               <DoughnutChart
@@ -247,26 +269,45 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 showLegend={false}
               />
             </div>
-            <div className="mt-2">
-              <p className="text-sm font-medium">TOP 3</p>
-              {businessData.food_category_stats.서울시.top3.map(
-                (item: any, index: any) => (
-                  <p key={index} className="text-xs">
-                    {index + 1}. {item.category} ({item.count}개)
-                  </p>
-                )
-              )}
+            <div className="pt-4 w-60">
+              <p className="text-sm font-medium text-blue-600 mb-3">TOP 3</p>
+              <div className="space-y-2">
+                {businessData.food_category_stats.서울시.top3.map(
+                  (item: any, index: any) => (
+                    <div key={index} className="flex items-center">
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white 
+            ${
+              index === 0
+                ? "bg-yellow-500"
+                : index === 1
+                ? "bg-gray-400"
+                : "bg-amber-600"
+            }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <p className="ml-2 text-sm font-medium">
+                        {item.category}{" "}
+                        <span className="text-gray-500">({item.count}개)</span>
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <p className="text-sm">
+                  {selectedCategory} 순위:
+                  <span className="font-bold text-lg text-blue-600">
+                    {businessData.food_category_stats.서울시.industry_rank} 위
+                  </span>
+                </p>
+              </div>
             </div>
-            <p className="text-sm mt-2">
-              {selectedCategory} 순위:{" "}
-              <span className="font-bold">
-                {businessData.food_category_stats.서울시.industry_rank}위
-              </span>
-            </p>
           </div>
 
           {/* 자치구 */}
-          <div className="w-full md:w-1/4 mb-4">
+          <div className="w-full md:w-1/5 mb-4">
             <h4 className="text-md font-medium mb-2">자치구</h4>
             <div className="">
               <DoughnutChart
@@ -275,26 +316,45 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 showLegend={false}
               />
             </div>
-            <div className="mt-2">
-              <p className="text-sm font-medium">TOP 3</p>
-              {businessData.food_category_stats.자치구.top3.map(
-                (item: any, index: any) => (
-                  <p key={index} className="text-xs">
-                    {index + 1}. {item.category} ({item.count}개)
-                  </p>
-                )
-              )}
+            <div className="pt-4 w-60">
+              <p className="text-sm font-medium text-blue-600 mb-3">TOP 3</p>
+              <div className="space-y-2">
+                {businessData.food_category_stats.자치구.top3.map(
+                  (item: any, index: any) => (
+                    <div key={index} className="flex items-center">
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white 
+            ${
+              index === 0
+                ? "bg-yellow-500"
+                : index === 1
+                ? "bg-gray-400"
+                : "bg-amber-600"
+            }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <p className="ml-2 text-sm font-medium">
+                        {item.category}{" "}
+                        <span className="text-gray-500">({item.count}개)</span>
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <p className="text-sm">
+                  {selectedCategory} 순위:{" "}
+                  <span className="font-bold text-lg text-blue-600">
+                    {businessData.food_category_stats.자치구.industry_rank}위
+                  </span>
+                </p>
+              </div>
             </div>
-            <p className="text-sm mt-2">
-              {selectedCategory} 순위:{" "}
-              <span className="font-bold">
-                {businessData.food_category_stats.자치구.industry_rank}위
-              </span>
-            </p>
           </div>
 
           {/* 행정동 */}
-          <div className="w-full md:w-1/4 mb-4">
+          <div className="w-full md:w-1/5 mb-4">
             <h4 className="text-md font-medium mb-2">{selectedAdminName}</h4>
             <div className="">
               <DoughnutChart
@@ -303,29 +363,51 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 showLegend={false}
               />
             </div>
-            <div className="mt-2">
-              <p className="text-sm font-medium">TOP 3</p>
-              {businessData.food_category_stats.행정동.top3.map(
-                (item: any, index: any) => (
-                  <p key={index} className="text-xs">
-                    {index + 1}. {item.category} ({item.count}개)
-                  </p>
-                )
-              )}
+            <div className="pt-4 w-60">
+              <p className="text-sm font-medium text-blue-600 mb-3">TOP 3</p>
+              <div className="space-y-2">
+                {businessData.food_category_stats.행정동.top3.map(
+                  (item: any, index: any) => (
+                    <div key={index} className="flex items-center">
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white 
+            ${
+              index === 0
+                ? "bg-yellow-500"
+                : index === 1
+                ? "bg-gray-400"
+                : "bg-amber-600"
+            }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <p className="ml-2 text-sm font-medium">
+                        {item.category}{" "}
+                        <span className="text-gray-500">({item.count}개)</span>
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <p className="text-sm">
+                  {selectedCategory} 순위:{" "}
+                  <span className="font-bold text-lg text-blue-600">
+                    {businessData.food_category_stats.행정동.industry_rank}위
+                  </span>
+                </p>
+              </div>
             </div>
-            <p className="text-sm mt-2">
-              {selectedCategory} 순위:{" "}
-              <span className="font-bold">
-                {businessData.food_category_stats.행정동.industry_rank}위
-              </span>
-            </p>
           </div>
         </div>
       </div>
       {/* 혼합 차트 (업소수는 막대 그래프 / 개업률과 폐업률은 선 그래프) */}
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
+        <h3 className="text-lg font-semibold mb-4">
+          업종별 업소수 변화율 추이
+        </h3>
         <MixedChart
-          labels={quarters}
+          labels={quarterLabel}
           datasets={[
             {
               type: "bar",
@@ -350,20 +432,35 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
               tension: 0.1
             }
           ]}
-          title="분기별 업소수와 개업/폐업률"
-          xAxisLabel="분기"
-          yAxisLabel="비율 (%)"
+          yAxisLabel="업소 수"
+          rightYAxisLabel="비율 (%)"
+          leftMin={100}
+          rightMin={0}
+          height={400}
         />
       </div>
       <div className="p-4 rounded-lg shadow-md bg-white">
+        <h3 className="text-lg font-semibold mb-4">운영 폐업 점포 갯수</h3>
         <BarChart
           labels={businessChartData.labels}
           datasets={businessChartData.datasets}
-          title="운영 vs 폐업 (시, 구, 동 별)"
-          xAxisLabel="개월 수"
           yAxisLabel="운영 / 폐업"
+          unit="개"
+          customOptions={{
+            scales: {
+              y: {
+                min: 20 // Y축 최소값을 20으로 설정
+              }
+            },
+            // 막대 사이 간격 설정
+            datasets: {
+              bar: {
+                categoryPercentage: 0.5, // 카테고리(x축 항목) 영역을 최대한 사용
+                barPercentage: 1.0 // 막대가 카테고리 영역을 최대한 차지하도록 설정
+              }
+            }
+          }}
           legend={true}
-          horizontal={true} // ✅ 가로 바 차트로 변경
         />
       </div>
       ;

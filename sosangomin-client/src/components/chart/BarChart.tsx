@@ -9,127 +9,176 @@ import {
   Legend
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { BarChartProps } from "@/types/chart"; // 분리된 타입 임포트
+import { BarChartProps } from "@/types/chart";
 
-// Chart.js 필요한 컴포넌트 등록
 ChartJS.register(
-  CategoryScale, // X축 카테고리 스케일 (범주형 데이터용)
-  LinearScale, // Y축 선형 스케일 (숫자 데이터용)
-  BarElement, // 막대 차트 요소
-  Title, // 차트 제목
-  Tooltip, // 툴팁 (데이터 포인트에 마우스 오버 시)
-  Legend // 범례 (각 데이터셋 구분)
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
-/**
- * 재사용 가능한 BarChart 컴포넌트
- *
- * Chart.js와 react-chartjs-2를 기반으로 한 커스터마이징 가능한 막대 차트 컴포넌트입니다.
- * 다양한 props를 통해 차트의 모양, 기능, 스타일을 조정할 수 있습니다.
- *
- * @example
- * // 기본 사용법
- * <BarChart
- *   labels={["월", "화", "수", "목", "금"]}
- *   datasets={[{
- *     label: "매출",
- *     data: [5000, 3000, 4000, 7000, 6000],
- *     backgroundColor: "rgba(75, 192, 192, 0.6)"
- *   }]}
- *   height={350}
- *   title="요일별 매출"
- * />
- */
 const BarChart: React.FC<BarChartProps> = ({
-  labels, // X축에 표시될 레이블 배열
-  datasets, // 차트 데이터셋 배열
-  height = 400, // 차트 높이 (기본값: 400px)
-  width, // 차트 너비 (미지정 시 컨테이너 너비 사용)
-  horizontal = false, // 막대 방향 (기본값: 수직 막대)
-  stacked = false, // 누적 막대 여부 (기본값: 비누적)
-  title = "", // 차트 제목
-  xAxisLabel = "", // X축 레이블
-  yAxisLabel = "", // Y축 레이블
-  legend = true, // 범례 표시 여부 (기본값: 표시)
-  legendPosition = "top", // 범례 위치 (기본값: 상단)
-  beginAtZero = true, // Y축 0부터 시작 여부 (기본값: 0부터 시작)
-  tooltips = true, // 툴팁 표시 여부 (기본값: 표시)
-  animation = true, // 애니메이션 효과 (기본값: 사용)
-  responsive = true, // 반응형 차트 (기본값: 반응형)
-  maintainAspectRatio = false, // 종횡비 유지 여부 (기본값: 유지 안 함)
-  onClick, // 차트 요소 클릭 시 실행될 함수
-  className = "", // 추가 CSS 클래스
-  id = "bar-chart" // 차트 HTML ID (기본값: "bar-chart")
+  labels,
+  datasets,
+  height = 400,
+  width,
+  horizontal = false,
+  stacked = false,
+  title = "",
+  xAxisLabel = "",
+  yAxisLabel = "",
+  legend = true,
+  legendPosition = "top",
+  beginAtZero = true,
+  tooltips = true,
+  animation = true,
+  responsive = true,
+  maintainAspectRatio = false,
+  onClick,
+  className = "",
+  customOptions = {},
+  unit = "",
+  id = "bar-chart"
 }) => {
-  // 차트 옵션 구성 - Chart.js 옵션 객체
+  // 단위 설정을 위한 변수
+  const unitSuffix = unit ? ` ${unit}` : "";
+
+  // Y축 제목에 단위 추가
+  const yAxisTitleWithUnit = yAxisLabel
+    ? unit
+      ? `${yAxisLabel} (${unit})`
+      : yAxisLabel
+    : "";
+
+  // 차트 옵션 구성
   const options = {
-    indexAxis: horizontal ? ("y" as const) : ("x" as const), // 막대 방향 설정
-    responsive, // 반응형 설정
-    maintainAspectRatio, // 종횡비 유지 설정
+    indexAxis: horizontal ? ("y" as const) : ("x" as const),
+    responsive,
+    maintainAspectRatio,
     plugins: {
       legend: {
-        display: legend, // 범례 표시 여부
-        position: legendPosition as "top" | "right" | "bottom" | "left" // 범례 위치
+        display: legend,
+        position: legendPosition as "top" | "right" | "bottom" | "left"
       },
       title: {
-        display: !!title, // 제목 표시 여부 (제목이 있을 때만)
-        text: title, // 제목 텍스트
+        display: !!title,
+        text: title,
         font: {
-          size: 16 // 제목 폰트 크기
+          size: 16
         }
       },
       tooltip: {
-        enabled: tooltips // 툴팁 표시 여부
+        enabled: tooltips,
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label +=
+                new Intl.NumberFormat("ko-KR").format(context.parsed.y) +
+                unitSuffix;
+            }
+            return label;
+          }
+        }
       }
     },
     scales: {
       x: {
-        stacked, // X축 누적 설정
+        stacked,
         title: {
-          display: !!xAxisLabel, // X축 레이블 표시 여부
-          text: xAxisLabel // X축 레이블 텍스트
+          display: !!xAxisLabel,
+          text: xAxisLabel
         },
         grid: {
-          color: "transparent" // 그리드 색상 설정 (투명)
+          color: "transparent"
         }
       },
       y: {
-        stacked, // Y축 누적 설정
-        beginAtZero, // Y축 0부터 시작 여부
+        stacked,
+        beginAtZero,
         title: {
-          display: !!yAxisLabel, // Y축 레이블 표시 여부
-          text: yAxisLabel // Y축 레이블 텍스트
+          display: !!yAxisTitleWithUnit,
+          text: yAxisTitleWithUnit,
+          font: {
+            size: 12
+          }
         },
         grid: {
-          color: "transparent" // 그리드 색상 설정 (투명)
+          color: "transparent"
+        },
+        ticks: {
+          callback: function (value: number) {
+            return new Intl.NumberFormat("ko-KR").format(value) + unitSuffix;
+          }
         }
       }
     },
-    animation: animation ? {} : false, // 애니메이션 설정
-    onClick // 클릭 이벤트 핸들러
+    animation: animation ? {} : false,
+    onClick
+  };
+
+  // 사용자 정의 옵션 병합 (중첩 객체를 올바르게 병합)
+  const mergedOptions = {
+    ...options,
+    ...customOptions,
+    scales: {
+      ...options.scales,
+      ...(customOptions.scales || {}),
+      // Y축 옵션을 올바르게 병합
+      y: {
+        ...options.scales.y,
+        ...(customOptions.scales?.y || {}),
+        // title과 ticks를 보존
+        title: {
+          ...options.scales.y.title,
+          ...(customOptions.scales?.y?.title || {})
+        },
+        ticks: {
+          ...options.scales.y.ticks,
+          ...(customOptions.scales?.y?.ticks || {})
+        }
+      }
+    },
+    plugins: {
+      ...options.plugins,
+      ...(customOptions.plugins || {}),
+      // tooltip 콜백 함수 보존
+      tooltip: {
+        ...options.plugins.tooltip,
+        ...(customOptions.plugins?.tooltip || {}),
+        callbacks: {
+          ...options.plugins.tooltip.callbacks,
+          ...(customOptions.plugins?.tooltip?.callbacks || {})
+        }
+      }
+    }
   };
 
   // 차트 데이터 구성
   const data = {
-    labels, // X축 레이블
-    datasets // 데이터셋 배열
+    labels,
+    datasets
   };
 
-  // 반응형 개선을 위한 wrapper div 추가
   return (
     <div className={`w-full overflow-hidden ${className}`}>
       <div
-        id={id} // HTML ID
-        className="chart-container w-full" // CSS 클래스
+        id={id}
+        className="chart-container w-full"
         style={{
-          height: `${height}px`, // 높이 설정
-          width: width ? `${width}px` : "100%", // 너비 설정 (지정되지 않으면 100%)
-          position: "relative" // 포지션 설정
+          height: `${height}px`,
+          width: width ? `${width}px` : "100%",
+          position: "relative"
         }}
-        data-testid="bar-chart" // 테스트용 ID
+        data-testid="bar-chart"
       >
-        <Bar data={data} options={options} />{" "}
-        {/* react-chartjs-2 Bar 컴포넌트 */}
+        <Bar data={data} options={mergedOptions} />
       </div>
     </div>
   );

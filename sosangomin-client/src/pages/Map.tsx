@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import Kakaomap from "@/features/map/components/maps/Kakaomap";
 import MapSidebar from "@/features/map/components/maps/MapSidebar";
 import ColorLegend from "@/features/map/components/maps/ColorLegend";
+import RecommendColor from "@/features/map/components/maps/RecommendColor"; // 새로 추가된 import
 import { Marker } from "@/features/map/types/map";
 import { searchLocation } from "@/features/map/api/mapApi";
 import seoulDistrictsData from "@/assets/sig.json";
+
 // 주소에서 행정동을 추출하는 함수
 const extractAdminDong = (address: string): string | null => {
   // 행정동 패턴: 숫자가 포함될 수 있는 ~동, ~가
@@ -23,6 +25,7 @@ const MapPage: React.FC = () => {
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recommendationData, setRecommendationData] = useState<any[]>([]);
+
   // 로컬스토리지에서 대표 가게 정보 가져오기
   useEffect(() => {
     try {
@@ -121,9 +124,15 @@ const MapPage: React.FC = () => {
       setShowSidebar(true);
     }
   };
+
   const handleMapRecommendation = (data: any[]) => {
     if (!data || !data.length) return;
     setRecommendationData(data); // ✅ 추천 데이터 상태 저장
+  };
+
+  // recommendationData가 있는지 확인하는 함수
+  const hasRecommendationData = () => {
+    return recommendationData && recommendationData.length > 0;
   };
 
   return (
@@ -163,6 +172,7 @@ const MapPage: React.FC = () => {
           </svg>
         </button>
       )}
+
       {showSidebar && (
         <MapSidebar
           onSearch={handleSearch}
@@ -173,7 +183,12 @@ const MapPage: React.FC = () => {
         />
       )}
 
-      {showLegend && <ColorLegend position="bottom-right" />}
+      {showLegend &&
+        (hasRecommendationData() ? (
+          <RecommendColor position="bottom-right" />
+        ) : (
+          <ColorLegend position="bottom-right" />
+        ))}
     </div>
   );
 };

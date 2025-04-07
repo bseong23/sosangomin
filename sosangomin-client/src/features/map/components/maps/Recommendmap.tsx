@@ -31,43 +31,47 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
     setRecommendationData(null);
   };
 
-  // 우선 순위 선택
-  const handlePriorityClick = (priority: string) => {
-    setSelectedPriorities((prev) => {
-      if (prev.includes(priority)) {
-        // 이미 선택된 경우 제거
-        return prev.filter((p) => p !== priority);
-      } else if (prev.length < 3) {
-        // 선택 개수가 3개 미만인 경우 추가
-        return [...prev, priority];
-      } else {
-        // 선택 개수가 3개를 초과하면 변경하지 않음
-        return prev;
-      }
-    });
+  // 순위별 우선순위 변경 핸들러
+  const handlePriorityChange = (index: number, value: string) => {
+    const newPriorities = [...selectedPriorities];
+
+    // 이미 다른 순위에서 선택된 값이면 해당 값 제거
+    if (value && newPriorities.includes(value)) {
+      const existingIndex = newPriorities.indexOf(value);
+      newPriorities[existingIndex] = "";
+    }
+
+    // 새 값 설정 또는 해제
+    newPriorities[index] = value;
+
+    // 만약 선택 해제한 경우, 해당 인덱스만 비움 (이후 순위는 그대로 유지)
+    setSelectedPriorities(newPriorities);
   };
+
   // 지도에서 보기 버튼 클릭 핸들러
   const handleShowOnMap = async () => {
     if (
       !selectedBusinessType ||
       !selectedAgeGroup ||
-      selectedPriorities.length === 0
+      selectedPriorities.filter((p) => p).length === 0
     ) {
       alert("업종, 연령대, 우선 순위를 선택해주세요.");
       return;
     }
 
     try {
+      const filteredPriorities = selectedPriorities.filter((p) => p); // 빈 문자열 제거
+
       const response = await getTopRecommendedMap(
         selectedBusinessType,
         selectedAgeGroup.replace("대", ""),
-        selectedPriorities,
+        filteredPriorities,
         3
       );
 
-      setMapRecommendationData(response); // 자기 내부 상태로 저장
+      setMapRecommendationData(response);
       if (onMapData) {
-        onMapData(response); // ✅ 부모에 데이터 전달
+        onMapData(response);
       }
     } catch (error) {
       console.error("지도 추천 조회 실패:", error);
@@ -80,22 +84,22 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
     if (
       !selectedBusinessType ||
       !selectedAgeGroup ||
-      selectedPriorities.length === 0
+      selectedPriorities.filter((p) => p).length === 0
     ) {
       alert("업종, 연령대, 우선 순위를 선택해주세요.");
       return;
     }
 
     try {
-      // API 호출
+      const filteredPriorities = selectedPriorities.filter((p) => p); // 빈 문자열 제거
+
       const response = await getTopRecommendedLocations(
-        selectedBusinessType, // 업종 이름
-        selectedAgeGroup.replace("대", ""), // 연령대 ("20대" → "20"으로 변환)
-        selectedPriorities, // 우선 순위 배열
-        3 // TOP N 값
+        selectedBusinessType,
+        selectedAgeGroup.replace("대", ""),
+        filteredPriorities,
+        3
       );
 
-      // API 결과 저장 및 모달 열기
       setRecommendationData(response);
       openModal();
     } catch (error) {
@@ -113,79 +117,213 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
       {/* 업종 선택 */}
       <div className="mb-6">
         <p className="mb-2 font-medium">업종</p>
-        <select
-          className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main"
-          value={selectedBusinessType || ""}
-          onChange={(e) => setSelectedBusinessType(e.target.value)}
-        >
-          <option value="">업종 선택</option>
-          {[
-            "한식음식점",
-            "중식음식점",
-            "일식음식점",
-            "양식음식점",
-            "제과점",
-            "패스트푸드점",
-            "치킨전문점",
-            "분식전문점",
-            "호프-간이주점",
-            "커피-음료",
-            "반찬가게"
-          ].map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
+            value={selectedBusinessType || ""}
+            onChange={(e) => setSelectedBusinessType(e.target.value)}
+          >
+            <option value="">업종 선택</option>
+            {[
+              "한식음식점",
+              "중식음식점",
+              "일식음식점",
+              "양식음식점",
+              "제과점",
+              "패스트푸드점",
+              "치킨전문점",
+              "분식전문점",
+              "호프-간이주점",
+              "커피-음료",
+              "반찬가게"
+            ].map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+            <svg
+              className="h-4 w-4 fill-current"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {/* 타겟 연령 선택 */}
       <div className="mb-6">
         <p className="mb-2 font-medium">타겟 연령</p>
-        <select
-          className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main"
-          value={selectedAgeGroup || ""}
-          onChange={(e) => setSelectedAgeGroup(e.target.value)}
-        >
-          <option value="">타겟 연령대 선택</option>
-          {["10대", "20대", "30대", "40대", "50대", "60대 이상"].map((age) => (
-            <option key={age} value={age}>
-              {age}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
+            value={selectedAgeGroup || ""}
+            onChange={(e) => setSelectedAgeGroup(e.target.value)}
+          >
+            <option value="">타겟 연령대 선택</option>
+            {["10대", "20대", "30대", "40대", "50대", "60대 이상"].map(
+              (age) => (
+                <option key={age} value={age}>
+                  {age}
+                </option>
+              )
+            )}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+            <svg
+              className="h-4 w-4 fill-current"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {/* 우선 순위 선택 */}
       <div className="mb-6">
         <p className="mb-2 font-medium">우선 순위</p>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            "타겟연령",
-            "유동인구",
-            "직장인구",
-            "거주인구",
-            "동일 업종 수",
-            "업종 매출",
-            "임대료",
-            "집객시설 수",
-            "접근성"
-          ].map((priority) => (
-            <button
-              key={priority}
-              className={`p-auto rounded-full text-sm border w-28 h-full ${
-                selectedPriorities.includes(priority)
-                  ? "bg-bit-main text-white border-blue-600"
-                  : "bg-[#FFFFFF] text-comment border-[#BCBCBC] hover:bg-gray-100"
-              }`}
-              onClick={() => handlePriorityClick(priority)}
+
+        {/* 1순위 선택 */}
+        <div className="mb-3">
+          <p className="text-sm mb-1 text-gray-600">1순위</p>
+          <div className="relative">
+            <select
+              className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
+              value={selectedPriorities[0] || ""}
+              onChange={(e) => handlePriorityChange(0, e.target.value)}
             >
-              {priority}
-            </button>
-          ))}
+              <option value="">1순위 선택</option>
+              {[
+                "타겟연령",
+                "유동인구",
+                "직장인구",
+                "거주인구",
+                "동일 업종 수",
+                "업종 매출",
+                "임대료",
+                "집객시설 수",
+                "접근성"
+              ]
+                .filter(
+                  (priority) =>
+                    !selectedPriorities.includes(priority) ||
+                    selectedPriorities[0] === priority
+                )
+                .map((priority) => (
+                  <option key={priority} value={priority}>
+                    {priority}
+                  </option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+              <svg
+                className="h-4 w-4 fill-current"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </div>
+          </div>
         </div>
+
+        {/* 2순위 선택 */}
+        <div className="mb-3">
+          <p className="text-sm mb-1 text-gray-600">2순위 (선택사항)</p>
+          <div className="relative">
+            <select
+              className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
+              value={selectedPriorities[1] || ""}
+              onChange={(e) => handlePriorityChange(1, e.target.value)}
+              disabled={!selectedPriorities[0]} // 1순위가 선택되지 않으면 비활성화
+            >
+              <option value="">2순위 선택 (선택사항)</option>
+              {[
+                "타겟연령",
+                "유동인구",
+                "직장인구",
+                "거주인구",
+                "동일 업종 수",
+                "업종 매출",
+                "임대료",
+                "집객시설 수",
+                "접근성"
+              ]
+                .filter(
+                  (priority) =>
+                    !selectedPriorities.includes(priority) ||
+                    selectedPriorities[1] === priority
+                )
+                .map((priority) => (
+                  <option key={priority} value={priority}>
+                    {priority}
+                  </option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+              <svg
+                className="h-4 w-4 fill-current"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* 3순위 선택 */}
+        <div className="mb-3">
+          <p className="text-sm mb-1 text-gray-600">3순위 (선택사항)</p>
+          <div className="relative">
+            <select
+              className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
+              value={selectedPriorities[2] || ""}
+              onChange={(e) => handlePriorityChange(2, e.target.value)}
+              disabled={!selectedPriorities[1]} // 2순위가 선택되지 않으면 비활성화
+            >
+              <option value="">3순위 선택 (선택사항)</option>
+              {[
+                "타겟연령",
+                "유동인구",
+                "직장인구",
+                "거주인구",
+                "동일 업종 수",
+                "업종 매출",
+                "임대료",
+                "집객시설 수",
+                "접근성"
+              ]
+                .filter(
+                  (priority) =>
+                    !selectedPriorities.includes(priority) ||
+                    selectedPriorities[2] === priority
+                )
+                .map((priority) => (
+                  <option key={priority} value={priority}>
+                    {priority}
+                  </option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+              <svg
+                className="h-4 w-4 fill-current"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
         <p className="text-sm text-gray-500 mt-1">
-          최대 3개까지 선택할 수 있습니다.
+          최소 1개 이상, 최대 3개까지 선택할 수 있습니다.
         </p>
       </div>
 
@@ -207,7 +345,7 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
               clipRule="evenodd"
             />
           </svg>
-          분석하기
+          TOP3 추천받기
         </button>
 
         {/* 지도에서 보기 버튼 */}

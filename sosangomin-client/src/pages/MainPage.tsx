@@ -4,7 +4,8 @@ import FeatureSection from "@/features/main/components/FeatureSection";
 import CTASection from "@/features/main/components/CTASection";
 import { getStoreList } from "@/features/auth/api/mypageApi";
 import useStoreStore from "@/store/storeStore";
-import { StoreListResponse } from "@/features/auth/types/mypage";
+import { StoreInfo, StoreListResponse } from "@/features/auth/types/mypage";
+
 const MainPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,8 +17,9 @@ const MainPage: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
   const [, setStoreListData] = useState<StoreListResponse | null>(null);
-  const { representativeStore, setRepresentativeStore } = useStoreStore();
+  const { setRepresentativeStore } = useStoreStore();
 
   useEffect(() => {
     const checkAndFetchStores = async () => {
@@ -33,19 +35,27 @@ const MainPage: React.FC = () => {
       const isDefaultAuthState =
         !authStorage ||
         authStorage === '{"state":{"userInfo":null},"version":0}';
+
       // store-storage가 기본 상태이고 auth-storage가 기본 상태가 아닐 때만 API 호출
       if (isDefaultStoreState && !isDefaultAuthState) {
         try {
           const response = await getStoreList();
-          // 상태 업데이트에 setter 함수만 사용하여 미사용 변수 경고 제거
           setStoreListData(response);
 
-          if (
-            response.status === "success" &&
-            response.stores.length > 0 &&
-            !representativeStore
-          ) {
-            setRepresentativeStore(response.stores[0]);
+          if (response.status === "success" && response.stores.length > 0) {
+            // is_main이 true인 가게 찾기
+            const mainStore = response.stores.find(
+              (store: StoreInfo) => store.is_main === true
+            );
+
+            // is_main이 true인 가게가 있으면 그걸 대표 가게로 설정
+            if (mainStore) {
+              setRepresentativeStore(mainStore);
+            }
+            // is_main이 true인 가게가 없으면 첫 번째 가게를 대표 가게로 설정
+            else {
+              setRepresentativeStore(response.stores[0]);
+            }
           }
         } catch (error) {
           console.error("가게 목록 불러오기 실패:", error);
@@ -54,7 +64,7 @@ const MainPage: React.FC = () => {
     };
 
     checkAndFetchStores();
-  }, [representativeStore, setRepresentativeStore]);
+  }, []); // representativeStore 의존성 제거
 
   // 스크롤 관련 최적화를 위한 설정
   useEffect(() => {
