@@ -325,7 +325,7 @@ const ReviewDashBoard: React.FC = () => {
           </h2>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             {typeof analysisData.insights === "string" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-1">
                 {(() => {
                   const raw = analysisData.insights as string;
                   const parts = raw.split(/##\s[1-3]\.\s/);
@@ -376,7 +376,12 @@ const ReviewDashBoard: React.FC = () => {
                             (line: string) =>
                               line.trim() &&
                               !line.trim().startsWith("###") &&
-                              !/^[0-9]+\./.test(line.trim())
+                              !/^[0-9]+\./.test(line.trim()) &&
+                              ![
+                                "고객들이 가장 만족하는 점",
+                                "개선이 필요한 부분",
+                                "매장 운영에 도움이 될만한 구체적인 제안"
+                              ].includes(line.trim())
                           )
                           .map((line: string, i: number) => (
                             <Markdown key={i}>

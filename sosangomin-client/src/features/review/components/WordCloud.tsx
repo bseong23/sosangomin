@@ -31,9 +31,8 @@ const WordCloud: React.FC<WordCloudProps> = ({
   const topWords = getTopWords(filteredWords, maxWords);
 
   // 단어들의 애니메이션 완료 상태
-  const [animationComplete, setAnimationComplete] = useState(false);
+  const [, setAnimationComplete] = useState(false);
 
-  console.log(animationComplete);
   // 단어 위치 정보를 저장
   const positionsRef = useRef<WordPosition[]>([]);
 

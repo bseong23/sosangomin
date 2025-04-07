@@ -15,7 +15,7 @@ export const requestCompetitorAnalysis = async (
   data: CompetitorAnalysisRequest
 ): Promise<CompetitorAnalysisResponse> => {
   try {
-    console.log("경쟁사 분석 API 요청 데이터:", JSON.stringify(data));
+    // console.log("경쟁사 분석 API 요청 데이터:", JSON.stringify(data));
     const response = await axiosInstance.post<CompetitorAnalysisResponse>(
       "/api/proxy/competitor/analysis",
       data, // params 대신 body로 직접 전달
@@ -27,7 +27,7 @@ export const requestCompetitorAnalysis = async (
     );
 
     // API 응답 로그 기록 (디버깅용)
-    console.log("경쟁사 분석 API 응답:", response.data);
+    // console.log("경쟁사 분석 API 응답:", response.data);
 
     return response.data;
   } catch (error) {
@@ -50,7 +50,7 @@ export const getCompetitorComparisons = async (
     );
 
     // API 응답 로그 기록 (디버깅용)
-    console.log("경쟁사 비교 목록 API 응답:", response.data);
+    // console.log("경쟁사 비교 목록 API 응답:", response.data);
 
     return response.data;
   } catch (error) {
@@ -74,7 +74,7 @@ export const getCompetitorComparisonResult = async (
       );
 
     // API 응답 로그 기록 (디버깅용)
-    console.log("경쟁사 비교 결과 API 응답:", response.data);
+    // console.log("경쟁사 비교 결과 API 응답:", response.data);
 
     return response.data;
   } catch (error) {
