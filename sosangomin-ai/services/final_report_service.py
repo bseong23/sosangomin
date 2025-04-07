@@ -10,6 +10,7 @@ from services.store_service import simple_store_service as store_service
 from services.auto_analysis import autoanalysis_service
 from services.competitor_service import competitor_service
 from services.eda_chat_service import eda_chat_service
+from services.location_info_service import location_info_service
 from dotenv import load_dotenv
 import re
 
@@ -104,7 +105,6 @@ class FinalReportService:
                         "summaries": combined_analysis.get("summaries", {})
                     }
             else:
-                # 종합 분석은 선택적이므로 missing에 추가하지 않음
                 pass
             
             # 3. 경쟁사 비교 분석 결과 가져오기
@@ -118,6 +118,29 @@ class FinalReportService:
                 results["competitor_analysis"] = competitor_analysis
             else:
                 missing_analyses.append("경쟁사 비교 분석")
+            
+            # 4. 매장 위치 기반 행정동 정보 가져오기
+            store_info = None
+            try:
+                store_result = await store_service.get_store(store_id)
+                if store_result.get("status") == "success":
+                    store_info = store_result.get("store_info")
+                    
+                    # 주소에서 행정동 추출
+                    if store_info and "address" in store_info:
+                        dong_name = location_info_service.extract_dong_from_address(store_info["address"])
+                        
+                        if dong_name:
+                            # 행정동 정보 조회
+                            location_result = await location_info_service.get_dong_info(dong_name)
+                            
+                            if location_result.get("status") == "success":
+                                results["location_info"] = {
+                                    "dong_name": dong_name,
+                                    "data": location_result.get("data", {})
+                                }
+            except Exception as e:
+                logger.warning(f"매장 위치 정보를 가져오지 못했습니다 (ID: {store_id}): {str(e)}")
             
             return {
                 "results": results,
@@ -311,7 +334,7 @@ class FinalReportService:
             - 부정적 키워드: {', '.join(neg_words) if neg_words else '없음'}
             """
         
-        # 자동 분석 데이터 추가 (combined_analysis에서 가져옴)
+        # 자동 분석 데이터 추가
         if "auto_analysis" in results:
             auto_data = results["auto_analysis"]
             predict_data = auto_data.get('results', {}).get('predict', {})
@@ -360,7 +383,6 @@ class FinalReportService:
             eda_results = combined_data.get('eda_result', {})
             
             if 'result_data' in eda_results:
-                # 백슬래시 처리를 f-string 외부로 빼기
                 summary = eda_results.get('summary', '').replace('\n', ' ').strip()[:300]
                 prompt += f"""
             ## 데이터 종합 분석 결과
@@ -369,7 +391,6 @@ class FinalReportService:
                 
                 basic_stats = eda_results.get('result_data', {}).get('basic_stats', {}).get('data', {})
                 if basic_stats:
-                    # 포맷팅을 f-string 외부에서 처리
                     total_sales = f"{basic_stats.get('total_sales', 0):,.0f}"
                     avg_transaction = f"{basic_stats.get('avg_transaction', 0):,.0f}"
                     total_transactions = f"{basic_stats.get('total_transactions', 0):,}"
@@ -427,8 +448,7 @@ class FinalReportService:
             if comparison:
                 my_store = comparison.get('my_store', {})
                 competitor = comparison.get('competitor', {})
-                
-                # 포맷팅을 f-string 외부에서 처리
+            
                 my_positive_rate = f"{my_store.get('positive_rate', 0):.1f}"
                 competitor_positive_rate = f"{competitor.get('positive_rate', 0):.1f}"
                 
@@ -437,8 +457,23 @@ class FinalReportService:
             - 경쟁사 리뷰 수: {competitor.get('review_count', 0)}개, 평균 평점: {competitor.get('average_rating', 0)}점
             - 내 매장 긍정 비율: {my_positive_rate}%, 경쟁사 긍정 비율: {competitor_positive_rate}%
             """
+            
+        # 위치 기반 히트맵 데이터 추가 (새로 추가)
+        if "location_info" in results:
+            location_data = results["location_info"]
+            dong_data = location_data.get("data", {})
+            dong_name = location_data.get("dong_name", "알 수 없음")
+            
+            prompt += f"""
+            ## 매장 위치 분석 데이터 (행정동: {dong_name})
+            - 유동인구: {dong_data.get('유동인구', 0):,.0f}명
+            - 직장인구: {dong_data.get('직장인구', 0):,.0f}명  
+            - 거주인구: {dong_data.get('거주인구', 0):,.0f}명
+            - 외식업 총 업소 수: {dong_data.get('총 업소 수', 0):,.0f}개
+            - 평균 개업률: {dong_data.get('평균 개업률', 0):.1f}%
+            - 평균 폐업률: {dong_data.get('평균 폐업률', 0):.1f}%
+            """
         
-        # SWOT 분석 지시사항 추가
         prompt += """
         ## 요청사항
         위 데이터를 종합적으로 분석하여 소상공인을 위한 SWOT 분석을 다음 형식으로 작성해 주세요:
