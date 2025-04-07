@@ -9,6 +9,7 @@ import RelatedAnalysesComponent from "../features/finalreport/components/Related
 import useFinalReportManager from "@/features/finalreport/hooks/useFinalReportManager";
 import useStoreStore from "../store/storeStore";
 import Loading from "../components/common/Loading";
+import { FinalReportDetail } from "../features/finalreport/types/finalReport";
 
 const ResultPage: React.FC = () => {
   // 스토어에서 대표 매장 정보 가져오기
@@ -110,9 +111,8 @@ const ResultPage: React.FC = () => {
     }
   };
 
-  // 로딩 상태 처리
-  const isLoading = isLoadingDetail || isLoadingList || isCreating;
-  if ((isLoading && !reportDetail) || !representativeStore) {
+  // 기본 레이아웃 - 대표 매장이 없는 경우만 전체 화면 로딩
+  if (!representativeStore) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <Loading />
@@ -120,136 +120,147 @@ const ResultPage: React.FC = () => {
     );
   }
 
-  // 에러 상태 처리
-  const error = detailError || listError;
-  if (error || (!reportDetail && !isLoading && !isCreating)) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <svg
-            className="w-16 h-16 text-red-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <h2 className="text-xl font-semibold text-center text-gray-800 mb-2">
-            오류가 발생했습니다
-          </h2>
-          <p className="text-gray-600 text-center">
-            {error?.message ||
-              "보고서 데이터를 불러오는 중 오류가 발생했습니다."}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition duration-200"
-          >
-            다시 시도
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // 헤더에 사용할 보고서 데이터 결정 (없으면 빈 객체)
+  // HeaderComponent에 전달할 데이터 객체 생성
+  const headerData: FinalReportDetail = reportDetail || {
+    _id: "",
+    store_id: Number(storeId), // Convert storeId to number
+    store_name: representativeStore.store_name || "",
+    created_at: new Date().toISOString(),
+    full_response: "",
+    swot_analysis: {
+      summary: "",
+      strengths: [],
+      weaknesses: [],
+      opportunities: [],
+      threats: [],
+      recommendations: []
+    },
+    related_analyses: {
+      review_analysis_id: "",
+      combined_analysis_id: "",
+      competitor_analysis_id: ""
+    }
+  };
 
-  // 보고서 목록이 있지만 보고서가 없는 경우 (생성 필요)
-  if (reportList && reportList.length === 0 && !reportDetail && !isCreating) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            보고서가 없습니다
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {representativeStore.store_name}의 분석 보고서가 없습니다. 새
-            보고서를 생성해 주세요.
-          </p>
-          <button
-            onClick={handleCreateNewReport}
-            className={`py-2 px-4 ${
-              isCreating
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700"
-            } text-white rounded-md transition duration-200 flex items-center justify-center`}
-            disabled={isCreating}
-          >
-            {isCreating ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                분석 중...
-              </>
-            ) : (
-              "분석하기"
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // 데이터가 없는 경우의 처리
-  if (!reportDetail) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            보고서를 불러오는 중입니다
-          </h2>
+  // renderMainContent 함수 수정 부분
+  const renderMainContent = () => {
+    // 로딩 상태 체크에서 isCreating 제외
+    if (isLoadingDetail || isLoadingList) {
+      return (
+        <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px] flex items-center justify-center">
           <Loading />
         </div>
-      </div>
+      );
+    }
+
+    // 에러 발생
+    if (detailError || listError) {
+      const error = detailError || listError;
+      return (
+        <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px]">
+          <div className="flex flex-col items-center justify-center h-full">
+            <svg
+              className="w-16 h-16 text-red-500 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <h2 className="text-xl font-semibold text-center text-bit-main mb-2">
+              오류가 발생했습니다
+            </h2>
+            <p className="text-comment text-center mb-4">
+              {error?.message ||
+                "보고서 데이터를 불러오는 중 오류가 발생했습니다."}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="py-2 px-4 bg-bit-main hover:bg-opacity-90 text-basic-white rounded-md transition duration-200"
+            >
+              다시 시도
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // 보고서 목록이 비어있는 경우
+    if (reportList && reportList.length === 0) {
+      return (
+        <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px]">
+          <div className="flex flex-col mt-20 items-center justify-center h-full">
+            <h2 className="text-xl font-semibold text-bit-main mb-4">
+              분석된 보고서가 없습니다
+            </h2>
+            <p className="text-comment text-center mb-4">
+              {representativeStore.store_name}의 분석 보고서가 아직 없습니다.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // 보고서 목록은 있지만 선택된 보고서가 없는 경우
+    if (!reportDetail) {
+      return (
+        <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px]">
+          <div className="flex flex-col items-center justify-center h-full">
+            <h2 className="text-xl font-semibold text-bit-main mb-4">
+              선택된 날짜에 분석된 보고서가 없습니다
+            </h2>
+            <p className="text-comment text-center mb-4">
+              다른 날짜를 선택하거나 새 분석을 시작해 주세요.
+            </p>
+            {reportList && reportList.length > 0 && (
+              <button
+                onClick={() => handleReportSelection(reportList[0].report_id)}
+                className="py-2 px-4 bg-bit-main hover:bg-opacity-90 text-basic-white rounded-md transition duration-200 mb-2"
+              >
+                최신 보고서 보기
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // 정상적인 보고서 데이터가 있는 경우
+    // isCreating이 true더라도 기존 보고서는 계속 표시
+    return (
+      <>
+        <SwotDetailComponent
+          data={reportDetail}
+          reportList={reportList}
+          onReportSelect={handleReportSelection}
+        />
+        <RecommendationsComponent data={reportDetail} />
+        <VisualizationComponent data={reportDetail} />
+        <FullAnalysisComponent data={reportDetail} />
+        <RelatedAnalysesComponent data={reportDetail} />
+      </>
     );
-  }
+  };
 
   return (
     <div className="min-h-screen bg-white p-6 md:p-12">
       <div className="max-w-6xl mx-auto px-4">
+        {/* 헤더는 항상 보여줌 - 날짜 선택 기능은 제거됨 */}
         <HeaderComponent
-          data={reportDetail}
-          reportList={reportList}
-          onReportSelect={handleReportSelection}
-          onCreateReport={isCreating ? undefined : handleCreateNewReport}
+          data={headerData}
+          onCreateReport={handleCreateNewReport}
+          isCreating={isCreating}
         />
 
-        {isLoadingDetail ? (
-          <div className="flex justify-center py-10">
-            <Loading />
-          </div>
-        ) : (
-          <>
-            <SwotDetailComponent data={reportDetail} />
-
-            <RecommendationsComponent data={reportDetail} />
-            <VisualizationComponent data={reportDetail} />
-            <FullAnalysisComponent data={reportDetail} />
-            <RelatedAnalysesComponent data={reportDetail} />
-          </>
-        )}
+        {/* 상태에 따라 다른 내용 표시 */}
+        {renderMainContent()}
       </div>
     </div>
   );

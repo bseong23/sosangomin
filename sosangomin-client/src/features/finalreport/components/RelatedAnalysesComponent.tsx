@@ -10,33 +10,13 @@ const RelatedAnalysesComponent: React.FC<RelatedAnalysesComponentProps> = ({
 }) => {
   const analysesItems = [
     {
-      id: data.related_analyses.review_analysis_id,
-      title: "고객 리뷰 분석",
-      description: "방문자 리뷰와 감성 분석 결과를 확인합니다.",
-      icon: (
-        <svg
-          className="w-6 h-6 text-pink-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-      )
-    },
-    {
       id: data.related_analyses.combined_analysis_id,
       title: "통합 분석 리포트",
       description: "매출, 메뉴, 고객 데이터를 종합적으로 분석한 결과입니다.",
+      path: `/data-analysis/research`, // 통합 분석 전용 경로
       icon: (
         <svg
-          className="w-6 h-6 text-blue-500"
+          className="w-5 h-5 md:w-6 md:h-6 text-blue-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -52,12 +32,35 @@ const RelatedAnalysesComponent: React.FC<RelatedAnalysesComponentProps> = ({
       )
     },
     {
+      id: data.related_analyses.review_analysis_id,
+      title: "고객 리뷰 분석",
+      description: "방문자 리뷰와 감성 분석 결과를 확인합니다.",
+      path: `/review/store`, // 리뷰 분석 전용 경로
+      icon: (
+        <svg
+          className="w-5 h-5 md:w-6 md:h-6 text-pink-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+          />
+        </svg>
+      )
+    },
+    {
       id: data.related_analyses.competitor_analysis_id,
       title: "경쟁사 분석",
       description: "주요 경쟁사와의 비교 분석 결과를 확인합니다.",
+      path: `/review/compare`, // 경쟁사 분석 전용 경로
       icon: (
         <svg
-          className="w-6 h-6 text-green-500"
+          className="w-5 h-5 md:w-6 md:h-6 text-green-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -75,27 +78,31 @@ const RelatedAnalysesComponent: React.FC<RelatedAnalysesComponentProps> = ({
   ];
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className="bg-basic-white shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-lg p-4 md:p-5 lg:p-6 mb-6">
+      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-bit-main mb-4">
         관련 분석 보고서
       </h2>
 
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {analysesItems.map((item) => (
           <a
             key={item.id}
-            href={`/analysis/${item.id}`}
-            className="flex items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition duration-200"
+            href={item.path}
+            className="flex items-center p-3 md:p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-border transition duration-200"
           >
-            <div className="bg-white p-3 rounded-full shadow-sm mr-4">
+            <div className="bg-basic-white p-2 md:p-3 rounded-full shadow-sm mr-3 md:mr-4">
               {item.icon}
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">{item.title}</h3>
-              <p className="text-sm text-gray-500">{item.description}</p>
+              <h3 className="font-medium text-bit-main text-sm md:text-base">
+                {item.title}
+              </h3>
+              <p className="text-xs md:text-sm text-comment">
+                {item.description}
+              </p>
             </div>
             <svg
-              className="w-5 h-5 text-gray-400 ml-auto"
+              className="w-4 h-4 md:w-5 md:h-5 text-comment ml-auto"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
