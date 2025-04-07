@@ -28,6 +28,13 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
           height={height}
           horizontal={horizontal}
           legend={false}
+          customOptions={{
+            scales: {
+              y: {
+                min: 0 // Y축 최소값을 20,000으로 설정
+              }
+            }
+          }}
         />
         {comment && <p className="text-sm text-gray-600 mt-2">{comment}</p>}
       </div>

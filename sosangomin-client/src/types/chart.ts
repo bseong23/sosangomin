@@ -92,32 +92,29 @@ export interface MixedChartDataset {
 
 // MixedChart 컴포넌트 Props 타입 정의
 export interface MixedChartProps {
-  // 필수 속성
-  labels: string[]; // X축 레이블 배열
-  datasets: MixedChartDataset[]; // 차트 데이터셋 배열
-
-  // 선택적 속성
-  height?: number; // 차트 높이 (픽셀)
-  width?: number; // 차트 너비 (픽셀)
-  title?: string; // 차트 제목
-  xAxisLabel?: string; // X축 레이블
-  yAxisLabel?: string; // Y축 레이블
-  legend?: boolean; // 범례 표시 여부
-  legendPosition?: "top" | "right" | "bottom" | "left"; // 범례 위치
-  gridLines?: boolean; // 그리드 라인 표시 여부
-  beginAtZero?: boolean; // Y축 0부터 시작 여부
-  tooltips?: boolean; // 툴팁 표시 여부
-  animation?: boolean; // 애니메이션 효과 여부
-  responsive?: boolean; // 반응형 디자인 여부
-  maintainAspectRatio?: boolean; // 종횡비 유지 여부
-  stacked?: boolean; // 막대 그래프 누적 여부
-  onClick?: (event: any, elements: any) => void; // 클릭 이벤트 핸들러
-  className?: string; // 추가 CSS 클래스
-  id?: string; // 차트 HTML ID
-
-  // 추가 옵션
-  multiAxis?: boolean; // 다중 Y축 사용 여부
-  rightYAxisLabel?: string; // 오른쪽 Y축 레이블 (다중 Y축 사용 시)
+  labels: string[];
+  datasets: MixedChartDataset[];
+  height?: number;
+  width?: number;
+  title?: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  legend?: boolean;
+  legendPosition?: "top" | "right" | "bottom" | "left";
+  gridLines?: boolean;
+  beginAtZero?: boolean;
+  tooltips?: boolean;
+  animation?: boolean;
+  responsive?: boolean;
+  maintainAspectRatio?: boolean;
+  stacked?: boolean;
+  onClick?: (event: any, elements: any) => void;
+  className?: string;
+  id?: string;
+  multiAxis?: boolean;
+  rightYAxisLabel?: string;
+  leftMin?: number; // 추가: 왼쪽 y축 최소값
+  rightMin?: number; // 추가: 오른쪽 y축 최소값
 }
 
 // 기본 차트 데이터 타입
@@ -197,4 +194,5 @@ export interface BarChartProps {
   onClick?: (event: any, elements: any) => void; // 클릭 이벤트 핸들러
   className?: string; // 추가 CSS 클래스
   id?: string; // 차트 HTML ID
+  unit?: string;
 }

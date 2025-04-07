@@ -50,6 +50,13 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
                   barPercentage: 0.6
                 }
               ]}
+              customOptions={{
+                scales: {
+                  y: {
+                    min: 0 // Y축 최소값을 20,000으로 설정
+                  }
+                }
+              }}
               height={280}
               legend={false}
             />
@@ -92,6 +99,13 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
               ]}
               height={280}
               legend={false}
+              customOptions={{
+                scales: {
+                  y: {
+                    min: 0 // Y축 최소값을 20,000으로 설정
+                  }
+                }
+              }}
             />
           </div>
         </div>

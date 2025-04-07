@@ -55,6 +55,13 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
           yAxisLabel="매출 (원)"
           xAxisLabel="기온 구간"
           legend={false}
+          customOptions={{
+            scales: {
+              y: {
+                min: 0 // Y축 최소값을 20,000으로 설정
+              }
+            }
+          }}
         />
       </div>
       <div className="mt-2 mb-2">

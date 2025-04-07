@@ -39,7 +39,8 @@ interface LineChartProps {
   }[];
   yAxisTitle?: string;
   legend?: boolean;
-  unit?: "원" | "개"; // 단위 prop 추가
+  unit?: "원" | "개";
+  referenceYear?: string; // 기준년도 prop 추가
 }
 
 /**
@@ -51,9 +52,9 @@ const LineChart: React.FC<LineChartProps> = ({
   datasets,
   yAxisTitle,
   legend,
-  unit = "원"
+  unit = "원",
+  referenceYear = "" // 기준년도 prop 추가
 }: LineChartProps) => {
-  // 차트 옵션
   // 차트 옵션
   const options = {
     responsive: true,
@@ -65,19 +66,28 @@ const LineChart: React.FC<LineChartProps> = ({
         labels: {
           font: {
             size: 12
-          },
-          boxWidth: 15,
-          padding: 15
+          }
         }
       },
       title: {
-        display: !!title,
-        text: title,
+        display: !!title || !!referenceYear,
+        text: () => {
+          const titleText = title ? [title] : [];
+          if (referenceYear) {
+            titleText.push(`기준시점: ${referenceYear}`);
+          }
+          return titleText;
+        },
         font: {
           size: 16,
           weight: "bold" as const
         },
-        padding: 20
+        align: "end" as const,
+        position: "top",
+        color: (ctx: any) => {
+          const titleIndex = ctx.titleIndex;
+          return titleIndex === 0 ? "#000000" : "#4B5563"; // 첫 번째 제목은 검정색, 두 번째 제목(기준년도)은 파란색
+        }
       },
       tooltip: {
         backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -95,7 +105,6 @@ const LineChart: React.FC<LineChartProps> = ({
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              // 툴팁에도 단위 추가
               label +=
                 new Intl.NumberFormat("ko-KR").format(context.parsed.y) + unit;
             }
@@ -117,7 +126,6 @@ const LineChart: React.FC<LineChartProps> = ({
           autoSkip: true,
           maxTicksLimit: 10,
           callback: function (index: number) {
-            // 줄바꿈 추가
             const label = labels[index];
             if (label.includes(" ")) {
               return label.split(" ");
@@ -135,7 +143,7 @@ const LineChart: React.FC<LineChartProps> = ({
             size: 12
           },
           callback: function (value: number) {
-            return new Intl.NumberFormat("ko-KR").format(value) + unit; // unit 사용
+            return new Intl.NumberFormat("ko-KR").format(value) + unit;
           }
         },
         title: {

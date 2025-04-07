@@ -129,7 +129,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
       {/* ✅ 상주인구 요약 정보 표시 */}
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">상주인구 구성</h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
+        <div className="flex items-center flex-col px-2 py-4 md:flex-row">
           <BarChart
             labels={residentLabels}
             datasets={[
@@ -156,50 +156,53 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               }
             }}
             height={300}
+            unit="명"
             xAxisLabel="연령대"
             yAxisLabel="인구 수"
             stacked={false} // ✅ 남녀가 나란히 표시되도록 수정
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                총 상주인구
-              </p>
-              <p className="flex justify-center text-base font-bold pt-2">
-                {(
-                  populationData.resident_pop.총_상주인구 || 0
-                ).toLocaleString()}
-                명
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                서울시 평균 대비
-              </p>
-              <p
-                className={`flex justify-center pt-2 text-base ${
-                  avgResident > 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {resText}
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                최다 인구 그룹
-              </p>
-              <p className="text-base flex justify-center pt-2">
-                {populationData.resident_pop.가장_많은_성별_연령대?.구분 ||
-                  "데이터 없음"}
-                <span className="ml-2 text-gray-500">
-                  (
+          <div className="grid grid-rows-3 gap-4 md:px-4 md:w-120">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">총 상주인구</p>
+                <p className="text-lg font-bold text-gray-900">
                   {(
-                    populationData.resident_pop.가장_많은_성별_연령대?.인구수 ||
-                    0
+                    populationData.resident_pop.총_상주인구 || 0
                   ).toLocaleString()}
-                  명)
-                </span>
-              </p>
+                  <span className="text-base ml-1 font-normal">명</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
+                <p
+                  className={`text-lg font-bold ${
+                    avgResident > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {resText}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.resident_pop.가장_많은_성별_연령대?.구분 ||
+                    "데이터 없음"}
+                  <span className="ml-1 text-base font-normal text-gray-500">
+                    (
+                    {(
+                      populationData.resident_pop.가장_많은_성별_연령대
+                        ?.인구수 || 0
+                    ).toLocaleString()}
+                    명)
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -207,7 +210,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
 
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">직장인구 구성</h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
+        <div className="flex items-center flex-col px-2 py-4 md:flex-row">
           <BarChart
             labels={residentLabels}
             datasets={[
@@ -235,45 +238,52 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             }}
             height={300}
             xAxisLabel="연령대"
+            unit="명"
             yAxisLabel="인구 수"
             stacked={false} // ✅ 남녀가 나란히 표시되도록 수정
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                총 직장인구
-              </p>
-              <p className="flex justify-center pt-2 text-base font-bold">
-                {(populationData.working_pop.총_직장인구 || 0).toLocaleString()}
-                명
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                서울시 평균 대비
-              </p>
-              <p
-                className={`text-base flex justify-center pt-2 ${
-                  avgResident > 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {workText}
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                최다 인구 그룹
-              </p>
-              <p className="text-base flex justify-center pt-2">
-                {populationData.working_pop.가장_많은_성별_연령대.구분}
-                <span className="ml-2 text-gray-500">
-                  (
+          <div className="grid grid-rows-3 gap-4 md:px-4 md:w-120">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">총 직장인구</p>
+                <p className="text-lg font-bold text-gray-900">
                   {(
-                    populationData.working_pop.가장_많은_성별_연령대.인구수 || 0
+                    populationData.working_pop.총_직장인구 || 0
                   ).toLocaleString()}
-                  명)
-                </span>
-              </p>
+                  <span className="text-base ml-1 font-normal">명</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
+                <p
+                  className={`text-lg font-bold ${
+                    avgWorkiong > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {workText}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.working_pop.가장_많은_성별_연령대?.구분 ||
+                    "데이터 없음"}
+                  <span className="ml-1 text-base font-normal text-gray-500">
+                    (
+                    {(
+                      populationData.working_pop.가장_많은_성별_연령대
+                        ?.인구수 || 0
+                    ).toLocaleString()}
+                    명)
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -281,7 +291,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
 
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">유동인구 구성</h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
+        <div className="flex items-center flex-col px-2 py-4 md:flex-row">
           <BarChart
             labels={residentLabels}
             datasets={[
@@ -308,49 +318,53 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               }
             }}
             height={300}
+            unit="명"
             xAxisLabel="연령대"
             yAxisLabel="인구 수"
             stacked={false} // ✅ 남녀가 나란히 표시되도록 수정
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                총 유동인구
-              </p>
-              <p className="flex justify-center pt-2 text-base font-bold">
-                {(
-                  populationData.floating_pop.총_유동인구 || 0
-                ).toLocaleString()}
-                명
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                서울시 평균 대비
-              </p>
-              <p
-                className={`flex justify-center pt-2 text-base ${
-                  avgfloating > 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {floatText}
-              </p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600">
-                최다 인구 그룹
-              </p>
-              <p className="flex justify-center pt-2 text-base">
-                {populationData.floating_pop.가장_많은_성별_연령대.구분}
-                <span className="ml-2 text-gray-500">
-                  (
+          <div className="grid grid-rows-3 gap-4 md:px-4 md:w-120">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">총 유동인구</p>
+                <p className="text-lg font-bold text-gray-900">
                   {(
-                    populationData.floating_pop.가장_많은_성별_연령대.인구수 ||
-                    0
+                    populationData.floating_pop.총_유동인구 || 0
                   ).toLocaleString()}
-                  명)
-                </span>
-              </p>
+                  <span className="text-base ml-1 font-normal">명</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
+                <p
+                  className={`text-lg font-bold ${
+                    avgfloating > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {floatText}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.가장_많은_성별_연령대?.구분 ||
+                    "데이터 없음"}
+                  <span className="ml-1 text-base font-normal text-gray-500">
+                    (
+                    {(
+                      populationData.floating_pop.가장_많은_성별_연령대
+                        ?.인구수 || 0
+                    ).toLocaleString()}
+                    명)
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -358,7 +372,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
 
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">시간대별 유동인구</h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
+        <div className="flex items-center flex-col px-2 py-4 md:flex-row">
           <BarChart
             labels={timelabel}
             datasets={[
@@ -376,27 +390,35 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               }
             }}
             height={300}
+            unit="명"
             xAxisLabel="시간대"
             yAxisLabel="인구 수"
             legend={false} // 범례 표시 끄기
             title="" // 제목 비우기
           />
-          <div className="flex flex-col gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600 py-2">
-                유동인구가 가장 많은 시간대
-              </p>
-              <p className="flex justify-center text-lg font-bold pt-3">
-                {populationData.floating_pop.가장_많은_시간대 || "데이터 없음"}
-              </p>
+          <div className="flex justify-center flex-col gap-10 md:px-4 md:w-120">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">
+                  유동인구가 가장 많은 시간대
+                </p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.가장_많은_시간대 ||
+                    "데이터 없음"}
+                </p>
+              </div>
             </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600 py-2">
-                유동인구가 가장 적은 시간대
-              </p>
-              <p className="flex justify-center text-lg font-bold pt-3">
-                {populationData.floating_pop.가장_적은_시간대}
-              </p>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-red-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">
+                  유동인구가 가장 적은 시간대
+                </p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.가장_적은_시간대 ||
+                    "데이터 없음"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -404,7 +426,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
 
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">요일별 유동인구</h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
+        <div className="flex items-center flex-col px-2 py-4 md:flex-row">
           <BarChart
             labels={weekDays}
             datasets={[
@@ -416,6 +438,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             ]}
             height={300}
             legend={false}
+            unit="명"
             xAxisLabel="요일"
             yAxisLabel="인구 수"
             customOptions={{
@@ -426,39 +449,55 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               }
             }}
           />
-          <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600 py-2">
-                유동인구가 가장 많은 요일
-              </p>
-              <p className="flex justify-center text-base font-bold py-2">
-                {populationData.floating_pop.가장_많은_요일}
-              </p>
+          <div className="flex flex-col gap-4 md:px-4 md:w-120">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">
+                  유동인구가 가장 많은 요일
+                </p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.가장_많은_요일}
+                </p>
+              </div>
             </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600 py-2">
-                유동인구가 가장 적은 요일
-              </p>
-              <p className="flex justify-center text-base font-bold py-2">
-                {populationData.floating_pop.가장_적은_요일}
-              </p>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-red-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">
+                  유동인구가 가장 적은 요일
+                </p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.가장_적은_요일}
+                </p>
+              </div>
             </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <p className="flex justify-center text-base text-gray-600 py-2">
-                평균 유동인구 비교
-              </p>
-              <p className="flex justify-center text-base font-bold py-2">
-                {populationData.floating_pop.주말_평균_유동인구 >
-                populationData.floating_pop.평일_평균_유동인구
-                  ? `주말이 ${Math.abs(
-                      populationData.floating_pop.주말_평균_유동인구 -
-                        populationData.floating_pop.평일_평균_유동인구
-                    ).toLocaleString()}명 더 많습니다.`
-                  : `평일이 ${Math.abs(
-                      populationData.floating_pop.평일_평균_유동인구 -
-                        populationData.floating_pop.주말_평균_유동인구
-                    ).toLocaleString()}명 더 많습니다.`}
-              </p>
+
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
+              <div className="flex-1">
+                <p className="text-sm text-gray-600 mb-1">평균 유동인구 비교</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {populationData.floating_pop.주말_평균_유동인구 >
+                  populationData.floating_pop.평일_평균_유동인구 ? (
+                    <span className="text-blue-600">
+                      주말이{" "}
+                      {Math.abs(
+                        populationData.floating_pop.주말_평균_유동인구 -
+                          populationData.floating_pop.평일_평균_유동인구
+                      ).toLocaleString()}
+                      명 더 많습니다.
+                    </span>
+                  ) : (
+                    <span className="text-green-600">
+                      평일이{" "}
+                      {Math.abs(
+                        populationData.floating_pop.평일_평균_유동인구 -
+                          populationData.floating_pop.주말_평균_유동인구
+                      ).toLocaleString()}
+                      명 더 많습니다.
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
           </div>
         </div>

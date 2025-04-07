@@ -81,14 +81,6 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                     <div className="p-4 space-y-2 bg-white">
                       <div className="flex justify-between border-b pb-2">
                         <span className="font-medium text-gray-600">
-                          타겟 연령 비율:
-                        </span>
-                        <span>
-                          {(location.타겟연령_비율 * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="flex justify-between border-b pb-2">
-                        <span className="font-medium text-gray-600">
                           타겟 연령 수:
                         </span>
                         <span>{formatNumber(location.타겟연령_수)}명</span>
@@ -103,15 +95,15 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="font-medium text-gray-600">
-                          임대료:
+                          평당 임대료:
                         </span>
                         <span>
-                          {formatNumber(Math.round(location.임대료))}원/㎡
+                          {formatNumber(Math.round(location.임대료))}원
                         </span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="font-medium text-gray-600">
-                          유동인구:
+                          유동인구(면적당):
                         </span>
                         <span>
                           {formatNumber(
@@ -122,7 +114,7 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="font-medium text-gray-600">
-                          직장인구:
+                          직장인구(면적당):
                         </span>
                         <span>
                           {formatNumber(
@@ -133,7 +125,7 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="font-medium text-gray-600">
-                          거주인구:
+                          거주인구(면적당):
                         </span>
                         <span>
                           {formatNumber(
@@ -163,12 +155,6 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                           )}
                           개
                         </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-gray-600">
-                          접근성:
-                        </span>
-                        <span>{location.접근성.toFixed(1)}점</span>
                       </div>
                     </div>
                   </div>
@@ -206,7 +192,7 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
                     </p>
                   </div>
                   <div className="p-3 bg-white rounded-lg shadow-sm">
-                    <p className="text-sm text-gray-500">평균 임대료</p>
+                    <p className="text-sm text-gray-500">평당 임대료</p>
                     <p className="font-bold text-lg">
                       {formatNumber(Math.round(data.average_values.임대료))}원
                     </p>

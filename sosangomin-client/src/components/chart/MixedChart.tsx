@@ -1,4 +1,5 @@
 import React from "react";
+import { MixedChartProps } from "@/types/chart";
 import {
   Chart as ChartJS,
   LinearScale,
@@ -10,55 +11,26 @@ import {
   Tooltip,
   LineController,
   BarController,
-  Title
+  Title,
+  ChartOptions,
+  Scale
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import { MixedChartProps } from "@/types/chart"; // 분리된 타입 임포트
 
 // Chart.js 필요한 컴포넌트 등록
 ChartJS.register(
-  LinearScale, // Y축 선형 스케일
-  CategoryScale, // X축 카테고리 스케일
-  BarElement, // 막대 차트 요소
-  PointElement, // 선 그래프의 데이터 포인트
-  LineElement, // 선 그래프의 선
-  Legend, // 범례
-  Tooltip, // 툴팁
-  LineController, // 선 그래프 컨트롤러
-  BarController, // 막대 그래프 컨트롤러
-  Title // 차트 제목
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Legend,
+  Tooltip,
+  LineController,
+  BarController,
+  Title
 );
 
-/**
- * 막대 그래프와 선 그래프를 혼합하여 표시할 수 있는 MixedChart 컴포넌트
- *
- * Chart.js와 react-chartjs-2를 기반으로 한 커스터마이징 가능한 혼합 차트 컴포넌트입니다.
- * 하나의 차트에 막대 그래프와 선 그래프를 동시에 표시할 수 있으며,
- * 다양한 props를 통해 차트의 모양, 기능, 스타일을 조정할 수 있습니다.
- *
- * @example
- * // 기본 사용법
- * <MixedChart
- *   labels={["1월", "2월", "3월", "4월"]}
- *   datasets={[
- *     {
- *       type: 'bar',
- *       label: "매출",
- *       data: [5000, 3000, 4000, 7000],
- *       backgroundColor: "rgba(75, 192, 192, 0.6)"
- *     },
- *     {
- *       type: 'line',
- *       label: "목표",
- *       data: [4000, 4000, 4000, 4000],
- *       borderColor: "rgba(255, 99, 132, 1)",
- *       fill: false
- *     }
- *   ]}
- *   height={350}
- *   title="월별 매출 및 목표"
- * />
- */
 const MixedChart: React.FC<MixedChartProps> = ({
   labels,
   datasets,
@@ -66,7 +38,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
   width,
   title = "",
   xAxisLabel = "",
-  yAxisLabel = "",
+  yAxisLabel = "업소 수",
   legend = true,
   legendPosition = "top",
   gridLines = true,
@@ -79,65 +51,154 @@ const MixedChart: React.FC<MixedChartProps> = ({
   onClick,
   className = "",
   id = "mixed-chart",
-  multiAxis = false,
-  rightYAxisLabel = ""
+  rightYAxisLabel = "비율 (%)",
+  leftMin = 0,
+  rightMin = 50
 }) => {
+  // 데이터셋에 yAxisID 추가
+  const processedDatasets = datasets.map((dataset) => {
+    // bar 타입은 왼쪽 y축(y), line 타입은 오른쪽 y축(y1)에 할당
+    const yAxisID = dataset.type === "bar" ? "y" : "y1";
+
+    // 바 차트에만 너비 조절 옵션 추가
+    if (dataset.type === "bar") {
+      return {
+        ...dataset,
+        yAxisID,
+        barThickness: 100,
+        maxBarThickness: 100,
+        categoryPercentage: 0.8,
+        barPercentage: 0.5
+      };
+    }
+
+    // 선 그래프에는 yAxisID만 추가
+    return {
+      ...dataset,
+      yAxisID
+    };
+  });
+
   const data = {
     labels,
-    datasets: datasets.map((dataset) => {
-      // 바 차트에만 너비 조절 옵션 추가
-      if (dataset.type === "bar") {
-        return {
-          ...dataset,
-          barThickness: 30, // 막대 두께 (px)
-          maxBarThickness: 40, // 최대 두께
-          categoryPercentage: 0.8, // 카테고리 영역 비율
-          barPercentage: 0.5 // 막대 영역 비율
-        };
-      }
-      return dataset;
-    })
+    datasets: processedDatasets
   };
 
-  const options = {
+  // 타입스크립트 에러 해결을 위한 옵션 타입 캐스팅
+  const options: ChartOptions<"bar" | "line"> = {
     responsive,
     maintainAspectRatio,
     plugins: {
       legend: {
         display: legend,
-        position: legendPosition as "top" | "right" | "bottom" | "left"
+        position: legendPosition,
+        labels: {
+          usePointStyle: true,
+          padding: 15
+        }
       },
       title: {
         display: !!title,
         text: title,
-        font: { size: 16 }
+        font: { size: 16, weight: "bold" }
       },
-      tooltip: { enabled: tooltips }
+      tooltip: {
+        enabled: tooltips,
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+
+            const value = context.parsed.y;
+            if (value !== null) {
+              // bar 타입(업소수)는 정수로, line 타입(비율)은 소수점 첫째 자리까지 표시
+              if (context.dataset.type === "bar") {
+                label += value.toLocaleString() + "개";
+              } else {
+                label += value.toFixed(1) + "%";
+              }
+            }
+            return label;
+          }
+        }
+      }
     },
     scales: {
       x: {
-        title: { display: !!xAxisLabel, text: xAxisLabel },
-        grid: { display: gridLines },
+        title: {
+          display: !!xAxisLabel,
+          text: xAxisLabel,
+          font: { size: 12 }
+        },
+        grid: { display: false },
         stacked,
-        // 추가: x축 레벨에서 너비 제어
-        barThickness: 30,
-        categoryPercentage: 0.8,
-        barPercentage: 0.5
+        ticks: {
+          font: { size: 12 },
+          // 타입 시그니처 수정 - Chart.js 기대하는 형식으로 변경
+          callback: function (
+            this: Scale,
+            _value: string | number,
+            index: number
+          ) {
+            const label = labels[index];
+            if (typeof label === "string" && label.includes(" ")) {
+              return label.split(" ");
+            }
+            return label;
+          }
+        }
       },
       y: {
+        type: "linear",
+        display: true,
+        position: "left",
         beginAtZero,
-        title: { display: !!yAxisLabel, text: yAxisLabel },
-        grid: { display: gridLines },
+        min: leftMin,
+        title: {
+          display: !!yAxisLabel,
+          text: yAxisLabel,
+          font: { size: 12 }
+        },
+        grid: { display: gridLines, drawOnChartArea: true },
+        ticks: {
+          font: { size: 12 },
+          // 타입 시그니처 수정
+          callback: function (this: Scale, tickValue: string | number) {
+            const value =
+              typeof tickValue === "string" ? parseFloat(tickValue) : tickValue;
+            return value + "개";
+          }
+        },
         stacked
       },
-      ...(multiAxis && {
-        y1: {
-          beginAtZero,
-          position: "right" as const,
-          title: { display: !!rightYAxisLabel, text: rightYAxisLabel },
-          grid: { display: false }
+      y1: {
+        type: "linear",
+        display: true,
+        position: "right",
+        beginAtZero: false,
+        min: rightMin,
+        max: 100,
+        title: {
+          display: !!rightYAxisLabel,
+          text: rightYAxisLabel,
+          font: { size: 12 }
+        },
+        grid: {
+          display: false,
+          drawOnChartArea: false
+        },
+        ticks: {
+          font: { size: 12 },
+          // 타입 시그니처 수정
+          callback: function (this: Scale, tickValue: string | number) {
+            const value =
+              typeof tickValue === "string" ? parseFloat(tickValue) : tickValue;
+            return value + "%";
+          }
         }
-      })
+      }
     },
     animation: animation ? { duration: 1000 } : { duration: 0 },
     onClick

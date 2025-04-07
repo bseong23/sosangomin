@@ -289,6 +289,13 @@ const ReviewDashBoard: React.FC = () => {
                     backgroundColor: "rgba(255, 99, 132, 0.7)"
                   }
                 ]}
+                customOptions={{
+                  scales: {
+                    y: {
+                      min: 0 // Y축 최소값을 20,000으로 설정
+                    }
+                  }
+                }}
                 height={300}
                 xAxisLabel="카테고리"
                 yAxisLabel="리뷰 수"

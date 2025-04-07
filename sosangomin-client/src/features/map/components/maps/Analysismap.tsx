@@ -210,6 +210,13 @@ const Analysismap: React.FC<MapSidebarProps> = ({
             gridLines={true}
             beginAtZero={true}
             animation={true}
+            customOptions={{
+              scales: {
+                y: {
+                  min: 0 // Y축 최소값을 20,000으로 설정
+                }
+              }
+            }}
           />
           <div className="mt-4">
             <p className="text-base text-gray-600"> {selectedCategory} 순위</p>
