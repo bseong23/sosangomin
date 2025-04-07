@@ -138,13 +138,13 @@ class CompetitorService:
             }
 
     async def compare_with_competitor(
-    self, 
-    store_id: int, 
-    competitor_place_id: str,
-    competitor_name: str, 
-    analysis_id: Optional[str] = None,
-    competitor_analyzed_reviews: Optional[List[Dict[str, Any]]] = None
-) -> Dict[str, Any]:
+        self, 
+        store_id: int, 
+        competitor_place_id: str,
+        competitor_name: str, 
+        analysis_id: Optional[str] = None,
+        competitor_analyzed_reviews: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         내 점포와 경쟁사 리뷰 비교 분석 (결과는 DB에 저장)
         
@@ -186,7 +186,13 @@ class CompetitorService:
             my_sentiment = my_analysis.get("sentiment_distribution", {})
             my_avg_rating = my_analysis.get("average_rating", 0)
             my_word_cloud = my_analysis.get("word_cloud_data", {})
-            my_reviews_sample = my_analysis.get("reviews", [])[:5]  
+            
+            my_reviews = my_analysis.get("reviews", [])
+            my_positive_reviews = [r for r in my_reviews if r.get("sentiment") == "positive"][:5]
+            my_negative_reviews = [r for r in my_reviews if r.get("sentiment") == "negative"][:5]
+            
+            competitor_positive_reviews = [r for r in competitor_analyzed_reviews if r.get("sentiment") == "positive"][:5]
+            competitor_negative_reviews = [r for r in competitor_analyzed_reviews if r.get("sentiment") == "negative"][:5]
             
             competitor_review_count = len(competitor_analyzed_reviews)
             competitor_sentiment = {
@@ -194,7 +200,6 @@ class CompetitorService:
                 "neutral": sum(1 for r in competitor_analyzed_reviews if r.get("sentiment") == "neutral"),
                 "negative": sum(1 for r in competitor_analyzed_reviews if r.get("sentiment") == "negative")
             }
-            competitor_reviews_sample = competitor_analyzed_reviews[:5] 
             
             if competitor_review_count > 0:
                 pos_ratio = competitor_sentiment.get("positive", 0) / competitor_review_count
@@ -207,7 +212,10 @@ class CompetitorService:
                     "average_rating": my_avg_rating,
                     "sentiment_distribution": my_sentiment,
                     "positive_rate": (my_sentiment.get("positive", 0) / my_review_count * 100) if my_review_count > 0 else 0,
-                    "sample_reviews": [r.get("text", "") for r in my_reviews_sample]
+                    "sample_reviews": {
+                        "positive": my_positive_reviews,
+                        "negative": my_negative_reviews
+                    }
                 },
                 "competitor": {
                     "name": competitor_name,
@@ -215,7 +223,10 @@ class CompetitorService:
                     "average_rating": competitor_avg_rating,
                     "sentiment_distribution": competitor_sentiment,
                     "positive_rate": (competitor_sentiment.get("positive", 0) / competitor_review_count * 100) if competitor_review_count > 0 else 0,
-                    "sample_reviews": [r.get("text", "") for r in competitor_reviews_sample]
+                    "sample_reviews": {
+                        "positive": competitor_positive_reviews,
+                        "negative": competitor_negative_reviews
+                    }
                 },
                 "word_cloud_comparison": {
                     "my_store": my_word_cloud,
