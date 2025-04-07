@@ -39,6 +39,7 @@ interface LineChartProps {
   }[];
   yAxisTitle?: string;
   legend?: boolean;
+  unit?: "원" | "개"; // 단위 prop 추가
 }
 
 /**
@@ -49,8 +50,10 @@ const LineChart: React.FC<LineChartProps> = ({
   labels,
   datasets,
   yAxisTitle,
-  legend
+  legend,
+  unit = "원"
 }: LineChartProps) => {
+  // 차트 옵션
   // 차트 옵션
   const options = {
     responsive: true,
@@ -92,8 +95,9 @@ const LineChart: React.FC<LineChartProps> = ({
               label += ": ";
             }
             if (context.parsed.y !== null) {
+              // 툴팁에도 단위 추가
               label +=
-                new Intl.NumberFormat("ko-KR").format(context.parsed.y) + "원";
+                new Intl.NumberFormat("ko-KR").format(context.parsed.y) + unit;
             }
             return label;
           }
@@ -111,12 +115,18 @@ const LineChart: React.FC<LineChartProps> = ({
           },
           maxRotation: 0,
           autoSkip: true,
-          maxTicksLimit: 10
+          maxTicksLimit: 10,
+          callback: function (index: number) {
+            // 줄바꿈 추가
+            const label = labels[index];
+            if (label.includes(" ")) {
+              return label.split(" ");
+            }
+            return label;
+          }
         }
       },
       y: {
-        // beginAtZero: true, // 이 줄 제거
-        // min 속성 제거
         grid: {
           color: "rgba(0, 0, 0, 0.05)"
         },
@@ -125,7 +135,7 @@ const LineChart: React.FC<LineChartProps> = ({
             size: 12
           },
           callback: function (value: number) {
-            return new Intl.NumberFormat("ko-KR").format(value) + "원";
+            return new Intl.NumberFormat("ko-KR").format(value) + unit; // unit 사용
           }
         },
         title: {

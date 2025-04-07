@@ -178,6 +178,7 @@ export interface BarChartProps {
   datasets: BarChartDataset[]; // 차트 데이터셋 배열
 
   // 선택적 속성
+  customOptions?: any; // 차트.js의 추가 옵션을 위한 객체
   height?: number; // 차트 높이 (픽셀)
   width?: number; // 차트 너비 (픽셀), 미지정 시 컨테이너 너비
   horizontal?: boolean; // true면 수평 막대, false면 수직 막대

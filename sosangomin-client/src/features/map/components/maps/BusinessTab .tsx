@@ -43,7 +43,12 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
   const sortedQuarterData = [...businessData.main_category_store_count].sort(
     (a, b) => a.quarter - b.quarter
   );
-
+  const quarterLabel = [
+    "2024년 1분기",
+    "2024년 2분기",
+    "2024년 3분기",
+    "2024년 4분기"
+  ];
   // 차트 데이터 준비
   const quarters = sortedQuarterData.map(
     (item) => `${item.year} Q${item.quarter}`
@@ -148,11 +153,14 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
       </h3>
       {/* 분기별 업종 카테고리 추이 차트 */}
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
+        <h3 className="text-lg font-semibold mb-4">
+          업종별 업소수 변화율 추이
+        </h3>
         <div className="flex flex-col px-2 py-4 md:flex-row">
           <div className="w-full md:w-3/4">
             <LineChart
               title={`${selectedAdminName} 분기별 업종 현황 (${sortedQuarterData[0].year})`}
-              labels={quarters}
+              labels={quarterLabel}
               datasets={[
                 {
                   label: "외식업",
@@ -192,6 +200,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 }
               ]}
               yAxisTitle="업소 수"
+              unit="개"
             />
           </div>
           <div className="grid grid-row-3 gap-4 md:px-10 md:w-120">

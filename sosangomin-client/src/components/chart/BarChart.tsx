@@ -59,6 +59,7 @@ const BarChart: React.FC<BarChartProps> = ({
   maintainAspectRatio = false, // 종횡비 유지 여부 (기본값: 유지 안 함)
   onClick, // 차트 요소 클릭 시 실행될 함수
   className = "", // 추가 CSS 클래스
+  customOptions = {},
   id = "bar-chart" // 차트 HTML ID (기본값: "bar-chart")
 }) => {
   // 차트 옵션 구성 - Chart.js 옵션 객체
@@ -84,29 +85,31 @@ const BarChart: React.FC<BarChartProps> = ({
     },
     scales: {
       x: {
-        stacked, // X축 누적 설정
+        stacked,
         title: {
-          display: !!xAxisLabel, // X축 레이블 표시 여부
-          text: xAxisLabel // X축 레이블 텍스트
+          display: !!xAxisLabel,
+          text: xAxisLabel
         },
         grid: {
-          color: "transparent" // 그리드 색상 설정 (투명)
+          color: "transparent"
         }
       },
       y: {
-        stacked, // Y축 누적 설정
-        beginAtZero, // Y축 0부터 시작 여부
+        stacked,
+        beginAtZero,
+        min: 20000, // Y축 최소값을 직접 여기에 설정해도 됨
         title: {
-          display: !!yAxisLabel, // Y축 레이블 표시 여부
-          text: yAxisLabel // Y축 레이블 텍스트
+          display: !!yAxisLabel,
+          text: yAxisLabel
         },
         grid: {
-          color: "transparent" // 그리드 색상 설정 (투명)
+          color: "transparent"
         }
       }
     },
-    animation: animation ? {} : false, // 애니메이션 설정
-    onClick // 클릭 이벤트 핸들러
+    animation: animation ? {} : false,
+    onClick,
+    ...customOptions // 사용자 정의 옵션 병합
   };
 
   // 차트 데이터 구성
