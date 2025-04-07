@@ -107,7 +107,7 @@ const ReviewCompare: React.FC = () => {
             comparison_data: c.comparison_data || {}
           }));
 
-        console.log("가져온 비교 데이터:", comparisonsWithData);
+        // console.log("가져온 비교 데이터:", comparisonsWithData);
         setComparisonResults(comparisonsWithData);
       } else {
         console.warn("API 응답에 comparisons 배열이 없습니다:", response);

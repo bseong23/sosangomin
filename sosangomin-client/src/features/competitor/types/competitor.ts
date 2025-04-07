@@ -115,7 +115,10 @@ export interface StoreData {
     negative: number;
   };
   positive_rate: number;
-  sample_reviews: string[];
+  sample_reviews: {
+    positive: Review[];
+    negative: Review[];
+  };
   reviews?: Review[];
   category_insights?: Record<string, any>;
 }

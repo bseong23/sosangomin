@@ -21,9 +21,9 @@ const IntroSection = forwardRef<HTMLDivElement, IntroSectionProps>(
     return (
       <section
         ref={ref}
-        className="min-h-screen bg-white flex flex-col items-center justify-center text-center z-10 relative px-4 py-12"
+        className="min-h-screen flex flex-col items-center justify-center text-center z-10 relative px-4 py-12"
       >
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug mb-8 mt-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-bit-main leading-snug mb-8 mt-6">
           소상고민으로 <br className="sm:hidden" />
           이런 액션이 가능합니다.
         </h2>

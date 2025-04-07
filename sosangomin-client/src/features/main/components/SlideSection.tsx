@@ -267,9 +267,9 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
   };
 
   // 슬라이드 수동 이동 함수 (모바일 터치용)
-  // const handleSlideChange = (index: number) => {
-  //   setCurrentSlide(index);
-  // };
+  const handleSlideChange = (index: number) => {
+    setCurrentSlide(index);
+  };
 
   return (
     <section
@@ -297,15 +297,16 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
           {features.map((feature, i) => (
             <div
               key={i}
-              className="w-screen h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-white"
+              className="w-screen h-screen flex items-center justify-center px-4 sm:px-6 md:px-8"
             >
-              <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-between">
-                <div className="w-full md:w-1/2 space-y-2 sm:space-y-3 md:space-y-4 mb-6 md:mb-0">
+              <div className="relative w-full max-w-6xl flex flex-col md:flex-row items-center justify-between p-6 sm:p-10 md:p-14 bg-blue-50 rounded-3xl shadow-xs">
+                {/* 왼쪽 텍스트 영역 */}
+                <div className="w-full md:w-1/2 space-y-2 sm:space-y-3 md:space-y-4 px-10 py-30 md:mb-0">
                   <h4 className="text-xs text-gray-500 font-semibold">
                     STEP {i + 1}
                   </h4>
                   <h3
-                    className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 transition-all duration-300 ease-out"
+                    className="text-xl sm:text-2xl md:text-3xl font-bold text-comment transition-all duration-300 ease-out"
                     style={{
                       opacity: i === currentSlide ? 1 : 0.3,
                       transform:
@@ -326,7 +327,7 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
                   </p>
                   <Link
                     to={feature.link}
-                    className="inline-block text-yellow-500 font-semibold text-xs sm:text-sm mt-2 sm:mt-4 hover:underline transition-all duration-300 ease-out delay-100"
+                    className="inline-block text-bit-main font-semibold text-xs sm:text-sm mt-2 sm:mt-4 hover:underline transition-all duration-300 ease-out delay-100"
                     style={{
                       opacity: i === currentSlide ? 1 : 0,
                       transform:
@@ -336,6 +337,8 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
                     자세히 알아보기 →
                   </Link>
                 </div>
+
+                {/* 오른쪽 이미지 영역 */}
                 <div className="w-full md:w-1/2 flex justify-center mt-4 md:mt-0">
                   <img
                     src={feature.image}
@@ -356,20 +359,20 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
         </div>
 
         {/* 인디케이터 - 모바일/태블릿에서는 클릭 가능하게 설정 */}
-        {/* <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-0 right-0 flex justify-center gap-1 sm:gap-2">
+        <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-0 right-0 flex justify-center gap-1 sm:gap-2">
           {features.map((_, i) => (
             <button
               key={i}
               onClick={() => handleSlideChange(i)}
-              className={`h-2 sm:h-3 rounded-full transition-all duration-500 ease-out ${
+              className={`h-2 sm:h-2 rounded-full transition-all duration-500 ease-out ${
                 i === currentSlide
-                  ? "bg-blue-600 w-4 sm:w-6"
-                  : "bg-gray-300 w-2 sm:w-3"
+                  ? "bg-blue-600 w-2 sm:w-2"
+                  : "bg-gray-300 w-2 sm:w-2"
               }`}
               aria-label={`Slide ${i + 1}`}
             />
           ))}
-        </div> */}
+        </div>
       </div>
     </section>
   );

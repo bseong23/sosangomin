@@ -55,9 +55,6 @@ export const useCompetitorStore = create<CompetitorState>()(
         //
 
         requestAnalysis: async (storeId: string, competitorName: string) => {
-          console.log("🐛 분석 요청 받은 storeId:", storeId); // ✅ 이거 먼저 확인
-          console.log("🐛 competitorName:", competitorName);
-
           try {
             set({ loading: true, error: null });
 
@@ -68,13 +65,9 @@ export const useCompetitorStore = create<CompetitorState>()(
 
             const { comparison_result } = response;
 
-            console.log("📦 올바른 comparison_result:", comparison_result);
-
             if (response.status === "success" && comparison_result) {
               const comparisonId =
                 comparison_result._id || comparison_result.comparison_id;
-
-              console.log("✅ 최종 comparisonId:", comparisonId);
 
               // 캐시에 상세 정보 저장
               set((state) => ({
@@ -88,8 +81,8 @@ export const useCompetitorStore = create<CompetitorState>()(
               set((state) => {
                 const currentList = state.comparisonListCache[storeId] || [];
 
-                console.log("✅ storeId:", storeId);
-                console.log("✅ currentList:", currentList);
+                // console.log("✅ storeId:", storeId);
+                // console.log("✅ currentList:", currentList);
 
                 // 새 요약 정보 생성
                 const summary: CompetitorComparisonSummary = {
@@ -110,7 +103,6 @@ export const useCompetitorStore = create<CompetitorState>()(
                   [storeId]: [summary, ...currentList]
                 };
 
-                // ✅ 이거도 추가!
                 console.log("🧩 업데이트 될 comparisonListCache:", newCache);
 
                 return {

@@ -4,6 +4,7 @@ import WordCloud from "@/features/review/components/WordCloud";
 import PercentageDoughnutChart from "./PercentageDoughnutChart";
 import useStoreStore from "@/store/storeStore";
 import { CompetitorComparisonResult } from "@/features/competitor/types/competitor";
+import Markdown from "react-markdown";
 
 interface ImprovedCompetitorReportSectionProps {
   data: CompetitorComparisonResult;
@@ -91,40 +92,70 @@ const ImprovedCompetitorReportSection: React.FC<
 
   // 샘플 리뷰 확인
   // 샘플 리뷰 구조는 배열로 되어있음
-  const myStoreSampleReviews =
-    data.comparison_data.my_store.sample_reviews || [];
-  const competitorSampleReviews =
-    data.comparison_data.competitor.sample_reviews || [];
-
-  // 현재 토글 상태에 맞는 리뷰만 필터링 (임시 로직)
-  // 실제 API에서 positive/negative 속성을 제공하지 않으므로 임의로 구분
-  // 긍정/부정 리뷰를 구분하는 로직은 실제 데이터 구조에 맞게 수정 필요
-  const getFilteredReviews = (reviews: string[]) => {
-    if (!reviews || reviews.length === 0) return [];
-
-    // 토글 상태가 긍정이면 리뷰의 앞부분을, 부정이면 뒷부분을 보여주는 임시 로직
-    // 실제로는 API에서 긍정/부정 구분된 리뷰를 제공해야 함
-    if (showPositive) {
-      return reviews.slice(0, Math.ceil(reviews.length * 0.7)); // 앞 70%를 긍정으로 가정
-    } else {
-      return reviews.slice(Math.ceil(reviews.length * 0.7)); // 뒤 30%를 부정으로 가정
-    }
+  const myStoreSampleReviews = data.comparison_data.my_store.sample_reviews || {
+    positive: [],
+    negative: []
+  };
+  const competitorSampleReviews = data.comparison_data.competitor
+    .sample_reviews || {
+    positive: [],
+    negative: []
   };
 
-  const filteredMyReviews = getFilteredReviews(myStoreSampleReviews);
-  const filteredCompetitorReviews = getFilteredReviews(competitorSampleReviews);
+  // 현재 토글 상태에 맞는 리뷰 배열 가져오기
+  const filteredMyReviews = showPositive
+    ? myStoreSampleReviews.positive
+    : myStoreSampleReviews.negative;
 
-  // 리뷰 렌더링 함수
-  const renderReview = (review: string) => {
-    const cleanedReview = review.endsWith("더보기")
-      ? review.slice(0, -3)
-      : review;
+  const filteredCompetitorReviews = showPositive
+    ? competitorSampleReviews.positive
+    : competitorSampleReviews.negative;
+
+  // 리뷰 렌더링 함수 수정 (text 필드 기준으로)
+  const renderReview = (review: { text: string }) => {
+    const cleanedReview = review.text.endsWith("더보기")
+      ? review.text.slice(0, -3)
+      : review.text;
 
     return (
       <div className="bg-gray-50 p-3 rounded-lg mb-3 border border-gray-200">
         <p className="text-sm text-gray-700">{cleanedReview}</p>
       </div>
     );
+  };
+
+  const emphasizeQuotedText = (text: string): string => {
+    return text
+      .replace(/"([^"]+)"/g, (_, quoted) => `**${quoted}**`)
+      .replace(/'([^']+)'/g, (_, quoted) => `**${quoted}**`);
+  };
+
+  // 마크다운 렌더링을 위한 스타일
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 mb-10 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-xs mb-5 text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
   };
 
   return (
@@ -197,8 +228,12 @@ const ImprovedCompetitorReportSection: React.FC<
         </div>
 
         {/* 샘플 리뷰 표시 영역 */}
-        {(myStoreSampleReviews.length > 0 ||
-          competitorSampleReviews.length > 0) && (
+        {(myStoreSampleReviews.positive.length +
+          myStoreSampleReviews.negative.length >
+          0 ||
+          competitorSampleReviews.positive.length +
+            competitorSampleReviews.negative.length >
+            0) && (
           <>
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-5">
@@ -287,9 +322,12 @@ const ImprovedCompetitorReportSection: React.FC<
       <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         {data.comparison_insight ? (
           <div className="prose max-w-none">
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-blue-100 p-4 rounded-lg">
-              {data.comparison_insight}
-            </p>
+            <div className="bg-blue-50 rounded-lg p-4">
+              <Markdown components={markdownComponents}>
+                {/* {data.comparison_insight} */}
+                {emphasizeQuotedText(data.comparison_insight)}
+              </Markdown>
+            </div>
           </div>
         ) : (
           <p className="text-sm text-gray-400">AI 분석 결과가 없습니다.</p>
