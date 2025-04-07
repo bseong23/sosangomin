@@ -23,6 +23,11 @@ export interface AnalysisRequest {
   analysis_result?: any;
 }
 
+export interface DataRange {
+  start_month: string; // "YYYY-MM" 형식
+  end_month: string; // "YYYY-MM" 형식
+}
+
 export interface AutoAnalysisResults {
   predict?: {
     total_sales?: number;
@@ -60,6 +65,7 @@ export interface AnalysisResultResponse {
     store_id: number;
     source_ids: string | string[];
     analysis_type: string;
+    data_range: DataRange;
     created_at: string;
     status: string;
     eda_result: {
@@ -153,6 +159,7 @@ export interface AnalysisResultData {
   analysis_id?: string;
   created_at?: string;
   status?: string;
+  data_range?: DataRange;
   auto_analysis_results?: AutoAnalysisResults; // 자동 분석 결과 타입 추가
 }
 

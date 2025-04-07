@@ -17,6 +17,7 @@ import WeatherSalesSection from "./WeatherSalesSection";
 import TemperatureSalesSection from "./TemperatureSalesSection";
 import PredictedSalesSection from "./PredictedSalesSection";
 import ProductClusterSection from "./ProductClusterSection";
+import DateRangeSection from "./DateRangeSection";
 import ProductShareSection from "./ProductShareSection";
 import { getAnalysisResult } from "../../api/analysisApi";
 
@@ -56,12 +57,6 @@ const AnalysisDashboard: React.FC = () => {
 
   // 마운트 시 상태 로깅
   useEffect(() => {
-    console.log("대시보드 마운트 시 분석 ID 정보:", {
-      storeSelectedAnalysisId,
-      urlParamAnalysisId: analysisId,
-      localSelectedAnalysisId
-    });
-
     if (debugState) {
       debugState();
     }
@@ -86,7 +81,6 @@ const AnalysisDashboard: React.FC = () => {
       setLoadingApiData(true);
       getAnalysisResult(localSelectedAnalysisId)
         .then((response) => {
-          console.log("직접 API 호출 결과:", response);
           setOriginalApiData(response);
           setLoadingApiData(false);
         })
@@ -104,9 +98,6 @@ const AnalysisDashboard: React.FC = () => {
       analysisId || storeSelectedAnalysisId || localSelectedAnalysisId;
 
     if (newSelectedId && newSelectedId !== localSelectedAnalysisId) {
-      console.log(
-        `선택된 분석 ID 업데이트: ${localSelectedAnalysisId} -> ${newSelectedId}`
-      );
       setLocalSelectedAnalysisId(newSelectedId);
 
       // 스토어의 selectedAnalysisId도 동기화
@@ -116,7 +107,6 @@ const AnalysisDashboard: React.FC = () => {
 
       // 분석 결과가 없으면 해당 분석 결과 로드
       if (!currentAnalysis) {
-        console.log(`분석 ID ${newSelectedId}의 결과 로드 시도`);
         fetchAnalysisResult(newSelectedId)
           .then((success) => {
             console.log(
@@ -142,9 +132,6 @@ const AnalysisDashboard: React.FC = () => {
     if (!representativeStore?.store_id) return;
 
     const loadAnalysisList = async () => {
-      console.log(
-        `매장 ID ${representativeStore.store_id}의 분석 목록 로드 시작`
-      );
       const result = await fetchStoreAnalysisList(representativeStore.store_id);
       console.log(
         `매장 ID ${representativeStore.store_id}의 분석 목록 로드 ${
@@ -207,10 +194,6 @@ const AnalysisDashboard: React.FC = () => {
   ]);
 
   useEffect(() => {
-    console.log("analysisList:", analysisList);
-    console.log("currentAnalysis:", currentAnalysis);
-    console.log("selectedAnalysisId:", localSelectedAnalysisId);
-
     // 데이터 로딩이 끝났는데도 currentAnalysis가 없는 경우
     if (!isLoading && !currentAnalysis && localSelectedAnalysisId) {
       console.log(
@@ -239,8 +222,6 @@ const AnalysisDashboard: React.FC = () => {
   // 분석 선택 핸들러
   const handleAnalysisSelect = useCallback(
     (analysisId: string) => {
-      console.log(`사용자가 분석 ID ${analysisId}를 선택함`);
-
       // 로컬 상태 업데이트
       setLocalSelectedAnalysisId(analysisId);
 
@@ -258,7 +239,6 @@ const AnalysisDashboard: React.FC = () => {
       }
 
       // 분석 결과 가져오기
-      console.log(`분석 ID ${analysisId}의 결과 로드 시도 (사용자 선택)`);
       fetchAnalysisResult(analysisId)
         .then((success) => {
           console.log(
@@ -296,10 +276,6 @@ const AnalysisDashboard: React.FC = () => {
     );
   }
 
-  // API 응답 구조 로깅
-  console.log("API 응답 (Zustand):", currentAnalysis);
-  console.log("API 응답 (직접 호출):", originalApiData);
-
   // 직접 호출한 API 데이터가 있으면 그것을 사용하고, 없으면 currentAnalysis 사용
   let resultData, autoAnalysisResults, summary;
 
@@ -309,22 +285,11 @@ const AnalysisDashboard: React.FC = () => {
     resultData = analysisResult.eda_result?.result_data || {};
     autoAnalysisResults = analysisResult.auto_analysis_results || {};
     summary = analysisResult.eda_result?.summary || "";
-
-    console.log("원본 API 데이터로부터 가져온 값:");
-    console.log("EDA 결과 데이터:", resultData);
-    console.log("자동 분석 결과:", autoAnalysisResults);
-    console.log("예측 데이터:", autoAnalysisResults.predict);
-    console.log("클러스터 데이터:", autoAnalysisResults.cluster);
-    console.log("요약 데이터:", autoAnalysisResults.summaries);
   } else {
     // currentAnalysis 사용 (이미 변환된 형태)
     resultData = currentAnalysis.result_data || {};
     autoAnalysisResults = currentAnalysis.auto_analysis_results || {};
     summary = currentAnalysis.summary || "";
-
-    console.log("Zustand 스토어로부터 가져온 값:");
-    console.log("결과 데이터:", resultData);
-    console.log("자동 분석 결과:", autoAnalysisResults);
   }
 
   // 컴포넌트에 전달할 데이터 구조화
@@ -339,6 +304,10 @@ const AnalysisDashboard: React.FC = () => {
       "",
     status:
       currentAnalysis?.status || originalApiData?.analysis_result?.status || "",
+    data_range:
+      currentAnalysis?.data_range ||
+      originalApiData?.analysis_result?.data_range ||
+      undefined,
     auto_analysis_results: autoAnalysisResults
   };
 
@@ -376,6 +345,8 @@ const AnalysisDashboard: React.FC = () => {
             />
           </div>
         </div>
+
+        <DateRangeSection dataRange={data.data_range} />
 
         {/* 전체 요약 섹션 */}
         <SummarySection summary={overallSummary} />

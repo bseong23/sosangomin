@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AnalysisResultData } from "../../types/analysis";
 
 interface ProductClusterSectionProps {
@@ -13,15 +13,15 @@ const ProductClusterSection: React.FC<ProductClusterSectionProps> = ({
   const clusterSummary =
     data?.auto_analysis_results?.summaries?.cluster_summary || {};
 
-  // 데이터 구조를 로깅하여 디버깅
-  useEffect(() => {
-    console.log("클러스터 데이터 경로:", {
-      autoAnalysisResults: data?.auto_analysis_results,
-      clusters: clusters,
-      summaries: data?.auto_analysis_results?.summaries,
-      clusterSummary: clusterSummary
-    });
-  }, [data, clusters, clusterSummary]);
+  // // 데이터 구조를 로깅하여 디버깅
+  // useEffect(() => {
+  //   console.log("클러스터 데이터 경로:", {
+  //     autoAnalysisResults: data?.auto_analysis_results,
+  //     clusters: clusters,
+  //     summaries: data?.auto_analysis_results?.summaries,
+  //     clusterSummary: clusterSummary
+  //   });
+  // }, [data, clusters, clusterSummary]);
 
   // 요약 텍스트 축약 함수
   const truncateSummary = (summary: string, maxLength = 300): string => {

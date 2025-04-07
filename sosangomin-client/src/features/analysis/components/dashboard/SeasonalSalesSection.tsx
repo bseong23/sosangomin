@@ -19,14 +19,6 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
   const seasonSales = data?.result_data?.season_sales?.data || {};
   const seasonSalesSummary = data?.result_data?.season_sales?.summary || "";
 
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength: number = 200) => {
-    if (!summary) return "";
-    return summary.length > maxLength
-      ? summary.substring(0, maxLength) + "..."
-      : summary;
-  };
-
   return (
     <div className="w-full bg-basic-white mb-6 p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
       <h2 className="text-lg font-semibold mb-10 text-comment">
@@ -55,9 +47,7 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
         ))}
       </div>
       <div className="p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-commentt">
-          {truncateSummary(seasonSalesSummary)}
-        </p>
+        <p className="text-sm text-comment">{seasonSalesSummary}</p>
       </div>
     </div>
   );
