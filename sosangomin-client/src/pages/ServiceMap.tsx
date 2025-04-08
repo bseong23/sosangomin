@@ -25,9 +25,9 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ title, description }) => {
             clipRule="evenodd"
           ></path>
         </svg>
-        <h3 className="text-lg break-words font-semibold">{title}</h3>
+        <h3 className="text-lg break-keeps font-semibold">{title}</h3>
       </div>
-      <p className="text-gray-700 break-words leading-relaxed min-h-[48px] pl-9">
+      <p className="text-gray-700 break-keeps leading-relaxed min-h-[48px] pl-9">
         {description}
       </p>
     </div>
@@ -121,13 +121,13 @@ const LocationAnalysisPage: React.FC = () => {
         {/* 타이틀 섹션 */}
         <section className="grid md:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <h1 className="text-3xl md:text-4xl break-words font-bold text-gray-900">
-              <span className="text-bit-main break-words">상권 분석</span>과
+            <h1 className="text-3xl md:text-4xl break-keeps font-bold text-gray-900">
+              <span className="text-bit-main break-keeps">상권 분석</span>과
               <br />
-              <span className="text-bit-main break-words">입지 추천</span>{" "}
+              <span className="text-bit-main break-keeps">입지 추천</span>{" "}
               서비스
             </h1>
-            <p className="text-sm break-words text-gray-700 leading-relaxed">
+            <p className="text-sm break-keeps text-gray-700 leading-relaxed">
               인구, 업종, 매출 데이터를 종합적으로 분석하고 최적의 입지를
               추천받으세요.
               <br /> 데이터 기반의 의사결정으로 창업 성공률을 높일 수 있습니다.
@@ -135,7 +135,7 @@ const LocationAnalysisPage: React.FC = () => {
             <div className="flex gap-4">
               <Link
                 to="/map"
-                className="px-6 py-3 bg-bit-main text-white break-word font-medium rounded-lg shadow-lg hover:bg-bit-main/90 transition duration-300 flex items-center"
+                className="px-6 py-3 bg-bit-main text-white break-keep font-medium rounded-lg shadow-lg hover:bg-bit-main/90 transition duration-300 flex items-center"
               >
                 상권 분석 시작하기
                 <svg
@@ -185,13 +185,13 @@ const LocationAnalysisPage: React.FC = () => {
         {/* 주요 기능 섹션 */}
         <section className="py-16">
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-words text-bit-main font-semibold mb-4">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-keeps text-bit-main font-semibold mb-4">
               서비스 소개
             </span>
-            <h2 className="text-3xl break-words font-bold mb-6">
+            <h2 className="text-3xl break-keeps font-bold mb-6">
               상권 분석 & 입지 추천
             </h2>
-            <p className="text-lg break-words text-gray-700 max-w-2xl mx-auto">
+            <p className="text-lg break-keeps text-gray-700 max-w-2xl mx-auto">
               소상공인을 위한 상권분석과 입지추천 서비스는 방대한 지역 데이터를{" "}
               <br />
               실용적인 인사이트와 구체적인 추천으로 변환해 드립니다.

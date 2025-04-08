@@ -52,7 +52,7 @@ const features = [
     image: final_report,
     title: "종합 분석",
     description: "SWOT 분석에 기반한 우리 매장 최종 분석 결과를 확인해 보세요.",
-    link: "/",
+    link: "/service_report",
     text: "종합 분석"
   }
 ];
