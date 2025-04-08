@@ -41,10 +41,11 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
   if (!businessData) return <Loading />;
 
   // 분기별 데이터 정렬 (1분기부터 4분기까지)
-  const sortedQuarterData = [...businessData.main_category_store_count].sort(
-    (a, b) => a.quarter - b.quarter
-  );
-  const quarterLabel = [
+  const sortedQuarterData = [
+    ...businessData.main_category_store_count.growth_rate_trend
+  ].sort((a, b) => a.quarter - b.quarter);
+  const quarterLabel = ["2024년 2분기", "2024년 3분기", "2024년 4분기"];
+  const quarterLabels = [
     "2024년 1분기",
     "2024년 2분기",
     "2024년 3분기",
@@ -54,16 +55,16 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
 
   // 각 카테고리별 데이터 추출
   const foodServiceData = sortedQuarterData.map(
-    (item) => item.main_category_store_count["외식업"]
+    (item) => item.main_category_store_count_growth_rate["외식업"]
   );
   const wholesaleData = sortedQuarterData.map(
-    (item) => item.main_category_store_count["도소매업"]
+    (item) => item.main_category_store_count_growth_rate["도소매업"]
   );
   const serviceData = sortedQuarterData.map(
-    (item) => item.main_category_store_count["서비스업"]
+    (item) => item.main_category_store_count_growth_rate["서비스업"]
   );
   const otherData = sortedQuarterData.map(
-    (item) => item.main_category_store_count["기타"]
+    (item) => item.main_category_store_count_growth_rate["기타"]
   );
 
   const categoryColors: Record<string, string> = {
@@ -125,7 +126,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
         backgroundColor: "rgba(75, 192, 192, 0.6)" // 청록색
       },
       {
-        label: "자치구",
+        label: businessData.food_category_stats["자치구 이름"],
         data: [
           businessData.operation_duration_summary["자치구 운영 영업 개월 평균"],
           businessData.operation_duration_summary["자치구 폐업 영업 개월 평균"]
@@ -133,7 +134,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
         backgroundColor: "rgba(255, 159, 64, 0.6)" // 주황색
       },
       {
-        label: "행정동",
+        label: businessData.food_category_stats["행정동 이름"],
         data: [
           businessData.operation_duration_summary["행정동 운영 영업 개월 평균"],
           businessData.operation_duration_summary["행정동 폐업 영업 개월 평균"]
@@ -142,6 +143,18 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
       }
     ]
   };
+  const allValues = [
+    ...foodServiceData,
+    ...wholesaleData,
+    ...serviceData,
+    ...otherData
+  ];
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  // 최소값에서 5를 뺀 후 올림
+  const yMin = Math.ceil(minValue - 5);
+  // 최대값에서 5를 더한 후 올림
+  const yMax = Math.ceil(maxValue + 5);
 
   return (
     <div>
@@ -150,11 +163,10 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
       </h3>
       {/* 분기별 업종 카테고리 추이 차트 */}
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
-        <h3 className="text-lg font-semibold mb-4">
-          업종별 업소수 변화율 추이
-        </h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
-          <div className="w-full md:w-3/4">
+        <h3 className="text-lg font-semibold mb-4">업종별 업소수 증감율</h3>
+        <div className="flex flex-col px-2 py-4">
+          {/* 차트 영역 */}
+          <div className="w-full">
             <LineChart
               labels={quarterLabel}
               referenceYear="2024년"
@@ -196,59 +208,36 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                   borderWidth: 2
                 }
               ]}
-              yAxisTitle="업소 수"
-              unit="개"
+              yAxisTitle="증감률 (%)"
+              unit="%"
+              customOptions={{
+                scales: {
+                  y: {
+                    min: yMin,
+                    max: yMax,
+                    ticks: {
+                      callback: (value: any) => `${value}%` // Y축 라벨을 퍼센트 형식으로 표시
+                    }
+                  }
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (context: any) =>
+                        `${context.dataset.label}: ${context.raw}%` // 툴팁 값을 퍼센트 형식으로 표시
+                    }
+                  }
+                }
+              }}
             />
           </div>
-          <div className="flex flex-col gap-4 md:px-4 md:w-100">
-            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 mb-1">가장 많은 업종</p>
-                <p className="text-lg font-bold text-gray-900">
-                  외식업{" "}
-                  <span className="text-blue-600">
-                    {foodServiceData[foodServiceData.length - 1]}
-                  </span>
-                  개 업소
-                </p>
-              </div>
-            </div>
 
-            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 mb-1">외식업 비율</p>
-                <p className="text-lg font-bold text-gray-900">
-                  <span className="text-green-600">
-                    {Math.round(
-                      (foodServiceData[foodServiceData.length - 1] /
-                        (foodServiceData[foodServiceData.length - 1] +
-                          wholesaleData[wholesaleData.length - 1] +
-                          serviceData[serviceData.length - 1] +
-                          otherData[otherData.length - 1])) *
-                        100
-                    )}
-                    %
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 mb-1">전체 업소 수</p>
-                <p className="text-lg font-bold text-gray-900">
-                  <span className="text-purple-600">
-                    {(
-                      foodServiceData[foodServiceData.length - 1] +
-                      wholesaleData[wholesaleData.length - 1] +
-                      serviceData[serviceData.length - 1] +
-                      otherData[otherData.length - 1]
-                    ).toLocaleString()}
-                  </span>
-                  개
-                </p>
-              </div>
-            </div>
+          {/* Summary 영역 */}
+          <div className="mt-6 p-4 bg-white shadow-md rounded-lg">
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">요약</h4>
+            <p className="text-base text-gray-700 leading-relaxed">
+              {businessData.main_category_store_count.summary}
+            </p>
           </div>
         </div>
       </div>
@@ -309,7 +298,9 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
 
           {/* 자치구 */}
           <div className="w-full md:w-1/5 mb-4">
-            <h4 className="text-md font-medium mb-2">자치구</h4>
+            <h4 className="text-md font-medium mb-2">
+              {businessData.food_category_stats["자치구 이름"]}
+            </h4>
             <div className="">
               <DoughnutChart
                 chartData={districtDonutData}
@@ -408,7 +399,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
           업종별 업소수 변화율 추이
         </h3>
         <MixedChart
-          labels={quarterLabel}
+          labels={quarterLabels}
           datasets={[
             {
               type: "bar",
@@ -435,7 +426,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
           ]}
           yAxisLabel="업소 수"
           rightYAxisLabel="비율 (%)"
-          leftMin={100}
+          leftMin={0}
           rightMin={0}
           height={400}
         />
@@ -450,7 +441,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
           customOptions={{
             scales: {
               y: {
-                min: 20 // Y축 최소값을 20으로 설정
+                min: 0 // Y축 최소값을 20으로 설정
               }
             },
             // 막대 사이 간격 설정

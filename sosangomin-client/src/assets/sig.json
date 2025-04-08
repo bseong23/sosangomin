@@ -586,7 +586,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 8,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc885\ub85c\uad6c \uc885\ub85c1\u00b72\u00b73\u00b74\uac00\ub3d9",
+        "adm_nm": "서울특별시 종로구 종로1.2.3.4가동",
         "adm_cd": "1101061",
         "adm_cd2": "1111061500",
         "sgg": "11110",
@@ -669,7 +669,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 9,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc885\ub85c\uad6c \uc885\ub85c5\u00b76\uac00\ub3d9",
+        "adm_nm": "서울특별시 종로구 종로5.6가동",
         "adm_cd": "1101063",
         "adm_cd2": "1111063000",
         "sgg": "11110",
@@ -4108,7 +4108,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 64,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc131\ub3d9\uad6c \uae08\ud6382\u00b73\uac00\ub3d9",
+        "adm_nm": "서울특별시 성동구 금호2.3가동",
         "adm_cd": "1104072",
         "adm_cd2": "1120061500",
         "sgg": "11200",
@@ -6655,7 +6655,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 109,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc911\ub791\uad6c \uba74\ubaa93\u00b78\ub3d9",
+        "adm_nm": "서울특별시 중랑구 면목3.8동",
         "adm_cd": "1107072",
         "adm_cd2": "1126057500",
         "sgg": "11260",
@@ -11531,7 +11531,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 173,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \ub178\uc6d0\uad6c \uc0c1\uacc43\u00b74\ub3d9",
+        "adm_nm": "서울특별시 노원구 상계3.4동",
         "adm_cd": "1111076",
         "adm_cd2": "1135066500",
         "sgg": "11350",
@@ -11662,7 +11662,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 174,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \ub178\uc6d0\uad6c \uc0c1\uacc46\u00b77\ub3d9",
+        "adm_nm": "서울특별시 노원구 상계6.7동",
         "adm_cd": "1111077",
         "adm_cd2": "1135069500",
         "sgg": "11350",
@@ -11741,7 +11741,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 175,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \ub178\uc6d0\uad6c \uc911\uacc42\u00b73\ub3d9",
+        "adm_nm": "서울특별시 노원구 중계2.3동",
         "adm_cd": "1111078",
         "adm_cd2": "1135062500",
         "sgg": "11350",
@@ -25329,7 +25329,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 373,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uc77c\uc6d02\ub3d9",
+        "adm_nm": "서울특별시 강남구 개포3동",
         "adm_cd": "1123074",
         "adm_cd2": "1168074000",
         "sgg": "11680",
@@ -27378,7 +27378,7 @@
       "type": "Feature",
       "properties": {
         "OBJECTID": 408,
-        "adm_nm": "\uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub3d9\uad6c \uc0c1\uc77c\ub3d9",
+        "adm_nm": "서울특별시 강동구 상일동",
         "adm_cd": "1125052",
         "adm_cd2": "1174052000",
         "sgg": "11740",

@@ -11,7 +11,6 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-// Chart.js에 필요한 컴포넌트 등록
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,12 +24,12 @@ ChartJS.register(
 // 타입 정의
 interface LineChartProps {
   title?: string;
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor: string;
-    backgroundColor: string;
+  labels?: string[];
+  datasets?: {
+    label?: string;
+    data?: number[];
+    borderColor?: string;
+    backgroundColor?: string;
     tension?: number;
     pointRadius?: number;
     pointHoverRadius?: number;
@@ -39,24 +38,23 @@ interface LineChartProps {
   }[];
   yAxisTitle?: string;
   legend?: boolean;
-  unit?: "원" | "개";
-  referenceYear?: string; // 기준년도 prop 추가
+  unit?: "원" | "개" | "%";
+  referenceYear?: string;
+  customOptions?: any; // 커스텀 옵션 프로퍼티 추가
 }
 
-/**
- * 재사용 가능한 라인 차트 컴포넌트
- */
 const LineChart: React.FC<LineChartProps> = ({
   title = "",
-  labels,
-  datasets,
+  labels = [],
+  datasets = [],
   yAxisTitle,
   legend,
   unit = "원",
-  referenceYear = "" // 기준년도 prop 추가
-}: LineChartProps) => {
-  // 차트 옵션
-  const options = {
+  referenceYear = "",
+  customOptions = {} // 커스텀 옵션 기본값 추가
+}) => {
+  // 기본 차트 옵션
+  const defaultOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -64,18 +62,14 @@ const LineChart: React.FC<LineChartProps> = ({
         position: "top" as const,
         display: legend,
         labels: {
-          font: {
-            size: 12
-          }
+          font: { size: 12 }
         }
       },
       title: {
         display: !!title || !!referenceYear,
         text: () => {
           const titleText = title ? [title] : [];
-          if (referenceYear) {
-            titleText.push(`기준시점: ${referenceYear}`);
-          }
+          if (referenceYear) titleText.push(`기준시점: ${referenceYear}`);
           return titleText;
         },
         font: {
@@ -84,26 +78,17 @@ const LineChart: React.FC<LineChartProps> = ({
         },
         align: "end" as const,
         position: "top",
-        color: (ctx: any) => {
-          const titleIndex = ctx.titleIndex;
-          return titleIndex === 0 ? "#000000" : "#4B5563"; // 첫 번째 제목은 검정색, 두 번째 제목(기준년도)은 파란색
-        }
+        color: (ctx: any) => (ctx.titleIndex === 0 ? "#000000" : "#4B5563")
       },
       tooltip: {
         backgroundColor: "rgba(0, 0, 0, 0.7)",
-        titleFont: {
-          size: 14
-        },
-        bodyFont: {
-          size: 13
-        },
+        titleFont: { size: 14 },
+        bodyFont: { size: 13 },
         padding: 10,
         callbacks: {
-          label: function (context: any) {
+          label: (context: any) => {
             let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
+            if (label) label += ": ";
             if (context.parsed.y !== null) {
               label +=
                 new Intl.NumberFormat("ko-KR").format(context.parsed.y) + unit;
@@ -115,72 +100,57 @@ const LineChart: React.FC<LineChartProps> = ({
     },
     scales: {
       x: {
-        grid: {
-          color: "rgba(0, 0, 0, 0.05)"
-        },
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
         ticks: {
-          font: {
-            size: 12
-          },
+          font: { size: 12 },
           maxRotation: 0,
           autoSkip: true,
           maxTicksLimit: 10,
-          callback: function (index: number) {
-            const label = labels[index];
-            if (label.includes(" ")) {
-              return label.split(" ");
-            }
-            return label;
+          callback: (index: number) => {
+            const label = labels?.[index] || "";
+            return label.includes(" ") ? label.split(" ") : label;
           }
         }
       },
       y: {
-        grid: {
-          color: "rgba(0, 0, 0, 0.05)"
-        },
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
         ticks: {
-          font: {
-            size: 12
-          },
-          callback: function (value: number) {
-            return new Intl.NumberFormat("ko-KR").format(value) + unit;
-          }
+          font: { size: 12 },
+          callback: (value: number) =>
+            new Intl.NumberFormat("ko-KR").format(value) + unit
         },
         title: {
           display: !!yAxisTitle,
           text: yAxisTitle,
-          font: {
-            size: 13
-          },
-          padding: {
-            bottom: 10
-          }
+          font: { size: 13 },
+          padding: { bottom: 10 }
         }
       }
     },
-    interaction: {
-      mode: "index" as const,
-      intersect: false
-    },
-    animation: {
-      duration: 1000
-    }
+    interaction: { mode: "index" as const, intersect: false },
+    animation: { duration: 1000 }
+  };
+
+  // 기본 옵션과 커스텀 옵션 병합
+  const mergedOptions = {
+    ...defaultOptions,
+    ...customOptions
   };
 
   // 차트 데이터
   const data = {
     labels,
-    datasets
+    datasets: datasets.map((dataset) => ({
+      ...dataset,
+      data: dataset.data || [],
+      borderColor: dataset.borderColor || "#4BC0C0",
+      backgroundColor: dataset.backgroundColor || "rgba(75, 192, 192, 0.5)"
+    }))
   };
 
   return (
     <div style={{ width: "100%", height: "100%", minHeight: "300px" }}>
-      <Line
-        // @ts-ignore
-        options={options}
-        // @ts-ignore
-        data={data}
-      />
+      <Line options={mergedOptions} data={data} />
     </div>
   );
 };

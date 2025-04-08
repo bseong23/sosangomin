@@ -32,10 +32,10 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
     "00시 ~ 05시",
     "06시 ~ 08시",
     "09시 ~ 11시",
-    "12시 ~ 4시",
-    '"15시 ~ 17시',
+    "12시 ~ 14시",
+    "15시 ~ 17시",
     "18시 ~ 20시",
-    "21시 ~ 23시"
+    "21시 ~ 24시"
   ];
   const timeLabels = [
     "심야",
@@ -95,6 +95,35 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
   const weekData = weekKeys.map(
     (day) => populationData.floating_pop.요일별_유동인구[day] || 0
   );
+  const minValue = Math.min(...weekData) - 3000;
+
+  // 자릿수에 맞게 하위 자릿수를 0으로 변환하는 함수
+  const roundDownToSignificantDigits = (num: number) => {
+    const numStr = Math.abs(num).toString();
+    const length = numStr.length;
+
+    if (length === 4) {
+      // 4자리수 (예: 3422)
+      return Math.floor(num / 1000) * 1000; // 3000
+    } else if (length === 5) {
+      // 5자리수 (예: 43232)
+      return Math.floor(num / 10000) * 10000; // 40000
+    } else if (length === 3) {
+      // 3자리수 (예: 872)
+      return Math.floor(num / 100) * 100; // 800
+    } else if (length <= 2) {
+      // 1-2자리수
+      return 0; // 매우 작은 값은 0으로 처리
+    } else {
+      // 6자리 이상
+      const divisor = Math.pow(10, length - 1);
+      return Math.floor(num / divisor) * divisor;
+    }
+  };
+
+  // 최종 계산된 값
+  const finalMinValue = roundDownToSignificantDigits(minValue);
+
   const avgResident =
     populationData.resident_pop.총_상주인구 -
     populationData.resident_pop.서울시_평균_상주인구;
@@ -165,7 +194,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">총 상주인구</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {(
                     populationData.resident_pop.총_상주인구 || 0
                   ).toLocaleString()}
@@ -178,7 +207,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
-                  className={`text-lg font-bold ${
+                  className={`text-base font-bold ${
                     avgResident > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
@@ -190,7 +219,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.resident_pop.가장_많은_성별_연령대?.구분 ||
                     "데이터 없음"}
                   <span className="ml-1 text-base font-normal text-gray-500">
@@ -246,7 +275,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">총 직장인구</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {(
                     populationData.working_pop.총_직장인구 || 0
                   ).toLocaleString()}
@@ -259,7 +288,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
-                  className={`text-lg font-bold ${
+                  className={`text-base font-bold ${
                     avgWorkiong > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
@@ -271,7 +300,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.working_pop.가장_많은_성별_연령대?.구분 ||
                     "데이터 없음"}
                   <span className="ml-1 text-base font-normal text-gray-500">
@@ -327,7 +356,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">총 유동인구</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {(
                     populationData.floating_pop.총_유동인구 || 0
                   ).toLocaleString()}
@@ -340,7 +369,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
-                  className={`text-lg font-bold ${
+                  className={`text-base font-bold ${
                     avgfloating > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
@@ -352,7 +381,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.가장_많은_성별_연령대?.구분 ||
                     "데이터 없음"}
                   <span className="ml-1 text-base font-normal text-gray-500">
@@ -402,7 +431,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">
                   유동인구가 가장 많은 시간대
                 </p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.가장_많은_시간대 ||
                     "데이터 없음"}
                 </p>
@@ -414,7 +443,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">
                   유동인구가 가장 적은 시간대
                 </p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.가장_적은_시간대 ||
                     "데이터 없음"}
                 </p>
@@ -444,7 +473,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             customOptions={{
               scales: {
                 y: {
-                  min: 20000 // Y축 최소값을 20,000으로 설정
+                  min: finalMinValue // Y축 최소값을 20,000으로 설정
                 }
               }
             }}
@@ -455,7 +484,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">
                   유동인구가 가장 많은 요일
                 </p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.가장_많은_요일}
                 </p>
               </div>
@@ -466,7 +495,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">
                   유동인구가 가장 적은 요일
                 </p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.가장_적은_요일}
                 </p>
               </div>
@@ -475,7 +504,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
             <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">평균 유동인구 비교</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-base font-bold text-gray-900">
                   {populationData.floating_pop.주말_평균_유동인구 >
                   populationData.floating_pop.평일_평균_유동인구 ? (
                     <span className="text-blue-600">

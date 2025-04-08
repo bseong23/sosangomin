@@ -42,9 +42,9 @@ const SalesTab: React.FC<SalesTabProps> = ({
   }
 
   // 📌 바 차트 데이터 (분기별 매출)
-  const quarterlySales = [...(salesData?.main_category_sales_count || [])].sort(
-    (a, b) => a.quarter - b.quarter
-  );
+  const quarterlySales = [
+    ...salesData.main_category_sales_count.growth_rate_trend
+  ].sort((a, b) => a.quarter - b.quarter);
 
   // 분기 라벨 (ex: "2024 Q1")
   const labels = quarterlySales.map(
@@ -74,7 +74,7 @@ const SalesTab: React.FC<SalesTabProps> = ({
     labels,
     datasets
   };
-
+  const salesComparison = salesData?.sales_comparison;
   // 📌 도넛 차트 데이터 (상위 5개 업종 매출)
   const categoryColors: Record<string, string> = {
     한식음식점: "rgba(255, 99, 132, 0.7)",
@@ -89,21 +89,21 @@ const SalesTab: React.FC<SalesTabProps> = ({
     패스트푸드점: "rgba(46, 204, 113, 0.7)",
     치킨전문점: "rgba(231, 76, 60, 0.7)"
   };
-  const sortedQuarterData = [...salesData.main_category_sales_count].sort(
-    (a, b) => a.quarter - b.quarter
-  );
+  const sortedQuarterData = [
+    ...salesData.main_category_sales_count.growth_rate_trend
+  ].sort((a, b) => a.quarter - b.quarter);
 
   const foodServiceData = sortedQuarterData.map(
-    (item) => item.main_category_sales_count["외식업"]
+    (item) => item.main_category_sales_count_growth_rate["외식업"]
   );
   const wholesaleData = sortedQuarterData.map(
-    (item) => item.main_category_sales_count["도소매업"]
+    (item) => item.main_category_sales_count_growth_rate["도소매업"]
   );
   const serviceData = sortedQuarterData.map(
-    (item) => item.main_category_sales_count["서비스업"]
+    (item) => item.main_category_sales_count_growth_rate["서비스업"]
   );
   const otherData = sortedQuarterData.map(
-    (item) => item.main_category_sales_count["기타"]
+    (item) => item.main_category_sales_count_growth_rate["기타"]
   );
   const prepareDonutChartData = (region: string) => {
     const donutData: DonutData =
@@ -143,6 +143,18 @@ const SalesTab: React.FC<SalesTabProps> = ({
       }
     }}
   />;
+  const allValues = [
+    ...foodServiceData,
+    ...wholesaleData,
+    ...serviceData,
+    ...otherData
+  ];
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  // 최소값에서 5를 뺀 후 올림
+  const yMin = Math.ceil(minValue - 5);
+  // 최대값에서 5를 더한 후 올림
+  const yMax = Math.ceil(maxValue + 5);
   const seoulDonutData = prepareDonutChartData("서울시");
   const districtDonutData = prepareDonutChartData("자치구");
   const neighborhoodDonutData = prepareDonutChartData("행정동");
@@ -156,8 +168,9 @@ const SalesTab: React.FC<SalesTabProps> = ({
         <h3 className="text-lg font-semibold mb-4">
           업종별 매출 건수 변화율 추이
         </h3>
-        <div className="flex flex-col px-2 py-4 md:flex-row">
-          <div className="md:w-2/3">
+        <div className="flex flex-col px-2 py-4">
+          {/* 차트 영역 */}
+          <div className="w-full">
             <LineChart
               labels={labels}
               referenceYear={sortedQuarterData[0].year + "년"}
@@ -199,66 +212,36 @@ const SalesTab: React.FC<SalesTabProps> = ({
                   borderWidth: 2
                 }
               ]}
-              unit="개"
+              yAxisTitle="증감률 (%)"
+              unit="%"
+              customOptions={{
+                scales: {
+                  y: {
+                    min: yMin,
+                    max: yMax,
+                    ticks: {
+                      callback: (value: any) => `${value}%` // Y축 라벨을 퍼센트 형식으로 표시
+                    }
+                  }
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (context: any) =>
+                        `${context.dataset.label}: ${context.raw}%` // 툴팁 값을 퍼센트 형식으로 표시
+                    }
+                  }
+                }
+              }}
             />
           </div>
 
-          <div className="md:w-1/3 flex flex-col justify-center mt-6 md:mt-0">
-            <div className="flex flex-col gap-6 md:px-6">
-              <div className="p-5 bg-white shadow-lg rounded-lg border-l-4 border-l-blue-500 hover:shadow-xl transition-shadow">
-                <p className="text-sm text-blue-600 font-medium mb-2">
-                  가장 매출 높은 행정동
-                </p>
-                <p className="text-xl font-bold text-gray-900 mb-2">
-                  {salesData.sales_comparison.가장_매출_높은_행정동.지역}
-                </p>
-                <div className="flex flex-col mt-3">
-                  <div className="flex justify-between items-center">
-                    <p className="text-gray-600">매출금액</p>
-                    <p className="text-lg text-blue-600 font-bold">
-                      {salesData.sales_comparison.가장_매출_높은_행정동.매출.toLocaleString()}
-                      원
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-gray-600">매출건수</p>
-                    <p className="text-lg text-blue-600 font-bold">
-                      {salesData.sales_comparison.가장_매출_높은_행정동.건수.toLocaleString()}
-                      건
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 bg-white shadow-lg rounded-lg border-l-4 border-l-green-500 hover:shadow-xl transition-shadow">
-                <p className="text-sm text-green-600 font-medium mb-2">
-                  선택 행정동
-                </p>
-                <p className="text-xl font-bold text-gray-900 mb-2">
-                  {salesData.sales_comparison.내_행정동.지역}
-                </p>
-                <div className="flex flex-col mt-3">
-                  <div className="flex justify-between items-center">
-                    <p className="text-gray-600">매출금액</p>
-                    <p className="text-lg text-green-600 font-bold">
-                      {(
-                        salesData.sales_comparison.내_행정동.매출 ?? 0
-                      ).toLocaleString()}
-                      원
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-gray-600">매출건수</p>
-                    <p className="text-lg text-green-600 font-bold">
-                      {(
-                        salesData.sales_comparison.내_행정동.건수 ?? 0
-                      ).toLocaleString()}
-                      건
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Summary 영역 */}
+          <div className="mt-6 p-4 bg-white shadow-md rounded-lg">
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">요약</h4>
+            <p className="text-base text-gray-700 leading-relaxed">
+              {salesData.main_category_sales_count.summary}
+            </p>
           </div>
         </div>
       </div>
@@ -337,9 +320,71 @@ const SalesTab: React.FC<SalesTabProps> = ({
           </div>
         </div>
       </div>
+      <div className="mb-6 p-6 rounded-lg shadow-lg bg-white">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">
+          행정동 매출 비교
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          기준: {salesComparison["기준 연도"]}년 {salesComparison["기준 분기"]}
+          분기
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 border rounded-lg bg-blue-50">
+            <h4 className="text-lg font-semibold mb-2 text-blue-700">
+              가장 매출 높은 행정동
+            </h4>
+            <p className="text-2xl font-bold text-blue-800">
+              {salesComparison["가장_매출_높은_행정동"]["지역"]}
+            </p>
+            <div className="mt-2">
+              <p className="text-sm">
+                매출:{" "}
+                <span className="font-medium">
+                  {salesComparison["가장_매출_높은_행정동"][
+                    "매출"
+                  ].toLocaleString()}
+                  원
+                </span>
+              </p>
+              <p className="text-sm">
+                건수:{" "}
+                <span className="font-medium">
+                  {salesComparison["가장_매출_높은_행정동"][
+                    "건수"
+                  ].toLocaleString()}
+                  건
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="p-4 border rounded-lg bg-green-50">
+            <h4 className="text-lg font-semibold mb-2 text-green-700">
+              내 행정동
+            </h4>
+            <p className="text-2xl font-bold text-green-800">
+              {salesComparison["내_행정동"]["지역"]}
+            </p>
+            <div className="mt-2">
+              <p className="text-sm">
+                매출:{" "}
+                <span className="font-medium">
+                  {salesComparison["내_행정동"]["매출"].toLocaleString()}원
+                </span>
+              </p>
+              <p className="text-sm">
+                건수:{" "}
+                <span className="font-medium">
+                  {salesComparison["내_행정동"]["건수"].toLocaleString()}건
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-6 p-4 rounded-lg shadow-md inset-shadow-xs">
         <h3 className="text-lg font-semibold mb-4">
-          외식업 세부 카테고리 분포
+          외식업 세부 카테고리 매출 건수
         </h3>
         <div className="pb-5">
           <Legend categories={categoryColors} />
@@ -348,14 +393,18 @@ const SalesTab: React.FC<SalesTabProps> = ({
           {["서울시", "자치구", "행정동"].map((region) => (
             <div key={region} className="w-full md:w-1/5 mb-4">
               <h4 className="text-md font-medium mb-2">
-                {region === "행정동" ? selectedAdminName : region}
+                {region === "자치구"
+                  ? salesData.food_sales_stats["자치구 이름"] // 화면에 자치구 이름 표시
+                  : region === "행정동"
+                  ? selectedAdminName
+                  : region}
               </h4>
               <DoughnutChart
                 chartData={
                   region === "서울시"
                     ? seoulDonutData
                     : region === "자치구"
-                    ? districtDonutData
+                    ? districtDonutData // 데이터는 자치구 기준으로 처리
                     : neighborhoodDonutData
                 }
                 legendPosition="top"
@@ -369,13 +418,13 @@ const SalesTab: React.FC<SalesTabProps> = ({
                       <div key={index} className="flex items-center">
                         <div
                           className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white 
-            ${
-              index === 0
-                ? "bg-yellow-500"
-                : index === 1
-                ? "bg-gray-400"
-                : "bg-amber-600"
-            }`}
+                ${
+                  index === 0
+                    ? "bg-yellow-500"
+                    : index === 1
+                    ? "bg-gray-400"
+                    : "bg-amber-600"
+                }`}
                         >
                           {index + 1}
                         </div>
