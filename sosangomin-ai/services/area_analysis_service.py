@@ -129,7 +129,7 @@ class AreaAnalysisService:
             return {
                 "성별_연령별_상주인구": pop_by_age_gender,  # 막대그래프용
                 "총_상주인구": region_row.tot_repop,
-                "서울시_평균_상주인구": round(seoul_avg, 1) if seoul_avg else None,
+                "서울시_평균_상주인구": int(round(seoul_avg, 0)) if seoul_avg else None,
                 "가장_많은_성별_연령대": {
                     "구분": region_row.dominant_age_gender_repop,
                     "인구수": max_age_gender[1]
@@ -170,7 +170,7 @@ class AreaAnalysisService:
             return {
                 "성별_연령별_직장인구": pop_by_age_gender,  
                 "총_직장인구": region_row.tot_wrpop,
-                "서울시_평균_직장인구": round(seoul_avg, 1) if seoul_avg else None,
+                "서울시_평균_직장인구": int(round(seoul_avg, 0)) if seoul_avg else None,
                 "가장_많은_성별_연령대": {
                     "구분": region_row.dominant_age_gender_wrpop,
                     "인구수": max_age_gender[1]
