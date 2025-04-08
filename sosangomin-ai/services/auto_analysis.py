@@ -103,7 +103,9 @@ class AutoAnalysisService:
                 header_values = set(df.columns.tolist()) 
                 columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
                 df = df.drop(columns=columns_to_drop)
-
+                
+                if df.empty:
+                    raise ValueError("전처리 결과가 비어 있습니다. 엑셀 파일의 구조가 예상과 다를 수 있습니다.")
                 # 결측 및 중복 처리 
                 df = (
                     df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
@@ -138,6 +140,10 @@ class AutoAnalysisService:
                     raise ValueError("컬럼명 처리 후 데이터프레임이 비어 있습니다. 데이터 구조를 확인하세요.")
                 
                 df = df.loc[:, df.nunique() > 1]  
+
+                if df.empty:
+                    logger.warning("컬럼명 처리 후 데이터프레임이 비어 있습니다.")
+                    raise ValueError("컬럼명 처리 후 데이터프레임이 비어 있습니다. 데이터 구조를 확인하세요.")
                 
                 # 매출 
                 df = df.drop(columns=['총매출', '실매출'], errors='ignore') 
