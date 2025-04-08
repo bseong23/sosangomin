@@ -14,7 +14,7 @@ import { FinalReportDetail } from "../features/finalreport/types/finalReport";
 const ResultPage: React.FC = () => {
   // 스토어에서 대표 매장 정보 가져오기
   const { representativeStore } = useStoreStore();
-  const storeId = representativeStore?.store_id || "1"; // 기본값 설정
+  const storeId = representativeStore?.store_id?.toString() || ""; // 기본값 빈 문자열로 변경
 
   // URL 파라미터에서 reportId 추출
   const getReportIdFromUrl = () => {
@@ -37,7 +37,8 @@ const ResultPage: React.FC = () => {
     detailError,
     listError,
     handleSelectReport,
-    handleCreateReport
+    handleCreateReport,
+    hasRegisteredStore
   } = useFinalReportManager(storeId);
 
   // URL 변경 시 reportId 업데이트
@@ -93,37 +94,68 @@ const ResultPage: React.FC = () => {
 
   // 새 보고서 생성 핸들러
   const handleCreateNewReport = async () => {
-    if (isCreating) return; // 이미 생성 중이면 중복 요청 방지
+    if (isCreating || !storeId) return; // 이미 생성 중이거나 매장 ID가 없으면 중단
 
     try {
-      const newReport = await handleCreateReport(storeId);
-      if (newReport && newReport._id) {
-        // 새로 생성된 보고서로 URL 업데이트
+      const response = await handleCreateReport(storeId);
+
+      // report_id를 사용하여 URL 업데이트
+      if (response && response.report_id) {
         const url = new URL(window.location.href);
-        url.searchParams.set("reportId", newReport._id);
+        url.searchParams.set("reportId", response.report_id);
         window.history.pushState({}, "", url.toString());
 
         // 상태 업데이트
-        setCurrentReportId(newReport._id);
+        setCurrentReportId(response.report_id);
       }
     } catch (error) {
       console.error("보고서 생성 중 오류 발생:", error);
     }
   };
 
-  // 기본 레이아웃 - 대표 매장이 없는 경우만 전체 화면 로딩
-  if (!representativeStore) {
+  // 매장이 등록되어 있지 않은 경우
+  if (!hasRegisteredStore) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Loading />
+        <div className="bg-basic-white rounded-lg shadow-lg p-8 max-w-md text-center">
+          <svg
+            className="w-16 h-16 text-bit-main mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h2 className="text-2xl font-semibold text-bit-main mb-4">
+            등록된 매장이 없습니다
+          </h2>
+          <p className="text-comment mb-6">
+            분석 보고서를 생성하기 위해서는 매장 등록이 필요합니다.
+          </p>
+          <a
+            href="/mypage" // 매장 등록 페이지 경로로 수정
+            className="inline-block py-3 px-6 bg-bit-main text-basic-white rounded-md hover:bg-opacity-90 transition duration-200"
+          >
+            매장 등록하기
+          </a>
+        </div>
       </div>
     );
   }
 
+  // 대표 매장이 없는 경우 로딩 화면 표시
+  if (!representativeStore) {
+    return <div className="text-center py-10">대표 매장을 선택해주세요.</div>;
+  }
   // 헤더에 사용할 보고서 데이터 결정 (없으면 빈 객체)
   // HeaderComponent에 전달할 데이터 객체 생성
   const headerData: FinalReportDetail = reportDetail || {
-    _id: "",
     store_id: Number(storeId), // Convert storeId to number
     store_name: representativeStore.store_name || "",
     created_at: new Date().toISOString(),
