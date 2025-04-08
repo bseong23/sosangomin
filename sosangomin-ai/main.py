@@ -14,6 +14,7 @@ from routers import chat_router, news_router, data_analysis_router, s3_router, d
 from schedulers.news_scheduler import start_news_scheduler
 from schedulers.area_analysis_scheduler import start_area_scheduler
 from schedulers.transport_scheduler import start_subway_station_scheduler
+from schedulers.weather_scheduler import start_weather_scheduler
 
 is_windows = platform.system() == "Windows"
 if not is_windows:
@@ -74,6 +75,8 @@ async def startup_event():
         logger.info("상권분석 스케줄링 완료")
         start_subway_station_scheduler()
         logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+        start_weather_scheduler()
+        logger.info("날씨 데이터 수집 스케줄링 완료")
         return
     
     # Linux/Unix 환경

@@ -97,6 +97,8 @@ class LocationRecomService:
                         (getattr(row, f"female_{target_age}_repop", 0) or 0) + (getattr(row, f"male_{target_age}_repop", 0) or 0) +
                         (getattr(row, f"female_{target_age}_wrpop", 0) or 0) + (getattr(row, f"male_{target_age}_wrpop", 0) or 0)
                     )
+                    if target_age == "60" : 
+                        target_total += (getattr(row, f"female_70_fpop", 0) or 0) + (getattr(row, f"male_70_fpop", 0) or 0) 
                     target_ratio = target_total / total_pop if total_pop else 0
                     pop_data.append({
                         "행정동명": row.region_name,
