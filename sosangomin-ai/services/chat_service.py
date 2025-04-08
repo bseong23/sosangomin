@@ -192,7 +192,7 @@ class ChatService:
             
             response = self.client.messages.create(
                 model="claude-3-haiku-20240307",
-                max_tokens=500,
+                max_tokens=700,
                 temperature=0.1,
                 system=system_message,  
                 messages=user_assistant_messages  
