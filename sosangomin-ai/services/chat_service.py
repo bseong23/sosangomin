@@ -11,7 +11,7 @@ import re
 from bson import ObjectId
 from dotenv import load_dotenv
 
-from db_models import ChatHistory, ChatSession
+from db_models import ChatHistory, ChatSession, Store
 from database.connector import database_instance
 from database.mongo_connector import mongo_instance
 from services.rag_service import rag_service
@@ -75,6 +75,12 @@ class ChatService:
             if retrieval_results:
                 augmented_content = self._prepare_rag_content(retrieval_results)
                 logger.info("RAG 검색 결과 적용")
+            
+            if not store_id and msg_type == "data_analysis":
+                main_store = db.query(Store).filter(Store.user_id == user_id, Store.is_main == True).first()
+                if main_store:
+                    store_id = main_store.store_id
+                    logger.info(f"사용자 {user_id}의 메인 매장(ID: {store_id}) 찾음")
 
             if msg_type == "data_analysis" and store_id:
                 analysis_id = await self._get_latest_analysis_id(store_id)
