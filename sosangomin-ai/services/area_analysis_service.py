@@ -207,6 +207,10 @@ class AreaAnalysisService:
                 col_name = f"{key}_fpop"
                 pop_by_age_gender[key] = getattr(region_row, col_name, 0) or 0
 
+            # 70대 포함해서 60대로 합산
+            pop_by_age_gender["male_60"] += getattr(region_row, "male_70_fpop", 0) or 0
+            pop_by_age_gender["female_60"] += getattr(region_row, "female_70_fpop", 0) or 0
+
             max_age_gender = max(pop_by_age_gender.items(), key=lambda x: x[1])
 
             # 요일별 유동 인구
@@ -577,7 +581,7 @@ class AreaAnalysisService:
 
             comparison_summary = ""
             if comparison_parts:
-                comparison_summary = " / " + " / ".join(comparison_parts) + "한 것으로 나타났습니다."
+                comparison_summary = " , ".join(comparison_parts)  + "한 것으로 나타났습니다."
 
             # 최종 결론
             conclusion = ""
