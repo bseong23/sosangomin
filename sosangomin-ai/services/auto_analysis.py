@@ -107,12 +107,31 @@ class AutoAnalysisService:
                 if df.empty:
                     raise ValueError("전처리 결과가 비어 있습니다. 엑셀 파일의 구조가 예상과 다를 수 있습니다.")
                 # 결측 및 중복 처리 
-                df = (
-                    df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
-                    .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
-                    .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
-                    .T.drop_duplicates().T    # 중복 열 제거
-                )
+                # df = (
+                #     df.dropna(axis=0, how='all')  # 모든 값이 NaN인 행 제거
+                #     .dropna(axis=1, how='all')  # 모든 값이 NaN인 열 제거
+                #     .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
+                #     .T.drop_duplicates().T    # 중복 열 제거
+                # )
+
+                logger.info(f"[초기 df shape]: {df.shape}")
+
+                # 모든 NaN 행 제거
+                df = df.dropna(axis=0, how='all')
+                logger.info(f"[NaN 행 제거 후]: {df.shape}")
+
+                # 모든 NaN 열 제거
+                df = df.dropna(axis=1, how='all')
+                logger.info(f"[NaN 열 제거 후]: {df.shape}")
+
+                # 고유값 1개 이하 컬럼 제거
+                df = df.loc[:, df.nunique() > 1]
+                logger.info(f"[고유값 1개 이하 컬럼 제거 후]: {df.shape}")
+
+                # 중복 열 제거
+                df = df.T.drop_duplicates().T
+                logger.info(f"[중복 열 제거 후]: {df.shape}")
+
                 if df.empty:
                     raise ValueError("전처리 결과가 비어 있습니다. 엑셀 파일의 구조가 예상과 다를 수 있습니다.")
 
@@ -141,7 +160,7 @@ class AutoAnalysisService:
                 except Exception as e:
                     logger.error(f"❗ new_columns 생성 중 오류 발생: {e}")
                     raise
-                
+
                 df.columns = new_columns
                 logger.info(f"[전처리 전] df shape: {df.shape}")
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
