@@ -13,7 +13,7 @@ router = APIRouter(
 
 class FinalReportResponse(BaseModel):
     _id: Optional[str] = None
-    store_id: int
+    retport_id: str
     store_name: str
     created_at: datetime
     swot_analysis: Dict[str, Any]
