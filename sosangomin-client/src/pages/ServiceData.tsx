@@ -1,6 +1,6 @@
 import React from "react";
 import FeatureCard from "@/features/service/FeatureCard";
-import InsightCards from "@/features/main/components/InsightCards";
+import InsightCards from "@/features/service/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
 import service1 from "@/assets/service1.png";
 import service2 from "@/assets/service2.png";
