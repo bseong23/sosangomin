@@ -6,6 +6,7 @@ import Legend from "./Legend";
 import SalesTabSalesCount from "./SalesTabsalescount";
 import SalesTabsalessale from "@/features/map/components/maps/SalesTabsalessale";
 import LineChart from "@/components/chart/LineChart";
+import Loading from "@/components/common/Loading";
 interface SalesTabProps {
   selectedAdminName?: string;
   selectedCategory?: string;
@@ -37,7 +38,7 @@ const SalesTab: React.FC<SalesTabProps> = ({
   }, [selectedAdminName, selectedCategory]);
 
   if (!salesData) {
-    return <p>데이터를 불러오는 중...</p>;
+    return <Loading />;
   }
 
   // 📌 바 차트 데이터 (분기별 매출)
@@ -343,9 +344,9 @@ const SalesTab: React.FC<SalesTabProps> = ({
         <div className="pb-5">
           <Legend categories={categoryColors} />
         </div>
-        <div className="flex flex-wrap justify-between">
+        <div className="flex flex-wrap justify-between py-4 px-15">
           {["서울시", "자치구", "행정동"].map((region) => (
-            <div key={region} className="w-full md:w-1/4 mb-4">
+            <div key={region} className="w-full md:w-1/5 mb-4">
               <h4 className="text-md font-medium mb-2">
                 {region === "행정동" ? selectedAdminName : region}
               </h4>

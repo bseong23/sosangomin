@@ -41,7 +41,7 @@ export const postmainstore = async (store_id: string) => {
     const response = await axiosInstance.post("/api/proxy/store/set-main", {
       store_id: store_id // store_id를 요청 본문에 포함
     });
-    console.log(response);
+
     return response.data;
   } catch (error) {
     console.error("대표가게 설정 실패:", error);

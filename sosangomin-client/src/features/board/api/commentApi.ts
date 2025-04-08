@@ -59,12 +59,6 @@ export const updateComment = async (commentId: number, content: string) => {
       throw new Error("로그인이 필요합니다.");
     }
 
-    console.log(" 댓글 수정 요청 전송:", {
-      commentId,
-      content,
-      token
-    });
-
     const response = await axiosInstance.patch(
       `${BASE_URL}/api/comment/${commentId}`,
       { content },
@@ -76,7 +70,6 @@ export const updateComment = async (commentId: number, content: string) => {
       }
     );
 
-    console.log("댓글 수정 성공:", response.data);
     return response.data;
   } catch (error: any) {
     console.error("댓글 수정 실패:", error);
@@ -98,11 +91,6 @@ export const deleteComment = async (commentId: number) => {
       throw new Error("로그인이 필요합니다.");
     }
 
-    console.log("댓글 삭제 요청 전송:", {
-      commentId,
-      token
-    });
-
     const response = await axiosInstance.delete(
       `${BASE_URL}/api/comment/${commentId}`,
       {
@@ -112,7 +100,6 @@ export const deleteComment = async (commentId: number) => {
       }
     );
 
-    console.log("댓글 삭제 성공:", response.data);
     return response.data;
   } catch (error: any) {
     console.error("댓글 삭제 실패:", error);

@@ -62,8 +62,6 @@ const MainContent: React.FC = () => {
   // 분석 완료 처리 콜백 함수
   const handleAnalysisCompleted = useCallback(
     (data: any) => {
-      console.log("분석 완료 감지:", data);
-
       // 모달 상태 업데이트 - 명시적으로 isLoading도 false로 설정
       setLoading(false);
       completeLoading();
@@ -84,7 +82,6 @@ const MainContent: React.FC = () => {
         // 현재 분석 결과를 즉시 선택된 상태로 설정
         const resultId = data.analysis_id;
         if (resultId) {
-          console.log(`분석 ID ${resultId} 선택됨`);
           setSelectedAnalysisId(resultId);
           fetchAnalysisResult(resultId);
         }
@@ -92,7 +89,6 @@ const MainContent: React.FC = () => {
 
       // 중요: 모달이 닫혀있다면 다시 열기
       if (!isModalOpen) {
-        console.log("모달 다시 열기");
         openModal();
       }
     },
@@ -117,14 +113,12 @@ const MainContent: React.FC = () => {
   });
 
   // 디버깅 로그 추가
-  useEffect(() => {
-    console.log("모달 상태 변경:", {
-      isLoading,
-      analysisCompleted,
-      showCompletionNotice,
-      isModalOpen
-    });
-  }, [isLoading, analysisCompleted, showCompletionNotice, isModalOpen]);
+  useEffect(() => {}, [
+    isLoading,
+    analysisCompleted,
+    showCompletionNotice,
+    isModalOpen
+  ]);
 
   // 기본 날짜 설정 함수 (YYYY-MM 형식)
   function getFormattedMonth(monthsOffset: number): string {
@@ -150,7 +144,6 @@ const MainContent: React.FC = () => {
       console.warn("대표 매장이 설정되어 있지 않습니다.");
     } else {
       // 디버깅: 대표 매장 정보 로깅
-      console.log("대표 매장 정보:", representativeStore);
     }
   }, [representativeStore]);
 
@@ -217,7 +210,6 @@ const MainContent: React.FC = () => {
     }
 
     // 디버깅: 사용하는 ID 값 확인
-    console.log("업로드에 사용할 매장 ID:", storeId);
 
     // 모달 열기 및 로딩 상태 설정
     setLoading(true);
@@ -239,7 +231,6 @@ const MainContent: React.FC = () => {
 
       // 업로드된 파일 ID 직접 사용
       const fileIds = uploadResult.objectIds;
-      console.log("업로드된 파일 ID 목록:", fileIds);
 
       // ID 목록이 비어 있는지 확인
       if (!fileIds || fileIds.length === 0) {
@@ -258,7 +249,6 @@ const MainContent: React.FC = () => {
       };
 
       // 분석 요청 로깅
-      console.log("분석 요청 파라미터:", JSON.stringify(analysisRequest));
 
       // 3. 분석 요청 보내기 및 즉시 결과 처리
       const analysisResult = await requestAnalysis(analysisRequest);

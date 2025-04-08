@@ -16,8 +16,6 @@ export const saveAuthData = (
 
   // 사용자 정보 Zustand 스토어에 저장
   useAuthStore.getState().setUserInfo(userData);
-
-  console.log("인증 정보 저장 완료:", { accessToken, userData });
 };
 
 /**
@@ -44,7 +42,6 @@ export const isLoggedIn = (): boolean => {
 export const clearAuthData = (): void => {
   localStorage.removeItem("accessToken");
   useAuthStore.getState().clearUserInfo();
-  console.log("로그아웃: 인증 정보 삭제 완료");
 };
 
 /**

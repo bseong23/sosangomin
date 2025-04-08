@@ -108,7 +108,6 @@ const BoardPostEditPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("폼 제출 시도");
 
     // 폼 유효성 검사
     if (!post.title.trim() || !post.content.trim()) {
@@ -118,14 +117,13 @@ const BoardPostEditPage: React.FC = () => {
 
     try {
       setIsLoading(true);
-      console.log("수정 요청 전송:", boardId, post);
 
       if (boardId) {
-        const result = await updateBoardPost(boardId, {
+        await updateBoardPost(boardId, {
           title: post.title,
           content: post.content
         });
-        console.log("수정 결과:", result);
+
         alert("게시글이 성공적으로 수정되었습니다.");
         navigate(`/community/board/post/${boardId}`);
       } else {

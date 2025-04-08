@@ -108,21 +108,12 @@ export const useFileUpload = () => {
           (fileInfo) => fileInfo.originalFile
         );
 
-        console.log("파일 업로드 시작:", {
-          storeId,
-          startMonth,
-          endMonth,
-          fileCount: filesToUpload.length
-        });
-
         const response = await uploadFiles(
           filesToUpload,
           storeId,
           startMonth,
           endMonth
         );
-
-        console.log("파일 업로드 응답:", response);
 
         if (response.status === "error" || response.errorMessage) {
           setFileState((prev) => ({
@@ -135,8 +126,6 @@ export const useFileUpload = () => {
 
         // 업로드 성공 처리
         const uploadedIds = response.ObjectIdList || [];
-
-        console.log("업로드된 파일 ID:", uploadedIds);
 
         if (uploadedIds.length === 0) {
           console.warn("업로드된 파일 ID가 없습니다.");

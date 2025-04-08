@@ -107,15 +107,9 @@ const AnalysisDashboard: React.FC = () => {
 
       // 분석 결과가 없으면 해당 분석 결과 로드
       if (!currentAnalysis) {
-        fetchAnalysisResult(newSelectedId)
-          .then((success) => {
-            console.log(
-              `분석 결과 로드 ${success ? "성공" : "실패"}: ${newSelectedId}`
-            );
-          })
-          .catch((err) => {
-            console.error("분석 결과 로드 오류:", err);
-          });
+        fetchAnalysisResult(newSelectedId).catch((err) => {
+          console.error("분석 결과 로드 오류:", err);
+        });
       }
     }
   }, [
@@ -132,12 +126,8 @@ const AnalysisDashboard: React.FC = () => {
     if (!representativeStore?.store_id) return;
 
     const loadAnalysisList = async () => {
-      const result = await fetchStoreAnalysisList(representativeStore.store_id);
-      console.log(
-        `매장 ID ${representativeStore.store_id}의 분석 목록 로드 ${
-          result ? "성공" : "실패"
-        }`
-      );
+      // result 변수를 제거하고 직접 함수 호출
+      await fetchStoreAnalysisList(representativeStore.store_id);
 
       if (debugState) {
         debugState();
@@ -149,8 +139,6 @@ const AnalysisDashboard: React.FC = () => {
 
   // 분석 목록이 로드되면, 목록을 컴포넌트가 이해할 수 있는 형식으로 변환
   useEffect(() => {
-    console.log("전체 분석 목록:", analysisList);
-
     if (analysisList && (analysisList.analysisList || analysisList.analyses)) {
       const list = analysisList.analysisList || analysisList.analyses;
       const convertedList = list.map((item: any) => ({
@@ -165,7 +153,7 @@ const AnalysisDashboard: React.FC = () => {
       // 선택된 분석 ID가 없으면 첫 번째 항목 선택
       if (!localSelectedAnalysisId && convertedList.length > 0) {
         const firstAnalysisId = convertedList[0].analysis_id;
-        console.log(`분석 목록에서 첫 번째 항목 선택: ${firstAnalysisId}`);
+
         setLocalSelectedAnalysisId(firstAnalysisId);
         setSelectedAnalysisId(firstAnalysisId); // 스토어에도 설정
         setSelectedAnalysis(convertedList[0]);
@@ -196,20 +184,9 @@ const AnalysisDashboard: React.FC = () => {
   useEffect(() => {
     // 데이터 로딩이 끝났는데도 currentAnalysis가 없는 경우
     if (!isLoading && !currentAnalysis && localSelectedAnalysisId) {
-      console.log(
-        `선택된 분석 ID ${localSelectedAnalysisId}가 있지만 분석 결과가 없음, 다시 로드 시도`
-      );
-      fetchAnalysisResult(localSelectedAnalysisId)
-        .then((success) => {
-          console.log(
-            `재시도 분석 결과 로드 ${
-              success ? "성공" : "실패"
-            }: ${localSelectedAnalysisId}`
-          );
-        })
-        .catch((err) => {
-          console.error("재시도 분석 결과 로드 오류:", err);
-        });
+      fetchAnalysisResult(localSelectedAnalysisId).catch((err) => {
+        console.error("재시도 분석 결과 로드 오류:", err);
+      });
     }
   }, [
     analysisList,
@@ -239,15 +216,9 @@ const AnalysisDashboard: React.FC = () => {
       }
 
       // 분석 결과 가져오기
-      fetchAnalysisResult(analysisId)
-        .then((success) => {
-          console.log(
-            `분석 결과 로드 ${success ? "성공" : "실패"}: ${analysisId}`
-          );
-        })
-        .catch((err) => {
-          console.error("분석 결과 로드 오류:", err);
-        });
+      fetchAnalysisResult(analysisId).catch((err) => {
+        console.error("분석 결과 로드 오류:", err);
+      });
     },
     [displayAnalysisList, fetchAnalysisResult, setSelectedAnalysisId]
   );

@@ -14,9 +14,6 @@ export const requestReviewAnalysis = async (
       params
     );
 
-    // API 응답 로그 기록 (디버깅용)
-    console.log("API 응답 데이터:", data);
-
     return data;
   } catch (error) {
     console.error("리뷰 분석 요청 오류:", error);

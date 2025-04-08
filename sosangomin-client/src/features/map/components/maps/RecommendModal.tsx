@@ -18,7 +18,7 @@ const RecommendModal: React.FC<RecommendModalProps> = ({
 
   // 데이터가 있는지 확인
   const hasData = data && data.top_locations && data.top_locations.length > 0;
-  console.log(data);
+
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-hidden">
       {/* 모달 컨테이너 */}

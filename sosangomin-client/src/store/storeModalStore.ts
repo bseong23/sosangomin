@@ -103,7 +103,6 @@ const useStoreModalStore = create<StoreModalState>((set, get) => ({
     };
 
     set({ storeData });
-    console.log("저장된 가게 정보:", storeData);
   },
 
   resetModalData: () =>

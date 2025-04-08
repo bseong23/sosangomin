@@ -143,11 +143,9 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
 
   useEffect(() => {
     if (prevIsLoadingRef.current && !isLoading) {
-      console.log("로딩 상태 변경 감지: 로딩 완료됨");
       completeLoading();
 
       if (!analysisCompleted) {
-        console.log("분석 완료 상태 설정");
         setAnalysisCompleted(true);
       }
     }
@@ -189,19 +187,11 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
 
   useEffect(() => {
     if (analysisCompleted && isOpen && !isLoading) {
-      console.log("분석 완료 상태 변경됨, UI 업데이트");
       completeLoading();
     }
   }, [analysisCompleted, isOpen, isLoading, completeLoading]);
 
   if (!isOpen) return null;
-
-  console.log("모달 상태:", {
-    isOpen,
-    isLoading,
-    analysisCompleted,
-    showCompletionNotice
-  });
 
   const renderCompletionScreen = () => {
     // gameActive가 false일 때만 렌더링

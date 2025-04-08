@@ -38,8 +38,6 @@ axiosInstance.interceptors.response.use(
       useAuthStore.getState().clearUserInfo();
       useStoreStore.getState().resetStore;
       window.location.href = "/login";
-
-      console.log("네트워크 에러 발생:", error.message);
     }
 
     return Promise.reject(error);

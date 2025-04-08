@@ -13,7 +13,6 @@ const AnalysisButton: React.FC<AnalysisButtonProps> = ({
 }) => {
   const handleAnalysis = (): void => {
     // 분석 로직 구현 (서버 요청 등)
-    console.log("분석 시작");
 
     if (onAnalyze) {
       onAnalyze();

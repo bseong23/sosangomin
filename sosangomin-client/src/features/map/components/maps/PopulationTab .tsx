@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import BarChart from "@/components/chart/BarChart"; // 커스텀 BarChart 컴포넌트 임포트
 import { getPopulation } from "@/features/map/api/analiysisApi"; // API 함수 경로는 실제 경로에 맞게 수정해주세요
-
+import Loading from "@/components/common/Loading";
 interface PopulationTabProps {
   selectedAdminName?: string;
   selectedCategory?: string;
@@ -26,7 +26,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
     };
     fetchPopulationData();
   }, [selectedAdminName]);
-  if (!populationData) return <p>데이터를 불러오는 중...</p>;
+  if (!populationData) return <Loading />;
   // ✅ 시간대별 유동인구 데이터 가공
   const timelabel = [
     "00시 ~ 05시",
@@ -179,7 +179,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
                   className={`text-lg font-bold ${
-                    avgResident > 0 ? "text-green-600" : "text-red-600"
+                    avgResident > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
                   {resText}
@@ -187,7 +187,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
               </div>
             </div>
 
-            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-green-500 hover:shadow-lg transition-shadow flex items-center">
+            <div className="p-3 bg-white shadow-md rounded-lg border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow flex items-center">
               <div className="flex-1">
                 <p className="text-sm text-gray-600 mb-1">최다 인구 그룹</p>
                 <p className="text-lg font-bold text-gray-900">
@@ -260,7 +260,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
                   className={`text-lg font-bold ${
-                    avgWorkiong > 0 ? "text-green-600" : "text-red-600"
+                    avgWorkiong > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
                   {workText}
@@ -341,7 +341,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                 <p className="text-sm text-gray-600 mb-1">서울시 평균 대비</p>
                 <p
                   className={`text-lg font-bold ${
-                    avgfloating > 0 ? "text-green-600" : "text-red-600"
+                    avgfloating > 0 ? "text-blue-600" : "text-red-600"
                   }`}
                 >
                   {floatText}
@@ -487,7 +487,7 @@ const PopulationTab: React.FC<PopulationTabProps> = ({
                       명 더 많습니다.
                     </span>
                   ) : (
-                    <span className="text-green-600">
+                    <span className="text-red-600">
                       평일이{" "}
                       {Math.abs(
                         populationData.floating_pop.평일_평균_유동인구 -

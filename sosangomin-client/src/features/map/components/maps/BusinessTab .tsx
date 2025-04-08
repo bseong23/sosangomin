@@ -5,6 +5,7 @@ import MixedChart from "@/components/chart/MixedChart";
 import BarChart from "@/components/chart/BarChart";
 import Legend from "./Legend";
 import { getBuiness } from "@/features/map/api/analiysisApi";
+import Loading from "@/components/common/Loading";
 interface BusinessTabProps {
   selectedAdminName?: string;
   selectedCategory?: string;
@@ -37,7 +38,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
 
     fetchBusinessData();
   }, [selectedAdminName, selectedCategory]);
-  if (!businessData) return <p>데이터를 불러오는 중...</p>;
+  if (!businessData) return <Loading />;
 
   // 분기별 데이터 정렬 (1분기부터 4분기까지)
   const sortedQuarterData = [...businessData.main_category_store_count].sort(
@@ -269,7 +270,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 showLegend={false}
               />
             </div>
-            <div className="pt-4 w-60">
+            <div className="flex flex-col justify-center pt-4 w-60">
               <p className="text-sm font-medium text-blue-600 mb-3">TOP 3</p>
               <div className="space-y-2">
                 {businessData.food_category_stats.서울시.top3.map(

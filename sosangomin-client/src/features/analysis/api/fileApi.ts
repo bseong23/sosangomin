@@ -43,19 +43,12 @@ export const uploadFiles = async (
       startMonth
     )}&endMonth=${encodeURIComponent(endMonth)}`;
 
-    // 디버깅: 요청 URL 로깅
-    console.log("파일 업로드 요청 URL:", url);
-    console.log("파일 업로드 수:", files.length);
-
     try {
       const response = await axiosInstance.post(url, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       });
-
-      // 응답 로깅
-      console.log("파일 업로드 응답:", response.data);
 
       // API 응답에 ObjectIdList가, 비어있거나 없는 경우, 테스트용 ID 생성
       if (
