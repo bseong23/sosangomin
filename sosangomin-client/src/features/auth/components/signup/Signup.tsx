@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import EmailVerificationModal from "./EmailVerificationModal";
+import AgreementModal from "@/features/auth/components/signup/AgreementModal"; // 동의 모달 추가
 import eyeIcon from "@/assets/eye.svg";
 import eyeCloseIcon from "@/assets/eye_close.svg";
 import { useSignup } from "@/features/auth/hooks/useSignup";
@@ -30,9 +31,11 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false); // 동의 모달 상태 추가
+  const [isAgreed, setIsAgreed] = useState(false); // 동의 여부 상태 추가
   const [prevMail, setPrevMail] = useState("");
   const [isPasswordValid, setIsPasswordValid] = useState(false);
-  const [isEmailBeingVerified, setIsEmailBeingVerified] = useState(false); // 이메일 검증 진행 상태
+  const [isEmailBeingVerified, setIsEmailBeingVerified] = useState(false);
 
   // 비밀번호 유효성 검사
   useEffect(() => {
@@ -46,12 +49,22 @@ const Signup: React.FC = () => {
       prevMail !== mail &&
       mailVerificationState.isVerified
     ) {
-      // 이메일이 변경되고 이전에 인증된 상태였다면 인증 상태를 리셋
       resetMailVerification();
     }
 
     setPrevMail(mail);
   }, [mail, prevMail, mailVerificationState.isVerified, resetMailVerification]);
+
+  // 동의 모달 열기
+  const handleOpenAgreementModal = () => {
+    setIsAgreementModalOpen(true);
+  };
+
+  // 동의 처리
+  const handleAgreementComplete = (agreed: boolean) => {
+    setIsAgreementModalOpen(false);
+    setIsAgreed(agreed);
+  };
 
   // 양식 제출 처리
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,6 +96,11 @@ const Signup: React.FC = () => {
       return;
     }
 
+    if (!isAgreed) {
+      alert("개인정보 수집 및 이용에 동의해주세요.");
+      return;
+    }
+
     // 회원가입 요청
     const signupData: SignupRequest = {
       mail,
@@ -94,7 +112,6 @@ const Signup: React.FC = () => {
     if (success) {
       alert("회원가입이 완료되었습니다.");
       navigate("/login");
-      // 여기서 리다이렉트 등 추가 작업 가능
     }
   };
 
@@ -113,24 +130,16 @@ const Signup: React.FC = () => {
       return;
     }
 
-    // 먼저 모달을 열고
     setIsVerificationModalOpen(true);
     setIsEmailBeingVerified(true);
 
     try {
-      // 이메일 중복 체크
       const isAvailable = await checkEmail(mail);
-
-      // 이메일이 사용 가능하면 인증 코드 발송
       if (isAvailable) {
         await sendVerification(mail);
-      } else {
-        // 이메일이 사용 불가능하면 모달 닫기 (필요시)
-        // setIsVerificationModalOpen(false);
       }
     } catch (error) {
       console.error("이메일 검증 에러:", error);
-      // 에러 처리 (모달 내부에서 처리할 수 있음)
     } finally {
       setIsEmailBeingVerified(false);
     }
@@ -139,8 +148,6 @@ const Signup: React.FC = () => {
   // 인증 완료 처리
   const handleVerificationComplete = (success: boolean) => {
     setIsVerificationModalOpen(false);
-
-    // 인증 성공 시 상태 업데이트
     if (success) {
       setMailVerified(true);
     }
@@ -155,6 +162,21 @@ const Signup: React.FC = () => {
             {signupState.error}
           </div>
         )}
+
+        {/* 개인정보 수집 동의 추가 */}
+
+        <div className="flex justify-between items-center">
+          <p className="text-base font-medium text-comment">
+            개인정보 수집 및 이용 동의 <span className="text-red-500">*</span>
+          </p>
+          <button
+            type="button"
+            onClick={handleOpenAgreementModal}
+            className="flex items-center justify-center px-4 py-1.5 border border-border rounded bg-gray-50 text-comment-text text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
+          >
+            약관 보기
+          </button>
+        </div>
 
         <div className="space-y-5">
           {/* 닉네임 입력 */}
@@ -374,13 +396,20 @@ const Signup: React.FC = () => {
         <div className="pt-6">
           <button
             type="submit"
-            disabled={signupState.isLoading}
+            disabled={signupState.isLoading || !isAgreed}
             className={`w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-basic-white ${
-              signupState.isLoading ? "bg-opacity-70" : "hover:bg-blue-900"
-            } bg-bit-main focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
+              signupState.isLoading || !isAgreed
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-bit-main hover:bg-blue-900"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bit-main`}
           >
             {signupState.isLoading ? "처리 중..." : "회원가입"}
           </button>
+          {!isAgreed && (
+            <p className="mt-2 text-sm text-center text-red-500">
+              개인정보 수집 및 이용에 동의해야 회원가입이 가능합니다.
+            </p>
+          )}
         </div>
       </form>
 
@@ -391,6 +420,16 @@ const Signup: React.FC = () => {
           onClose={() => setIsVerificationModalOpen(false)}
           onComplete={handleVerificationComplete}
           isInitializing={isEmailBeingVerified}
+        />
+      )}
+
+      {/* 개인정보 동의 모달 */}
+      {isAgreementModalOpen && (
+        <AgreementModal
+          isOpen={isAgreementModalOpen}
+          onClose={() => setIsAgreementModalOpen(false)}
+          onAgree={handleAgreementComplete}
+          initialAgreed={isAgreed} // 💡 추가된 부분
         />
       )}
     </div>
