@@ -76,11 +76,7 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
                   {reportList.map((report) => (
                     <li
                       key={report.report_id}
-                      className={`px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm lg:text-base hover:bg-opacity-10 hover:bg-gray- cursor-pointer ${
-                        report.report_id === data._id
-                          ? "bg-white bg-opacity-10 font-medium"
-                          : ""
-                      }`}
+                      className={`px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm lg:text-base hover:bg-opacity-10 hover:bg-gray- cursor-pointer`}
                       onClick={() => handleReportSelect(report.report_id)}
                     >
                       {formatDate(report.created_at)}
