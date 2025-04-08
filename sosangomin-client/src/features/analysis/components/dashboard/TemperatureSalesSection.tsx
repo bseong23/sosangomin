@@ -1,6 +1,7 @@
 import React from "react";
 import BarChart from "@/components/chart/BarChart";
 import { AnalysisResultData } from "../../types/analysis";
+import Markdown from "react-markdown";
 
 interface TemperatureSalesSectionProps {
   data: AnalysisResultData;
@@ -13,6 +14,33 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
   const temperatureSales = data?.result_data?.temperature_sales?.data || {};
   const temperatureSalesSummary =
     data?.result_data?.temperature_sales?.summary || "";
+
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-base  text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
+  };
 
   const temperatureSalesLabels = Object.keys(temperatureSales);
   const temperatureSalesDatasets = [
@@ -31,13 +59,6 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
       borderWidth: 1
     }
   ];
-
-  // 요약 텍스트 축약 함수
-  const truncateSummary = (summary: string, maxLength: number = 300) => {
-    return summary.length > maxLength
-      ? summary.substring(0, maxLength) + "..."
-      : summary;
-  };
 
   return (
     <div className="bg-basic-white p-6 mb-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
@@ -67,7 +88,9 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
       <div className="mt-2 mb-2">
         <div className="p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-comment">
-            {truncateSummary(temperatureSalesSummary)}
+            <Markdown components={markdownComponents}>
+              {temperatureSalesSummary}
+            </Markdown>
           </p>
         </div>
       </div>

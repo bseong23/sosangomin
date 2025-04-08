@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import PieChart from "@/components/chart/PieChart";
 import { AnalysisResultData } from "../../types/analysis";
+import Markdown from "react-markdown";
 
 interface ProductShareSectionProps {
   data: AnalysisResultData;
@@ -10,7 +11,33 @@ const ProductShareSection: React.FC<ProductShareSectionProps> = ({ data }) => {
   // 제품 점유율 데이터
   const productShare = data?.result_data?.product_share?.data || {};
   const productShareSummary = data?.result_data?.product_share?.summary || "";
-
+  // 마크다운 렌더링을 위한 스타일
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-base  text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
+  };
   // 상위 5개 제품만 표시하고 나머지는 기타로 처리
   const processedData = useMemo(() => {
     // 제품 점유율을 내림차순으로 정렬
@@ -95,7 +122,11 @@ const ProductShareSection: React.FC<ProductShareSectionProps> = ({ data }) => {
         </div>
       </div>
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-comment">{productShareSummary}</p>
+        <p className="text-sm text-comment">
+          <Markdown components={markdownComponents}>
+            {productShareSummary}
+          </Markdown>
+        </p>
       </div>
     </div>
   );

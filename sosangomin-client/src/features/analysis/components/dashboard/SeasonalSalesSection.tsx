@@ -1,5 +1,6 @@
 import React from "react";
 import { AnalysisResultData } from "../../types/analysis";
+import Markdown from "react-markdown";
 
 const seasonColors = {
   봄: "#FFB6C1", // 연한 핑크 (벚꽃 색상)
@@ -11,6 +12,28 @@ const seasonColors = {
 interface SeasonalSalesSectionProps {
   data: AnalysisResultData;
 }
+
+const markdownComponents = {
+  h1: (props: any) => (
+    <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+  ),
+  h2: (props: any) => (
+    <h2 className="text-xl font-semibold my-3 mb-5 text-bit-main" {...props} />
+  ),
+  h3: (props: any) => (
+    <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+  ),
+  p: (props: any) => <p className="my-2 text-base  text-comment" {...props} />,
+  ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+  ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+  li: (props: any) => <li className="my-1" {...props} />,
+  blockquote: (props: any) => (
+    <blockquote
+      className="border-l-4 border-gray-300 pl-4 italic my-2"
+      {...props}
+    />
+  )
+};
 
 const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
   data
@@ -47,7 +70,11 @@ const SeasonalSalesSection: React.FC<SeasonalSalesSectionProps> = ({
         ))}
       </div>
       <div className="p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-comment">{seasonSalesSummary}</p>
+        <p className="text-sm text-comment">
+          <Markdown components={markdownComponents}>
+            {seasonSalesSummary}
+          </Markdown>
+        </p>
       </div>
     </div>
   );

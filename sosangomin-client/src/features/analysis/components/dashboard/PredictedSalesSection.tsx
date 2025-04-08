@@ -1,6 +1,7 @@
 import React from "react";
 import LineChart from "@/components/chart/LineChart";
 import { AnalysisResultData } from "../../types/analysis";
+import Markdown from "react-markdown";
 
 interface PredictedSalesSectionProps {
   data: AnalysisResultData;
@@ -22,6 +23,34 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
   });
 
   const salesData = Object.values(predictions);
+
+  // 마크다운 렌더링을 위한 스타일
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-base  text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
+  };
 
   const datasets = [
     {
@@ -98,8 +127,8 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
     });
 
     return (
-      <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-        <h2 className="text-lg font-semibold mb-4 text-comment">
+      <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-">
+        <h2 className="text-lg font-semibold mb-2 text-comment">
           30일 매출 예측
         </h2>
         <div className="p-4 bg-gray-100 rounded-lg">
@@ -111,7 +140,7 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
 
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-      <h2 className="text-lg font-semibold mb-10 text-comment">
+      <h2 className="text-lg font-semibold mb-6 text-comment">
         30일 매출 예측
       </h2>
       <p className="text-base text-comment mb-10">
@@ -123,32 +152,38 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
       <div className="mt-2 mb-2">
         <div className="grid grid-cols-3 mb-10 gap-10 bg-white rounded-lg">
           <div className="flex flex-col">
-            <h4 className="text-sm text-center px-6 font-medium mb-1">
+            <h4 className="text-base text-center px-6 font-medium mb-1">
               예측 분석
             </h4>
             <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
-              {predictSummary?.summary}
+              <Markdown components={markdownComponents}>
+                {predictSummary?.summary}
+              </Markdown>
             </p>
           </div>
 
           {predictSummary?.sales_pattern && (
             <div className="flex flex-col">
-              <h4 className="text-sm text-center px-6 font-medium mb-1">
+              <h4 className="text-base text-center px-6 font-medium mb-1">
                 매출 패턴
               </h4>
               <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
-                {predictSummary.sales_pattern}
+                <Markdown components={markdownComponents}>
+                  {predictSummary.sales_pattern}
+                </Markdown>
               </p>
             </div>
           )}
 
           {predictSummary?.weekend_effect && (
             <div className="flex flex-col">
-              <h4 className="text-sm text-center px-6 font-medium mb-1">
+              <h4 className="text-base text-center px-6 font-medium mb-1">
                 주말 효과
               </h4>
               <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
-                {predictSummary.weekend_effect}
+                <Markdown components={markdownComponents}>
+                  {predictSummary.weekend_effect}
+                </Markdown>
               </p>
             </div>
           )}
@@ -156,13 +191,17 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
         {predictSummary?.recommendation && (
           <div className="flex flex-col">
             <h4 className="text-sm text-center px-6 font-medium mb-2">
-              <div className="flex items-center justify-center">
-                <LightBulbIcon />
-                추천 사항
+              <div className="flex text-base items-center justify-strat">
+                <span className="text-lg font-semibold mb-2 text-comment">
+                  <LightBulbIcon />
+                  30일 매출 예측을 바탕으로 한 우리가게 추천
+                </span>
               </div>
             </h4>
-            <p className="text-xs text-comment bg-blue-50 p-6 rounded-lg flex-grow h-full">
-              {predictSummary.recommendation}
+            <p className="text-xs text-comment bg-green-50 p-6 rounded-lg flex-grow h-full">
+              <Markdown components={markdownComponents}>
+                {predictSummary.recommendation}
+              </Markdown>
             </p>
           </div>
         )}

@@ -1,6 +1,7 @@
 import React from "react";
 import SalesTrendCard from "./SalesTrendCard";
 import { AnalysisResultData } from "../../types/analysis";
+import Markdown from "react-markdown";
 
 interface HourlySalesSectionProps {
   data: AnalysisResultData;
@@ -22,6 +23,33 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
     }
   ];
 
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-base  text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
+  };
+
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
       <h2 className="text-lg font-semibold mb-10 text-comment">
@@ -38,7 +66,11 @@ const HourlySalesSection: React.FC<HourlySalesSectionProps> = ({ data }) => {
       <div className="mt-2 mb-2">
         {/* 요약 - 축약 없이 전체 텍스트 표시 */}
         <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-base text-comment">{hourlySalesSummary}</p>
+          <p className="text-base text-comment">
+            <Markdown components={markdownComponents}>
+              {hourlySalesSummary}
+            </Markdown>
+          </p>
         </div>
       </div>
     </div>
