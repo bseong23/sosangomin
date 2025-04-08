@@ -25,4 +25,8 @@ dev-dist
 *.sln
 *.sw?
 
+<<<<<<< HEAD
 venv/
+=======
+venv/
+>>>>>>> AI/feat/#230

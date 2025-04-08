@@ -17,7 +17,7 @@ const StepItem: React.FC<Step> = ({ number, title, description }) => {
         <span className="text-white font-bold text-xl">{number}</span>
       </div>
       <h3 className="font-medium mb-2 text-base">{title}</h3>
-      <p className="text-sm text-comment-text leading-relaxed min-h-[48px]">
+      <p className="text-sm text-comment-text leading-relaxed min-h-[48px] break-keep">
         {description}
       </p>
     </div>
