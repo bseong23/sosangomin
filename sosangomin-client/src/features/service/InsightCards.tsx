@@ -38,7 +38,7 @@ const InsightCards: React.FC<InsightCardsProps> = ({
               {card.items.map((item, idx) => (
                 <li key={idx} className="flex items-center gap-2">
                   <span className="text-bit-main text-lg">•</span>
-                  <span className="text-gray-700 break-words">{item}</span>
+                  <span className="text-gray-700 break-keeps">{item}</span>
                 </li>
               ))}
             </ul>

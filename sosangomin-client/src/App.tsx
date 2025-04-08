@@ -40,6 +40,7 @@ import MainPage from "@/pages/MainPage";
 import ServiceData from "@/pages/ServiceData";
 import ServiceReview from "@/pages/ServiceReview";
 import ServiceMap from "@/pages/ServiceMap";
+import ServiceReport from "@/pages/ServiceReport";
 import NoticePostEditPage from "./pages/NoticePostEditPage";
 
 const PrivateRoute = ({ element }: { element: any }) => {
@@ -134,7 +135,7 @@ const App: React.FC = () => {
             element={<PrivateRoute element={<ReviewCompare />} />}
           />
 
-          {/* 종합보고소 및 서비스 소개 관련 라우트 */}
+          {/* 종합보고서 및 서비스 소개 관련 라우트 */}
           <Route
             path="/result"
             element={<PrivateRoute element={<ResultPage />} />}
@@ -142,6 +143,7 @@ const App: React.FC = () => {
           <Route path="/service_data" element={<ServiceData />} />
           <Route path="/service_review" element={<ServiceReview />} />
           <Route path="/service_map" element={<ServiceMap />} />
+          <Route path="/service_report" element={<ServiceReport />} />
         </Route>
       </Routes>
     </Router>
