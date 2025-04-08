@@ -184,7 +184,7 @@ class EdaService:
                         if file_size_mb > 3:
                             # 대용량 엑셀 파일 특별 처리
                             logger.info(f"대용량 엑셀 파일({file_size_mb:.2f}MB) 특별 처리")
-                            excel_file = pd.ExcelFile(local_path)
+                            excel_file = pd.ExcelFile(local_path, engine='openpyxl')
                             sheet_name = excel_file.sheet_names[0]  # 첫 번째 시트 사용
                             
                             # 데이터 행이 있는지 미리 확인
@@ -192,7 +192,7 @@ class EdaService:
                             if sample_df.empty:
                                 raise ValueError(f"파일 '{filename}'의 첫 번째 시트가 비어 있습니다.")
                             
-                            df = pd.read_excel(excel_file, sheet_name=sheet_name, header=2)
+                            df = pd.read_excel(excel_file, sheet_name=sheet_name, header=2, engine='openpyxl')
                         else:
                             # 일반 크기 엑셀 파일 처리
                             df = pd.read_excel(local_path, header=2, engine='openpyxl')
