@@ -291,7 +291,15 @@ class ChatService:
                 return None
             
             result["_id"] = str(result["_id"])
-            result["source_id"] = str(result["source_id"])
+            
+            if "source_ids" in result:
+                if isinstance(result["source_ids"], list) and len(result["source_ids"]) > 0:
+                    result["source_ids"] = [str(source_id) for source_id in result["source_ids"]]
+                else:
+                    result["source_ids"] = []
+            
+            if "source_id" in result:
+                result["source_id"] = str(result["source_id"])
             
             return result
         except Exception as e:
