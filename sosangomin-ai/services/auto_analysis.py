@@ -111,6 +111,8 @@ class AutoAnalysisService:
                     .loc[:, df.nunique() > 1]  # 고유값 1개 이하인 열 제거
                     .T.drop_duplicates().T    # 중복 열 제거
                 )
+                if df.empty:
+                    raise ValueError("전처리 결과가 비어 있습니다. 엑셀 파일의 구조가 예상과 다를 수 있습니다.")
 
                 # 'Unnamed'가 포함되지 않은 열 중복
                 cols_to_fill = [col for col in df.columns if 'Unnamed' not in str(col)]
