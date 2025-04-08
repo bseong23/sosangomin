@@ -279,11 +279,23 @@ class FinalReportService:
                 }
             }
             
+            return_report = {
+                "store_name": store_info.get("store_name", "알 수 없음") if store_info else "알 수 없음",
+                "created_at": datetime.now(),
+                "swot_analysis": swot_analysis,
+                "full_response": response_content,
+                "related_analyses": {
+                    "review_analysis_id": str(results.get("review_analysis", {}).get("_id", "")) if "review_analysis" in results else None,
+                    "combined_analysis_id": str(results.get("combined_analysis", {}).get("_id", "")) if "combined_analysis" in results else None,
+                    "competitor_analysis_id": str(results.get("competitor_analysis", {}).get("_id", "")) if "competitor_analysis" in results else None
+                }
+            }
+
             final_reports = mongo_instance.get_collection("FinalReports")
             report_id = final_reports.insert_one(final_report_doc).inserted_id
             
             logger.debug(f"최종 반환 데이터 (swot_analysis): {swot_analysis}")
-            return final_report_doc
+            return return_report
             
         except Exception as e:
             logger.error(f"SWOT 보고서 생성 중 오류: {str(e)}")
