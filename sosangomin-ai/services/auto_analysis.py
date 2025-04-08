@@ -130,8 +130,18 @@ class AutoAnalysisService:
 
                 df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
 
-                # 컬럼명 수정
-                new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
+                if df.shape[0] == 0:
+                    logger.error("❌ 컬럼명 처리 직전에 데이터프레임이 비어있음. 열 이름 추출 불가.")
+                    raise ValueError("컬럼명 처리 전에 데이터가 존재하지 않습니다.")
+
+                logger.info(f"[컬럼명 처리 시작] df.shape: {df.shape}, columns: {df.columns.tolist()}")
+
+                try:
+                    new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
+                except Exception as e:
+                    logger.error(f"❗ new_columns 생성 중 오류 발생: {e}")
+                    raise
+                
                 df.columns = new_columns
                 logger.info(f"[전처리 전] df shape: {df.shape}")
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
