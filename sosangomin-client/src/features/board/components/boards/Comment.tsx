@@ -83,8 +83,7 @@ const Comment: React.FC<CommentProps> = ({
     setShowReplyForm(false);
   };
 
-  const handleEditReply = (commentId: number, replyId: number) => {
-    console.log(`댓글 ${commentId}의 답글 ${replyId} 수정 중`);
+  const handleEditReply = (replyId: number) => {
     setEditingReplyId(replyId);
   };
 

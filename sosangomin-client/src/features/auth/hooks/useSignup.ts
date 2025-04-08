@@ -297,7 +297,7 @@ export const useSignup = () => {
           error: errorMessage,
           isVerified: false
         }));
-        console.log("인증 실패:", errorMessage);
+
         return false;
       }
 
@@ -308,7 +308,7 @@ export const useSignup = () => {
         isVerified: true,
         isSent: true
       }));
-      console.log("인증 성공: isVerified = true로 설정됨");
+
       return true;
     } catch (error) {
       setMailVerificationState((prev) => ({

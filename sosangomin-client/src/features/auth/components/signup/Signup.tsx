@@ -143,7 +143,6 @@ const Signup: React.FC = () => {
     // 인증 성공 시 상태 업데이트
     if (success) {
       setMailVerified(true);
-      console.log("인증 완료 처리: 인증 성공");
     }
   };
 

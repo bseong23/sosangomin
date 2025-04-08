@@ -73,7 +73,6 @@ const EmailVerificationModal: React.FC<ExtendedMailVerificationModalProps> = ({
 
     // 인증 성공 시
     if (mailVerificationState.isVerified) {
-      console.log("인증 성공 - isSuccess를 true로 설정");
       setIsSuccess(true);
     }
   }, [mailVerificationState, initializing]);
@@ -127,9 +126,6 @@ const EmailVerificationModal: React.FC<ExtendedMailVerificationModalProps> = ({
       const success = await verifyCode(mail, parseInt(verificationCode));
 
       if (success) {
-        console.log(
-          "인증 성공 - handleVerify에서 직접 isSuccess를 true로 설정"
-        );
         setIsSuccess(true);
       } else {
         setError(

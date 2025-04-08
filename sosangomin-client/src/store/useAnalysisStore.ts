@@ -52,7 +52,6 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
 
     try {
       const response = await performAnalysis(params);
-      console.log("API 응답 전체:", response);
 
       if ("error" in response && "message" in response) {
         set({
@@ -66,8 +65,6 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
       const analysisResult = response.analysis_result || response;
       const analysisId =
         analysisResult._id || analysisResult.analysis_id || analysisResult.id;
-
-      console.log("API 응답에서 찾은 분석 ID:", analysisId);
 
       if (!analysisId) {
         console.error("API 응답에서 분석 ID를 찾을 수 없음:", response);
@@ -128,9 +125,8 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
       }
 
       // 캐시에 없거나 아직 진행 중인 결과라면 API 호출
-      console.log(`API 호출 시작: 분석 ID ${analysisId}의 결과 가져오기`);
+
       const response = await getAnalysisResult(analysisId);
-      console.log(`API 호출 완료: 분석 ID ${analysisId}의 결과`, response);
 
       if ("error" in response && "message" in response) {
         set({
@@ -195,7 +191,7 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
       // 정렬된 목록의 첫 번째 (가장 최근) 분석 선택
       if (list.length > 0) {
         const latestAnalysisId = list[0].analysisId || list[0].analysis_id;
-        console.log(`자동 선택된 최근 분석 ID: ${latestAnalysisId}`);
+
         set({ selectedAnalysisId: latestAnalysisId });
         // 최근 분석 결과도 로드
         get().fetchAnalysisResult(latestAnalysisId);
@@ -246,7 +242,6 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
 
   // 선택된 분석 ID 직접 설정
   setSelectedAnalysisId: (analysisId: string) => {
-    console.log(`선택된 분석 ID 설정: ${analysisId}`);
     set({ selectedAnalysisId: analysisId });
   },
 
@@ -270,7 +265,7 @@ const useAnalysisStore = create<AnalysisStore>()((set, get) => ({
       listError: state.listError,
       cacheSize: Object.keys(state.analysisCache).length
     };
-    console.log("분석 스토어 상태 디버깅:", debug);
+
     return debug;
   }
 }));

@@ -37,7 +37,7 @@ export const createBoardPost = async (data: {
   try {
     // const token = getAccessToken();
     const response = await axiosInstance.post(`${BASE_URL}/api/board`, data);
-    // console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.error("게시글 작성 실패:", error);
@@ -72,7 +72,7 @@ export const verifyBoardPost = async (boardId: string) => {
     );
     return response.data;
   } catch (error) {
-    console.error("게시글 자격 확인 실패:", error);
+    // 에러를 콘솔에 출력하지 않고 그냥 throw
     throw error;
   }
 };

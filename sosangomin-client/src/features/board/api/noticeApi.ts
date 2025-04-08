@@ -63,7 +63,6 @@ export const verifyNoticePost = async () => {
     const response = await axiosInstance.get(`${BASE_URL}/api/notice/verify`);
     return response.data;
   } catch (error) {
-    console.error("게시글 자격 확인 실패:", error);
     throw error;
   }
 };

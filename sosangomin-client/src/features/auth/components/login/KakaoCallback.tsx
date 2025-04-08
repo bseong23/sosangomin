@@ -59,8 +59,6 @@ const KakaoCallback: React.FC<KakaoCallbackProps> = ({
         // 사용자 정보와 토큰 저장
         saveAuthData(accessToken, userData);
 
-        console.log("로그인 성공! 액세스 토큰과 사용자 정보 저장 완료");
-
         // 성공 콜백 호출
         if (onSuccess) {
           onSuccess(userData);

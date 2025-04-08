@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react"; // useMemo 추가
 import { MixedChartProps } from "@/types/chart";
 import {
   Chart as ChartJS,
@@ -52,8 +52,7 @@ const MixedChart: React.FC<MixedChartProps> = ({
   className = "",
   id = "mixed-chart",
   rightYAxisLabel = "비율 (%)",
-  leftMin = 0,
-  rightMin = 50
+  leftMin = 0
 }) => {
   // 데이터셋에 yAxisID 추가
   const processedDatasets = datasets.map((dataset) => {
@@ -78,6 +77,49 @@ const MixedChart: React.FC<MixedChartProps> = ({
       yAxisID
     };
   });
+
+  // 선 그래프 데이터만 필터링
+  const lineDatasets = useMemo(() => {
+    return datasets.filter((dataset) => dataset.type === "line");
+  }, [datasets]);
+
+  // 선 그래프 데이터의 최소값과 최대값 계산
+  const { minValue, maxValue } = useMemo(() => {
+    // 모든 선 그래프 데이터를 하나의 배열로 합치기
+    const allLineValues = lineDatasets.flatMap((dataset) => dataset.data);
+
+    if (allLineValues.length === 0) {
+      return { minValue: 0, maxValue: 100 }; // 기본값
+    }
+
+    const min = Math.min(...allLineValues);
+    const max = Math.max(...allLineValues);
+
+    return { minValue: min, maxValue: max };
+  }, [lineDatasets]);
+
+  // Y축 범위 동적 계산 (최소값에서 -5%, 최대값에서 +5%)
+  const yAxisRange = useMemo(() => {
+    // 데이터 범위
+    const range = maxValue - minValue;
+
+    // 범위가 너무 작은 경우 (10% 미만)
+    if (range < 10) {
+      // 최소 범위를 확보
+      const buffer = Math.max(5, 10 - range);
+      return {
+        min: Math.max(0, Math.floor(minValue - buffer)),
+        max: Math.ceil(maxValue + buffer)
+      };
+    } else {
+      // 정상적인 경우: 최소값에서 -5%, 최대값에서 +5%
+      const buffer = range * 0.05;
+      return {
+        min: Math.max(0, Math.floor(minValue - buffer)),
+        max: Math.ceil(maxValue + buffer)
+      };
+    }
+  }, [minValue, maxValue]);
 
   const data = {
     labels,
@@ -136,7 +178,6 @@ const MixedChart: React.FC<MixedChartProps> = ({
         stacked,
         ticks: {
           font: { size: 12 },
-          // 타입 시그니처 수정 - Chart.js 기대하는 형식으로 변경
           callback: function (
             this: Scale,
             _value: string | number,
@@ -164,7 +205,6 @@ const MixedChart: React.FC<MixedChartProps> = ({
         grid: { display: gridLines, drawOnChartArea: true },
         ticks: {
           font: { size: 12 },
-          // 타입 시그니처 수정
           callback: function (this: Scale, tickValue: string | number) {
             const value =
               typeof tickValue === "string" ? parseFloat(tickValue) : tickValue;
@@ -178,8 +218,8 @@ const MixedChart: React.FC<MixedChartProps> = ({
         display: true,
         position: "right",
         beginAtZero: false,
-        min: rightMin,
-        max: 100,
+        min: yAxisRange.min, // 동적으로 계산된 최소값
+        max: yAxisRange.max, // 동적으로 계산된 최대값
         title: {
           display: !!rightYAxisLabel,
           text: rightYAxisLabel,
@@ -191,7 +231,6 @@ const MixedChart: React.FC<MixedChartProps> = ({
         },
         ticks: {
           font: { size: 12 },
-          // 타입 시그니처 수정
           callback: function (this: Scale, tickValue: string | number) {
             const value =
               typeof tickValue === "string" ? parseFloat(tickValue) : tickValue;

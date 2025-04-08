@@ -7,8 +7,6 @@ const SocialLoginButtons: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleKakaoLogin = () => {
-    console.log("카카오 로그인 시도");
-
     setIsLoading(true);
 
     // 직접 URL을 만드는 대신 API 함수 사용

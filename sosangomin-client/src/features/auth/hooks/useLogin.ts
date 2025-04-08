@@ -97,7 +97,6 @@ export const useLogin = () => {
         clearSavedEmail();
       }
 
-      console.log("로그인 성공! 액세스 토큰과 사용자 정보 저장 완료");
       return true;
     } catch (error) {
       console.error("로그인 오류:", error);

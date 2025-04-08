@@ -89,11 +89,6 @@ const ProfileImageSection: React.FC<ProfileImageSectionProps> = ({
             }
           })
         );
-
-        console.log(
-          "프로필 이미지 업데이트 완료:",
-          freshUserInfo.userProfileUrl
-        );
       } else {
         setImageError("프로필 이미지 변경에 실패했습니다");
       }

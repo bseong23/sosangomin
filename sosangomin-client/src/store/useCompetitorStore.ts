@@ -81,9 +81,6 @@ export const useCompetitorStore = create<CompetitorState>()(
               set((state) => {
                 const currentList = state.comparisonListCache[storeId] || [];
 
-                // console.log("✅ storeId:", storeId);
-                // console.log("✅ currentList:", currentList);
-
                 // 새 요약 정보 생성
                 const summary: CompetitorComparisonSummary = {
                   comparison_id: comparisonId,

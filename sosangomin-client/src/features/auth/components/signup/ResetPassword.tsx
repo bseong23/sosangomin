@@ -39,7 +39,6 @@ const ResetPassword: React.FC = () => {
     const accessToken = searchParams.get("accessToken");
     if (accessToken) {
       setToken(accessToken);
-      console.log("토큰 확인:", accessToken); // 디버깅용
     }
   }, [location]);
 
