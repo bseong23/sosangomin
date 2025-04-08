@@ -296,7 +296,7 @@ const AnalysisDashboard: React.FC = () => {
 
   return (
     <div>
-      <div className="max-w-[1000px] mx-auto p-6">
+      <div className="max-w-[1200px] mx-auto p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-15 gap-4">
           <h1 className="text-xl font-bold text-comment">
             <span className="text-bit-main font-bold text-2xl">
@@ -321,18 +321,6 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 전체 요약 섹션 */}
         <SummarySection summary={overallSummary} />
-
-        <StrategySection
-          data={
-            originalApiData?.analysis_result
-              ? {
-                  ...data,
-                  auto_analysis_results:
-                    originalApiData.analysis_result.auto_analysis_results
-                }
-              : data
-          }
-        />
 
         {/* 기본 통계 카드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
@@ -364,6 +352,18 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 제품 점유율 섹션 */}
         <ProductShareSection data={data} />
+
+        <StrategySection
+          data={
+            originalApiData?.analysis_result
+              ? {
+                  ...data,
+                  auto_analysis_results:
+                    originalApiData.analysis_result.auto_analysis_results
+                }
+              : data
+          }
+        />
 
         {/* 상품 클러스터 분석 섹션 */}
         {originalApiData?.analysis_result && (

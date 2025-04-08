@@ -17,9 +17,13 @@ const markdownComponents = {
   h3: (props: any) => (
     <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
   ),
-  p: (props: any) => <p className="my-2 text-base  text-comment" {...props} />,
-  ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
-  ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+  p: (props: any) => (
+    <p className="my-2 mb-5 text-base  text-comment" {...props} />
+  ),
+  ul: (props: any) => (
+    <ul className="list-disc mb-5 gap-2 pl-5 my-2" {...props} />
+  ),
+  ol: (props: any) => <ol className="list-decimal mb-5 pl-5 my-2" {...props} />,
   li: (props: any) => <li className="my-1" {...props} />,
   blockquote: (props: any) => (
     <blockquote
