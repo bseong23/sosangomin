@@ -1,20 +1,50 @@
 import React from "react";
-import ServiceOverview from "@/features/service/ServiceOverview";
 import FeatureCard from "@/features/service/FeatureCard";
-import InsightSection from "@/features/service/InsightSection";
+import InsightCards from "@/features/main/components/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
-import CtaSection from "@/features/service/CtaSection";
+import service1 from "@/assets/service1.png";
+import service2 from "@/assets/service2.png";
+import service3 from "@/assets/service3.png";
 
-const FeatureIntroductionPage: React.FC = () => {
-  // 기능 카드에 사용할 데이터
-  const featureCardsData = [
+interface FeatureItemProps {
+  title: string;
+  description: string;
+}
+
+const FeatureItem: React.FC<FeatureItemProps> = ({ title, description }) => {
+  return (
+    <div className="w-full bg-white p-6 rounded-xl border border-gray-200 shadow-sm transition duration-300 ">
+      <div className="flex items-center text-bit-main mb-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 mr-3"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          ></path>
+        </svg>
+        <h3 className="text-lg break-words font-semibold">{title}</h3>
+      </div>
+      <p className="text-gray-700 break-words leading-relaxed min-h-[48px] pl-9">
+        {description}
+      </p>
+    </div>
+  );
+};
+
+const DataAnalysisPage: React.FC = () => {
+  const featureCards = [
     {
       title: "매출 데이터 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "매출 트렌드 차트 이미지 (추후 추가)",
+      image: service1,
       points: [
         {
-          title: "일별, 월별, 연도별 매출 추이",
+          title: "일별, 월별, 요일별 매출 추이",
           description: "날짜별 매출 데이터를 분석하여 트렌드를 파악합니다."
         },
         {
@@ -23,7 +53,7 @@ const FeatureIntroductionPage: React.FC = () => {
             "고객 방문이 많은 시간대를 찾아 효율적인 인력 배치가 가능합니다."
         },
         {
-          title: "객단가 분석",
+          title: "매출액 분석",
           description:
             "고객당 평균 지출액을 분석하여 매출 증대 전략을 수립할 수 있습니다."
         }
@@ -32,7 +62,7 @@ const FeatureIntroductionPage: React.FC = () => {
     {
       title: "상품 판매 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "상품 판매량 차트 이미지 (추후 추가)",
+      image: service2,
       points: [
         {
           title: "상품별 판매량 및 매출 기여도",
@@ -46,54 +76,32 @@ const FeatureIntroductionPage: React.FC = () => {
         {
           title: "상품 조합 분석",
           description:
-            "함께 판매되는 상품 패턴을 분석하여 효과적인 번들링 전략을 수립할 수 있습니다."
+            "함께 판매되는 상품 패턴을 분석하여 번들링 전략을 수립합니다."
         }
       ]
     },
     {
-      title: "고객 행동 분석",
+      title: "고객 행동 패턴 분석",
       headerColor: "bg-bit-main",
-      imagePlaceholder: "고객 세그먼트 차트 이미지 (추후 추가)",
+      image: service3,
       points: [
         {
-          title: "방문 빈도 및 재방문율",
-          description: "고객의 재방문 패턴을 분석하여 충성도를 측정합니다."
+          title: "고객 방문 시간 패턴",
+          description: "고객이 주로 방문하는 시간대를 분석합니다."
         },
         {
-          title: "고객 세그먼트 분석",
+          title: "날씨와 매출 관계 분석",
+          description: "날씨 조건에 따른 매출 변화를 파악할 수 있습니다."
+        },
+        {
+          title: "계절별 매출 패턴",
           description:
-            "구매 패턴에 따라 고객을 분류하여 타겟 마케팅이 가능합니다."
-        },
-        {
-          title: "단골 고객 분석",
-          description:
-            "핵심 고객층을 파악하여 고객 관계 관리를 강화할 수 있습니다."
-        }
-      ]
-    },
-    {
-      title: "결제 방식 분석",
-      headerColor: "bg-bit-main",
-      imagePlaceholder: "결제 수단 분포 차트 이미지 (추후 추가)",
-      points: [
-        {
-          title: "결제 수단 선호도",
-          description: "고객이 선호하는 결제 방식을 파악할 수 있습니다."
-        },
-        {
-          title: "결제 수단별 객단가 분석",
-          description: "결제 방식에 따른 구매 금액 차이를 분석합니다."
-        },
-        {
-          title: "결제 수단별 트렌드",
-          description:
-            "시간에 따른 결제 방식의 변화를 추적하여 시장 트렌드를 파악합니다."
+            "계절에 따른 매출 변화를 분석하여 시즌별 전략을 수립합니다."
         }
       ]
     }
   ];
 
-  // 인사이트와 추천사항 데이터
   const insights = [
     "월요일과 목요일에 신규 고객 방문이 20% 증가했습니다.",
     "아메리카노와 베이글을 함께 구매하는 패턴이 35% 증가했습니다.",
@@ -101,12 +109,11 @@ const FeatureIntroductionPage: React.FC = () => {
   ];
 
   const recommendations = [
-    "월요일과 목요일에 '아침 시작 세트' 프로모션을 진행하여 신규 고객을 유치하세요.",
-    "아메리카노와 베이글 세트 메뉴를 구성하여 10% 할인된 가격에 제공하세요.",
-    "저녁 피크 타임에 추가 인력을 배치하여 고객 대기 시간을 줄이고 매출을 극대화하세요."
+    "월요일과 목요일에 '아침 시작 세트' 프로모션을 진행해보세요.",
+    "아메리카노와 베이글 세트 메뉴를 구성해 10% 할인된 가격으로 제공하세요.",
+    "점심보다는 저녁 피크 타임에 인력을 보강해 대기 시간을 줄이고 매출을 극대화하세요."
   ];
 
-  // 이용 방법 단계
   const steps = [
     {
       number: 1,
@@ -115,63 +122,264 @@ const FeatureIntroductionPage: React.FC = () => {
     },
     {
       number: 2,
-      title: "데이터 유형 선택",
-      description: "분석하고자 하는 데이터 유형을 선택합니다."
-    },
-    {
-      number: 3,
       title: "분석 실행",
       description: "데이터 분석 버튼을 클릭하여 분석을 시작합니다."
     },
     {
-      number: 4,
+      number: 3,
       title: "인사이트 확인",
       description: "분석 결과와 맞춤형 추천을 확인합니다."
     }
   ];
 
-  // CTA 섹션 데이터
-  const ctaData = {
-    title: "지금 바로 시작하세요!",
-    description:
-      "소상공인 데이터 분석 서비스로 비즈니스 성과를 높이고 효율적인 운영 전략을 수립하세요. 데이터를 통한 인사이트로 더 나은 비즈니스 의사결정을 지원합니다.",
-    buttonText: "서비스 시작하기"
-  };
-
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto px-4 py-8">
-        <ServiceOverview />
+    <div className="bg-gray-50">
+      <main className="max-w-screen-xl mx-auto px-20 py-16 space-y-32">
+        {/* 타이틀 섹션 */}
+        <section className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <h1 className="text-3xl md:text-4xl break-words font-bold text-gray-900">
+              <span className="text-bit-main break-words">데이터 분석</span>으로
+              <br />
+              매출 향상을 경험하세요
+            </h1>
+            <p className="text-sm break-words text-gray-700 leading-relaxed">
+              가게의 POS 데이터를 분석하여 매출 현황과 개선점을 한눈에
+              파악하세요. 데이터 기반 의사결정으로 더 효율적인 가게 운영이
+              가능합니다.
+            </p>
+            <div className="flex gap-4">
+              <button className="px-6 py-3 bg-bit-main text-white break-word font-medium rounded-lg shadow-lg hover:bg-bit-main/90 transition duration-300 flex items-center">
+                데이터 분석 시작하기
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 ml-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
 
-        <h2 className="text-2xl font-bold text-center mb-8 text-bit-main">
-          핵심 분석 기능
-        </h2>
+          {/* 세로로 정렬된 카드 3개 */}
+          <div className="flex flex-col justify-start space-y-4">
+            {[
+              {
+                title: "매출 패턴 분석",
+                description:
+                  "시간대별, 요일별, 계절별 매출 패턴을 파악하여 운영 최적화"
+              },
+              {
+                title: "인기 메뉴 분석",
+                description:
+                  "매출 기여도가 높은 인기 메뉴를 파악하고 마케팅 전략 수립"
+              },
+              {
+                title: "맞춤형 운영 추천",
+                description: "데이터에 기반한 실행 가능한 개선 방안 제공"
+              }
+            ].map((item, idx) => (
+              <FeatureItem
+                key={idx}
+                title={item.title}
+                description={item.description}
+              />
+            ))}
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {featureCardsData.map((card, index) => (
-            <FeatureCard
-              key={index}
-              title={card.title}
-              headerColor={card.headerColor}
-              imagePlaceholder={card.imagePlaceholder}
-              points={card.points}
-            />
-          ))}
-        </div>
+        {/* 서비스 소개 섹션 */}
+        {/* <section className="py-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-words text-bit-main font-semibold mb-4">
+              서비스 소개
+            </span>
+            <h2 className="text-3xl break-words font-bold mb-6">
+              복잡한 데이터를 쉬운 인사이트로
+            </h2>
+            <p className="text-lg break-words text-gray-700 max-w-2xl mx-auto">
+              소상공인을 위한 데이터 분석 서비스는 복잡한 POS 데이터를 쉽게
+              이해할 수 있는 인사이트로 변환해 드립니다.
+            </p>
+          </div>
+        </section> */}
 
-        <InsightSection insights={insights} recommendations={recommendations} />
+        {/* 주요 기능 섹션 */}
+        <section className="py-16">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-words text-bit-main font-semibold mb-4">
+              서비스 소개
+            </span>
+            <h2 className="text-3xl break-words font-bold mb-6">
+              복잡한 데이터를 쉬운 인사이트로
+            </h2>
+            <p className="text-lg break-words text-gray-700 max-w-2xl mx-auto">
+              소상공인을 위한 데이터 분석 서비스는 복잡한 POS 데이터를 쉽게
+              이해할 수 있는 인사이트로 변환해 드립니다.
+            </p>
+          </div>
+          {/* <div className="text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
+              핵심 기능
+            </span>
+            <h2 className="text-3xl font-bold mb-6">
+              POS 데이터 분석 핵심 기능
+            </h2>
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              소상공인의 매출 증대와 효율적인 운영을 위한 다양한 분석 기능을
+              제공합니다.
+            </p>
+          </div> */}
 
-        <StepGuide steps={steps} />
+          <div className="space-y-12">
+            {featureCards.map((card, index) => (
+              <FeatureCard
+                key={index}
+                title={card.title}
+                headerColor={card.headerColor}
+                img={card.image}
+                points={card.points}
+              />
+            ))}
+          </div>
+        </section>
 
-        <CtaSection
-          title={ctaData.title}
-          description={ctaData.description}
-          buttonText={ctaData.buttonText}
-          onButtonClick={() => console.log("서비스 시작하기 버튼 클릭")}
-        />
+        {/* 인사이트 예시 카드 */}
+        <section className="py-17 bg-gradient-to-b from-white to-gray-50">
+          <div className="text-center">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
+              실제 인사이트
+            </span>
+          </div>
+          <InsightCards insights={insights} recommendations={recommendations} />
+        </section>
+
+        {/* 분석 과정 안내 */}
+        <section className="py-16">
+          <div className="text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
+              이용 방법
+            </span>
+            <h2 className="text-3xl font-bold mb-6">데이터 분석 진행 과정</h2>
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              간단한 4단계 과정으로 누구나 쉽게 데이터 분석을 진행할 수
+              있습니다.
+            </p>
+          </div>
+          <StepGuide steps={steps} />
+        </section>
+
+        {/* 고객 후기 섹션 */}
+        <section className="py-16 bg-bit-main/5 rounded-3xl">
+          <div className="text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
+              고객 후기
+            </span>
+            <h2 className="text-3xl font-bold mb-6">실제 사용 고객의 후기</h2>
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              소상고민의 데이터 분석 서비스를 이용한 고객들의 실제 후기를
+              확인해보세요.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto px-6">
+            {[
+              {
+                name: "김현진",
+                business: "카페 운영",
+                review:
+                  "매출 데이터를 분석해 주셔서 잘 팔리지 않는 메뉴들을 쉽게 정리할 수 있었어요. 인기 많은 음료에 집중하려고 합니다.",
+                rating: 5
+              },
+
+              {
+                name: "보성오빠어머니성함..?",
+                business: "식당 운영",
+                review:
+                  "인사이트 내용을 적용시켜 저녁 특선 메뉴를 추가하였더니 매출이 증가하였습니다.",
+                rating: 4
+              }
+            ].map((review, idx) => (
+              <div key={idx} className="bg-white p-6 rounded-xl shadow-lg">
+                <div className="flex items-center mb-4">
+                  {Array(review.rating)
+                    .fill(0)
+                    .map((_, i) => (
+                      <svg
+                        key={i}
+                        className="w-5 h-5 text-yellow-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                </div>
+                <p className="text-gray-700 italic mb-4">"{review.review}"</p>
+                <div className="border-t pt-4 mt-4">
+                  <p className="font-semibold">{review.name}</p>
+                  <p className="text-sm text-gray-600">{review.business}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ 섹션 */}
+        <section className="py-16">
+          <div className="text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
+              자주 묻는 질문
+            </span>
+            <h2 className="text-3xl font-bold mb-6">데이터 분석 서비스 FAQ</h2>
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              고객님들이 자주 문의하시는 질문과 답변을 모았습니다.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto space-y-6">
+            {[
+              {
+                question: "어떤 데이터를 업로드해야 하나요?",
+                answer:
+                  "POS에서 추출한 CSV, Excel 형식의 매출 데이터를 업로드하시면 됩니다. 날짜, 시간, 메뉴명, 가격, 수량 정보가 포함되어 있다면 더욱 정확한 분석이 가능합니다."
+              },
+              {
+                question: "분석 결과는 어떻게 확인하나요?",
+                answer:
+                  "분석 완료 후 웹사이트에서 바로 결과를 확인하실 수 있습니다. 시각화된 그래프와 함께 분석 결과와 인사이트를 제공해 드립니다."
+              },
+              {
+                question: "데이터 분석에 얼마나 시간이 걸리나요?",
+                answer:
+                  "일반적으로 데이터 업로드 후 1~2분 이내에 분석 결과를 받아보실 수 있습니다. 데이터 양에 따라 소요 시간이 달라질 수 있습니다."
+              }
+            ].map((faq, idx) => (
+              <div key={idx} className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="bg-bit-main text-white w-8 h-8 rounded-full flex items-center justify-center font-semibold">
+                      Q
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold">{faq.question}</h3>
+                    <p className="text-gray-700 mt-2">{faq.answer}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
 };
 
-export default FeatureIntroductionPage;
+export default DataAnalysisPage;
