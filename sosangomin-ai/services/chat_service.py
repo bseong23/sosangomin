@@ -278,7 +278,6 @@ class ChatService:
             return ""
     
     async def _load_eda_result(self, analysis_id: str) -> Optional[Dict]:
-        """EDA 분석 결과 로드"""
         try:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             result = analysis_results.find_one({
@@ -292,42 +291,42 @@ class ChatService:
             
             result["_id"] = str(result["_id"])
             
-            if "source_ids" in result:
-                if isinstance(result["source_ids"], list) and len(result["source_ids"]) > 0:
-                    result["source_ids"] = [str(source_id) for source_id in result["source_ids"]]
-                else:
-                    result["source_ids"] = []
+            if "source_ids" in result and isinstance(result["source_ids"], list):
+                result["source_ids"] = [str(source_id) for source_id in result["source_ids"]]
             
-            if "source_id" in result:
-                result["source_id"] = str(result["source_id"])
-            
+            logger.info(f"EDA 결과 로드 성공: {analysis_id}")
             return result
         except Exception as e:
             logger.error(f"EDA 결과 로드 중 오류: {str(e)}")
             return None
     
     def _prepare_eda_content(self, eda_result: Dict, user_message: str) -> str:
-        """EDA 결과를 Claude에 전달할 형식으로 준비"""
         try:
-            if not eda_result or "result_data" not in eda_result:
+            if "eda_result" in eda_result and "result_data" in eda_result["eda_result"]:
+                actual_result_data = eda_result["eda_result"]["result_data"]
+                overall_summary = eda_result["eda_result"].get("summary", "")
+            elif "result_data" in eda_result:  # 이전 구조도 지원
+                actual_result_data = eda_result["result_data"]
+                overall_summary = eda_result.get("summary", "")
+            else:
+                logger.warning("EDA 결과에 result_data가 없습니다.")
                 return ""
             
             keywords = self._extract_keywords_from_message(user_message)
+            logger.info(f"추출된 키워드: {keywords}")
             
             content = "데이터 분석 결과:\n\n"
             
-            if "summary" in eda_result:
-                content += f"전체 요약:\n{eda_result['summary'][:500]}...\n\n"
+            if overall_summary:
+                content += f"전체 요약:\n{overall_summary[:500]}...\n\n"
             
-            result_data = eda_result["result_data"]
-            
-            if "basic_stats" in result_data:
+            if "basic_stats" in actual_result_data:
                 content += "기본 통계:\n"
-                content += f"{json.dumps(result_data['basic_stats']['data'], ensure_ascii=False, indent=2)}\n\n"
+                content += f"{json.dumps(actual_result_data['basic_stats']['data'], ensure_ascii=False, indent=2)}\n\n"
             
-            for chart_name, chart_data in result_data.items():
+            for chart_name, chart_data in actual_result_data.items():
                 if chart_name == "basic_stats":
-                    continue  
+                    continue
                 
                 is_relevant = False
                 for keyword in keywords:
@@ -340,9 +339,10 @@ class ChatService:
                     content += f"{json.dumps(chart_data['data'], ensure_ascii=False, indent=2)}\n"
                     
                     if "summary" in chart_data:
-                        summary_extract = chart_data["summary"].split("\n")  
+                        summary_extract = chart_data["summary"].split("\n")
                         content += f"요약: {' '.join(summary_extract)}\n\n"
             
+            logger.info(f"EDA 컨텐츠 준비 완료: {len(content)} 바이트")
             return content
         except Exception as e:
             logger.error(f"EDA 콘텐츠 준비 중 오류: {str(e)}")
