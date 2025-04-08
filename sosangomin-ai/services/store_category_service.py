@@ -73,11 +73,6 @@ class StoreCategoryService:
                         break
                     start += limit
                     await asyncio.sleep(0.2)
-            # url = f"{self.base_url}/{self.store_api_key}/json/{self.store_service_name}/1/10000/"
-            # async with session.get(url) as response:
-            #     response.raise_for_status()
-            #     data = await response.json()
-            #     rows = data[self.store_service_name].get("row", [])
             df = pd.DataFrame(all_data)
             if df.empty:
                 return pd.DataFrame()
@@ -87,6 +82,7 @@ class StoreCategoryService:
             df["quarter"] = df["year_quarter"].str[4:].astype(int)
 
             df["region_name"] = df["ADSTRD_CD_NM"].str.replace("·", ".", regex=False)
+            df["region_name"] = df["region_name"].replace({"일원2동": "개포3동"}) # 일원2동 → 개포3동
             df["district_name"] = df["region_name"].map(self.dong_to_district)
             df["industry_name"] = df["SVC_INDUTY_CD_NM"]
             df["main_category"] = df["industry_name"].apply(self.get_main_category)
@@ -123,17 +119,6 @@ class StoreCategoryService:
                     start += limit
                     await asyncio.sleep(0.2)
                 
-            # url = f"{self.base_url}/{self.change_api_key}/json/{self.change_service_name}/1/1000/"
-            # async with session.get(url) as response:
-            #     content_type = response.headers.get("Content-Type", "")
-            #     if "application/json" not in content_type:
-            #         text = await response.text()
-            #         logger.error(f"API 응답이 JSON이 아님: {content_type}, 내용: {text}")
-            #         return pd.DataFrame()
-
-            #     response.raise_for_status()
-            #     data = await response.json()
-            #     rows = data[self.change_service_name].get("row", [])
             df = pd.DataFrame(all_data)
             if df.empty:
                 return pd.DataFrame()
@@ -141,7 +126,8 @@ class StoreCategoryService:
             df["year_quarter"] = df["STDR_YYQU_CD"]
             df["year"] = df["year_quarter"].str[:4].astype(int)
             df["quarter"] = df["year_quarter"].str[4:].astype(int)
-            df["region_name"] = df["ADSTRD_CD_NM"]
+            df["region_name"] = df["ADSTRD_CD_NM"].str.replace("·", ".", regex=False)
+            df["region_name"] = df["region_name"].replace({"일원2동": "개포3동"}) # 일원2동 → 개포3동
 
             return df
         except Exception as e:

@@ -44,7 +44,7 @@ class WorkingPopulationService:
         db = mariadb.pre_session()
 
         try:
-            logger.info("직장인구 데이터 업데이트 시작")
+            # logger.info("직장인구 데이터 업데이트 시작")
 
             async with aiohttp.ClientSession() as session:
                 data = await self.fetch_population_data(session, start_index, end_index)
@@ -58,9 +58,19 @@ class WorkingPopulationService:
                     logger.warning("가져올 직장 인구 데이터가 없습니다.")
                     return 0
                 
+                # 최신 분기만 필터링
+                # 모든 row의 STDR_YYQU_CD를 비교해서 가장 큰 값만 남김
+                latest_quarter = max(row.get("STDR_YYQU_CD") for row in rows if row.get("STDR_YYQU_CD"))
+                rows = [row for row in rows if row.get("STDR_YYQU_CD") == latest_quarter]
+                logger.info(f"{latest_quarter} 직장 인구 데이터 저장 중...")
+                
                 for row in rows:
                     try:
-                        adstrd_cd_nm=row.get("ADSTRD_CD_NM")
+                        adstrd_cd_nm = row.get("ADSTRD_CD_NM", "").replace("·", ".")
+
+                        # 특수 케이스 처리
+                        if adstrd_cd_nm == "일원2동":
+                            adstrd_cd_nm = "개포3동"
                         
                         # 기존 유동인구 테이블에서 region_name으로 검색
                         existing = db.query(Population).filter(
