@@ -19,7 +19,6 @@ export interface RelatedAnalyses {
 
 // 보고서 상세 정보 타입
 export interface FinalReportDetail {
-  _id: string;
   store_id: number;
   store_name: string;
   created_at: string;
@@ -43,7 +42,7 @@ export interface CreateFinalReportRequest {
 
 // 보고서 생성 응답 타입
 export interface CreateFinalReportResponse {
-  store_id: number;
+  report_id: string;
   store_name: string;
   created_at: string;
   swot_analysis: SWOTAnalysis;

@@ -2,10 +2,12 @@
 
 import { useState, useCallback, useEffect } from "react";
 import finalReportApi from "../api/finalReportApi";
+import useStoreStore from "@/store/storeStore"; // 경로는 실제 위치에 맞게 수정해주세요
 import {
   FinalReportDetail,
   FinalReportListItem,
   CreateFinalReportRequest,
+  CreateFinalReportResponse,
   ErrorResponse
 } from "../types/finalReport";
 
@@ -13,7 +15,7 @@ import {
 export const useCreateFinalReport = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorResponse | null>(null);
-  const [data, setData] = useState<FinalReportDetail | null>(null);
+  const [data, setData] = useState<CreateFinalReportResponse | null>(null);
 
   const createReport = useCallback(
     async (requestData: CreateFinalReportRequest) => {
@@ -22,18 +24,8 @@ export const useCreateFinalReport = () => {
 
       try {
         const response = await finalReportApi.createFinalReport(requestData);
-        // createFinalReport 응답 구조를 FinalReportDetail 형태로 변환
-        const finalReportDetail: FinalReportDetail = {
-          _id: response.store_id.toString(), // API 응답에 _id가 없어서 임시로 store_id를 사용
-          store_id: response.store_id,
-          store_name: response.store_name,
-          created_at: response.created_at,
-          swot_analysis: response.swot_analysis,
-          full_response: response.full_response,
-          related_analyses: response.related_analyses
-        };
-        setData(finalReportDetail);
-        return finalReportDetail;
+        setData(response);
+        return response;
       } catch (err) {
         const errorResponse = err as ErrorResponse;
         setError(errorResponse);
@@ -118,18 +110,35 @@ export const useFinalReportList = (storeId?: string) => {
 
 // 모든 종합분석 관련 상태를 관리하는 통합 훅
 export const useFinalReportManager = (initialStoreId?: string) => {
+  // 매장 스토어에서 데이터 가져오기
+  const { representativeStore, stores } = useStoreStore();
+
+  // 초기 매장 ID 결정 로직
+  const defaultStoreId =
+    initialStoreId ||
+    (representativeStore ? representativeStore.store_id.toString() : undefined);
+
   const [selectedReportId, setSelectedReportId] = useState<string | undefined>(
     undefined
   );
   const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(
-    initialStoreId
+    defaultStoreId
   );
+
+  // 매장 등록 여부 확인
+  const hasRegisteredStore = stores.length > 0;
+  // 현재 선택된 매장 정보
+  const currentStore = currentStoreId
+    ? stores.find((store) => store.store_id.toString() === currentStoreId) ||
+      null
+    : representativeStore;
 
   // 각 기능별 훅 사용
   const {
     createReport,
     isLoading: isCreating,
-    error: createError
+    error: createError,
+    data: createData
   } = useCreateFinalReport();
 
   const {
@@ -146,20 +155,28 @@ export const useFinalReportManager = (initialStoreId?: string) => {
     fetchReport
   } = useFinalReport(selectedReportId);
 
-  // 보고서 생성 핸들러
+  // 보고서 생성 핸들러 - 생성 후 해당 보고서의 상세 정보 조회
   const handleCreateReport = useCallback(
     async (storeId: string) => {
       try {
         const response = await createReport({ store_id: storeId });
-        if (response && currentStoreId === storeId) {
+
+        // 보고서 목록 새로고침
+        if (currentStoreId === storeId) {
           fetchReportList(storeId);
         }
+
+        // 생성된 보고서의 ID가 있으면 해당 보고서 상세 정보 조회
+        if (response && response.report_id) {
+          setSelectedReportId(response.report_id);
+        }
+
         return response;
       } catch (error) {
         throw error;
       }
     },
-    [createReport, currentStoreId, fetchReportList]
+    [createReport, currentStoreId, fetchReportList, setSelectedReportId]
   );
 
   // 매장 ID 변경 핸들러
@@ -173,12 +190,26 @@ export const useFinalReportManager = (initialStoreId?: string) => {
     setSelectedReportId(reportId);
   }, []);
 
+  // 매장이 없거나 선택된 매장이 없을 때, reportList나 reportDetail을 초기화
+  useEffect(() => {
+    if (!hasRegisteredStore || !currentStoreId) {
+      // 필요한 경우 상태 초기화 로직 추가
+    }
+  }, [hasRegisteredStore, currentStoreId]);
+
   return {
-    // 상태
+    // 매장 관련 상태
+    hasRegisteredStore,
+    stores,
+    representativeStore,
+    currentStore,
+
+    // 보고서 관련 상태
     currentStoreId,
     selectedReportId,
     reportList,
     reportDetail,
+    createData,
 
     // 로딩 상태
     isCreating,
