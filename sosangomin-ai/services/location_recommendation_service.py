@@ -224,7 +224,7 @@ class LocationRecomService:
         priority_weights = {col: 0.5 for col in ["타겟연령", "유동인구", "직장인구", "거주인구", "동일 업종 수", "업종 매출", "임대료", "집객시설 수", "접근성"]}
         
         for i, col in enumerate(priority):
-            priority_weights[col] = 3 - i  
+            priority_weights[col] = 2 - i*0.5  
 
         scaler = MinMaxScaler()
         score_components = pd.DataFrame()
@@ -268,7 +268,7 @@ class LocationRecomService:
     def assign_grades_by_quantile(self, df: pd.DataFrame) -> pd.DataFrame:
         """점수를 기반으로 행정동의 등급 부여"""
         # 점수 열을 기준으로 5개의 구간을 설정
-        labels = ['1등급', '2등급', '3등급', '4등급', '5등급']
+        labels = ['5등급', '4등급', '3등급', '2등급', '1등급']
         
         # 점수를 기준으로 5개 구간으로 나누는 Quantile Binning
         df['등급'] = pd.qcut(df['점수'], q=5, labels=labels)
