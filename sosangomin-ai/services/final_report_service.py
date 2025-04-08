@@ -284,7 +284,7 @@ class FinalReportService:
             report_id = final_reports.insert_one(final_report_doc).inserted_id
             
             return_report = {
-                "report_id": report_id,
+                "report_id": str(report_id),
                 "store_name": store_info.get("store_name", "알 수 없음") if store_info else "알 수 없음",
                 "created_at": datetime.now(),
                 "swot_analysis": swot_analysis,
