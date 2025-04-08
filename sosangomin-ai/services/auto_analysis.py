@@ -147,7 +147,9 @@ class AutoAnalysisService:
                         df[val] = df[columns].bfill(axis=1).iloc[:, 0]
                         df = df.drop(columns=columns)
 
+                logger.error(f'[df.dropna] 처리 전 {len(df)}')
                 df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
+                logger.error(f'[df.dropna] 처리 후 {len(df)}')
 
                 if df.shape[0] == 0:
                     logger.error("❌ 컬럼명 처리 직전에 데이터프레임이 비어있음. 열 이름 추출 불가.")
