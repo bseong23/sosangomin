@@ -11,23 +11,45 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
   const weekdaySales = data?.result_data?.weekday_sales?.data || {};
   const weekdaySalesSummary = data?.result_data?.weekday_sales?.summary || "";
 
-  const weekdaySalesLabels = Object.keys(weekdaySales).map((day) => {
-    const koreanDays: { [key: string]: string } = {
-      Monday: "월요일",
-      Tuesday: "화요일",
-      Wednesday: "수요일",
-      Thursday: "목요일",
-      Friday: "금요일",
-      Saturday: "토요일",
-      Sunday: "일요일"
-    };
-    return koreanDays[day] || day;
-  });
+  // 요일 순서 정의 (월요일부터 일요일까지)
+  const dayOrder = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ];
+
+  // 요일 이름 매핑
+  const koreanDays: { [key: string]: string } = {
+    Monday: "월요일",
+    Tuesday: "화요일",
+    Wednesday: "수요일",
+    Thursday: "목요일",
+    Friday: "금요일",
+    Saturday: "토요일",
+    Sunday: "일요일"
+  };
+
+  // 정렬된 데이터 배열 생성
+  const sortedEntries = dayOrder
+    .filter((day) => weekdaySales[day] !== undefined)
+    .map((day) => ({
+      day: day,
+      koreanDay: koreanDays[day] || day,
+      value: weekdaySales[day]
+    }));
+
+  // 정렬된 데이터에서 라벨과 값 추출
+  const weekdaySalesLabels = sortedEntries.map((entry) => entry.koreanDay);
+  const weekdaySalesValues = sortedEntries.map((entry) => entry.value);
 
   const weekdaySalesDatasets = [
     {
       label: "요일별 매출",
-      data: Object.values(weekdaySales),
+      data: weekdaySalesValues,
       backgroundColor: "rgba(75, 192, 192, 0.6)"
     }
   ];
@@ -43,6 +65,7 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
           labels={weekdaySalesLabels}
           datasets={weekdaySalesDatasets}
           height={350}
+          unit="원"
         />
       </div>
       <div className="mt-2 mb-2">

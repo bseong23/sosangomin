@@ -11,11 +11,23 @@ const TopProductsSection: React.FC<TopProductsSectionProps> = ({ data }) => {
   const topProducts = data?.result_data?.top_products?.data || {};
   const topProductsSummary = data?.result_data?.top_products?.summary || "";
 
-  const topProductsLabels = Object.keys(topProducts);
+  // 배열로 변환하여 정렬 (선택사항)
+  const topProductsArray = Object.entries(topProducts).map(([name, value]) => ({
+    name,
+    value
+  }));
+
+  // 값을 기준으로 내림차순 정렬 (선택사항)
+  topProductsArray.sort((a, b) => (b.value as number) - (a.value as number));
+
+  // 정렬된 배열에서 라벨과 데이터 추출
+  const topProductsLabels = topProductsArray.map((item) => item.name);
+  const topProductsValues = topProductsArray.map((item) => item.value);
+
   const topProductsDatasets = [
     {
       label: "상위 제품 매출",
-      data: Object.values(topProducts),
+      data: topProductsValues,
       backgroundColor: [
         "rgba(255, 99, 132, 0.6)",
         "rgba(54, 162, 235, 0.6)",
@@ -39,6 +51,7 @@ const TopProductsSection: React.FC<TopProductsSectionProps> = ({ data }) => {
           datasets={topProductsDatasets}
           height={350}
           horizontal={true}
+          unit="원"
         />
       </div>
       <div className="mt-2 mb-2">
