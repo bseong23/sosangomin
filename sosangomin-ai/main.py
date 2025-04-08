@@ -75,8 +75,8 @@ async def startup_event():
         logger.info("상권분석 스케줄링 완료")
         start_subway_station_scheduler()
         logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
-        start_weather_scheduler()
-        logger.info("날씨 데이터 수집 스케줄링 완료")
+        # start_weather_scheduler()
+        # logger.info("날씨 데이터 수집 스케줄링 완료")
         return
     
     # Linux/Unix 환경
@@ -98,6 +98,9 @@ async def startup_event():
         
             start_subway_station_scheduler()
             logger.info("지하철역/버스 정류장 위치 정보 스케줄링 완료")
+
+            # start_weather_scheduler()
+            # logger.info("날씨 데이터 수집 스케줄링 완료")
             
             app.state.lock_file = lock_file
             
