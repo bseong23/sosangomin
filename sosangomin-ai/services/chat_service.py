@@ -36,6 +36,8 @@ class ChatService:
         - 항상 2-3문장으로만 답변할 것.
         - 쉬운 말로 친근하게 대화할 것.
         - 자영업자의 고민에 공감하면서 실용적인 조언을 제공할 것.
+        - 중요한 점이나 단계를 설명할 때는 줄바꿈(\\n)을 사용하여 가독성을 높이세요.
+        - 항목을 나열할 때는 각 항목 앞에 - 를 붙이고 줄바꿈을 사용하세요.
         - 꼭 완성된 답변으로 제공하세요.
         
         제공된 검색 결과가 있다면 이를 기반으로 답변하되, 없는 내용을 지어내지 마세요.
@@ -191,9 +193,9 @@ class ChatService:
             )
               
             text = response.content[0].text
-            text = text.replace("\\n", " ").replace("\\t", " ")
-            text = text.replace("\n", " ").replace("\t", " ")
-            text = text.replace("\n\n", "")
+            # text = text.replace("\\n", " ").replace("\\t", " ")
+            # text = text.replace("\n", " ").replace("\t", " ")
+            # text = text.replace("\n\n", "")
             return text
         except Exception as e:
             logger.error(f"Claude API 오류: {str(e)}")
