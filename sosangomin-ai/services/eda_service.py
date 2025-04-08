@@ -170,15 +170,48 @@ class EdaService:
                 
                 try:
                     file_ext = os.path.splitext(filename)[1].lower()
+                    
+                    # 파일 크기 확인
+                    file_size_mb = os.path.getsize(local_path) / (1024 * 1024)
+                    logger.info(f"파일 '{filename}' 크기: {file_size_mb:.2f}MB")
+                    
+                    # 파일이 비어있는지 확인
+                    if os.path.getsize(local_path) == 0:
+                        raise ValueError(f"파일 '{filename}'이 비어있습니다.")
+                    
+                    # 파일 크기에 따른 처리
                     if file_ext == '.xlsx' or file_ext == '.xls':
-                        df = pd.read_excel(local_path, header=2, engine='openpyxl')
+                        if file_size_mb > 3:
+                            # 대용량 엑셀 파일 특별 처리
+                            logger.info(f"대용량 엑셀 파일({file_size_mb:.2f}MB) 특별 처리")
+                            excel_file = pd.ExcelFile(local_path)
+                            sheet_name = excel_file.sheet_names[0]  # 첫 번째 시트 사용
+                            
+                            # 데이터 행이 있는지 미리 확인
+                            sample_df = pd.read_excel(excel_file, sheet_name=sheet_name, header=None, nrows=5)
+                            if sample_df.empty:
+                                raise ValueError(f"파일 '{filename}'의 첫 번째 시트가 비어 있습니다.")
+                            
+                            df = pd.read_excel(excel_file, sheet_name=sheet_name, header=2)
+                        else:
+                            # 일반 크기 엑셀 파일 처리
+                            df = pd.read_excel(local_path, header=2, engine='openpyxl')
                     elif file_ext == '.csv':
                         df = pd.read_csv(local_path, header=2)
                     else:
                         raise ValueError(f"지원하지 않는 파일 형식입니다: {file_ext}")
+                    
+                    # 데이터프레임이 비어있는지 확인
+                    if df.empty:
+                        raise ValueError(f"파일 '{filename}'에서 읽은 데이터프레임이 비어 있습니다.")
+                    
+                    # 전처리 전 데이터프레임 정보 로깅
+                    logger.info(f"전처리 전 데이터프레임: 행 수={df.shape[0]}, 열 수={df.shape[1]}")
+                    logger.info(f"전처리 전 열 목록: {df.columns.tolist()}")
 
-            
+                    # 전처리 수행
                     df = await autoanalysis_service.preprocess_data(df, pos_type)
+                    
                     logger.info(f"전처리 완료: 행 수={df.shape[0]}, 열 수={df.shape[1]}")
                     logger.info(f"전처리 후 열: {df.columns.tolist()}")
                     logger.info(f"'매출' 열 존재 여부: {'매출' in df.columns}")
