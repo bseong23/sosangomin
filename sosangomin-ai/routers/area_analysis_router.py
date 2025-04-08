@@ -108,7 +108,7 @@ if __name__ == "__main__":
         print_response("매출 분석 테스트", response)
 
     # 개별 테스트 실행
-    test_summary()
+    # test_summary()
     # test_population()
     # test_category()
-    # test_sales()
+    test_sales()
