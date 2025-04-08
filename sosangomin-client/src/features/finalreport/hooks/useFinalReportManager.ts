@@ -125,8 +125,8 @@ export const useFinalReportManager = (initialStoreId?: string) => {
     defaultStoreId
   );
 
-  // 매장 등록 여부 확인
-  const hasRegisteredStore = stores.length > 0;
+  // 매장 등록 여부 확인 - 대표 매장도 체크해야 함
+  const hasRegisteredStore = representativeStore !== null || stores.length > 0;
   // 현재 선택된 매장 정보
   const currentStore = currentStoreId
     ? stores.find((store) => store.store_id.toString() === currentStoreId) ||

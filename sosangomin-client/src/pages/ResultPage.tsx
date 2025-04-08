@@ -149,15 +149,10 @@ const ResultPage: React.FC = () => {
     );
   }
 
-  // 기본 데이터가 로딩 중인 경우
+  // 대표 매장이 없는 경우 로딩 화면 표시
   if (!representativeStore) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Loading />
-      </div>
-    );
+    return <div className="text-center py-10">대표 매장을 선택해주세요.</div>;
   }
-
   // 헤더에 사용할 보고서 데이터 결정 (없으면 빈 객체)
   // HeaderComponent에 전달할 데이터 객체 생성
   const headerData: FinalReportDetail = reportDetail || {
