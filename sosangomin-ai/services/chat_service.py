@@ -112,7 +112,7 @@ class ChatService:
         try:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             result = analysis_results.find_one(
-                {"store_id": store_id, "analysis_type": "eda"},
+                {"store_id": store_id, "analysis_type": "combined_analysis"},
                 sort=[("created_at", -1)]  
             )
             
@@ -275,7 +275,7 @@ class ChatService:
             analysis_results = mongo_instance.get_collection("AnalysisResults")
             result = analysis_results.find_one({
                 "_id": ObjectId(analysis_id),
-                "analysis_type": "eda" 
+                "analysis_type": "combined_analysis" 
             })
             
             if not result:
