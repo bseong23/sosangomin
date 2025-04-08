@@ -103,7 +103,7 @@ class AutoAnalysisService:
                 header_values = set(df.columns.tolist()) 
                 columns_to_drop = [col for col in df.columns if any(df[col].astype(str).isin(header_values))]
                 df = df.drop(columns=columns_to_drop)
-                
+
                 if df.empty:
                     raise ValueError("전처리 결과가 비어 있습니다. 엑셀 파일의 구조가 예상과 다를 수 있습니다.")
                 # 결측 및 중복 처리 
@@ -133,7 +133,9 @@ class AutoAnalysisService:
                 # 컬럼명 수정
                 new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
                 df.columns = new_columns
+                logger.info(f"[전처리 전] df shape: {df.shape}")
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
+                logger.info(f"[컬럼 정리 후] df shape: {df.shape}")
 
                 if df.empty:
                     logger.warning("컬럼명 처리 후 데이터프레임이 비어 있습니다.")
