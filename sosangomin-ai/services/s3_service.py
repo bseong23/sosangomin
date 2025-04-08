@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 from fastapi import UploadFile, HTTPException
 from dotenv import load_dotenv
+from boto3.s3.transfer import TransferConfig
 
 # 환경변수 로드
 load_dotenv()
@@ -64,16 +65,29 @@ def get_s3_presigned_url(s3_key: str, expiration: int = 3600) -> str:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate URL: {str(e)}")
 
-# 파일 다운로드
 async def download_file_from_s3(s3_key: str, local_path: str) -> str:
     try:
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        
+        config = TransferConfig(
+            multipart_threshold=1 * 1024 * 1024,  
+            max_concurrency=10,
+            multipart_chunksize=1 * 1024 * 1024,  
+            use_threads=True
+        )
+        
         s3_client.download_file(
             S3_BUCKET_NAME,
             s3_key,
-            local_path
+            local_path,
+            Config=config
         )
-        return local_path
+        
+        if os.path.exists(local_path) and os.path.getsize(local_path) > 0:
+            return local_path
+        else:
+            raise Exception("Downloaded file is empty or does not exist")
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"S3 download error: {str(e)}")
 
