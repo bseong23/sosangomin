@@ -166,7 +166,8 @@ class WeatherService:
         month = int(date[4:6])
         last_day = calendar.monthrange(year, month)[1]
         today = datetime.today()
-
+        
+        end_day = last_day
         # 만약 이번 달인데 오늘이 마지막 날보다 작으면 -> 어제 날짜로 제한
         if year == today.year and month == today.month:
             end_day = min(today.day, last_day) - 1
