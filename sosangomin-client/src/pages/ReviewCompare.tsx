@@ -383,7 +383,10 @@ const ReviewCompare: React.FC = () => {
         !loading &&
         !selectedLocation &&
         useCompetitorStore.getState().selectedComparisonId !== null && (
-          <ImprovedCompetitorReportSection data={selectedComparisonFull} />
+          <ImprovedCompetitorReportSection
+            key={useCompetitorStore.getState().selectedComparisonId}
+            data={selectedComparisonFull}
+          />
         )}
 
       {isMapModalOpen && (
