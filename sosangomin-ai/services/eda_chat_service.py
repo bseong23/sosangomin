@@ -65,7 +65,7 @@ class EdaChatService:
             
             prompt_template = chart_prompts.get(
                 chart_type, 
-                "이 데이터는 {}입니다. 초보자도 쉽게 이해할 수 있도록 간단하게 설명해주세요."
+                "이 데이터는 {}입니다. 적절히 줄바꿈(\\n)과 띄어쓰기를 사용하여 가독성을 높이세요. 초보자도 쉽게 이해할 수 있도록 간단하게 설명해주세요."
             )
             
             data_str = str(data)
