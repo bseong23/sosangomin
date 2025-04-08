@@ -132,6 +132,11 @@ class AutoAnalysisService:
                 new_columns = [df.iloc[0, i] if 'Unnamed' in str(col) else col for i, col in enumerate(df.columns)]
                 df.columns = new_columns
                 df = df[~df.apply(lambda row: any(row.astype(str).isin(new_columns)), axis=1)]
+
+                if df.empty:
+                    logger.warning("컬럼명 처리 후 데이터프레임이 비어 있습니다.")
+                    raise ValueError("컬럼명 처리 후 데이터프레임이 비어 있습니다. 데이터 구조를 확인하세요.")
+                
                 df = df.loc[:, df.nunique() > 1]  
                 
                 # 매출 
