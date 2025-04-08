@@ -8,7 +8,6 @@ import TopProductsSection from "./TopProductsSection";
 import WeekdaySalesSection from "./WeekdaySalesSection";
 import DistributionSection from "./DistributionSection";
 import SeasonalSalesSection from "./SeasonalSalesSection";
-import StrategySection from "./StrategySection";
 import AnalysisSelector from "./AnalysisSelector";
 import Loading from "@/components/common/Loading";
 import useAnalysisStore from "@/store/useAnalysisStore";
@@ -374,18 +373,6 @@ const AnalysisDashboard: React.FC = () => {
 
         {/* 제품 점유율 섹션 */}
         <ProductShareSection data={data} />
-
-        <StrategySection
-          data={
-            originalApiData?.analysis_result
-              ? {
-                  ...data,
-                  auto_analysis_results:
-                    originalApiData.analysis_result.auto_analysis_results
-                }
-              : data
-          }
-        />
 
         {/* 상품 클러스터 분석 섹션 */}
         {originalApiData?.analysis_result && (
