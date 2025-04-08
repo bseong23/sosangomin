@@ -287,7 +287,7 @@ class LocationRecomService:
         avg_data = result[[
             "타겟연령_비율", "타겟연령_수", "업종_평균_매출", "임대료",
             "유동인구(면적당)", "직장인구(면적당)", "거주인구(면적당)",
-            "동일업종_수(면적당)", "집객시설(면적당)", "접근성"
+            "동일업종_수(면적당)", "집객시설(면적당)"
         ]].mean().to_dict()
         avg_data = self.round_values(avg_data, 2)
 
@@ -296,7 +296,7 @@ class LocationRecomService:
         top_locations = top_locations[[
             "행정동명", "타겟연령_비율", "타겟연령_수", "업종_평균_매출", "임대료",
             "유동인구(면적당)", "직장인구(면적당)", "거주인구(면적당)",
-            "동일업종_수(면적당)", "집객시설(면적당)", "접근성"
+            "동일업종_수(면적당)", "집객시설(면적당)"
         ]]
         top_locations = top_locations.round(2)
 
