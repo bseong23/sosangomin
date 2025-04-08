@@ -39,79 +39,76 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ title, description }) => {
 const DataAnalysisPage: React.FC = () => {
   const featureCards = [
     {
-      title: "매출 데이터 분석",
-      headerColor: "bg-bit-main",
-      image: service1,
-      points: [
-        {
-          title: "일별, 월별, 요일별 매출 추이",
-          description: "날짜별 매출 데이터를 분석하여 트렌드를 파악합니다."
-        },
-        {
-          title: "요일별, 시간대별 매출 패턴",
-          description:
-            "고객 방문이 많은 시간대를 찾아 효율적인 인력 배치가 가능합니다."
-        },
-        {
-          title: "매출액 분석",
-          description:
-            "고객당 평균 지출액을 분석하여 매출 증대 전략을 수립할 수 있습니다."
-        }
-      ]
+        title: "매출 데이터 분석",
+        headerColor: "bg-bit-main",
+        image: service1,
+        points: [
+            {
+                title: "요일 및 시간대별 매출 분석",
+                description: "요일, 시간대, 평일·주말별 매출 분포를 분석해 방문 집중 구간을 파악합니다."
+            },
+            {
+                title: "계절 및 날씨에 따른 매출 변화",
+                description: "계절과 날씨에 따른 매출 변화를 분석해 시기별 운영 전략 수립에 활용합니다."
+            },
+            {
+                title: "30일 매출 예측",
+                description: "최근 데이터를 기반으로 향후 30일간의 매출 흐름을 예측해 사전 대응에 도움을 줍니다."
+            }
+        ]
     },
     {
-      title: "상품 판매 분석",
-      headerColor: "bg-bit-main",
-      image: service2,
-      points: [
-        {
-          title: "상품별 판매량 및 매출 기여도",
-          description: "각 상품의 판매 성과를 확인할 수 있습니다."
-        },
-        {
-          title: "인기 상품 및 부진 상품 분석",
-          description:
-            "인기 있는 상품과 부진한 상품을 파악하여 재고 관리를 최적화합니다."
-        },
-        {
-          title: "상품 조합 분석",
-          description:
-            "함께 판매되는 상품 패턴을 분석하여 번들링 전략을 수립합니다."
-        }
-      ]
+        title: "상품 판매 분석",
+        headerColor: "bg-bit-main",
+        image: service2,
+        points: [
+            {
+                title: "인기 상품 분석",
+                description:
+                "판매량을 기준으로 상품의 인기도를 분석해 상위 인기 제품을 도출합니다."
+            },
+            {
+                title: "상품별 판매 성과 분석",
+                description: "판매 금액을 기준으로 매출 기여도가 높은 핵심 제품을 식별합니다."
+            },
+            {
+                title: "상품 조합 분석",
+                description:
+                    "자주 함께 구매되는 상품 조합을 분석해 세트 구성 및 교차 판매 전략을 도출합니다."
+            }
+        ]
     },
     {
-      title: "고객 행동 패턴 분석",
-      headerColor: "bg-bit-main",
-      image: service3,
-      points: [
-        {
-          title: "고객 방문 시간 패턴",
-          description: "고객이 주로 방문하는 시간대를 분석합니다."
-        },
-        {
-          title: "날씨와 매출 관계 분석",
-          description: "날씨 조건에 따른 매출 변화를 파악할 수 있습니다."
-        },
-        {
-          title: "계절별 매출 패턴",
-          description:
-            "계절에 따른 매출 변화를 분석하여 시즌별 전략을 수립합니다."
-        }
-      ]
+        title: "데이터 분석 기반 전략 제안", 
+        headerColor: "bg-bit-main",
+        image: service3,
+        points: [
+            {
+                title: "핵심 요약",
+                description: "POS 데이터를 분석해 매출, 상품, 고객 흐름 등 주요 내용을 한눈에 정리해 제공합니다."
+            },
+            {
+                title: "운영 전략 제안",
+                description: "분석 결과를 바탕으로 시간대, 요일, 메뉴 구성 등 다양한 맞춤형 운영 전략을 제안합니다."
+            },
+            {
+                title: "데이터 기반 인사이트 제공",
+                description: "숫자로만 보던 데이터를 쉽게 해석할 수 있도록 시각화하고, 해석 중심의 인사이트를 전달합니다."
+            }
+        ]
     }
   ];
 
   const insights = [
-    "월요일과 목요일에 신규 고객 방문이 20% 증가했습니다.",
-    "아메리카노와 베이글을 함께 구매하는 패턴이 35% 증가했습니다.",
-    "저녁 6-8시에 매출이 가장 높으며, 총 매출의 28%를 차지합니다."
+    "주말(토요일·일요일) 매출이 평일 대비 평균 15% 높게 나타났습니다.",
+    "매출 상위 3개 제품은 모두 소형 사이즈로, 고객이 작은 단위의 제품을 선호하는 경향이 확인됩니다.",
+    "점심시간(12시13시)과 저녁 피크타임(18시19시)에 각각 하루 매출의 20% 이상이 집중되어 있습니다."
   ];
 
   const recommendations = [
-    "월요일과 목요일에 '아침 시작 세트' 프로모션을 진행해보세요.",
-    "아메리카노와 베이글 세트 메뉴를 구성해 10% 할인된 가격으로 제공하세요.",
-    "점심보다는 저녁 피크 타임에 인력을 보강해 대기 시간을 줄이고 매출을 극대화하세요."
+    "주말에는 매출이 높은 인기 메뉴 위주로 구성한 세트 상품을 진열대 앞쪽에 배치하고, '주말 한정' 스티커로 시선을 끌어보세요.",
+    "소형 사이즈 제품이 잘 팔리는 특성을 활용해, 아메리카노 + 미니 베이글 세트를 500원 할인된 가격에 제공해보세요.",
+    "점심·저녁 피크타임에는 포장 전용 직원이나 키오스크 유도를 통해 회전율을 높이고, 대기 줄을 줄이는 데 집중하세요."
   ];
 
   const steps = [
@@ -182,7 +179,7 @@ const DataAnalysisPage: React.FC = () => {
               },
               {
                 title: "맞춤형 운영 추천",
-                description: "데이터에 기반한 실행 가능한 개선 방안 제공"
+                description: "매장 데이터를 바탕으로 실질적인 운영 개선 방안 제시"
               }
             ].map((item, idx) => (
               <FeatureItem
@@ -211,19 +208,6 @@ const DataAnalysisPage: React.FC = () => {
         </section> */}
 
         {/* 주요 기능 섹션 */}
-        <section className="py-16">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-words text-bit-main font-semibold mb-4">
-              서비스 소개
-            </span>
-            <h2 className="text-3xl break-words font-bold mb-6">
-              복잡한 데이터를 쉬운 인사이트로
-            </h2>
-            <p className="text-lg break-words text-gray-700 max-w-2xl mx-auto">
-              소상공인을 위한 데이터 분석 서비스는 복잡한 POS 데이터를 쉽게
-              이해할 수 있는 인사이트로 변환해 드립니다.
-            </p>
-          </div>
           {/* <div className="text-center mb-16">
             <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
               핵심 기능
@@ -236,6 +220,20 @@ const DataAnalysisPage: React.FC = () => {
               제공합니다.
             </p>
           </div> */}
+        <section className="py-16">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-words text-bit-main font-semibold mb-4">
+              서비스 소개
+            </span>
+            <h2 className="text-3xl break-words font-bold mb-6 text-center">
+                복잡한 POS 데이터, 한눈에 보이는 인사이트로
+            </h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto text-center break-keep">
+                소상고민의 데이터 분석 서비스는 
+                복잡한 POS 데이터를 자동으로 분석해,<br/>
+                누구나 이해할 수 있는 인사이트와 운영 전략을 제공합니다.
+            </p>
+          </div>
 
           <div className="space-y-12">
             {featureCards.map((card, index) => (
@@ -251,7 +249,7 @@ const DataAnalysisPage: React.FC = () => {
         </section>
 
         {/* 인사이트 예시 카드 */}
-        <section className="py-17 bg-gradient-to-b from-white to-gray-50">
+        <section className="py-17 from-white to-gray-50">
           <div className="text-center">
             <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
               실제 인사이트
@@ -266,7 +264,7 @@ const DataAnalysisPage: React.FC = () => {
             <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
               이용 방법
             </span>
-            <h2 className="text-3xl font-bold mb-6">데이터 분석 진행 과정</h2>
+            <h2 className="text-3xl font-bold mb-6">데이터 분석 이용 방법</h2>
             <p className="text-lg text-gray-700 max-w-2xl mx-auto">
               간단한 4단계 과정으로 누구나 쉽게 데이터 분석을 진행할 수
               있습니다.
@@ -282,9 +280,9 @@ const DataAnalysisPage: React.FC = () => {
               고객 후기
             </span>
             <h2 className="text-3xl font-bold mb-6">실제 사용 고객의 후기</h2>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              소상고민의 데이터 분석 서비스를 이용한 고객들의 실제 후기를
-              확인해보세요.
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto break-keep">
+            소상고민의 데이터 분석 서비스를 이용한 
+            고객들의 실제 후기를 확인해보세요.
             </p>
           </div>
 
@@ -343,12 +341,12 @@ const DataAnalysisPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6 break-keep">
             {[
               {
                 question: "어떤 데이터를 업로드해야 하나요?",
                 answer:
-                  "POS에서 추출한 CSV, Excel 형식의 매출 데이터를 업로드하시면 됩니다. 날짜, 시간, 메뉴명, 가격, 수량 정보가 포함되어 있다면 더욱 정확한 분석이 가능합니다."
+                  "POS에서 추출한 CSV 또는 Excel 형식의 매출 데이터를 업로드하시면 됩니다. 날짜, 시간, 메뉴명, 가격, 수량 정보는 분석을 위해 반드시 포함되어야 합니다."
               },
               {
                 question: "분석 결과는 어떻게 확인하나요?",
