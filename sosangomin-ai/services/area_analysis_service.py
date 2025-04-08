@@ -259,7 +259,7 @@ class AreaAnalysisService:
     #  업종 데이터 분석 
     # =====================
     def get_main_category_store_count(self, db: Session, region_name: str) -> List[Dict[str, Any]]:
-        """업종 분석 : 특정 행정동 기준 최신 4개 분기의 main_category별 점포 수 합계 조회"""
+        """업종 분석 : 특정 행정동 기준 최신 4개 분기의 main_category별 점포 수 증감률(%) 조회 (직전 분기와 비교, 0일 경우 None 처리, 최초 분기 제외)"""
         try:
             # 최신 4개 (year, quarter) 조합
             subquery = (
@@ -270,7 +270,6 @@ class AreaAnalysisService:
                 .subquery()
             )
 
-            # 해당 분기들의 main_category별 점포 수 합계 조회
             result = (
                 db.query(
                     StoreCategories.year,
@@ -285,26 +284,75 @@ class AreaAnalysisService:
                 .all()
             )
 
-            # 결과 변환
-            grouped_data = defaultdict(lambda: {
-                "year": None,
-                "quarter": None,
-                "main_category_store_count": {}
-            })
-
+            # 데이터를 {(year, quarter): {main_category: store_count}} 형태로 변환
+            data = defaultdict(dict)
             for row in result:
-                key = (row.year, row.quarter)
-                grouped_data[key]["year"] = row.year
-                grouped_data[key]["quarter"] = row.quarter
-                grouped_data[key]["main_category_store_count"][row.main_category] = row.store_count
+                data[(row.year, row.quarter)][row.main_category] = row.store_count
 
-            final_result = sorted(grouped_data.values(), key=lambda x: (x["year"], x["quarter"]), reverse=True)
+            # 분기 최신순 정렬
+            sorted_periods = sorted(data.keys(), reverse=True)
 
-            return final_result
-        
+            growth_rate_trend = []
+            summary = None
+
+            for idx in range(len(sorted_periods) - 1):  # 마지막 분기 제외 → 최근 3개 분기 추세
+                current_period = sorted_periods[idx]
+                prev_period = sorted_periods[idx + 1]
+
+                year, quarter = current_period
+                current_counts = data[current_period]
+                prev_counts = data[prev_period]
+
+                # 5. 업종별 증감률 계산
+                growth_rate_dict = {}
+                for category, current_count in current_counts.items():
+                    prev_count = prev_counts.get(category, 0)
+                    if prev_count == 0:
+                        growth_rate = None
+                    else:
+                        growth_rate = round((current_count - prev_count) / prev_count * 100, 2)
+                    growth_rate_dict[category] = growth_rate
+
+                # 6. 최신 분기에 대해서 summary 생성
+                if idx == 0:
+                    food_growth = growth_rate_dict.get("외식업")
+                    retail_growth = growth_rate_dict.get("도소매업")
+                    service_growth = growth_rate_dict.get("서비스업")
+
+                    current_total = sum(current_counts.values())
+                    prev_total = sum(prev_counts.values())
+                    food_curr = current_counts.get("외식업", 0)
+                    food_prev = prev_counts.get("외식업", 0)
+
+                    food_share_curr = food_curr / current_total * 100 if current_total > 0 else 0
+                    food_share_prev = food_prev / prev_total * 100 if prev_total > 0 else 0
+
+                    summary = self.generate_store_count_insight_summary(
+                        food_growth,
+                        food_share_prev,
+                        food_share_curr,
+                        retail_growth,
+                        service_growth
+                    )
+
+                # 7. 결과 저장
+                growth_rate_trend.append({
+                    "year": year,
+                    "quarter": quarter,
+                    "main_category_store_count_growth_rate": growth_rate_dict
+                })
+
+            return {
+                "growth_rate_trend": growth_rate_trend,
+                "summary": summary
+            }
+
         except Exception as e:
-            logger.error(f"상권 분석 main_category 점포 수 조회 중 오류: {e}")
-            return []
+            logger.error(f"상권 분석 main_category 점포 증감률 분석 중 오류 : {e}")
+            return {
+                "growth_rate_trend": [],
+                "summary": None
+            }
     
         
     def get_food_store_category_stats(self, db: Session, region_name: str, industry_name: str) -> Dict[str, Any]:
@@ -360,6 +408,8 @@ class AreaAnalysisService:
             result = {
                 "기준 연도": year,
                 "기준 분기": quarter,
+                "행정동 이름": region_name,
+                "자치구 이름": district_name,
                 "행정동": get_area_stats("region_name", region_name),
                 "자치구": get_area_stats("district_name", district_name),
                 "서울시": get_area_stats()
@@ -476,6 +526,8 @@ class AreaAnalysisService:
             # 결과 딕셔너리 반환
             return {
                 "기준 연도": year,
+                "행정동 이름": region_name,
+                "자치구 이름": district_name,
                 "행정동 운영 영업 개월 평균": round(region_row.open_avg, 1) if region_row.open_avg else None,
                 "행정동 폐업 영업 개월 평균": round(region_row.close_avg, 1) if region_row.close_avg else None,
                 "자치구 운영 영업 개월 평균": round(district_row.open_avg, 1) if district_row.open_avg else None,
@@ -488,12 +540,67 @@ class AreaAnalysisService:
             logger.error(f"영업 개월 평균 분석 중 오류 발생: {e}")
             return {}
         
+    def generate_store_count_insight_summary(self, food_growth: float, food_share_prev: float, food_share_curr: float, retail_growth: float, service_growth: float ) -> str:
+        try:
+            # 외식업 증감 해석
+            if food_growth is None:
+                food_part = "외식업 점포 수는 직전 분기와 비교할 수 없습니다."
+            elif food_growth > 0:
+                food_part = f"외식업 점포 수는 직전 분기 대비 {round(food_growth, 1)}% 증가해 경쟁이 다소 심화되는 모습입니다."
+            elif food_growth < 0:
+                food_part = f"외식업 점포 수는 {abs(round(food_growth, 1))}% 감소해 일부 점포가 정리되는 흐름을 보였습니다."
+            else:
+                food_part = "외식업 점포 수는 직전 분기와 동일한 수준을 유지했습니다."
+
+            # 비중 변화 해석
+            share_change_text = ""
+            if food_share_curr > food_share_prev:
+                share_change_text = f" 전체 업종 중 외식업 점유율은 {round(food_share_prev, 1)}%에서 {round(food_share_curr, 1)}%로 증가해 상권 내 비중이 확대되었습니다."
+            elif food_share_curr < food_share_prev:
+                share_change_text = f" 외식업 점유율은 {round(food_share_prev, 1)}%에서 {round(food_share_curr, 1)}%로 줄어 상권 내 외식업 비중이 다소 낮아졌습니다."
+            else:
+                share_change_text = f" 외식업 점유율은 {round(food_share_curr, 1)}%로 변함이 없었습니다."
+
+            # 타 업종과 비교
+            comparison_parts = []
+            if retail_growth is not None:
+                if retail_growth > 0:
+                    comparison_parts.append("도소매업 점포 수는 증가")
+                elif retail_growth < 0:
+                    comparison_parts.append("도소매업 점포 수는 감소")
+
+            if service_growth is not None:
+                if service_growth > 0:
+                    comparison_parts.append("서비스업 점포 수는 증가")
+                elif service_growth < 0:
+                    comparison_parts.append("서비스업 점포 수는 감소")
+
+            comparison_summary = ""
+            if comparison_parts:
+                comparison_summary = " / " + " / ".join(comparison_parts) + "한 것으로 나타났습니다."
+
+            # 최종 결론
+            conclusion = ""
+            if food_growth is not None and food_growth > 0 and food_share_curr > food_share_prev:
+                conclusion = " 외식업 진입이 활발해지고 있는 시점으로 판단됩니다."
+            elif food_growth is not None and food_growth < 0 and food_share_curr < food_share_prev:
+                conclusion = " 외식업 비중과 점포 수가 함께 줄어드는 흐름으로, 시장 위축 가능성이 있습니다."
+            elif food_growth is not None and food_growth > 0 and (retail_growth is not None and retail_growth < 0):
+                conclusion = " 외식업은 증가하는 반면 도소매업은 줄어들어 외식업 중심으로 전환되는 가능성이 있습니다."
+            else:
+                conclusion = ""
+
+            return food_part + share_change_text + comparison_summary + conclusion
+
+        except Exception as e:
+            return f"요약 생성 중 오류 발생: {e}"
+            
     # =====================
     #  매출 데이터 분석 
     # =====================
 
     def get_main_category_sales_count(self, db: Session, region_name: str) -> List[Dict[str, Any]]:
-        """대분류별 매출 건수 추세 (최근 4개 분기)"""
+        """대분류별 매출 건수 증감률 추세 (최근 4개 분기 기준, 직전 분기와 비교, 0일 경우 None, 최초 분기 제외)"""
         try:
             subquery = (
                 db.query(SalesData.year, SalesData.quarter)
@@ -517,19 +624,69 @@ class AreaAnalysisService:
                 .all()
             )
 
-            trend = defaultdict(lambda: {"year": None, "quarter": None, "main_category_sales_count": {}})
-
+            # {(year, quarter): {main_category: sales_count}} 형태로 정리
+            data = defaultdict(dict)
             for row in results:
-                key = (row.year, row.quarter)
-                trend[key]["year"] = row.year
-                trend[key]["quarter"] = row.quarter
-                trend[key]["main_category_sales_count"][row.main_category] = row.total_sales_count
+                data[(row.year, row.quarter)][row.main_category] = row.total_sales_count
 
-            return sorted(trend.values(), key=lambda x: (x["year"], x["quarter"]), reverse=True)
+            # 분기 정렬 (최신순)
+            sorted_periods = sorted(data.keys(), reverse=True)
 
+            growth_rate_trend = []
+            summary = None 
+            for idx in range(len(sorted_periods) - 1):  # 가장 오래된 분기 제외
+                current_period = sorted_periods[idx]
+                prev_period = sorted_periods[idx + 1]
+
+                year, quarter = current_period
+                current_counts = data[current_period]
+                prev_counts = data[prev_period]
+
+                # 증감률 계산 
+                growth_rate_dict = {}
+                for category, current_count in current_counts.items():
+                    prev_count = prev_counts.get(category, 0)
+                    if prev_count == 0:
+                        growth_rate = None
+                    else:
+                        growth_rate = round((current_count - prev_count) / prev_count * 100, 2)
+                    growth_rate_dict[category] = growth_rate
+
+                
+                # 최신 분기에 대해서만 summary 생성
+                if idx == 0:
+                    food_growth = growth_rate_dict.get("외식업")
+                    retail_growth = growth_rate_dict.get("도소매업")
+                    service_growth = growth_rate_dict.get("서비스업")
+
+                    current_total = sum(current_counts.values())
+                    prev_total = sum(prev_counts.values())
+                    food_prev_count = prev_counts.get("외식업", 0)
+                    food_curr_count = current_counts.get("외식업", 0)
+                    
+                    food_share_prev = food_prev_count / prev_total * 100 if prev_total > 0 else 0
+                    food_share_curr = food_curr_count / current_total * 100 if current_total > 0 else 0
+                    
+                    summary = self.generate_food_sales_insight_summary(food_growth, food_share_prev, food_share_curr, retail_growth, service_growth)
+
+
+                growth_rate_trend.append({
+                    "year": year,
+                    "quarter": quarter,
+                    "main_category_sales_count_growth_rate": growth_rate_dict
+                })
+
+            return {
+                "growth_rate_trend": growth_rate_trend,
+                "summary": summary
+            }
+        
         except Exception as e:
-            logger.error(f"대분류별 매출 추세 분석 중 오류: {e}")
-            return []
+            logger.error(f"상권 분석 main_category 매출 건수 증감률 분석 중 오류: {e}")
+            return {
+                "growth_rate_trend": [],
+                "summary": None
+            }
 
     def get_food_store_sales_stats(self, db: Session, region_name: str, industry_name: str) -> Dict[str, Any]:
         """외식업 매출 건수 기준 상위 업종 및 내 업종 순위 (서울시/자치구/행정동 기준)"""
@@ -566,6 +723,8 @@ class AreaAnalysisService:
                 }
 
             return {
+                "행정동 이름": region_name,
+                "자치구 이름": district_name,
                 "행정동": get_area_sales("region_name", region_name),
                 "자치구": get_area_sales("district_name", district_name),
                 "서울시": get_area_sales()
@@ -674,12 +833,12 @@ class AreaAnalysisService:
                 )
 
                 result["매출금액"][dim] = {
-                    "내 지역": round(dong_row[0], 1) if dong_row[0] else 0,
-                    "서울 평균": round(seoul_row[0], 1) if seoul_row[0] else 0
+                    "내 지역": int(round(dong_row[0], 0)) if dong_row[0] else 0,
+                    "서울 평균": int(round(seoul_row[0], 0)) if seoul_row[0] else 0
                 }
                 result["매출건수"][dim] = {
-                    "내 지역": round(dong_row[1], 1) if dong_row[1] else 0,
-                    "서울 평균": round(seoul_row[1], 1) if seoul_row[1] else 0
+                    "내 지역": int(round(dong_row[1], 0)) if dong_row[1] else 0,
+                    "서울 평균": int(round(seoul_row[1], 0)) if seoul_row[1] else 0
                 }
 
             # 최대값 분석 (내 지역 기준)
@@ -710,6 +869,98 @@ class AreaAnalysisService:
         except Exception as e:
             logger.error(f"상세 매출 분석 중 오류 발생: {e}")
             return {}
+        
+    def generate_food_sales_insight_summary(self, food_growth: float, food_share_prev: float, food_share_curr: float, retail_growth: float, service_growth: float ) -> str:
+        try:
+            # 1. 외식업 매출 증감 설명
+            if food_growth is None:
+                food_part = "외식업 매출 건수는 직전 분기와 비교할 수 없습니다."
+            elif food_growth == 0:
+                food_part = "외식업 매출 건수는 직전 분기와 동일했습니다."
+            elif food_growth > 0:
+                food_part = f"외식업 매출 건수는 직전 분기 대비 {round(food_growth, 1)}% 증가해 긍정적인 흐름을 보였지만"
+            else:
+                food_part = f"외식업 매출 건수는 직전 분기 대비 {abs(round(food_growth, 1))}% 감소해 다소 부진한 흐름을 보였으며"
+
+            # 2. 비중 변화 설명
+            share_change = round(food_share_prev, 1), round(food_share_curr, 1)
+            if food_share_prev == food_share_curr:
+                share_part = f", 전체 업종 중 외식업의 비중은 {share_change[0]}%로 변함이 없었습니다."
+            else:
+                share_direction = "소폭 증가" if food_share_curr > food_share_prev else "소폭 감소"
+                share_part = f", 전체 업종 중 외식업의 비중은 {share_change[0]}%에서 {share_change[1]}%로 {share_direction}했습니다."
+
+            # 3. 도소매업 및 서비스업 증감 설명
+            retail_part = ""
+            service_part = ""
+
+            if retail_growth is not None:
+                if retail_growth > 0:
+                    retail_part = f" 도소매업은 {round(retail_growth, 1)}% 증가,"
+                elif retail_growth < 0:
+                    retail_part = f" 도소매업은 {abs(round(retail_growth, 1))}% 감소,"
+                else:
+                    retail_part = " 도소매업은 변화 없음,"
+
+            if service_growth is not None:
+                if service_growth > 0:
+                    service_part = f" 서비스업은 {round(service_growth, 1)}% 증가한 것으로 나타나"
+                elif service_growth < 0:
+                    service_part = f" 서비스업은 {abs(round(service_growth, 1))}% 감소한 것으로 나타나"
+                else:
+                    service_part = " 서비스업은 변화 없음으로 나타나"
+
+            # 4. 결론 파트
+            conclusion = ""
+            if all(x is not None for x in [food_growth, retail_growth, service_growth]):
+                # 1. 모든 업종 증가
+                if food_growth > 0 and retail_growth > 0 and service_growth > 0:
+                    conclusion = " 전반적인 소비 여건이 개선되고 있는 것으로 보입니다."
+
+                # 2. 모든 업종 감소
+                elif food_growth < 0 and retail_growth < 0 and service_growth < 0:
+                    conclusion = " 소비 위축이 전 업종에서 나타나고 있습니다."
+
+                # 3. 외식업만 증가
+                elif food_growth > 0 and retail_growth <= 0 and service_growth <= 0:
+                    conclusion = " 소비가 외식업에 집중되는 경향을 보이고 있습니다."
+
+                # 4. 서비스업만 증가
+                elif service_growth > 0 and food_growth <= 0 and retail_growth <= 0:
+                    conclusion = " 서비스업에 대한 소비가 상대적으로 늘고 있습니다."
+
+                # 5. 도소매업만 증가
+                elif retail_growth > 0 and food_growth <= 0 and service_growth <= 0:
+                    conclusion = " 도소매업 위주의 소비가 늘어나는 모습입니다."
+
+                # 6. 외식업 감소 + 서비스업 증가
+                elif food_growth < 0 and service_growth > 0:
+                    conclusion = " 외식업 소비는 감소한 반면, 서비스업 소비는 증가하고 있습니다."
+
+                # 7. 외식업 증가 + 도소매업 감소
+                elif food_growth > 0 and retail_growth < 0 and service_growth >= 0:
+                    conclusion = " 외식업 소비는 증가한 반면, 도소매업 소비는 줄어들고 있습니다."
+
+                # 8. 외식업 증가 + 서비스업 감소
+                elif food_growth > 0 and service_growth < 0 and retail_growth >= 0:
+                    conclusion = " 외식업 소비는 증가했지만, 서비스업 소비는 감소했습니다."
+
+                # 9. 외식업 증가 + 다른 업종 변화 없음
+                elif food_growth > 0 and retail_growth == 0 and service_growth == 0:
+                    conclusion = " 외식업만 유일하게 증가세를 보이고 있으며, 다른 업종은 변화가 없습니다."
+
+                # 10. 외식업 감소 + 다른 업종 변화 없음
+                elif food_growth < 0 and retail_growth == 0 and service_growth == 0:
+                    conclusion = " 외식업만 감소하고 있으며, 다른 업종은 변화가 없습니다."
+
+                # 11. 기타 애매한 조합
+                else:
+                    conclusion = " 업종별 소비 양상이 뚜렷하지 않으며, 혼재된 흐름을 보이고 있습니다."
+
+            return food_part + share_part + retail_part + service_part + conclusion
+
+        except Exception as e:
+            return f"매출건수 추세 요약 생성 중 오류 발생: {e}"
 
 
 
