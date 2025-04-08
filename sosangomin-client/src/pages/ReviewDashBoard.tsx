@@ -102,7 +102,7 @@ const ReviewDashBoard: React.FC = () => {
 
   if (!selectedStore) {
     return (
-      <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
+      <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
         <div className="text-center bg-yellow-50 border border-yellow-100 rounded-lg p-8 mb-6">
           <svg
             className="w-12 h-12 text-yellow-400 mx-auto mb-4"
@@ -129,7 +129,7 @@ const ReviewDashBoard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
+    <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold">{selectedStore.store_name}</h2>
         <button
@@ -334,7 +334,7 @@ const ReviewDashBoard: React.FC = () => {
           </h2>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             {typeof analysisData.insights === "string" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-1">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-1">
                 {(() => {
                   const raw = analysisData.insights as string;
                   const parts = raw.split(/##\s[1-3]\.\s/);
@@ -374,7 +374,7 @@ const ReviewDashBoard: React.FC = () => {
                       className={`${section.bg} p-4 rounded-lg shadow text-xs whitespace-pre-wrap`}
                     >
                       <h3
-                        className={`text-lg font-semibold mb-2 ${section.color}`}
+                        className={`text-lg font-semibold mb-6 ${section.color}`}
                       >
                         {section.title}
                       </h3>
