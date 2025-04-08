@@ -237,7 +237,7 @@ const ReviewCompare: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto p-4 md:p-6 rounded-lg">
+    <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
       {/* 매장 정보 영역 */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">
@@ -298,9 +298,31 @@ const ReviewCompare: React.FC = () => {
           <p>{error}</p>
         </div>
       )}
+
+      {/* 선택된 경쟁사 정보 표시 영역 */}
+      {selectedLocation && !loading && (
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+          <h4 className="font-medium">선택한 경쟁사 매장</h4>
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div>
+              <p className="font-bold text-lg mt-1">{selectedLocation.name}</p>
+              <p className="text-sm text-gray-600">
+                {selectedLocation.address}
+              </p>
+            </div>
+            <button
+              onClick={handleAnalyzeCompetitor}
+              className="mt-4 md:mt-0 bg-bit-main text-white p-3 rounded-lg hover:bg-blue-900 cursor-pointer text-xs whitespace-nowrap"
+              disabled={loading}
+            >
+              {loading ? "분석 중..." : "비교 분석하기"}
+            </button>
+          </div>
+        </div>
+      )}
       {/* 로딩 중 표시 */}
       {isAnalyzing && (
-        <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6 animate-pulse">
+        <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6 mt-5 animate-pulse">
           <svg
             className="w-12 h-12 text-blue-400 mx-auto mb-4 animate-spin"
             fill="none"
@@ -327,28 +349,6 @@ const ReviewCompare: React.FC = () => {
             <br />
             잠시만 기다려주세요.
           </p>
-        </div>
-      )}
-
-      {/* 선택된 경쟁사 정보 표시 영역 */}
-      {selectedLocation && !loading && (
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-          <h4 className="font-medium">선택한 경쟁사 매장</h4>
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div>
-              <p className="font-bold text-lg mt-1">{selectedLocation.name}</p>
-              <p className="text-sm text-gray-600">
-                {selectedLocation.address}
-              </p>
-            </div>
-            <button
-              onClick={handleAnalyzeCompetitor}
-              className="mt-4 md:mt-0 bg-bit-main text-white p-3 rounded-lg hover:bg-blue-900 cursor-pointer text-xs whitespace-nowrap"
-              disabled={loading}
-            >
-              {loading ? "분석 중..." : "비교 분석하기"}
-            </button>
-          </div>
         </div>
       )}
 
@@ -393,6 +393,12 @@ const ReviewCompare: React.FC = () => {
           onComplete={handleLocationSelect}
         />
       )}
+      <div className="text-gray-400 text-xs mt-2">
+        ※ 본 서비스는 다양한 소비자 리뷰를 수집·분석하여 인사이트를 제공하는
+        도구입니다. 리뷰는 개인의 주관적인 의견이므로, 이를 악의적으로
+        해석하거나 특정 업체를 비방하는 용도로 사용하는 것은 지양해 주시기
+        바랍니다. 본 서비스는 건전한 시장 분석을 위한 참고 자료로 활용해 주세요.
+      </div>
     </div>
   );
 };
