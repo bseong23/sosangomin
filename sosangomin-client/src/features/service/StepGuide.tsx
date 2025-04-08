@@ -28,7 +28,7 @@ const StepGuide: React.FC<StepGuideProps> = ({ steps }) => {
   return (
     <section className="bg-basic-white rounded-md p-6 mb-8">
       <h2 className="text-xl font-semibold mb-6 text-bit-main">이용 방법</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {steps.map((step) => (
           <StepItem
             key={step.number}

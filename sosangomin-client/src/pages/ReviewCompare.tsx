@@ -323,6 +323,8 @@ const ReviewCompare: React.FC = () => {
           <p className="text-blue-600">
             리뷰 데이터를 수집하고 AI로 분석하는 중입니다.
             <br />
+            정확한 분석을 위해 약 1분 ~ 2분 정도 소요될 수 있습니다.
+            <br />
             잠시만 기다려주세요.
           </p>
         </div>
@@ -376,11 +378,6 @@ const ReviewCompare: React.FC = () => {
           </p>
         </div>
       )}
-
-      {/* 비교 분석 결과 표시 영역 */}
-      {/* {selectedComparison && !loading && !selectedLocation && (
-        <ImprovedCompetitorReportSection data={selectedComparison} />
-      )} */}
 
       {selectedComparisonFull &&
         !loading &&

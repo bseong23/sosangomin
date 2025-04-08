@@ -11,17 +11,17 @@ const InsightCards: React.FC<InsightCardsProps> = ({
 }) => {
   const cards = [
     {
-      title: "데이터에서 발견한 인사이트",
+      title: "인사이트 예시",
       items: insights
     },
     {
-      title: "추천 액션 플랜",
+      title: "추천 액션 플랜 예시",
       items: recommendations
     }
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="bg-gray-50">
       <h2 className="text-3xl font-bold text-center text-bit-main mb-12">
         분석 인사이트 & 추천 전략
       </h2>
@@ -36,9 +36,9 @@ const InsightCards: React.FC<InsightCardsProps> = ({
             </h3>
             <ul className="space-y-3">
               {card.items.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <span className="text-bit-main text-lg mt-1">•</span>
-                  <span className="text-gray-700">{item}</span>
+                <li key={idx} className="flex items-center gap-2">
+                  <span className="text-bit-main text-lg">•</span>
+                  <span className="text-gray-700 break-words">{item}</span>
                 </li>
               ))}
             </ul>
