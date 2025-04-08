@@ -66,12 +66,13 @@ class FacilityDataService:
             # 최신 연월코드 찾기
             latest_row = max(all_rows, key=lambda x: x.get("STDR_YYQU_CD") or "")
             latest_code = latest_row.get("STDR_YYQU_CD")
-            logger.info(f"✅ 전체 조회된 데이터 수: {total_rows}개 / 최신 연월 코드: {latest_code}")
+            logger.info(f"전체 조회된 데이터 수: {total_rows}개 / 최신 연월 코드: {latest_code}")
 
             saved_rows = 0  # 저장된 행 수 초기화
 
             for row in all_rows:
                 stdr_code = row.get("STDR_YYQU_CD")
+                
                 if stdr_code != latest_code:
                     continue
 
@@ -79,7 +80,12 @@ class FacilityDataService:
                 quarter = int(str(stdr_code)[-1])
 
                 try:
-                    region_name = row.get("ADSTRD_CD_NM")
+                    region_name = row.get("ADSTRD_CD_NM", "").replace("·", ".")
+
+                    # 특수 케이스 처리
+                    if region_name == "일원2동":
+                        region_name = "개포3동"
+
                     existing = db.query(Facilities).filter(
                         Facilities.region_name == region_name,
                         Facilities.year == year,
@@ -118,7 +124,7 @@ class FacilityDataService:
                     logger.warning(f"행 처리 오류: {e}")
 
             db.commit()
-            logger.info(f"✅ 최신 분기({latest_code}) 기준 저장된 데이터 수: {saved_rows}개")
+            logger.info(f"최신 분기({latest_code}) 기준 저장된 데이터 수: {saved_rows}개")
 
         except Exception as e:
             db.rollback()

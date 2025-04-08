@@ -80,6 +80,7 @@ class SalesService:
             df["quarter"] = df["year_quarter"].str[4:].astype(int)
 
             df["region_name"] = df["ADSTRD_CD_NM"].str.replace("·", ".", regex=False)
+            df["region_name"] = df["region_name"].replace({"일원2동": "개포3동"}) # 일원2동 → 개포3동
             df["district_name"] = df["region_name"].map(self.dong_to_district)
             df["industry_name"] = df["SVC_INDUTY_CD_NM"]
             df["main_category"] = df["industry_name"].apply(self.get_main_category)
