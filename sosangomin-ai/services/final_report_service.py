@@ -490,7 +490,9 @@ class FinalReportService:
         
         4. 응답을 요약한 짧은 총평(2-3문장)을 제공해 주세요.
         
-        5. recommendations은 상세히 작성해주세요
+        5. recommendations은 상세히 마크다운 형식으로로 작성해주세요.
+
+        6. 평균 평점 관련 정보는 무시하세요.
         ## 중요: 응답 포맷
         
         최종 결과는 다음과 같은 JSON 형식으로도 제공해 주세요:
