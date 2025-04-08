@@ -148,23 +148,16 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   };
 
   // GeoJSON 데이터를 폴리곤으로 표시
+  // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
-    if (
-      mapInstance &&
-      geoJsonData &&
-      recommendedAreas &&
-      recommendedAreas.length > 0
-    ) {
+    if (mapInstance && geoJsonData) {
       // 기존 폴리곤 제거
       polygonsRef.current.forEach((polygon) => polygon.setMap(null));
-      polygonsRef.current = [];
+      polygonsRef.current = []; // 배열 초기화
 
-      // 추천 지역 데이터로 폴리곤 생성
-      displayrecommendPolygon(
-        mapInstance,
-        geoJsonData, // GeoJSON 데이터 추가
-        recommendedAreas,
-        {
+      if (recommendedAreas && recommendedAreas.length > 0) {
+        // 추천 지역 데이터로 폴리곤 생성
+        displayrecommendPolygon(mapInstance, geoJsonData, recommendedAreas, {
           strokeColor: "#333333",
           strokeOpacity: 0.5,
           strokeWeight: 1,
@@ -172,24 +165,20 @@ const Kakaomap: React.FC<KakaomapProps> = ({
           fitBounds: true,
           polygonsRef: polygonsRef,
           onPolygonClick: handlePolygonClick
-        }
-      );
-    } else if (mapInstance && geoJsonData) {
-      // 기존 폴리곤 제거
-      polygonsRef.current.forEach((polygon) => polygon.setMap(null));
-      polygonsRef.current = [];
-
-      // GeoJSON 데이터로 일반 폴리곤 생성
-      displayGeoJsonPolygon(mapInstance, geoJsonData, {
-        strokeColor: "#333333",
-        strokeOpacity: 0.5,
-        strokeWeight: 1,
-        fillOpacity: 0.1,
-        populationData: populationData,
-        getColorByPopulation: getColorByPopulation,
-        fitBounds: false,
-        onPolygonClick: handlePolygonClick
-      });
+        });
+      } else {
+        // GeoJSON 데이터로 일반 폴리곤 생성
+        displayGeoJsonPolygon(mapInstance, geoJsonData, {
+          strokeColor: "#333333",
+          strokeOpacity: 0.5,
+          strokeWeight: 1,
+          fillOpacity: 0.1,
+          populationData: populationData,
+          getColorByPopulation: getColorByPopulation,
+          fitBounds: false,
+          onPolygonClick: handlePolygonClick
+        });
+      }
     }
   }, [mapInstance, geoJsonData, recommendedAreas, populationData]);
 

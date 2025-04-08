@@ -132,6 +132,8 @@ export const fetchPopulationData = async (): Promise<Map<string, number>> => {
       populationMap.set(`${adminName}_유동인구`, item.유동인구);
       populationMap.set(`${adminName}_직장인구`, item.직장인구);
       populationMap.set(`${adminName}_거주인구`, item.거주인구);
+      // '총 업소 수' 속성을 populationMap에 저장
+      populationMap.set(`${adminName}_총 업소 수`, item["총 업소 수"]);
     });
 
     return populationMap;
@@ -169,7 +171,7 @@ export const displayGeoJsonPolygon = (
     strokeOpacity: options.strokeOpacity || 0.8,
     strokeWeight: options.strokeWeight || 2,
     fillColor: options.fillColor || "#FF8888",
-    fillOpacity: options.fillOpacity || 0.3
+    fillOpacity: options.fillOpacity || 0.1
   };
 
   const bounds = new window.kakao.maps.LatLngBounds();
@@ -196,6 +198,8 @@ export const displayGeoJsonPolygon = (
       options.populationData?.get(`${simpleName}_직장인구`) || 0;
     const residentPopulation =
       options.populationData?.get(`${simpleName}_거주인구`) || 0;
+    const storecount =
+      options.populationData?.get(`${simpleName}_총 업소 수`) || 0;
 
     // 인구 데이터 기반 색상 결정
     let fillColor = defaultStyle.fillColor;
@@ -277,10 +281,12 @@ export const displayGeoJsonPolygon = (
 
         customOverlay.setContent(`
       <div style="${tooltipStyle}">
+    
         <strong style="color: #333; font-size: 14px;">${simpleName}</strong><br/>
         <span style="color: #ff5733;">유동인구:</span> ${population.toLocaleString()}명<br/>
        <span style="color: #3399ff;">직장인구:</span> ${workplacePopulation.toLocaleString()}명<br/>
-    <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명
+    <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명<br/>
+      <span style="color: #33cc33;">총 업소 수:</span> ${storecount.toLocaleString()}개
       </div>
     `);
 
@@ -310,7 +316,7 @@ export const displayGeoJsonPolygon = (
       }
 
       polygon.setOptions({
-        fillOpacity: defaultStyle.fillOpacity + 0.3,
+        fillOpacity: defaultStyle.fillOpacity + 0.2,
         strokeWeight: defaultStyle.strokeWeight + 1
       });
 
@@ -331,8 +337,8 @@ export const displayGeoJsonPolygon = (
 // 추천 지역 데이터를 이용해 폴리곤 표시 함수
 export const displayrecommendPolygon = (
   map: any,
-  geoJsonData: any, // GeoJSON 데이터
-  recommendedAreas: any[], // 추천 지역 데이터
+  geoJsonData: any,
+  recommendedAreas: any[],
   options: {
     strokeColor?: string;
     strokeOpacity?: number;
@@ -360,10 +366,10 @@ export const displayrecommendPolygon = (
   // 기본 스타일
   const defaultStyle = {
     strokeColor: options.strokeColor || "#FFFFFF",
-    strokeOpacity: options.strokeOpacity || 0.8,
+    strokeOpacity: options.strokeOpacity || 0.5,
     strokeWeight: options.strokeWeight || 2,
     fillColor: options.fillColor || "#808080",
-    fillOpacity: options.fillOpacity || 0.3
+    fillOpacity: options.fillOpacity || 0.1 // 여기를 0.1로 변경
   };
 
   // 추천 지역 데이터를 Map으로 변환 (조회 성능 향상)
@@ -471,7 +477,7 @@ export const displayrecommendPolygon = (
       strokeOpacity: defaultStyle.strokeOpacity,
       strokeWeight: defaultStyle.strokeWeight,
       fillColor: fillColor,
-      fillOpacity: defaultStyle.fillOpacity + 0.1
+      fillOpacity: defaultStyle.fillOpacity // 0.1 + 0.1 대신 그냥 defaultStyle.fillOpacity 사용
     });
 
     // 생성된 폴리곤을 배열에 저장
@@ -511,7 +517,7 @@ export const displayrecommendPolygon = (
       "mouseover",
       function (mouseEvent: any) {
         polygon.setOptions({
-          fillOpacity: defaultStyle.fillOpacity + 0.3
+          fillOpacity: defaultStyle.fillOpacity + 0.1
         });
 
         // 상세 정보를 포함한 툴팁 (등급 정보 포함)
@@ -557,7 +563,7 @@ export const displayrecommendPolygon = (
 
     window.kakao.maps.event.addListener(polygon, "mouseout", function () {
       polygon.setOptions({
-        fillOpacity: defaultStyle.fillOpacity + 0.1
+        fillOpacity: defaultStyle.fillOpacity // 원래 투명도로 복귀
       });
       customOverlay.setMap(null);
     });
@@ -568,7 +574,7 @@ export const displayrecommendPolygon = (
       }
 
       polygon.setOptions({
-        fillOpacity: defaultStyle.fillOpacity + 0.4,
+        fillOpacity: defaultStyle.fillOpacity + 0.1,
         strokeWeight: defaultStyle.strokeWeight + 1
       });
 

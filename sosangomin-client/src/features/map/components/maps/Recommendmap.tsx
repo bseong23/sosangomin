@@ -62,9 +62,15 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
     try {
       const filteredPriorities = selectedPriorities.filter((p) => p); // 빈 문자열 제거
 
+      // 연령대에서 숫자만 추출
+      const ageValue =
+        selectedAgeGroup === "60대 이상"
+          ? "60"
+          : selectedAgeGroup.replace(/[^0-9]/g, "");
+
       const response = await getTopRecommendedMap(
         selectedBusinessType,
-        selectedAgeGroup.replace("대", ""),
+        ageValue,
         filteredPriorities,
         3
       );
@@ -93,9 +99,15 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
     try {
       const filteredPriorities = selectedPriorities.filter((p) => p); // 빈 문자열 제거
 
+      // 연령대에서 숫자만 추출
+      const ageValue =
+        selectedAgeGroup === "60대 이상"
+          ? "60"
+          : selectedAgeGroup.replace(/[^0-9]/g, "");
+
       const response = await getTopRecommendedLocations(
         selectedBusinessType,
-        selectedAgeGroup.replace("대", ""),
+        ageValue,
         filteredPriorities,
         3
       );
@@ -161,7 +173,10 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
           <select
             className="w-full px-4 py-2 border border-[#BCBCBC] rounded-md bg-[#FFFFFF] text-[#000000] focus:outline-none focus:border-bit-main appearance-none pr-10"
             value={selectedAgeGroup || ""}
-            onChange={(e) => setSelectedAgeGroup(e.target.value)}
+            onChange={(e) => {
+              // 선택된 값을 상태로 저장
+              setSelectedAgeGroup(e.target.value);
+            }}
           >
             <option value="">타겟 연령대 선택</option>
             {["10대", "20대", "30대", "40대", "50대", "60대 이상"].map(
