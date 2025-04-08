@@ -13,6 +13,7 @@ const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -42,6 +43,13 @@ const ChatBot: React.FC = () => {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // 챗봇을 열거나 닫을 때도 스크롤 위치 유지
+  useEffect(() => {
+    if (isOpen && chatContentRef.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [isOpen]);
 
   // 외부 클릭 감지를 위한 이벤트 리스너
   useEffect(() => {
@@ -144,38 +152,93 @@ const ChatBot: React.FC = () => {
     document.body.style.overflow = "";
   };
 
+  // 챗봇 확장/축소 토글 함수
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+
+    // 크기 변경 후 스크롤 위치 조정
+    setTimeout(() => {
+      if (chatContentRef.current) {
+        chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+      }
+    }, 50);
+  };
+
   return (
-    <div className="fixed bottom-6 right-4  md:bottom-6 md:right-6 lg:bottom-6 lg:right-8  z-50">
+    <div className="fixed bottom-6 right-4 md:bottom-6 md:right-6 lg:bottom-6 lg:right-8 z-50">
       {isOpen && (
         <div
           ref={chatRef}
-          className="bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] max-w-[400px] h-[70vh] max-h-[500px] absolute bottom-[6rem] right-0"
+          className={`bg-white rounded-2xl shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1),-5px_0_5px_rgba(0,0,0,0.1),5px_0_5px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden w-[90vw] ${
+            isExpanded
+              ? "max-w-[800px] h-[80vh] max-h-[700px]"
+              : "max-w-[400px] h-[70vh] max-h-[500px]"
+          } absolute bottom-[6rem] right-0 transition-all duration-300`}
         >
           <div className="bg-white p-4 border-b border-border flex justify-between items-center">
             <div className="flex items-center">
               <div className="text-navy-500 mr-2"></div>
               <span className="font-semibold text-lg">고미니</span>
             </div>
-            {/* X 버튼 추가 */}
-            <button
-              onClick={closeChat}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="flex items-center">
+              {/* 확장/축소 버튼 추가 */}
+              <button
+                onClick={toggleExpand}
+                className="text-gray-500 hover:text-gray-700 mr-2"
+                aria-label={isExpanded ? "축소하기" : "확장하기"}
               >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {isExpanded ? (
+                    // 축소 아이콘
+                    <>
+                      <polyline points="4 14 10 14 10 20"></polyline>
+                      <polyline points="20 10 14 10 14 4"></polyline>
+                      <line x1="14" y1="10" x2="21" y2="3"></line>
+                      <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </>
+                  ) : (
+                    // 확장 아이콘
+                    <>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <polyline points="9 21 3 21 3 15"></polyline>
+                      <line x1="21" y1="3" x2="14" y2="10"></line>
+                      <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </>
+                  )}
+                </svg>
+              </button>
+
+              {/* X 버튼 추가 */}
+              <button
+                onClick={closeChat}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {messages.length === 0 && (
