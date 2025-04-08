@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import FeatureCard from "@/features/service/FeatureCard";
 import InsightCards from "@/features/service/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
@@ -153,7 +154,10 @@ const DataAnalysisPage: React.FC = () => {
               가능합니다.
             </p>
             <div className="flex gap-4">
-              <button className="px-6 py-3 bg-bit-main text-white break-keep font-medium rounded-lg shadow-lg hover:bg-bit-main/90 transition duration-300 flex items-center">
+              <Link
+                to="/data-analysis/upload"
+                className="px-6 py-3 bg-bit-main text-white break-keep font-medium rounded-lg shadow-lg hover:bg-bit-main/90 transition duration-300 flex items-center"
+              >
                 데이터 분석 시작하기
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -167,7 +171,7 @@ const DataAnalysisPage: React.FC = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </button>
+              </Link>
             </div>
           </div>
 
