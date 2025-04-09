@@ -126,7 +126,7 @@ const WordCloud: React.FC<WordCloudProps> = ({
     >
       {/* 제목 영역 (있을 경우) */}
       {title && (
-        <div className="absolute inset-x-0 top-0 h-12 flex items-center justify-center border-b border-gray-100 bg-white z-10">
+        <div className="select-none absolute inset-x-0 top-0 h-12 flex items-center justify-center border-b border-gray-100 bg-white z-10">
           <h3 className="text-lg font-bold " style={{ color: colors.primary }}>
             {title}
           </h3>
@@ -134,7 +134,7 @@ const WordCloud: React.FC<WordCloudProps> = ({
       )}
 
       {/* 워드 클라우드 영역 */}
-      <div className={`absolute inset-0 overflow-hidden `}>
+      <div className={`absolute inset-0 overflow-hidden select-none`}>
         {/* 단어들 */}
         {topWords.map((word, index) => {
           if (positionsRef.current.length <= index) {

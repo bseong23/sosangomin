@@ -155,6 +155,7 @@ const SalesTab: React.FC<SalesTabProps> = ({
   const yMin = Math.ceil(minValue - 5);
   // 최대값에서 5를 더한 후 올림
   const yMax = Math.ceil(maxValue + 5);
+
   const seoulDonutData = prepareDonutChartData("서울시");
   const districtDonutData = prepareDonutChartData("자치구");
   const neighborhoodDonutData = prepareDonutChartData("행정동");
@@ -342,7 +343,7 @@ const SalesTab: React.FC<SalesTabProps> = ({
                 <span className="font-medium">
                   {salesComparison["가장_매출_높은_행정동"][
                     "매출"
-                  ].toLocaleString()}
+                  ]?.toLocaleString() ?? "0"}
                   원
                 </span>
               </p>
@@ -351,7 +352,7 @@ const SalesTab: React.FC<SalesTabProps> = ({
                 <span className="font-medium">
                   {salesComparison["가장_매출_높은_행정동"][
                     "건수"
-                  ].toLocaleString()}
+                  ]?.toLocaleString() ?? "0"}
                   건
                 </span>
               </p>
@@ -368,13 +369,17 @@ const SalesTab: React.FC<SalesTabProps> = ({
               <p className="text-sm">
                 매출:{" "}
                 <span className="font-medium">
-                  {salesComparison["내_행정동"]["매출"].toLocaleString()}원
+                  {salesComparison["내_행정동"]["매출"]?.toLocaleString() ??
+                    "0"}
+                  원
                 </span>
               </p>
               <p className="text-sm">
                 건수:{" "}
                 <span className="font-medium">
-                  {salesComparison["내_행정동"]["건수"].toLocaleString()}건
+                  {salesComparison["내_행정동"]["건수"]?.toLocaleString() ??
+                    "0"}{" "}
+                  건
                 </span>
               </p>
             </div>

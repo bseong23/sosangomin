@@ -68,7 +68,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-row items-center justify-between border-b border-[var(--color-border)] h-19 w-screen bg-white">
+    <div className="flex flex-row select-none items-center justify-between border-b border-[var(--color-border)] h-19 w-screen bg-white">
       <div className="pl-8">
         <Link to="/">
           <img src={Logo} alt="로고" className="w-30 h-10 cursor-pointer" />

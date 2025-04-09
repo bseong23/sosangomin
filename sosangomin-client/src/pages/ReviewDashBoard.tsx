@@ -100,29 +100,37 @@ const ReviewDashBoard: React.FC = () => {
     }).format(koreaTime);
   };
 
+  // 매장이 등록되어 있지 않은 경우
   if (!selectedStore) {
     return (
-      <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
-        <div className="text-center bg-yellow-50 border border-yellow-100 rounded-lg p-8 mb-6">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-basic-white rounded-lg shadow-2xl p-8 max-w-md text-center border border-gray-200">
           <svg
-            className="w-12 h-12 text-yellow-400 mx-auto mb-4"
+            className="w-16 h-16 text-bit-main mx-auto mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2"
+              strokeWidth={2}
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
+            />
           </svg>
-          <p className="text-yellow-800 text-lg mb-4">
-            대표 매장이 설정되지 않았습니다
+          <h2 className="text-2xl font-semibold text-bit-main mb-4">
+            등록된 매장이 없습니다
+          </h2>
+          <p className="text-comment mb-6">
+            분석 보고서를 생성하기 위해서는 매장 등록이 필요합니다.
           </p>
-          <p className="text-yellow-600">
-            마이페이지에서 대표 매장을 설정한 후 이용해 주세요.
-          </p>
+          <a
+            href="/mypage" // 매장 등록 페이지 경로로 수정
+            className="inline-block py-3 px-6 bg-bit-main text-basic-white rounded-md hover:bg-opacity-90 transition duration-200"
+          >
+            매장 등록하기
+          </a>
         </div>
       </div>
     );
@@ -226,9 +234,6 @@ const ReviewDashBoard: React.FC = () => {
 
       {analysisData && !loading && (
         <>
-          <h2 className="text-lg font-bold text-comment mb-4">
-            키워드 워드클라우드
-          </h2>
           {/* ✅ 워드클라우드 섹션 */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

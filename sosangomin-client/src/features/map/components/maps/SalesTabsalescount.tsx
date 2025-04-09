@@ -77,7 +77,7 @@ const SalesTabSalesCount: React.FC<SalesTabSalesCountProps> = ({
   // 차트 데이터셋 구성
   const chartDatasets = [
     {
-      label: "내 지역",
+      label: selectedAdminName || "내 지역",
       data: myAreaData,
       backgroundColor: "rgba(54, 162, 235, 0.6)",
       borderColor: "rgba(54, 162, 235, 1)",

@@ -98,10 +98,10 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 마이페이지
               </Link>
             </li>
-            <li className="border-t border-gray-200 px-4 py-2 hover:bg-gray-100 text-center">
+            <li className="border-t border-gray-200 px-4 py-2 hover:bg-gray-100 text-center ">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full text-red-500 pt-[10px]"
+                className="flex items-center justify-center w-full text-red-500 pt-[10px] cursor-pointer"
               >
                 로그아웃
               </button>

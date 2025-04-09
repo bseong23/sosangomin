@@ -93,10 +93,17 @@ const Analysismap: React.FC<MapSidebarProps> = ({
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           가게 등록이 필요합니다
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-sm pb-4">
           마이페이지에서 가게를 등록하고 업종을 선택하면 상권 분석 정보를 확인할
           수 있습니다
         </p>
+
+        <a
+          href="/mypage" // 매장 등록 페이지 경로로 수정
+          className="inline-block py-3 px-6 bg-bit-main text-basic-white rounded-md hover:bg-opacity-90 transition duration-200"
+        >
+          매장 등록하기
+        </a>
       </div>
     );
   }
@@ -221,7 +228,7 @@ const Analysismap: React.FC<MapSidebarProps> = ({
           <div className="mt-4">
             <p className="text-base text-gray-600"> {selectedCategory} 순위</p>
             <p className="text-base font-bold text-blue-600">
-              {analysisData.업종분석.요식업_도넛_및_순위.내_업종_순위}위
+              {analysisData.업종분석.요식업_도넛_및_순위.내_업종_순위 ?? "~"}위
             </p>
           </div>
         </div>
