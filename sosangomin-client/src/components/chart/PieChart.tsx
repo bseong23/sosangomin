@@ -17,7 +17,8 @@ const PieChart: React.FC<PieChartProps> = ({ chartData }) => {
     responsive: true, // 창 크기에 따라 그래프 크기 조절
     plugins: {
       legend: {
-        position: "top" // 색깔 위치치
+        position: "top", // 색깔 위치치
+        display: false // 범례 표시 여부
       }
     }
   };

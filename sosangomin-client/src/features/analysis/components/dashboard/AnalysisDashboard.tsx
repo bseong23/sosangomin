@@ -256,8 +256,35 @@ const AnalysisDashboard: React.FC = () => {
   if (isLoadingData) return <Loading />;
   if (anyError)
     return (
-      <div className="text-center py-10 text-red-500">
-        데이터를 불러오는데 실패했습니다: {anyError}
+      <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px]">
+        <div className="flex flex-col items-center justify-center h-full">
+          <svg
+            className="w-16 h-16 text-red-500 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <h2 className="text-xl font-semibold text-center text-bit-main mb-2">
+            오류가 발생했습니다
+          </h2>
+          <p className="text-comment text-center mb-4">
+            데이터를 불러오는데 오류가 발생 되었습니다.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="py-2 px-4 bg-bit-main hover:bg-opacity-90 text-basic-white rounded-md transition duration-200"
+          >
+            다시 시도
+          </button>
+        </div>
       </div>
     );
   if (!currentAnalysis && !originalApiData) {

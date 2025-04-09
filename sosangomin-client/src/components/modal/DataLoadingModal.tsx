@@ -10,6 +10,8 @@ interface DataLoadingModalProps {
   isLoading: boolean;
   onLoadingComplete: () => void;
   analysisId?: string | null;
+  hasError?: boolean; // 에러 상태 추가
+  errorMessage?: string; // 에러 메시지 추가
 }
 
 const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
@@ -18,7 +20,9 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   posType,
   isLoading,
   onLoadingComplete,
-  analysisId
+  analysisId,
+  hasError = false
+  // errorMessage = "데이터 분석 중 오류가 발생했습니다."
 }) => {
   const navigate = useNavigate();
   const [showQuitConfirmModal, setShowQuitConfirmModal] = useState(false);
@@ -47,10 +51,25 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   const prevIsOpenRef = useRef<boolean>(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
 
+  const handleErrorClose = () => {
+    // 단순히 모달만 닫고 navigate은 트리거하지 않음
+    closeModal();
+    // 추가로 shouldNavigate와 analysisCompleted 상태를 false로 설정
+    setShouldNavigate(false);
+    setAnalysisCompleted(false);
+  };
+
+  // DataLoadingModal.tsx의 handleViewResults 함수 수정
   const handleViewResults = () => {
+    // 이미 완료 처리된 경우 중복 처리 방지
+    if (analysisCompleted) {
+      closeModal(); // 모달만 닫기
+      return;
+    }
+
     setShouldNavigate(true);
     setAnalysisCompleted(true);
-    onLoadingComplete();
+    onLoadingComplete(); // 이 함수가 중복 요청을 발생시킬 수 있음
     closeModal();
   };
 
@@ -194,7 +213,58 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   if (!isOpen) return null;
 
   const renderCompletionScreen = () => {
-    // gameActive가 false일 때만 렌더링
+    // 에러가 있는 경우 에러 화면 표시
+    if (hasError) {
+      return (
+        <div className="text-center p-5">
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+              <svg
+                className="w-12 h-12 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <h3 className="text-xl font-medium text-gray-800 mb-6">
+            잘못된 데이터 형식입니다.
+          </h3>
+
+          <button
+            className="bg-bit-main text-white py-3 px-4 rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center justify-center gap-2 mx-auto"
+            onClick={handleErrorClose}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              ></path>
+            </svg>
+            돌아가기
+          </button>
+        </div>
+      );
+    }
+
+    // 게임활성화 상태가 아닐 때만 렌더링 (성공 화면)
     if (
       !gameActive &&
       ((!isLoading && analysisCompleted) ||
@@ -273,6 +343,68 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
     return null;
   };
 
+  // 모달 헤더 색상 및 텍스트 함수 추가
+  const getModalHeaderClass = () => {
+    if (hasError) {
+      return "bg-gradient-to-r from-red-400 to-red-500";
+    }
+    if (!isLoading && (analysisCompleted || showCompletionNotice)) {
+      return "bg-gradient-to-r from-green-400 to-green-500";
+    }
+    return "bg-gradient-to-r from-blue-400 to-blue-500";
+  };
+
+  const getModalHeaderText = () => {
+    if (hasError) {
+      return (
+        <p className="text-white font-medium flex items-center justify-center gap-2">
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+          데이터 분석 오류 발생
+        </p>
+      );
+    }
+    if (!isLoading && (analysisCompleted || showCompletionNotice)) {
+      return (
+        <p className="text-white font-medium flex items-center justify-center gap-2">
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          데이터 분석이 완료되었습니다!
+        </p>
+      );
+    }
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+        <p className="text-white font-medium">데이터 분석 중...</p>
+      </div>
+    );
+  };
+
   // return 부분 전체 코드
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -290,7 +422,10 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
 
         {renderCompletionScreen() || (
           <>
-            <div
+            <div className={`p-3 text-center ${getModalHeaderClass()}`}>
+              {getModalHeaderText()}
+            </div>
+            {/* <div
               className={`p-3 text-center ${
                 !isLoading && (analysisCompleted || showCompletionNotice)
                   ? "bg-gradient-to-r from-green-400 to-green-500"
@@ -321,7 +456,7 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                   <p className="text-white font-medium">데이터 분석 중...</p>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {isLoading && !gameActive && (
               <div className="p-5 text-center">
