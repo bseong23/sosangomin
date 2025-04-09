@@ -7,7 +7,7 @@ const Store: React.FC<StoreProps> = ({
   onSetRepresentative,
   onDeleteStore
 }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [, setIsDeleting] = useState(false);
   const isMainStore = isRepresentative || store.is_main === true;
 
   // 삭제 확인 핸들러 - 대표 가게 삭제 경고 추가
@@ -26,65 +26,59 @@ const Store: React.FC<StoreProps> = ({
   };
 
   return (
-    <div
-      className={`border rounded-lg shadow-sm overflow-hidden ${
-        isMainStore ? "border-blue-500" : "border-gray-200"
-      }`}
-    >
+    <div className="border rounded-lg shadow-md overflow-hidden">
+      {/* 상단 헤더 */}
+      <div className="bg-bit-main text-white flex justify-between items-center px-4 py-2 rounded-t-lg">
+        <h3 className="text-lg font-semibold">{store.store_name}</h3>
+        <button
+          onClick={handleDeleteClick}
+          className="text-white font-bold text-xl hover:text-gray-300"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* 본문 내용 */}
       <div className="p-6">
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <h3 className="text-base font-medium text-gray-700">상호</h3>
-            <p className="text-sm mt-1 text-gray-900">{store.store_name}</p>
-          </div>
-
-          <div className="flex gap-2">
-            {isMainStore ? (
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded">
-                대표 가게
-              </span>
-            ) : (
-              <button
-                className="bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium px-3 py-1 rounded transition-colors"
-                onClick={() =>
-                  onSetRepresentative && onSetRepresentative(store)
-                }
-              >
-                대표 가게로 설정
-              </button>
-            )}
-
-            {/* 모든 가게 삭제 가능하게 수정 */}
-            <button
-              className={`text-xs font-medium px-3 py-1 rounded transition-colors ${
-                isDeleting
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-red-50 text-red-600 hover:bg-red-100"
-              }`}
-              onClick={handleDeleteClick}
-              disabled={isDeleting} // 삭제 중일 때만 비활성화
-            >
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </button>
-          </div>
+        {/* 사업자등록 번호 */}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700">사업자등록 번호</h4>
+          <p className="text-base font-semibold text-gray-900 mt-1">
+            {store.business_number}
+          </p>
         </div>
 
-        <div className="mt-4">
-          <h3 className="text-base font-medium text-gray-700">
-            사업자등록 번호
-          </h3>
-          <p className="text-sm mt-1 text-gray-900">{store.business_number}</p>
+        {/* 업종 */}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700">업종</h4>
+          <p className="text-base font-semibold text-gray-900 mt-1">
+            {store.category}
+          </p>
         </div>
 
-        <div className="mt-4">
-          <h3 className="text-base font-medium text-gray-700">카테고리</h3>
-          <p className="text-sm mt-1 text-gray-900">{store.category}</p>
+        {/* 결제 타입 */}
+        <div>
+          <h4 className="text-sm font-medium text-gray-700">포스 타입</h4>
+          <p className="text-base font-semibold text-gray-900 mt-1">
+            {store.pos_type}
+          </p>
         </div>
+      </div>
 
-        <div className="mt-4">
-          <h3 className="text-base font-medium text-gray-700">결제 타입</h3>
-          <p className="text-sm mt-1 text-gray-900">{store.pos_type}</p>
-        </div>
+      {/* 하단 버튼 영역 */}
+      <div className="flex justify-end items-center bg-gray-100 px-4 py-3">
+        {isMainStore ? (
+          <span className="bg-bit-main text-white px-3 py-2 rounded-md font-bold">
+            대표가게
+          </span>
+        ) : (
+          <button
+            onClick={() => onSetRepresentative && onSetRepresentative(store)}
+            className="bg-blue-900 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            대표 가게로 설정
+          </button>
+        )}
       </div>
     </div>
   );

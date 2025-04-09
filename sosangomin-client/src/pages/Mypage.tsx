@@ -37,7 +37,7 @@ const MyPage: React.FC = () => {
           </button>
           <StoreModal />
         </div>
-        <div className="pt-10">
+        <div className="pt-5">
           <StoreList />
         </div>
       </div>
