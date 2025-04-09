@@ -282,7 +282,7 @@ const ResultPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6 md:p-12">
+    <div className="min-h-screen bg-white p-6 md:p-12" id="report-content">
       <div className="max-w-6xl mx-auto px-4">
         {/* 헤더는 항상 보여줌 - 날짜 선택 기능은 제거됨 */}
         <HeaderComponent

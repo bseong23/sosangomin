@@ -36,10 +36,10 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
     const year = koreaTime.getFullYear().toString().slice(2); // 앞의 두 자리(20) 제거
     const month = String(koreaTime.getMonth() + 1).padStart(2, "0");
     const day = String(koreaTime.getDate()).padStart(2, "0");
-    const hours = String(koreaTime.getHours()).padStart(2, "0");
-    const minutes = String(koreaTime.getMinutes()).padStart(2, "0");
+    // const hours = String(koreaTime.getHours()).padStart(2, "0");
+    // const minutes = String(koreaTime.getMinutes()).padStart(2, "0");
 
-    return `${year}.${month}.${day} ${hours}:${minutes}`;
+    return `20${year}년 ${month}월 ${day}일`;
   };
 
   // 분석 선택 핸들러
@@ -57,7 +57,7 @@ const AnalysisSelector: React.FC<AnalysisSelectorProps> = ({
         <div className="relative">
           <button
             type="button"
-            className="flex items-center justify-between min-w-[200px] bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-bit-main shadow-sm"
+            className="flex items-center justify-between min-w-[230px] bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-bit-main shadow-sm"
             onClick={() => setIsOpen(!isOpen)}
           >
             {selectedAnalysis ? (

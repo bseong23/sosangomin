@@ -3,6 +3,57 @@
 
 @import "tailwindcss";
 
+/* PDF 전용 스타일 - Tailwind 4에서 발생하는 oklch 에러 해결용 */
+.pdf-export {
+  --color-bit-main: #16125d !important;
+  --color-basic-white: #ffffff !important;
+  --color-border: #bebebe !important;
+  --color-comment-text: #8d8d8d !important;
+  --color-comment: #333333 !important;
+}
+
+/* Tailwind 유틸리티 클래스 강제 오버라이드 */
+.pdf-export .text-bit-main {
+  color: #16125d !important;
+}
+.pdf-export .bg-basic-white {
+  background-color: #ffffff !important;
+}
+.pdf-export .border-border {
+  border-color: #bebebe !important;
+}
+.pdf-export .text-comment {
+  color: #333333 !important;
+}
+.pdf-export .bg-comment-text {
+  background-color: #8d8d8d !important;
+}
+
+/* 모든 요소에서 oklch 무력화 (color/background 등) */
+.pdf-export * {
+  color: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+/* Tailwind 그라디언트 제거 + 배경 대체 (html2canvas에서 에러 발생 방지) */
+.pdf-export .bg-gradient-to-br {
+  background-image: none !important;
+  background-color: #f0fdf4 !important; /* green-50 */
+}
+.pdf-export .bg-gradient-to-bl {
+  background-image: none !important;
+  background-color: #fee2e2 !important; /* red-100 */
+}
+.pdf-export .bg-gradient-to-tr {
+  background-image: none !important;
+  background-color: #eff6ff !important; /* blue-50 */
+}
+.pdf-export .bg-gradient-to-tl {
+  background-image: none !important;
+  background-color: #fef9c3 !important; /* yellow-100 */
+}
+
 @theme {
   /* 색상 설정 */
   --color-bit-main: #16125d; /* 버튼 및 메인색 */

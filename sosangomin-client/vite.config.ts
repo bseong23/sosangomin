@@ -50,7 +50,8 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: true
+        skipWaiting: true,
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024 // 3MB로 증가
       },
 
       devOptions: {
