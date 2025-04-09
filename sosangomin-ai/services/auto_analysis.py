@@ -140,12 +140,16 @@ class AutoAnalysisService:
                 df[cols_to_fill] = df[cols_to_fill].ffill()
 
                 # 동일 속성이 여러 다른 칼럼에 존재하는 경우, 이를 하나의 칼럼으로 정리
-                dup_val = ['단가', '수량', '원가']
+                dup_val = ['단가', '수량', '원가', '거스름']
                 for val in dup_val :
                     columns = [col for col in df.columns if df[col].astype(str).str.contains(val, na=False).any()]
                     if columns:
-                        df[val] = df[columns].bfill(axis=1).iloc[:, 0]
+                        df[val] = df[columns].bfill(axis=1).iloc[:, 0] 
                         df = df.drop(columns=columns)
+                if "거스름" in df.columns:
+                    df.drop(columns=['거스름'], inplace=True)
+                if "원가" in df.columns:
+                    df.drop(columns=['원가'], inplace=True)
 
                 logger.error(f'[df.dropna] 처리 전 {len(df)}')
                 df = df.dropna(axis=0, how='any') # 결측값이 있는 행 제거
