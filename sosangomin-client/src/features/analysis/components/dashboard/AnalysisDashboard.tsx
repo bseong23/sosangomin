@@ -428,7 +428,7 @@ const AnalysisDashboard: React.FC = () => {
   return (
     <div>
       <div className="max-w-[1200px] mx-auto p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-15 gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start sm:items-center mb-15 gap-4">
           <h1 className="text-xl font-bold text-comment">
             <span className="text-bit-main font-bold text-2xl">
               {representativeStore.store_name}
