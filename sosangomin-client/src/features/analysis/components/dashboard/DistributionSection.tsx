@@ -19,8 +19,12 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
 
   // 시간대별 매출 데이터 (막대 그래프용)
   const timePeriodLabels = Object.keys(timePeriodSales);
-  const timePeriodValues = Object.values(timePeriodSales);
-  const holidaySalesValues = Object.values(holidaySales);
+  const timePeriodValues = Object.values(timePeriodSales).map((value) =>
+    Number(value)
+  );
+  const holidaySalesValues = Object.values(holidaySales).map((value) =>
+    Number(value)
+  );
 
   // 두 차트의 Y축 최대값을 동일하게 맞추기 위한 계산
   const maxValue = useMemo(() => {
@@ -89,9 +93,12 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
       {/* 두 카드 모두 동일한 구조와 크기를 갖도록 함 */}
       <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
         {/* 제목 */}
-        <h2 className="text-lg font-semibold mb-10 text-comment h-6">
+        <h2 className="text-lg font-semibold mb-2 text-comment h-6">
           식사 시간대별 매출
         </h2>
+        <p className="text-sm text-comment-text mb-8">
+          점심(11:00-15:00) | 저녁(17:00-21:00) | 기타(그 외 시간대)
+        </p>
 
         {/* 차트 컨테이너 - 고정 높이 */}
         <div className="h-70">
@@ -132,14 +139,17 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
       {/* 평일/휴일 매출 비율 - 완전히 동일한 레이아웃 구조 */}
       <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
         {/* 제목 */}
-        <h2 className="text-lg font-semibold mb-10 text-comment h-6">
+        <h2 className="text-lg font-semibold mb-2 text-comment h-6">
           평일/휴일 매출 비율
         </h2>
+        <p className="text-sm text-comment-text mb-8">
+          평일(월~금) | 휴일(토,일,공휴일)
+        </p>
 
         {/* 차트 컨테이너 - 고정 높이, 첫 번째와 동일 */}
         <div className="h-70">
           <BarChart
-            labels={["평일", "주말"]}
+            labels={["평일", "휴일"]}
             datasets={[
               {
                 label: "평일/휴일 매출",

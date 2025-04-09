@@ -2,6 +2,8 @@ import React from "react";
 import { AnalysisResultData } from "../../types/analysis";
 import Sun from "@/assets/sun.png";
 import Cloud from "@/assets/cloud.png";
+import Rain from "@/assets/rain.png";
+import Storm from "@/assets/storm.png";
 import Markdown from "react-markdown";
 
 interface WeatherSalesSectionProps {
@@ -44,9 +46,12 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
   // 날씨 아이콘 매핑
   const weatherIcons: { [key: string]: string } = {
     맑음: Sun,
-    "비/눈": Cloud
+    이슬비: Cloud,
+    보통비: Rain,
+    폭우: Storm
   };
 
+  const formattedSummary = weatherSalesSummary.replace(/\n/g, "  \n");
   return (
     <div className="w-full mb-6 bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)]">
       <h2 className="text-lg font-semibold mb-15 text-comment">
@@ -73,7 +78,7 @@ const WeatherSalesSection: React.FC<WeatherSalesSectionProps> = ({ data }) => {
       <div className="mt-4 p-4 bg-blue-50 rounded-lg">
         <p className="text-sm text-comment">
           <Markdown components={markdownComponents}>
-            {weatherSalesSummary}
+            {formattedSummary}
           </Markdown>
         </p>
       </div>

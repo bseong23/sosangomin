@@ -19,6 +19,7 @@ import ProductClusterSection from "./ProductClusterSection";
 import DateRangeSection from "./DateRangeSection";
 import ProductShareSection from "./ProductShareSection";
 import { getAnalysisResult } from "../../api/analysisApi";
+import MonthlySalesSection from "./MonthlySalesSection";
 
 const AnalysisDashboard: React.FC = () => {
   const { analysisId } = useParams<{ analysisId?: string }>();
@@ -289,8 +290,15 @@ const AnalysisDashboard: React.FC = () => {
     );
   if (!currentAnalysis && !originalApiData) {
     return (
-      <div className="text-center py-10">
-        분석 데이터가 없습니다. 분석을 실행해주세요.
+      <div className="bg-basic-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.1)] p-6 mb-6 min-h-[300px]">
+        <div className="flex flex-col mt-20 items-center justify-center h-full">
+          <h2 className="text-xl font-semibold text-bit-main mb-4">
+            분석된 보고서가 없습니다
+          </h2>
+          <p className="text-comment text-center mb-4">
+            {representativeStore.store_name}의 분석 보고서가 아직 없습니다.
+          </p>
+        </div>
       </div>
     );
   }
@@ -415,20 +423,20 @@ const AnalysisDashboard: React.FC = () => {
         {/* 평일/휴일 매출 비율 & 시간대별 매출 분석 섹션 */}
         <DistributionSection data={data} />
 
+        {/* 월별 매출 섹션 */}
+        <MonthlySalesSection data={data} />
+
         {/* 요일별 매출 현황 섹션 */}
         <WeekdaySalesSection data={data} />
 
         {/* 시간별 매출 섹션 */}
         <HourlySalesSection data={data} />
 
-        {/* 시즌 매출 & 영업 전략 제안 섹션 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 날씨별 매출 섹션 */}
-          <WeatherSalesSection data={data} />
+        {/* 기온별 매출 섹션 */}
+        <TemperatureSalesSection data={data} />
 
-          {/* 기온별 매출 섹션 */}
-          <TemperatureSalesSection data={data} />
-        </div>
+        {/* 날씨별 매출 섹션 */}
+        <WeatherSalesSection data={data} />
 
         {/* 계절별 매출 섹션 */}
         <SeasonalSalesSection data={data} />
