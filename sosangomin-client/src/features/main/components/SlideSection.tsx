@@ -316,7 +316,7 @@ const SlideSection: React.FC<SlideSectionProps> = ({ features, introRef }) => {
                     {feature.title}
                   </h3>
                   <p
-                    className="text-sm sm:text-base text-gray-700 transition-all duration-300 ease-out delay-50"
+                    className="text-sm sm:text-base text-gray-700 transition-all duration-300 ease-out delay-50  break-keep"
                     style={{
                       opacity: i === currentSlide ? 1 : 0.3,
                       transform:

@@ -87,8 +87,16 @@ const ImprovedCompetitorReportSection: React.FC<
 
   // 색상 설정
   const colorMap = showPositive
-    ? { primary: "#1E40AF", secondary: "#3B82F6" } // 긍정(파란색)
-    : { primary: "#B91C1C", secondary: "#EF4444" }; // 부정(빨간색)
+    ? {
+        primary: "#1E3A8A", // 진한 파랑
+        secondary: "#2563EB", // 중간 파랑
+        accent: "#93C5FD" // 밝은 파랑
+      }
+    : {
+        primary: "#ab3030", // 진한 빨강
+        secondary: "#DC2626", // 중간 빨강
+        accent: "#FCA5A5" // 밝은 빨강
+      };
 
   // 샘플 리뷰 확인
   // 샘플 리뷰 구조는 배열로 되어있음
@@ -133,26 +141,47 @@ const ImprovedCompetitorReportSection: React.FC<
   // 마크다운 렌더링을 위한 스타일
   const markdownComponents = {
     h1: (props: any) => (
-      <h1 className="text-2xl font-bold my-4 mb-10 text-bit-main" {...props} />
+      <h1
+        className="text-xl md:text-2xl font-bold my-4 mb-10 text-bit-main"
+        {...props}
+      />
     ),
     h2: (props: any) => (
       <h2
-        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        className="text-lg md:text-xl font-semibold my-3 mb-5 text-bit-main"
         {...props}
       />
     ),
     h3: (props: any) => (
-      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+      <h3
+        className="text-base md:text-lg font-medium my-2 text-bit-main"
+        {...props}
+      />
     ),
     p: (props: any) => (
-      <p className="my-2 text-xs mb-5 text-comment" {...props} />
+      <p
+        className="text-xs md:text-sm my-2 mb-5 text-comment leading-relaxed"
+        {...props}
+      />
     ),
-    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
-    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
-    li: (props: any) => <li className="my-1" {...props} />,
+    ul: (props: any) => (
+      <ul
+        className="list-disc pl-5 my-2 text-xs md:text-sm text-comment"
+        {...props}
+      />
+    ),
+    ol: (props: any) => (
+      <ol
+        className="list-decimal pl-5 my-2 text-xs md:text-sm text-comment"
+        {...props}
+      />
+    ),
+    li: (props: any) => (
+      <li className="my-1 text-xs md:text-sm text-comment" {...props} />
+    ),
     blockquote: (props: any) => (
       <blockquote
-        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        className="border-l-4 border-gray-300 pl-4 italic my-2 text-xs md:text-sm text-gray-600"
         {...props}
       />
     )
@@ -197,8 +226,8 @@ const ImprovedCompetitorReportSection: React.FC<
         </div>
 
         {/* 워드클라우드 비교 영역 */}
-        <div className="grid grid-cols-12 gap-4 mb-8">
-          <div className="col-span-5 flex flex-col justify-center items-center">
+        <div className="grid grid-cols-12 gap-4 mb-8 md:grid-cols-12 md:grid">
+          <div className="col-span-12 md:col-span-5 flex flex-col justify-center items-center">
             <div className="font-bold text-xl text-bit-main mb-2">
               {representativeStore?.store_name || "내 매장"}
             </div>
@@ -210,11 +239,11 @@ const ImprovedCompetitorReportSection: React.FC<
             />
           </div>
 
-          <div className="col-span-2 flex items-center justify-center text-center">
+          <div className="hidden md:flex col-span-12 md:col-span-2 items-center justify-center text-center">
             <div className="font-bold text-gray-800">vs</div>
           </div>
 
-          <div className="col-span-5 flex flex-col justify-center items-center">
+          <div className="col-span-12 md:col-span-5 flex flex-col justify-center items-center">
             <div className="font-bold text-xl text-bit-main mb-2">
               {data.comparison_data.competitor.name}
             </div>
@@ -235,9 +264,9 @@ const ImprovedCompetitorReportSection: React.FC<
             competitorSampleReviews.negative.length >
             0) && (
           <>
-            <div className="grid grid-cols-12 gap-6">
+            <div className="hidden md:grid grid-cols-12 gap-6">
               <div className="col-span-5">
-                <div className="overflow-auto max-h-64">
+                <div className="overflow-auto max-h-64 break-keep">
                   {filteredMyReviews.length > 0 ? (
                     filteredMyReviews.map((review, index) => (
                       <div key={`my-${index}`}>{renderReview(review)}</div>
@@ -257,7 +286,7 @@ const ImprovedCompetitorReportSection: React.FC<
               </div>
 
               <div className="col-span-5">
-                <div className="overflow-auto max-h-64">
+                <div className="overflow-auto max-h-64 break-keep">
                   {filteredCompetitorReviews.length > 0 ? (
                     filteredCompetitorReviews.map((review, index) => (
                       <div key={`comp-${index}`}>{renderReview(review)}</div>
@@ -277,9 +306,9 @@ const ImprovedCompetitorReportSection: React.FC<
       {/* 감정 분포 비교 */}
       <h2 className="text-lg font-bold mb-4 text-gray-800">감정 분포 비교</h2>
       <section className="bg-white p-6 rounded-xl shadow border border-gray-100">
-        <div className="grid grid-cols-12 gap-4">
+        <div className="flex flex-col gap-y-10 md:grid md:grid-cols-12 gap-4">
           {/* 내 매장 영역 */}
-          <div className="col-span-5 flex flex-col items-center">
+          <div className="md:col-span-5 flex flex-col items-center">
             <div className="font-bold text-lg text-bit-main mb-2">
               {representativeStore?.store_name || "내 매장"}
             </div>
@@ -295,12 +324,12 @@ const ImprovedCompetitorReportSection: React.FC<
           </div>
 
           {/* 중앙 'vs' */}
-          <div className="col-span-2 flex items-center justify-center text-center">
+          <div className="hidden md:flex col-span-12 md:col-span-2 items-center justify-center text-center">
             <div className="font-bold text-gray-800">vs</div>
           </div>
 
           {/* 경쟁사 영역 */}
-          <div className="col-span-5 flex flex-col items-center">
+          <div className="md:col-span-5 flex flex-col items-center">
             <div className="font-bold text-bit-main text-lg mb-2">
               {data.comparison_data.competitor.name}
             </div>
@@ -322,9 +351,8 @@ const ImprovedCompetitorReportSection: React.FC<
       <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         {data.comparison_insight ? (
           <div className="prose max-w-none">
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-blue-50 rounded-lg p-4 break-keep">
               <Markdown components={markdownComponents}>
-                {/* {data.comparison_insight} */}
                 {emphasizeQuotedText(data.comparison_insight)}
               </Markdown>
             </div>

@@ -58,7 +58,7 @@ const HeroSection: React.FC = () => {
             } md:pl-12 lg:pl-20 xl:pl-24`}
           >
             {/* "소상고민" 텍스트 */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 md:mb-10">
+            <h1 className="text-6xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 md:mb-9">
               소상고민
             </h1>
 
@@ -73,8 +73,9 @@ const HeroSection: React.FC = () => {
               <h2 className="text-xl sm:text-2xl md:text-3xl font-medium mb-3 md:mb-6">
                 소상공인을 위한 고민해결사
               </h2>
-              <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-10 opacity-90 max-w-md">
-                매출 증대와 운영 효율화를 지금 바로 경험하세요!
+              <p className="text-sm sm:text-lg md:text-xl mb-6 md:mb-10 opacity-90 max-w-md break-keep">
+                한눈에 볼 수 있는 대시보드와 차트를 통해 인사이트를 제공하고,
+                <br /> 경쟁력 있는 소상공인으로 성장할 수 있도록 함께합니다.
               </p>
             </div>
           </div>

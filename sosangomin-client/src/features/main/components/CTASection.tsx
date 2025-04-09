@@ -57,7 +57,7 @@ const CTASection: React.FC = () => {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-center">
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm opacity-90 text-center">
+                <p className="text-xs sm:text-sm opacity-90 text-center  break-keep">
                   {item.desc}
                 </p>
               </div>

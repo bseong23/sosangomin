@@ -13,7 +13,11 @@ const filterWords = (words: Record<string, number>, exclude: string[]) => {
 const WordCloud: React.FC<WordCloudProps> = ({
   words = {},
   title,
-  colors = { primary: "#1E40AF", secondary: "#3056D3" },
+  colors = {
+    primary: "#1E3A8A", // 진한 파랑
+    secondary: "#2563EB", // 중간 파랑
+    accent: "#93C5FD"
+  }, // 밝은 파랑},
   maxWords = 15,
   height = "h-72"
 }) => {
