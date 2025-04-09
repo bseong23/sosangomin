@@ -3,9 +3,12 @@
 from fastapi import APIRouter, HTTPException, Path, Query, Form
 import logging
 from typing import Optional, List
+import asyncio
+from datetime import datetime, timedelta
 from bson import ObjectId
 from pydantic import BaseModel
 from services.eda_service import eda_service
+from database.mongo_connector import mongo_instance
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -30,6 +33,8 @@ class CombinedAnalysisRequest(BaseModel):
 async def perform_combined_analysis(request: CombinedAnalysisRequest):
     """
     EDA, 예측, 클러스터링을 포함한 종합 분석을 수행합니다.
+    단, 12시간 이내에 같은 store_id로 분석된 결과가 있으면 새로 분석하지 않고 
+    가장 최근의 결과를 30초 후에 반환합니다.
     """
     try:
         for sid in request.source_ids:
@@ -37,6 +42,32 @@ async def perform_combined_analysis(request: CombinedAnalysisRequest):
                 ObjectId(sid)
             except Exception:
                 raise HTTPException(status_code=400, detail=f"유효하지 않은 source_id: {sid}")
+        
+        analysis_results = mongo_instance.get_collection("AnalysisResults")
+        time_threshold = datetime.now() - timedelta(hours=12)
+        
+        recent_result = analysis_results.find_one({
+            "store_id": request.store_id,
+            "analysis_type": "combined_analysis",
+            "created_at": {"$gte": time_threshold},
+            "status": "completed"
+        }, sort=[("created_at", -1)])
+        
+        if recent_result:            
+            source_ids_str = [str(sid) for sid in recent_result["source_ids"]]
+            
+            await asyncio.sleep(30)
+            
+            return {
+                "status": "success",
+                "store_id": request.store_id,
+                "message": "종합 분석이 완료되었습니다.",
+                "analysis_id": str(recent_result["_id"]),
+                "source_ids": source_ids_str,
+                "data_range": recent_result.get("data_range"),
+                "eda_results": recent_result.get("eda_result"),
+                "auto_analysis_results": recent_result.get("auto_analysis_results")
+            }
         
         result = await eda_service.perform_eda(
             request.store_id, 
