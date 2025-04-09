@@ -30,6 +30,9 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
+# 미리 설치해야하는 의존성
+RUN pip install --upgrade pip wheel setuptools
+
 # 의존성 파일 복사 및 설치 (캐시 활용을 위해 분리)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
