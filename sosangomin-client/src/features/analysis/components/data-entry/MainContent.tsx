@@ -37,9 +37,8 @@ const MainContent: React.FC = () => {
 
   // 분석 스토어에서 액션 가져오기
   const {
-    requestAnalysis: saveAnalysisToStore,
-    setSelectedAnalysisId,
-    fetchAnalysisResult
+    setSelectedAnalysisId
+    // fetchAnalysisResult
   } = useAnalysisStore();
 
   // 파일 업로드 훅 사용
@@ -55,6 +54,9 @@ const MainContent: React.FC = () => {
   // 분석 훅 사용
   const { analysisState, requestAnalysis } = useAnalysis();
 
+  // 상태 추가
+  const [isRequesting, setIsRequesting] = useState<boolean>(false);
+
   const { representativeStore } = useStoreStore() as {
     representativeStore: StoreInfo | null;
   };
@@ -62,7 +64,31 @@ const MainContent: React.FC = () => {
   // 분석 완료 처리 콜백 함수
   const handleAnalysisCompleted = useCallback(
     (data: any) => {
-      // 모달 상태 업데이트 - 명시적으로 isLoading도 false로 설정
+      // HTTP 상태 코드나 에러 메시지 확인
+      if (!data || data.error || data.status >= 400 || data.errorMessage) {
+        // 로딩 상태 해제
+        setLoading(false);
+
+        // 에러 메시지 설정
+        const errorMessage =
+          data?.error ||
+          data?.errorMessage ||
+          (data?.status >= 400 ? `서버 오류(${data.status})` : null) ||
+          "분석 중 오류가 발생했습니다.";
+
+        console.error("분석 오류:", errorMessage);
+
+        // 모달 상태 설정 (실패 상태로)
+        setAnalysisCompleted(false);
+
+        // 중요: analysisState의 에러 상태도 설정해야 함
+        // useAnalysis 훅에서 가져온 setState가 아니어서 직접 설정할 수 없다면
+        // 필요한 경우 여기서 다시 API 훅의 에러 설정 함수를 호출할 수 있습니다
+
+        return;
+      }
+
+      // 모달 상태 업데이트
       setLoading(false);
       completeLoading();
 
@@ -71,19 +97,10 @@ const MainContent: React.FC = () => {
 
       // 결과 저장 및 선택
       if (data && representativeStore) {
-        // API 응답 구조에 맞게 분석 결과 저장
-        saveAnalysisToStore({
-          store_id: representativeStore.store_id || "",
-          source_ids: data.source_ids || [],
-          pos_type: representativeStore.pos_type || "",
-          analysis_result: data
-        });
-
         // 현재 분석 결과를 즉시 선택된 상태로 설정
         const resultId = data.analysis_id;
         if (resultId) {
           setSelectedAnalysisId(resultId);
-          fetchAnalysisResult(resultId);
         }
       }
 
@@ -96,9 +113,7 @@ const MainContent: React.FC = () => {
       completeLoading,
       setAnalysisCompleted,
       representativeStore,
-      saveAnalysisToStore,
       setSelectedAnalysisId,
-      fetchAnalysisResult,
       isModalOpen,
       openModal,
       setLoading
@@ -183,13 +198,22 @@ const MainContent: React.FC = () => {
     return "";
   };
 
-  // 분석 시작 함수
+  // startAnalysis 함수 수정
   const startAnalysis = async (): Promise<void> => {
+    // 이미 요청 중이면 중단
+    if (isRequesting) {
+      console.log("이미 요청 중입니다.");
+      return;
+    }
+
     // 대표 스토어가 없는 경우 처리
     if (!representativeStore) {
       console.error("분석을 시작할 매장이 선택되지 않았습니다.");
       return;
     }
+
+    // 요청 중 상태로 설정
+    setIsRequesting(true);
 
     // 분석 완료 상태 초기화
     setAnalysisCompleted(false);
@@ -198,10 +222,9 @@ const MainContent: React.FC = () => {
     const storeId = getValidStoreId(representativeStore);
     if (!storeId) {
       console.error("유효한 매장 ID를 찾을 수 없습니다:", representativeStore);
+      setIsRequesting(false);
       return;
     }
-
-    // 디버깅: 사용하는 ID 값 확인
 
     // 모달 열기 및 로딩 상태 설정
     setLoading(true);
@@ -218,6 +241,8 @@ const MainContent: React.FC = () => {
       if (!uploadResult.success) {
         console.error("파일 업로드 실패");
         setLoading(false);
+        setIsRequesting(false);
+        setAnalysisCompleted(false);
         return;
       }
 
@@ -230,6 +255,8 @@ const MainContent: React.FC = () => {
           "업로드된 파일 ID 목록이 비어 있습니다. 분석을 진행할 수 없습니다."
         );
         setLoading(false);
+        setIsRequesting(false);
+        setAnalysisCompleted(false);
         return;
       }
 
@@ -240,24 +267,23 @@ const MainContent: React.FC = () => {
         pos_type: representativeStore.pos_type
       };
 
-      // 분석 요청 로깅
-
-      // 3. 분석 요청 보내기 및 즉시 결과 처리
+      // 3. 분석 요청 보내기
       const analysisResult = await requestAnalysis(analysisRequest);
 
-      if (analysisResult) {
-        // 분석 완료 처리
-        handleAnalysisCompleted(analysisResult);
-      } else {
-        console.error("분석 요청 실패");
-        setLoading(false);
-      }
+      console.log(analysisResult);
+
+      // 분석 결과 처리는 handleAnalysisCompleted에서 전담하도록 수정
+      handleAnalysisCompleted(analysisResult);
+
+      // 요청 완료 상태로 설정
+      setIsRequesting(false);
     } catch (error) {
       console.error("분석 프로세스 중 오류 발생:", error);
       setLoading(false);
+      setAnalysisCompleted(false);
+      setIsRequesting(false);
     }
   };
-
   // POS 타입에 따른 모달 내용을 결정하는 함수
   const getModalContentByPosType = () => {
     // 현재 선택된 POS 타입 가져오기
@@ -525,6 +551,11 @@ const MainContent: React.FC = () => {
         posType={representativeStore?.pos_type || ""}
         isLoading={isLoading}
         onLoadingComplete={handleAnalysisComplete}
+        analysisId={analysisState.data?.analysis_id}
+        hasError={!!analysisState.error} // 분석 스토어의 에러 상태 전달
+        errorMessage={
+          analysisState.error || "데이터 분석 중 오류가 발생했습니다."
+        }
       />
     </div>
   );

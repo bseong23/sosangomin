@@ -197,7 +197,7 @@ const StoreModal: React.FC<StoreModalProps> = () => {
                   결제 옵션을 선택하세요
                 </option>
                 <option value="키움">키움</option>
-                <option value="Toss">Toss</option>
+                <option value="토스">토스</option>
               </select>
             </div>
 

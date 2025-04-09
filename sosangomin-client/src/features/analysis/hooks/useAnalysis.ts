@@ -28,32 +28,58 @@ export const useAnalysis = () => {
     error: null
   });
 
+  // useAnalysis 훅 내부의 requestAnalysis 함수
   const requestAnalysis = async (params: AnalysisRequest) => {
     setAnalysisState({
       data: null,
-      isLoading: true, // 요청 시작
+      isLoading: true,
       error: null
     });
 
     try {
       const response = await performAnalysis(params);
 
-      // 성공 시 즉시 로딩 상태 변경
+      // 다양한 에러 패턴 확인
+      if (
+        response.error ||
+        response.errorMessage ||
+        response.status >= 400 ||
+        (response.status && response.status !== "success")
+      ) {
+        const errorMsg =
+          response.error ||
+          response.errorMessage ||
+          (response.status >= 400
+            ? `HTTP 오류(${response.status})`
+            : "분석 요청 실패");
+
+        setAnalysisState({
+          data: null,
+          isLoading: false,
+          error: errorMsg
+        });
+        return response; // 에러 객체를 그대로 반환
+      }
+
+      // 성공 시 상태 업데이트
       setAnalysisState({
         data: response,
-        isLoading: false, // 요청 완료
+        isLoading: false,
         error: null
       });
 
-      return response.analysis_id;
+      return response;
     } catch (error) {
-      // 에러 시에도 로딩 상태 변경
+      console.error("분석 요청 오류:", error);
       setAnalysisState({
         data: null,
-        isLoading: false, // 요청 종료
+        isLoading: false,
         error: "분석 요청 중 오류 발생"
       });
-      return null;
+      return {
+        error: "분석 요청 오류",
+        errorMessage: "ERR_ANALYSIS_EXCEPTION"
+      };
     }
   };
 
