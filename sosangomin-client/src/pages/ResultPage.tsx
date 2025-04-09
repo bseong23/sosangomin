@@ -116,8 +116,8 @@ const ResultPage: React.FC = () => {
   // 매장이 등록되어 있지 않은 경우
   if (!hasRegisteredStore) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-basic-white rounded-lg shadow-lg p-8 max-w-md text-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-basic-white rounded-lg shadow-2xl p-8 max-w-md text-center border border-gray-200">
           <svg
             className="w-16 h-16 text-bit-main mx-auto mb-4"
             fill="none"

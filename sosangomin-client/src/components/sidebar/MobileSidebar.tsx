@@ -114,7 +114,7 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
       <div className="flex justify-between items-center p-4">
         <button
           onClick={toggleSidebar}
-          className="text-white p-2 hover:bg-blue-900 rounded-full transition-colors"
+          className="text-white p-2 hover:bg-blue-900 rounded-full transition-colors cursor-pointer"
           aria-label="닫기"
         >
           <svg
@@ -192,7 +192,7 @@ const MobileSidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         <div className="px-4 py-3"></div>
       )}
 
-      <div className="px-4 py-10 flex-grow">
+      <div className="px-4 py-10 flex-grow cursor-pointer">
         {menuItems.map((item, index) => (
           <SidebarMenuItem key={index} item={item} toggleMenu={toggleMenu} />
         ))}

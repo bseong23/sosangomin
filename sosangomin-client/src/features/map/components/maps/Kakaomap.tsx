@@ -43,8 +43,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
           const { latitude, longitude } = position.coords;
           setUserLocation({ lat: latitude, lng: longitude });
         },
-        (error) => {
-          console.error("위치 정보 가져오기 실패:", error);
+        () => {
           // 위치 정보 거부 시 userLocation은 null로 유지되어 기본 center 값이 사용됨
         },
         {

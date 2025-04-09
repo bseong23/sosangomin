@@ -138,14 +138,6 @@ const MainContent: React.FC = () => {
   }, [files.length, representativeStore, setFileData]);
 
   // 컴포넌트 마운트 시 스토어 ID 설정 확인
-  useEffect(() => {
-    // 대표 스토어가 없는 경우 경고 표시 또는 다른 처리를 할 수 있습니다.
-    if (!representativeStore) {
-      console.warn("대표 매장이 설정되어 있지 않습니다.");
-    } else {
-      // 디버깅: 대표 매장 정보 로깅
-    }
-  }, [representativeStore]);
 
   const handleFileUpload = (files: FileList): void => {
     addFiles(Array.from(files));
@@ -406,6 +398,41 @@ const MainContent: React.FC = () => {
       </div>
     );
   };
+  // 대표 매장이 없는 경우 로딩 화면 표시
+  if (!representativeStore) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-basic-white rounded-lg shadow-2xl p-8 max-w-md text-center border border-gray-200">
+          <svg
+            className="w-16 h-16 text-bit-main mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h2 className="text-2xl font-semibold text-bit-main mb-4">
+            등록된 매장이 없습니다
+          </h2>
+          <p className="text-comment mb-6">
+            분석 보고서를 생성하기 위해서는 매장 등록이 필요합니다.
+          </p>
+          <a
+            href="/mypage" // 매장 등록 페이지 경로로 수정
+            className="inline-block py-3 px-6 bg-bit-main text-basic-white rounded-md hover:bg-opacity-90 transition duration-200"
+          >
+            매장 등록하기
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen w-full max-w-[1200px] p-6 mx-auto">

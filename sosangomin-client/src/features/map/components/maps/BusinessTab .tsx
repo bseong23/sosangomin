@@ -289,7 +289,7 @@ const BusinessTab: React.FC<BusinessTabProps> = ({
                 <p className="text-sm">
                   {selectedCategory} 순위:
                   <span className="font-bold text-lg text-blue-600">
-                    {businessData.food_category_stats.서울시.industry_rank} 위
+                    {businessData.food_category_stats.서울시.industry_rank}위
                   </span>
                 </p>
               </div>
