@@ -337,7 +337,7 @@ const Recommendmap: React.FC<RecommendmapProps> = ({ onMapData }) => {
           </div>
         </div>
 
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 mt-1 break-keep">
           최소 1개 이상, 최대 3개까지 선택할 수 있습니다.
         </p>
       </div>

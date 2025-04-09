@@ -64,7 +64,7 @@ const Analysismap: React.FC<MapSidebarProps> = ({
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           동을 클릭해주세요
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-sm break-keep">
           지도에서 분석하고 싶은 행정동을 선택하면 상세 정보를 확인할 수
           있습니다
         </p>

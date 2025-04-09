@@ -200,8 +200,6 @@ const ReviewCompare: React.FC = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
       timeZone: "Asia/Seoul" // 이게 자동으로 9시간 더해줘!
     }).format(date);
   };
@@ -374,13 +372,13 @@ const ReviewCompare: React.FC = () => {
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-blue-600 mb-4  text-lg">
+          <p className="text-blue-600 mb-4 text-lg">
             <span className="font-semibold">[경쟁사 검색하기]</span> 버튼을 눌러
             <br />
             주변 매장을 선택하고 비교 분석을 시작해보세요.
           </p>
           <p className="text-base text-blue-500">
-            또는 우측 드롭다운에서 이전에 분석했던 기록을 확인해 보세요.
+            이전에 분석했던 기록은 상단 목록에서 조회해 보세요.
           </p>
         </div>
       )}
@@ -402,7 +400,7 @@ const ReviewCompare: React.FC = () => {
           onComplete={handleLocationSelect}
         />
       )}
-      <div className="text-gray-400 text-xs mt-2">
+      <div className="text-gray-400 text-xs mt-2 break-keep">
         ※ 본 서비스는 다양한 소비자 리뷰를 수집·분석하여 인사이트를 제공하는
         도구입니다. 리뷰는 개인의 주관적인 의견이므로, 이를 악의적으로
         해석하거나 특정 업체를 비방하는 용도로 사용하는 것은 지양해 주시기
