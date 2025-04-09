@@ -152,7 +152,15 @@ class ReviewService:
                     "div.pui__vn15t2", 
                     "div.place_review", 
                     "div.YeUwq",
-                    "div.place_section_content"
+                    "div.place_section_content",
+                    "ul.PVzvR > li",  
+                    "ul.WoYpd > li",  
+                    "div.ZZ4OK > div",  
+                    "li.xg2_q",       
+                    "div._1kUrA",     
+                    "div._3uEkn",     
+                    "div.LHv0Z",      
+                    "div.eCPGL"       
                 ]
                 
                 for selector in selectors:
