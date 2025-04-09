@@ -78,9 +78,6 @@ const ReviewDashBoard: React.FC = () => {
               // 오늘 분석이 없는 경우 선택된 분석 ID 초기화
               setSelectedAnalysisId(null);
             }
-
-            // 콘솔에 오늘 분석 여부 출력 (디버깅용)
-            console.log("오늘 분석 존재 여부:", !!todayAnalysis);
           } else {
             // 분석 데이터가 없는 경우 선택된 분석 ID 초기화
             setSelectedAnalysisId(null);
