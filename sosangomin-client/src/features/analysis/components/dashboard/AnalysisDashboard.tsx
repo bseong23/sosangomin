@@ -20,6 +20,8 @@ import DateRangeSection from "./DateRangeSection";
 import ProductShareSection from "./ProductShareSection";
 import { getAnalysisResult } from "../../api/analysisApi";
 import MonthlySalesSection from "./MonthlySalesSection";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const AnalysisDashboard: React.FC = () => {
   const { analysisId } = useParams<{ analysisId?: string }>();
@@ -41,6 +43,79 @@ const AnalysisDashboard: React.FC = () => {
     setSelectedAnalysisId,
     debugState
   } = useAnalysisStore();
+
+  const handleExportPDF = async () => {
+    const reportElement = document.getElementById("research-page");
+    if (!reportElement) return;
+
+    reportElement.classList.add("pdf-export");
+
+    const canvas = await html2canvas(reportElement, {
+      scale: 2,
+      useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pageWidth;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    // 여러 페이지일 경우 분할
+    if (imgHeight <= pageHeight) {
+      // 한 페이지에 들어가는 경우
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    } else {
+      // 여러 페이지에 걸쳐서 이미지 넣기
+      const canvasHeight = canvas.height;
+      const canvasWidth = canvas.width;
+      const pageCanvas = document.createElement("canvas");
+      const pageContext = pageCanvas.getContext("2d")!;
+      const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
+
+      let renderedHeight = 0;
+
+      while (renderedHeight < canvasHeight) {
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = Math.min(
+          pageHeightPx,
+          canvasHeight - renderedHeight
+        );
+
+        pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
+        pageContext.drawImage(
+          canvas,
+          0,
+          renderedHeight,
+          canvasWidth,
+          pageCanvas.height,
+          0,
+          0,
+          canvasWidth,
+          pageCanvas.height
+        );
+
+        const pageData = pageCanvas.toDataURL("image/png");
+        if (renderedHeight > 0) pdf.addPage();
+        pdf.addImage(
+          pageData,
+          "PNG",
+          0,
+          0,
+          imgWidth,
+          (pageCanvas.height * imgWidth) / canvasWidth
+        );
+
+        renderedHeight += pageHeightPx;
+      }
+    }
+
+    pdf.save(`보고서.pdf`);
+    reportElement.classList.remove("pdf-export");
+  };
 
   // 원본 API 데이터를 저장하기 위한 상태
   const [originalApiData, setOriginalApiData] = useState<any>(null);
@@ -353,7 +428,7 @@ const AnalysisDashboard: React.FC = () => {
   return (
     <div>
       <div className="max-w-[1200px] mx-auto p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-15 gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start sm:items-center mb-15 gap-4">
           <h1 className="text-xl font-bold text-comment">
             <span className="text-bit-main font-bold text-2xl">
               {representativeStore.store_name}
@@ -370,6 +445,12 @@ const AnalysisDashboard: React.FC = () => {
               selectedAnalysis={selectedAnalysis}
               onAnalysisSelect={handleAnalysisSelect}
             />
+            <button
+              onClick={handleExportPDF}
+              className="ml-5 px-3 py-2 bg-bit-main hover:bg-blue-900 text-white rounded-lg text-sm transition"
+            >
+              PDF 추출
+            </button>
           </div>
         </div>
 

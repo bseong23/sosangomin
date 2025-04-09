@@ -5,6 +5,7 @@ import { ComparisonData } from "@/features/competitor/types/competitor";
 import SearchableMapModal from "@/features/competitor/components/SearchableMapModel";
 import ImprovedCompetitorReportSection from "@/features/competitor/components/ImprovedCompetitorReportSection";
 import { useCompetitorStore } from "@/store/useCompetitorStore";
+import Loading from "@/components/common/Loading";
 
 // ✅ 타입 정의 유지
 interface CompetitorComparisonSummaryWithData {
@@ -22,7 +23,9 @@ const ReviewCompare: React.FC = () => {
   );
   const storeId = representativeStore?.store_id;
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [, setIsFetchingList] = useState(false);
+  const [isFetchingList, setIsFetchingList] = useState(false);
+  // GET 요청 로딩 상태를 추적하기 위한 state
+  const [isGetLoading, setIsGetLoading] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [comparisonResults, setComparisonResults] = useState<
@@ -80,6 +83,7 @@ const ReviewCompare: React.FC = () => {
     }
     try {
       setIsFetchingList(true);
+      setLoading(true);
       const response = await getCompetitorComparisons(storeId);
 
       if (
@@ -117,6 +121,7 @@ const ReviewCompare: React.FC = () => {
       setError("경쟁사 분석 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
+      setIsFetchingList(false);
     }
   };
 
@@ -187,7 +192,12 @@ const ReviewCompare: React.FC = () => {
       useCompetitorStore.getState().getComparisonDetail;
 
     if (!cached) {
-      await getComparisonDetail(comparisonId); // 캐시에 없으면 불러오기
+      setIsGetLoading(true);
+      try {
+        await getComparisonDetail(comparisonId); // 캐시에 없으면 불러오기
+      } finally {
+        setIsGetLoading(false);
+      }
     }
 
     setSelectedComparisonId(comparisonId); // 그 후 상태 설정
@@ -236,6 +246,15 @@ const ReviewCompare: React.FC = () => {
             매장 등록하기
           </a>
         </div>
+      </div>
+    );
+  }
+
+  // 초기 데이터 로딩 또는 GET 요청 로딩 중에는 Loading 컴포넌트 표시
+  if (isFetchingList || isGetLoading) {
+    return (
+      <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
+        <Loading />
       </div>
     );
   }
@@ -324,7 +343,7 @@ const ReviewCompare: React.FC = () => {
           </div>
         </div>
       )}
-      {/* 로딩 중 표시 */}
+      {/* 로딩 중 표시 (POST 요청 - 분석 중) */}
       {isAnalyzing && (
         <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-8 mb-6 mt-5 animate-pulse">
           <svg

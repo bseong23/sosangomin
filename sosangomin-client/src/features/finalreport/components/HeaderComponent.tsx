@@ -1,5 +1,7 @@
 import React from "react";
 import { FinalReportDetail } from "../types/finalReport";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface HeaderComponentProps {
   data: FinalReportDetail;
@@ -12,6 +14,79 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   onCreateReport,
   isCreating = false // 기본값은 false
 }) => {
+  const handleExportPDF = async () => {
+    const reportElement = document.getElementById("report-content");
+    if (!reportElement) return;
+
+    reportElement.classList.add("pdf-export");
+
+    const canvas = await html2canvas(reportElement, {
+      scale: 2,
+      useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pageWidth;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    // 여러 페이지일 경우 분할
+    if (imgHeight <= pageHeight) {
+      // 한 페이지에 들어가는 경우
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    } else {
+      // 여러 페이지에 걸쳐서 이미지 넣기
+      const canvasHeight = canvas.height;
+      const canvasWidth = canvas.width;
+      const pageCanvas = document.createElement("canvas");
+      const pageContext = pageCanvas.getContext("2d")!;
+      const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
+
+      let renderedHeight = 0;
+
+      while (renderedHeight < canvasHeight) {
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = Math.min(
+          pageHeightPx,
+          canvasHeight - renderedHeight
+        );
+
+        pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
+        pageContext.drawImage(
+          canvas,
+          0,
+          renderedHeight,
+          canvasWidth,
+          pageCanvas.height,
+          0,
+          0,
+          canvasWidth,
+          pageCanvas.height
+        );
+
+        const pageData = pageCanvas.toDataURL("image/png");
+        if (renderedHeight > 0) pdf.addPage();
+        pdf.addImage(
+          pageData,
+          "PNG",
+          0,
+          0,
+          imgWidth,
+          (pageCanvas.height * imgWidth) / canvasWidth
+        );
+
+        renderedHeight += pageHeightPx;
+      }
+    }
+
+    pdf.save(`${data.store_name}_보고서.pdf`);
+    reportElement.classList.remove("pdf-export");
+  };
+
   return (
     <div className="bg-basic-white rounded-lg mb-6 p-4 md:p-5 lg:p-6 shadow-[0_0_15px_rgba(0,0,0,0.1)]">
       <div className="flex justify-between items-center flex-wrap">
@@ -22,9 +97,16 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
 
         <div className="flex items-center mt-3 sm:mt-0 space-x-3 md:space-x-4 lg:space-x-5">
           {/* 분석하기 버튼 - 항상 표시됨 */}
+          {/* PDF 저장 버튼 */}
+          <button
+            onClick={handleExportPDF}
+            className="ml-5 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-bit-main rounded-lg text-sm transition"
+          >
+            PDF 저장
+          </button>
           <button
             onClick={onCreateReport}
-            className={`flex items-center px-3 py-2 md:px-4 md:py-2 lg:px-5 lg:py-3 ${
+            className={`flex items-center px-3 py-2 rounded-lg hover:bg-blue-900 ${
               isCreating || !onCreateReport
                 ? "bg-comment-text cursor-not-allowed"
                 : "bg-bit-main hover:bg-opacity-90"

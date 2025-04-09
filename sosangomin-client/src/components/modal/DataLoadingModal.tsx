@@ -51,6 +51,27 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
   const prevIsOpenRef = useRef<boolean>(false);
   const [shouldNavigate, setShouldNavigate] = useState(false);
 
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (isLoading) {
+      const interval = setInterval(() => {
+        setProgress((prevProgress) => {
+          // 진행도를 증가시키되 최대 90%까지만
+          return prevProgress < 90
+            ? prevProgress + 5
+            : prevProgress === 100
+            ? 10
+            : prevProgress;
+        });
+      }, 500);
+
+      return () => clearInterval(interval);
+    } else {
+      setProgress(100); // 로딩 완료 시 100%
+    }
+  }, [isLoading]);
+
   const handleErrorClose = () => {
     // 단순히 모달만 닫고 navigate은 트리거하지 않음
     closeModal();
@@ -484,9 +505,14 @@ const DataLoadingModal: React.FC<DataLoadingModalProps> = ({
                     {fileCount}개의 {posType} 영수증 파일을 분석하고 있습니다.
                   </p>
                 </div>
-
                 <div className="w-full bg-gray-200 rounded-full h-2.5 mb-6">
-                  <div className="bg-bit-main h-2.5 rounded-full w-2/3 animate-[loading_3s_ease-in-out_infinite]"></div>
+                  <div
+                    className="bg-bit-main h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <div className="text-center text-sm mb-5 text-gray-600">
+                  {progress === 100 ? "완료!" : `${progress}% 진행 중...`}
                 </div>
 
                 <button

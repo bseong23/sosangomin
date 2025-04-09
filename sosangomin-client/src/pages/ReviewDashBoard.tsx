@@ -11,6 +11,8 @@ const ReviewDashBoard: React.FC = () => {
   const selectedStore = useStoreStore((state) => state.representativeStore);
   // 초기 데이터 로딩 상태를 추적하기 위한 state
   const [initialLoading, setInitialLoading] = useState(false);
+  // GET 요청 로딩 상태를 추적하기 위한 state
+  const [isGetLoading, setIsGetLoading] = useState(false);
 
   const {
     loading,
@@ -101,8 +103,15 @@ const ReviewDashBoard: React.FC = () => {
       return;
     }
     setSelectedAnalysisId(analysisId);
+
+    // GET 요청 로딩 상태 설정
     if (!analysisDetailCache[analysisId]) {
-      await getAnalysisDetail(analysisId);
+      setIsGetLoading(true);
+      try {
+        await getAnalysisDetail(analysisId);
+      } finally {
+        setIsGetLoading(false);
+      }
     }
   };
 
@@ -155,8 +164,8 @@ const ReviewDashBoard: React.FC = () => {
     );
   };
 
-  // 초기 로딩 중에는 Loading 컴포넌트만 표시
-  if (initialLoading) {
+  // 초기 로딩 또는 GET 요청 로딩 중에는 Loading 컴포넌트만 표시
+  if (initialLoading || isGetLoading) {
     return (
       <div className="max-w-[1000px] mx-auto p-4 md:p-6 rounded-lg">
         <Loading />
