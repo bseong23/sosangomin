@@ -160,9 +160,18 @@ class ReviewService:
                     "div._1kUrA",     
                     "div._3uEkn",     
                     "div.LHv0Z",      
-                    "div.eCPGL"       
+                    "div.eCPGL",
+                    "li.place_apply_pui",      
+                    "div.EjjAW",                
+                    "a[data-pui-click-code='rvshowmore']",
+                    "#app-root > div > div > div > div:nth-child(6) > div:nth-child(3) > div.place_section.k1QQ5 > div.place_section_content",
+                    "div.place_section.k1QQ5 > div.place_section_content"
                 ]
-                
+                xpath_selectors = [
+                    "//div[@class='place_section_content']",
+                    "//*[@id='app-root']/div/div/div/div[6]/div[3]/div[contains(@class,'place_section')]/div[contains(@class,'place_section_content')]"
+                ]
+                                
                 for selector in selectors:
                     try:
                         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
@@ -250,6 +259,15 @@ class ReviewService:
                                 continue
                         
                         break
+                    if not review_elements:
+                        for xpath in xpath_selectors:
+                            try:
+                                review_elements = driver.find_elements(By.XPATH, xpath)
+                                if review_elements:
+                                    logger.info(f"{xpath} XPath로 {len(review_elements)}개 리뷰 찾음")
+                                    break
+                            except:
+                                continue
                 
                 logger.info(f"성공적으로 {len(reviews)}개의 리뷰를 파싱했습니다.")
                 
