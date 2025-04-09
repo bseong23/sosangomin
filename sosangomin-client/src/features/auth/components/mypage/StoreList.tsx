@@ -12,10 +12,14 @@ const StoreList: React.FC = () => {
   const [storeListData, setStoreListData] = useState<StoreListResponse | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true);
+
   const { setRepresentativeStore } = useStoreStore();
 
   // 가게 목록 가져오기
   const fetchStores = async () => {
+    setIsLoading(true);
+
     try {
       const response = await getStoreList();
       setStoreListData(response);
@@ -31,6 +35,8 @@ const StoreList: React.FC = () => {
       }
     } catch (error) {
       console.error("가게 목록 불러오기 실패:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,37 +78,22 @@ const StoreList: React.FC = () => {
     }
   };
 
-  if (!storeListData) {
-    return <div className="text-center py-8">데이터를 불러오는 중...</div>;
+  if (isLoading) {
+    return;
   }
 
-  if (storeListData.stores.length === 0) {
+  if (!storeListData || storeListData.stores.length === 0) {
     return (
       <div className="text-center py-8 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">{storeListData.message}</p>
+        <p className="text-gray-500">
+          {storeListData?.message || "등록된 가게가 없습니다."}
+        </p>
       </div>
     );
   }
 
-  // is_main이 true인 대표 가게 찾기
-  const mainStore = storeListData.stores.find(
-    (store: StoreInfo) => store.is_main === true
-  );
-
   return (
-    <div className="mt-6">
-      {mainStore && (
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">대표 가게</h3>
-          <Store
-            store={mainStore}
-            isRepresentative={true}
-            onSetRepresentative={handleSetRepresentative}
-            onDeleteStore={handleDeleteStore}
-          />
-        </div>
-      )}
-      <h3 className="text-lg font-semibold mb-3">모든 가게</h3>
+    <div className="">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {storeListData.stores.map((store) => (
           <Store
