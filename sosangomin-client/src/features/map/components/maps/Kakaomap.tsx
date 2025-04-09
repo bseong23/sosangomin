@@ -147,12 +147,36 @@ const Kakaomap: React.FC<KakaomapProps> = ({
   };
 
   // GeoJSON 데이터를 폴리곤으로 표시
-  // GeoJSON 데이터를 폴리곤으로 표시
   useEffect(() => {
     if (mapInstance && geoJsonData) {
       // 기존 폴리곤 제거
-      polygonsRef.current.forEach((polygon) => polygon.setMap(null));
-      polygonsRef.current = []; // 배열 초기화
+      if (polygonsRef.current && polygonsRef.current.length > 0) {
+        polygonsRef.current.forEach((polygon) => {
+          if (polygon) polygon.setMap(null);
+        });
+        polygonsRef.current = []; // 배열 초기화
+      }
+
+      // 모든 커스텀 오버레이(툴팁) 제거
+      const clearAllTooltips = () => {
+        try {
+          // 지도에 있는 모든 오버레이 제거 시도
+          const mapNode = mapInstance.getNode();
+          if (mapNode) {
+            const overlayNodes = mapNode.querySelectorAll(".custom-overlay");
+            overlayNodes.forEach((node: any) => {
+              if (node && node.parentNode) {
+                node.parentNode.removeChild(node);
+              }
+            });
+          }
+        } catch (e) {
+          console.log("오버레이 제거 중 오류 발생:", e);
+        }
+      };
+
+      // 기존 툴팁 제거
+      clearAllTooltips();
 
       if (recommendedAreas && recommendedAreas.length > 0) {
         // 추천 지역 데이터로 폴리곤 생성
@@ -160,7 +184,7 @@ const Kakaomap: React.FC<KakaomapProps> = ({
           strokeColor: "#333333",
           strokeOpacity: 0.5,
           strokeWeight: 1,
-          fillOpacity: 0.1,
+          fillOpacity: 0.2,
           fitBounds: true,
           polygonsRef: polygonsRef,
           onPolygonClick: handlePolygonClick
@@ -171,13 +195,19 @@ const Kakaomap: React.FC<KakaomapProps> = ({
           strokeColor: "#333333",
           strokeOpacity: 0.5,
           strokeWeight: 1,
-          fillOpacity: 0.1,
+          fillOpacity: 0.2,
           populationData: populationData,
           getColorByPopulation: getColorByPopulation,
           fitBounds: false,
+          polygonsRef: polygonsRef,
           onPolygonClick: handlePolygonClick
         });
       }
+
+      // 모든 툴팁을 강제로 제거하는 추가 안전장치
+      setTimeout(clearAllTooltips, 100);
+      setTimeout(clearAllTooltips, 300);
+      setTimeout(clearAllTooltips, 500);
     }
   }, [mapInstance, geoJsonData, recommendedAreas, populationData]);
 

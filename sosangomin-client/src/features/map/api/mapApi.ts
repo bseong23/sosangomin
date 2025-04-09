@@ -175,6 +175,8 @@ export const displayGeoJsonPolygon = (
   };
 
   const bounds = new window.kakao.maps.LatLngBounds();
+
+  // 하나의 공유된 커스텀 오버레이 생성
   const customOverlay = new window.kakao.maps.CustomOverlay({
     position: new window.kakao.maps.LatLng(0, 0),
     content: "",
@@ -182,6 +184,15 @@ export const displayGeoJsonPolygon = (
     yAnchor: 1.5,
     zIndex: 3
   });
+
+  // 생성된 폴리곤들을 저장할 배열
+  const createdPolygons: any[] = [];
+
+  // 현재 마우스가 올라간 폴리곤 추적
+  let currentHoveredPolygon: any = null;
+
+  // 초기 마우스 위치 확인 플래그
+  let initialMouseCheckDone = false;
 
   // GeoJSON 데이터 처리
   geoJsonData.features.forEach((feature: any) => {
@@ -259,6 +270,9 @@ export const displayGeoJsonPolygon = (
       fillOpacity: defaultStyle.fillOpacity
     });
 
+    // 생성된 폴리곤을 배열에 추가
+    createdPolygons.push(polygon);
+
     const tooltipStyle = `
     background: rgba(255, 255, 255, 0.9);
     padding: 8px 12px;
@@ -270,25 +284,40 @@ export const displayGeoJsonPolygon = (
     position: relative;
     white-space: nowrap;
     line-height: 1.5;
-  `;
+    `;
+
+    // 폴리곤에 데이터 저장 (나중에 참조하기 위함)
+    polygon.adminName = simpleName;
+    polygon.populationData = {
+      population,
+      workplacePopulation,
+      residentPopulation,
+      storecount
+    };
+
     window.kakao.maps.event.addListener(
       polygon,
       "mouseover",
       function (mouseEvent: any) {
+        // 초기 마우스 체크가 완료되지 않았으면 툴팁을 표시하지 않음
+        if (!initialMouseCheckDone) return;
+
+        // 현재 마우스가 올라간 폴리곤 업데이트
+        currentHoveredPolygon = polygon;
+
         polygon.setOptions({
           fillOpacity: defaultStyle.fillOpacity + 0.2
         });
 
         customOverlay.setContent(`
-      <div style="${tooltipStyle}">
-    
-        <strong style="color: #333; font-size: 14px;">${simpleName}</strong><br/>
-        <span style="color: #ff5733;">유동인구:</span> ${population.toLocaleString()}명<br/>
-       <span style="color: #3399ff;">직장인구:</span> ${workplacePopulation.toLocaleString()}명<br/>
-    <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명<br/>
-      <span style="color: #33cc33;">총 업소 수:</span> ${storecount.toLocaleString()}개
-      </div>
-    `);
+        <div style="${tooltipStyle}">
+          <strong style="color: #333; font-size: 14px;">${simpleName}</strong><br/>
+          <span style="color: #ff5733;">유동인구:</span> ${population.toLocaleString()}명<br/>
+          <span style="color: #3399ff;">직장인구:</span> ${workplacePopulation.toLocaleString()}명<br/>
+          <span style="color: #33cc33;">거주인구:</span> ${residentPopulation.toLocaleString()}명<br/>
+          <span style="color: #33cc33;">총 업소 수:</span> ${storecount.toLocaleString()}개
+        </div>
+        `);
 
         customOverlay.setPosition(mouseEvent.latLng);
         customOverlay.setMap(map);
@@ -299,15 +328,27 @@ export const displayGeoJsonPolygon = (
       polygon,
       "mousemove",
       function (mouseEvent: any) {
-        customOverlay.setPosition(mouseEvent.latLng);
+        // 초기 마우스 체크가 완료되지 않았으면 툴팁을 표시하지 않음
+        if (!initialMouseCheckDone) return;
+
+        if (currentHoveredPolygon === polygon) {
+          customOverlay.setPosition(mouseEvent.latLng);
+        }
       }
     );
 
     window.kakao.maps.event.addListener(polygon, "mouseout", function () {
-      polygon.setOptions({
-        fillOpacity: defaultStyle.fillOpacity
-      });
-      customOverlay.setMap(null);
+      // 초기 마우스 체크가 완료되지 않았으면 무시
+      if (!initialMouseCheckDone) return;
+
+      // 마우스가 현재 폴리곤에서 벗어났을 때만 처리
+      if (currentHoveredPolygon === polygon) {
+        currentHoveredPolygon = null;
+        polygon.setOptions({
+          fillOpacity: defaultStyle.fillOpacity
+        });
+        customOverlay.setMap(null);
+      }
     });
 
     window.kakao.maps.event.addListener(polygon, "click", function () {
@@ -329,9 +370,50 @@ export const displayGeoJsonPolygon = (
     });
   });
 
+  // 지도에 마우스 이벤트 추가 - 지도 영역으로 마우스가 이동했을 때 툴팁 제거
+  // window.kakao.maps.event.addListener(
+  //   map,
+  //   "mousemove",
+  //   function (mouseEvent: any) {
+  //     // 초기 마우스 체크 완료 표시
+  //     if (!initialMouseCheckDone) {
+  //       initialMouseCheckDone = true;
+  //       // 초기 상태에서는 툴팁을 표시하지 않음
+  //       customOverlay.setMap(null);
+  //     }
+
+  //     // 마우스가 폴리곤 위에 없는 경우에만 툴팁 제거
+  //     if (!currentHoveredPolygon) {
+  //       customOverlay.setMap(null);
+  //     }
+  //   }
+  // );
+
+  // 지도 로드 완료 후 초기 상태 설정
+  window.kakao.maps.event.addListener(map, "tilesloaded", function () {
+    // 타일 로드 완료 후 초기 마우스 체크 완료 표시
+    setTimeout(() => {
+      initialMouseCheckDone = true;
+      // 초기 상태에서는 툴팁을 표시하지 않음
+      customOverlay.setMap(null);
+    }, 200);
+  });
+
+  // polygonsRef가 제공되었다면 생성된 폴리곤 참조를 저장
+  if (options.polygonsRef && options.polygonsRef.current) {
+    // 기존 폴리곤 참조 배열에 새로 생성된 폴리곤들 추가
+    options.polygonsRef.current.push(...createdPolygons);
+  }
+
   if (options.fitBounds) {
     map.setBounds(bounds);
   }
+
+  // 초기 상태에서는 툴팁을 표시하지 않도록 설정
+  setTimeout(() => {
+    initialMouseCheckDone = true;
+    customOverlay.setMap(null);
+  }, 500);
 };
 
 // 추천 지역 데이터를 이용해 폴리곤 표시 함수
