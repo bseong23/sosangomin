@@ -7,7 +7,6 @@ import {
 } from "@/features/board/api/boardApi";
 import BoardList from "@/features/board/components/boards/BoardList";
 import Pagination from "@/components/common/Pagination";
-import SearchBar from "@/components/common/SearchBar";
 import WriteButton from "@/features/board/components/boards/WriteButton";
 import Loading from "@/components/common/Loading";
 import Banner from "@/features/board/components/boards/Banner";
@@ -75,13 +74,6 @@ const Board: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleSearch = (keyword: string) => {
-    setSearchParams({
-      page: "1",
-      search: keyword
-    });
-  };
-
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <Banner />
@@ -90,9 +82,6 @@ const Board: React.FC = () => {
           <div className="flex justify-between pb-5">
             <div className="flex text-xl font-bold items-center">
               자유게시판
-            </div>
-            <div className="flex justify-end items-center">
-              <SearchBar onSearch={handleSearch} placeholder="" />
             </div>
           </div>
 
