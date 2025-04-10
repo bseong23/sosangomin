@@ -21,7 +21,7 @@ import PosData1 from "@/assets/POS_data_1.webp";
 import PosData2 from "@/assets/POS_data_2.webp";
 import Kiwoom1 from "@/assets/kiwoom1.png";
 import Kiwoom2 from "@/assets/kiwoom2.png";
-import Kiwoom3 from "@/assets/kiwoom3.png";
+// import Kiwoom3 from "@/assets/kiwoom3.png";
 
 const MainContent: React.FC = () => {
   // Zustand 스토어에서 필요한 상태와 액션 가져오기
@@ -384,11 +384,11 @@ const MainContent: React.FC = () => {
                       매출내역
                     </span>
                     을 선택하고 원하는 기간을 설정합니다.
-                    <img
+                    {/* <img
                       src={Kiwoom3}
                       alt="키움페이 영수증 출력 방법 1단계"
                       className="w-full mt-5 h-auto object-contain mb-2"
-                    />
+                    /> */}
                   </li>
                   <li>
                     <span className="text-red-500 mb-3 font-medium">
