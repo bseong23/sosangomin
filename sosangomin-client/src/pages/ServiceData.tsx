@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import FeatureCard from "@/features/service/FeatureCard";
 import InsightCards from "@/features/service/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
-import service1 from "@/assets/service1.png";
-import service2 from "@/assets/service2.png";
-import service3 from "@/assets/service3.png";
+import service1 from "@/assets/salsedata.png";
+import service2 from "@/assets/itemsdata.png";
+import service3 from "@/assets/dataimg.png";
 
 interface FeatureItemProps {
   title: string;
@@ -203,35 +203,6 @@ const DataAnalysisPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 서비스 소개 섹션 */}
-        {/* <section className="py-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-keeps text-bit-main font-semibold mb-4">
-              서비스 소개
-            </span>
-            <h2 className="text-3xl break-keeps font-bold mb-6">
-              복잡한 데이터를 쉬운 인사이트로
-            </h2>
-            <p className="text-lg break-keeps text-gray-700 max-w-2xl mx-auto">
-              소상공인을 위한 데이터 분석 서비스는 복잡한 POS 데이터를 쉽게
-              이해할 수 있는 인사이트로 변환해 드립니다.
-            </p>
-          </div>
-        </section> */}
-
-        {/* 주요 기능 섹션 */}
-        {/* <div className="text-center mb-16">
-            <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
-              핵심 기능
-            </span>
-            <h2 className="text-3xl font-bold mb-6">
-              POS 데이터 분석 핵심 기능
-            </h2>
-            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-              소상공인의 매출 증대와 효율적인 운영을 위한 다양한 분석 기능을
-              제공합니다.
-            </p>
-          </div> */}
         <section className="py-16">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full break-keeps text-bit-main font-semibold mb-4">
@@ -302,7 +273,7 @@ const DataAnalysisPage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto px-6">
             {[
               {
-                name: "김현진",
+                name: "김현진님",
                 business: "카페 운영",
                 review:
                   "매출 데이터를 분석해 주셔서 잘 팔리지 않는 메뉴들을 쉽게 정리할 수 있었어요. 인기 많은 음료에 집중하려고 합니다.",
@@ -310,7 +281,7 @@ const DataAnalysisPage: React.FC = () => {
               },
 
               {
-                name: "보성오빠어머니성함..?",
+                name: "배은경님",
                 business: "식당 운영",
                 review:
                   "인사이트 내용을 적용시켜 저녁 특선 메뉴를 추가하였더니 매출이 증가하였습니다.",

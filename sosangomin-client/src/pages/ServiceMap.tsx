@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import FeatureCard from "@/features/service/FeatureCard";
 import StepGuide from "@/features/service/StepGuide";
-import ex_map from "@/assets/ex_map.png";
+import recommend from "@/assets/recommend.png";
+import analysis_map from "@/assets/analysis_map.png";
 
 interface FeatureItemProps {
   title: string;
@@ -39,7 +40,7 @@ const LocationAnalysisPage: React.FC = () => {
     {
       title: "상권 분석 서비스",
       headerColor: "bg-bit-main",
-      image: ex_map,
+      image: analysis_map,
       points: [
         {
           title: "인구 데이터 분석",
@@ -61,7 +62,7 @@ const LocationAnalysisPage: React.FC = () => {
     {
       title: "입지 추천 서비스",
       headerColor: "bg-bit-main",
-      image: ex_map,
+      image: recommend,
       points: [
         {
           title: "맞춤형 입지 추천",
@@ -69,29 +70,13 @@ const LocationAnalysisPage: React.FC = () => {
             "업종, 타겟 연령, 우선순위에 맞는 최적의 입지를 추천합니다."
         },
         {
-          title: "추천 입지 랭킹",
-          description:
-            "입지 조건 분석 결과에 따라 최적의 위치를 3순위로 제시합니다."
-        },
-        {
-          title: "입지별 상세 분석",
+          title: "추천 입지별 상세 분석",
           description: "추천된 각 입지의 장단점과 성공 가능성을 분석합니다."
-        }
-      ]
-    },
-
-    {
-      title: "데이터 시각화",
-      headerColor: "bg-bit-main",
-      image: ex_map,
-      points: [
-        {
-          title: "직관적 차트 제공",
-          description: "복잡한 데이터를 이해하기 쉬운 차트로 시각화합니다."
         },
         {
-          title: "지역별 히트맵",
-          description: "주요 지표에 따른 지역별 히트맵을 제공합니다."
+          title: "행정동별 등급 분류",
+          description:
+            "입지 조건 분석 결과에 따라 모든 행정동을 1등급에서 5등급으로 구분합니다."
         }
       ]
     }
@@ -242,14 +227,14 @@ const LocationAnalysisPage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto px-6">
             {[
               {
-                name: "김민석",
+                name: "김민석님",
                 business: "카페 창업",
                 review:
                   "입지 추천 서비스를 통해 전혀 생각하지 못했던 지역을 발견했어요. 그 지역은 유동인구가 많고 경쟁이 적어 창업 6개월 만에 손익분기점을 넘겼습니다.",
                 rating: 5
               },
               {
-                name: "이수진",
+                name: "이수진님",
                 business: "음식점 운영",
                 review:
                   "상권 분석 서비스로 우리 지역의 특성을 정확히 파악했어요. 타겟 연령층과 피크타임에 맞춰 영업시간을 최적화했더니 매출이 30% 증가했습니다.",
