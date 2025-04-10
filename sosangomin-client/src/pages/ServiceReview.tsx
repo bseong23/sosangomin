@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import FeatureCard from "@/features/service/FeatureCard";
 import InsightCards from "@/features/service/InsightCards";
 import StepGuide from "@/features/service/StepGuide";
-import service2 from "@/assets/service5.png";
-import service4 from "@/assets/ex_review.png";
-import service6 from "@/assets/service6.png";
+import service2 from "@/assets/review1.png";
+import service4 from "@/assets/myreview.png";
+import service6 from "@/assets/review2.png";
 
 interface FeatureItemProps {
   title: string;
@@ -40,56 +40,64 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ title, description }) => {
 const ReviewCompetitorAnalysisPage: React.FC = () => {
   const featureCards = [
     {
-      title: "리뷰 감성 분석",
+      title: "내 가게 리뷰 분석",
       headerColor: "bg-bit-main",
       image: service4,
       points: [
         {
-          title: "긍정/부정 리뷰 비율 분석",
+          title: "긍정·부정 리뷰 비율 분석",
           description:
-            "고객 리뷰의 감성을 분석하여 전반적인 고객 만족도를 파악합니다."
+            "고객 리뷰의 감성 분석을 통해 긍정과 부정 의견의 비율을 파악하고, 전반적인 고객 만족도를 진단할 수 있습니다."
         },
         {
           title: "핵심 키워드 추출",
           description:
-            "리뷰에서 자주 언급되는 키워드를 추출하여 주요 관심사를 파악합니다."
+            "긍정·부정 리뷰에서 자주 언급되는 키워드를 추출하여 고객이 만족하거나 불만을 느끼는 구체적인 요인을 파악할 수 있습니다."
+        },
+        {
+          title: "카테고리별 긍정·부정 리뷰",
+          description:
+            "요식업 주요 항목(음식, 서비스 등)에 대한 리뷰 수를 비교 분석하여 내 가게의 강점과 개선점을 파악할 수 있습니다."
         }
       ]
     },
     {
-      title: "고객 피드백 활용 전략",
+      title: "리뷰 분석 활용 전략 제안",
       headerColor: "bg-bit-main",
       image: service2,
       points: [
         {
-          title: "우선 개선 항목 도출",
+          title: "고객이 가장 만족하는 요소 파악",
           description:
-            "부정적 피드백이 집중된 항목을 우선 개선 대상으로 선정합니다."
+            "긍정 리뷰에서 반복적으로 언급된 키워드를 분석하여 고객이 높게 평가하는 매장의 강점을 파악할 수 있습니다."
         },
         {
-          title: "마케팅 포인트 발굴",
+          title: "개선이 필요한 부분 진단",
           description:
-            "긍정적 피드백이 많은 강점을 마케팅에 효과적으로 활용합니다."
+            "부정 리뷰를 중심으로 고객의 불만이나 불편 사항을 분석하여 개선이 필요한 요소를 확인할 수 있습니다."
         },
         {
-          title: "고객 응대 전략 수립",
-          description: "리뷰 패턴에 따른 효과적인 고객 응대 전략을 수립합니다."
+          title: "운영 개선을 위한 구체적 실행 제안",
+          description:
+            "리뷰 분석에서 도출된 인사이트를 바탕으로 실제 매장 운영에 적용 가능한 실행 전략을 제안합니다."
         }
       ]
     },
 
     {
-      title: "경쟁사 온라인 평판 분석",
+      title: "경쟁사 리뷰 비교 분석",
       headerColor: "bg-bit-main",
       image: service6,
       points: [
         {
-          title: "리뷰 비교 분석",
-          description: "경쟁업체의 온라인 평판을 비교 분석합니다."
+          title: "경쟁사 리뷰 데이터 분석",
+          description:
+            "경쟁 매장의 리뷰 데이터를 기반으로 긍정·부정 리뷰의 분포와 자주 언급되는 키워드를 분석하여 경쟁사의 강점과 약점을 파악할 수 있습니다."
         },
         {
-          title: "프로모션 전략 분석",
-          description: "경쟁업체의 리뷰를 분석하여 차별화된 전략을 수립합니다."
+          title: "전략 인사이트 도출",
+          description:
+            "경쟁사와의 비교 분석을 통해 우리 매장의 상대적 강점과 보완이 필요한 부분을 도출하고, 차별화 전략 수립에 활용할 수 있습니다."
         }
       ]
     }
@@ -220,7 +228,7 @@ const ReviewCompetitorAnalysisPage: React.FC = () => {
         </section>
 
         {/* 인사이트 예시 카드 */}
-        <section className="py-17 bg-gradient-to-b from-white to-gray-50">
+        <section className="py-17 bg-gradient-to-b to-gray-50">
           <div className="text-center">
             <span className="inline-block bg-bit-main/10 px-4 py-2 rounded-full text-bit-main font-semibold mb-4">
               실제 인사이트
@@ -259,14 +267,14 @@ const ReviewCompetitorAnalysisPage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto px-6">
             {[
               {
-                name: "박지영",
+                name: "박지영님",
                 business: "레스토랑 운영",
                 review:
                   "리뷰와 경쟁사 분석을 통해 우리 가게의 강점과 약점을 정확히 파악할 수 있었어요. 약점을 보완하고 강점을 강화하는 전략을 세워 매출이 15% 증가했습니다.",
                 rating: 5
               },
               {
-                name: "김도현",
+                name: "김도현님",
                 business: "카페 운영",
                 review:
                   "주변 경쟁 카페들과의 차별점을 찾는 데 큰 도움이 되었습니다. 리뷰 분석을 통해 발견한 고객 니즈를 바탕으로 신메뉴를 개발했더니 반응이 정말 좋습니다.",

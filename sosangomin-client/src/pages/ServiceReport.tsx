@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import FeatureCard from "@/features/service/FeatureCard";
 import StepGuide from "@/features/service/StepGuide";
-import service1 from "@/assets/ex_swot.png";
+import service1 from "@/assets/report_1.png";
+import service2 from "@/assets/report_2.png";
 
 interface FeatureItemProps {
   title: string;
@@ -37,36 +38,14 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ title, description }) => {
 const FinalReportService: React.FC = () => {
   const featureCards = [
     {
-      title: "종합 데이터 분석",
-      headerColor: "bg-bit-main",
-      image: service1,
-      points: [
-        {
-          title: "매출 데이터 통합 분석",
-          description:
-            "POS 데이터를 분석하여 매출 패턴, 인기 메뉴, 고객 행동 등 핵심 정보를 도출합니다."
-        },
-        {
-          title: "리뷰 데이터 통합 분석",
-          description:
-            "고객 리뷰를 분석하여 고객 만족도, 개선 요구사항, 경쟁 우위점을 파악합니다."
-        },
-        {
-          title: "상권 데이터 통합 분석",
-          description:
-            "인구, 업종, 매출 데이터를 종합적으로 분석하여 상권 특성과 기회 요인을 찾아냅니다."
-        }
-      ]
-    },
-    {
       title: "종합 인사이트 제공",
       headerColor: "bg-bit-main",
       image: service1,
       points: [
         {
-          title: "통합 데이터 인사이트",
+          title: "통합 데이터 분석",
           description:
-            "각 분석 결과를 종합하여 비즈니스 전반에 대한 통찰력 있는 인사이트를 제공합니다."
+            "매출, 리뷰, 상권 데이터를 통합 분석하여 전체적인 비즈니스 현황 파악합니다"
         },
         {
           title: "상관관계 분석",
@@ -76,29 +55,25 @@ const FinalReportService: React.FC = () => {
         {
           title: "SWOT 분석",
           description:
-            "강점, 약점, 기회, 위협 요소를 명확히 도출하여 전략적 의사결정을 지원합니다."
+            "모든 분석 결과를 종합하여 강점, 약점, 기회, 위협 요소를 명확히 도출하여 전략적 의사결정을 지원합니다."
         }
       ]
     },
+
     {
       title: "맞춤형 전략 제안",
       headerColor: "bg-bit-main",
-      image: service1,
+      image: service2,
       points: [
         {
           title: "종합 개선 전략",
           description:
-            "매출 향상, 고객 만족도 개선, 운영 효율화를 위한 종합 전략을 제안합니다."
+            "각 분석 결과를 종합하여 매출 향상, 고객 만족도 개선, 운영 효율화를 위한 종합 전략을 제안합니다."
         },
         {
-          title: "우선순위 로드맵",
+          title: "실행 개선 방안 우선순위화",
           description:
-            "효과와 실행 용이성을 고려한 실행 우선순위와 로드맵을 제시합니다."
-        },
-        {
-          title: "성과 모니터링 방안",
-          description:
-            "전략 실행 후 성과를 지속적으로 모니터링하고 개선할 수 있는 방안을 제공합니다."
+            "효과와 실행 용이성을 고려한 실행 개선 제안 우선순위를 제시합니다."
         }
       ]
     }
@@ -166,18 +141,14 @@ const FinalReportService: React.FC = () => {
           <div className="flex flex-col justify-start space-y-4">
             {[
               {
-                title: "통합 데이터 분석",
+                title: "종합 인사이트 제공",
                 description:
-                  "매출, 리뷰, 상권 데이터를 통합 분석하여 전체적인 비즈니스 현황 파악"
-              },
-              {
-                title: "종합 인사이트 도출",
-                description: "SWOT 분석 형태로 종합 인사이트를 제공"
+                  "매출, 리뷰, 상권 데이터를 통합 분석하여 전체적인 비즈니스 현황 파악하고, 이를 SWOT 분석 형태로 종합 인사이트를 제공"
               },
               {
                 title: "맞춤형 전략 제안",
                 description:
-                  "비즈니스 특성에 맞는 실행 가능한 전략과 우선순위 로드맵 제공"
+                  "도출된 종합 인사이트를 기반으로 비즈니스 특성에 맞는 실행 가능한 전략과 우선순위 로드맵 제공"
               }
             ].map((item, idx) => (
               <FeatureItem
