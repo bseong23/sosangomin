@@ -7,7 +7,6 @@ import {
 } from "@/features/board/api/noticeApi";
 import BoardList from "@/features/board/components/boards/BoardList";
 import Pagination from "@/components/common/Pagination";
-import SearchBar from "@/components/common/SearchBar";
 import Loading from "@/components/common/Loading";
 import Banner from "@/features/board/components/boards/Banner";
 import WriteButton from "@/features/board/components/boards/WriteButton";
@@ -74,13 +73,6 @@ const Notice: React.FC = () => {
     });
   };
 
-  const handleSearch = (keyword: string) => {
-    setSearchParams({
-      page: "1",
-      search: keyword
-    });
-  };
-
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-[1000px] mx-auto py-8 px-3">
       <Banner />
@@ -88,10 +80,6 @@ const Notice: React.FC = () => {
         <div className="h-full mx-auto">
           <div className="flex justify-between pb-5">
             <div className="flex text-xl font-bold items-center">공지사항</div>
-
-            <div className="flex justify-end items-center">
-              <SearchBar onSearch={handleSearch} placeholder="" />
-            </div>
           </div>
           {loading ? (
             <div className="flex justify-center">
