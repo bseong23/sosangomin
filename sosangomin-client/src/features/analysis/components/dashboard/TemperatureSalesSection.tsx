@@ -47,25 +47,83 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
     ),
     h2: (props: any) => (
       <h2
-        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        className="text-xl font-semibold my-3 mt-10 mb-5 text-bit-main"
         {...props}
       />
     ),
     h3: (props: any) => (
-      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+      <h3
+        className="text-lg font-medium my-2 mb-2 mt-5 text-bit-main"
+        {...props}
+      />
     ),
-    p: (props: any) => (
-      <p className="my-2 text-base  text-comment" {...props} />
+    p: (props: any) => {
+      // 단락 내부의 줄바꿈(\n) 처리를 위한 로직
+      if (props.children && typeof props.children === "string") {
+        // 줄바꿈을 <br /> 태그로 변환
+        const parts = props.children.split("\n");
+        if (parts.length > 1) {
+          return (
+            <p className="my-2 text-base text-comment">
+              {parts.map((part: any, i: any) => (
+                <React.Fragment key={i}>
+                  {part}
+                  {i < parts.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </p>
+          );
+        }
+      }
+      // 줄바꿈이 없는 일반 텍스트는 그대로 표시
+      return <p className="my-2 text-base text-comment" {...props} />;
+    },
+    ul: (props: any) => (
+      <ul className="list-disc ml-5 mb-5 pl-5 my-2" {...props} />
     ),
-    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
-    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
-    li: (props: any) => <li className="my-1" {...props} />,
+    ol: (props: any) => (
+      <ol className="list-decimal ml-5 mb-5 pl-5 my-2" {...props} />
+    ),
+    li: (props: any) => {
+      // 목록 항목 내부의 줄바꿈(\n) 처리
+      if (props.children && typeof props.children === "string") {
+        const parts = props.children.split("\n");
+        if (parts.length > 1) {
+          return (
+            <li className="my-1 mb-5">
+              {parts.map((part: any, i: any) => (
+                <React.Fragment key={i}>
+                  {part}
+                  {i < parts.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </li>
+          );
+        }
+      }
+      return <li className="my-1" {...props} />;
+    },
     blockquote: (props: any) => (
       <blockquote
         className="border-l-4 border-gray-300 pl-4 italic my-2"
         {...props}
       />
-    )
+    ),
+    // 줄바꿈 태그 처리 (마크다운에서 줄 끝에 공백 두 개로 삽입됨)
+    br: (props: any) => <br className="my-1" {...props} />,
+    // 코드 블록 스타일링
+    code: (props: any) => (
+      <code
+        className="bg-gray-100 px-1 py-0.5 rounded text-red-600 text-sm"
+        {...props}
+      />
+    ),
+    // 강조 스타일링
+    strong: (props: any) => (
+      <strong className="font-semibold text-gray-900" {...props} />
+    ),
+    // 이탤릭 스타일링
+    em: (props: any) => <em className="italic text-gray-800" {...props} />
   };
 
   const temperatureSalesDatasets = [
@@ -91,14 +149,15 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
     responsive: true,
     scales: {
       y: {
-        beginAtZero: false, // 0부터 시작하지 않음
-        min: minValue, // 계산된 최소값 적용
-        max: maxValue, // 계산된 최대값 적용
+        beginAtZero: false,
+        min: minValue,
+        max: maxValue,
+        grid: {
+          display: false // <-- 요기!
+        },
         ticks: {
-          // 스텝 사이즈 계산 (범위에 따라 적절히 조정)
-          stepSize: Math.ceil((maxValue - minValue) / 5 / 500) * 500, // 500원 단위로 눈금 조정
+          stepSize: Math.ceil((maxValue - minValue) / 5 / 500) * 500,
           callback: function (value: number) {
-            // 원 단위로 표시 (정수로 변환)
             return Math.round(value).toLocaleString() + "원";
           }
         },
@@ -113,6 +172,9 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
         }
       },
       x: {
+        grid: {
+          display: false // <-- 요기!
+        },
         title: {
           display: true,
           font: {
@@ -132,11 +194,8 @@ const TemperatureSalesSection: React.FC<TemperatureSalesSectionProps> = ({
         callbacks: {
           label: function (context: any) {
             let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
+            if (label) label += ": ";
             if (context.raw !== null) {
-              // 원 단위로 표시 (정수로 변환)
               label += Math.round(context.raw).toLocaleString() + "원";
             }
             return label;

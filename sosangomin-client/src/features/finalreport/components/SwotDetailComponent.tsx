@@ -46,7 +46,7 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
           <div className="relative mt-2 md:mt-0 w-full sm:w-auto">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center justify-between px-3 py-2 md:px-4 md:py-2 lg:px-5 lg:py-3 text-bit-main bg-basic-white border border-border rounded-md focus:outline-none  w-full sm:w-auto"
+              className="flex items-center justify-between px-3 py-2 md:px-4 md:py-2 lg:px-5 lg:py-3 text-bit-main bg-basic-white border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-bit-main-bit-main w-full sm:w-auto"
             >
               <span className="text-sm md:text-base lg:text-lg font-semibold truncate max-w-[180px] md:max-w-[220px]">
                 {formatDate(data.created_at)}
@@ -128,10 +128,12 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
                   key={index}
                   className="flex items-start text-green-800 text-sm"
                 >
-                  <span className="inline-block w-5 h-5 bg-green-200 rounded-full text-center text-green-800 mr-2 flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span>{item}</span>
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center justify-center w-6 h-6 bg-green-200 rounded-full text-green-800 mr-2 flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -166,10 +168,12 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
                   key={index}
                   className="flex items-start text-red-800 text-sm"
                 >
-                  <span className="inline-block w-5 h-5 bg-red-200 rounded-full text-center text-red-800 mr-2 flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span>{item}</span>
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center justify-center w-5 h-5 bg-red-200 rounded-full text-red-800 mr-2 flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -204,10 +208,12 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
                   key={index}
                   className="flex items-start text-blue-800 text-sm"
                 >
-                  <span className="inline-block w-5 h-5 bg-blue-200 rounded-full text-center text-blue-800 mr-2 flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span>{item}</span>
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-200 rounded-full text-blue-800 mr-2 flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -242,10 +248,12 @@ const SwotDetailComponent: React.FC<SwotDetailComponentProps> = ({
                   key={index}
                   className="flex items-start text-yellow-800 text-sm"
                 >
-                  <span className="inline-block w-5 h-5 bg-yellow-200 rounded-full text-center text-yellow-800 mr-2 flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span>{item}</span>
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center justify-center w-6 h-6 bg-yellow-200 rounded-full text-yellow-80 mr-2 flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
                 </li>
               ))}
             </ul>

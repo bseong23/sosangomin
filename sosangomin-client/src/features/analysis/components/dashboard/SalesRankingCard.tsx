@@ -45,6 +45,9 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
       },
       y: {
         // 수평 막대 차트에서 y축 라벨 처리
+        gird: {
+          display: false // 그리드 표시 안 함
+        },
         ticks: horizontal
           ? {
               callback: function (index: any) {

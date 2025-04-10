@@ -19,7 +19,7 @@ const VisualizationComponent: React.FC<VisualizationComponentProps> = ({
         <div className="space-y-3">
           {data.swot_analysis.recommendations.map((recommendation, idx) => (
             <div key={idx} className="flex items-center">
-              <div className="w-32 text-sm text-gray-700 flex-shrink-0 truncate">
+              <div className="w-50 text-sm text-gray-700 flex-shrink-0 truncate">
                 {recommendation.split(":")[0]}
               </div>
               <div className="flex-grow">
@@ -34,7 +34,7 @@ const VisualizationComponent: React.FC<VisualizationComponentProps> = ({
                   style={{ width: `${100 - idx * 10}%` }}
                 ></div>
               </div>
-              <div className="ml-3 text-sm font-medium">
+              <div className="ml-15 text-sm font-medium">
                 {idx < 2 ? "높음" : idx < 4 ? "중간" : "낮음"}
               </div>
             </div>

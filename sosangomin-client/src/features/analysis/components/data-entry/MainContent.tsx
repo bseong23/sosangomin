@@ -330,7 +330,7 @@ const MainContent: React.FC = () => {
                     <img
                       src={PosData1}
                       alt="토스포스 정산지 출력 방법 1단계"
-                      className="w-full h-auto object-contain"
+                      className="w-full h-auto object-contain mt-5"
                     />
                   </div>
                 </li>
@@ -344,7 +344,7 @@ const MainContent: React.FC = () => {
                     <img
                       src={PosData2}
                       alt="토스포스 정산지 출력 방법 2단계"
-                      className="w-full h-auto object-contain"
+                      className="w-full h-auto object-contain mt-5"
                     />
                   </div>
                 </li>
@@ -363,38 +363,42 @@ const MainContent: React.FC = () => {
           <div className="space-y-6">
             <div>
               <div className="mb-4 text-lg">
-                <p className="mb-3 font-medium text-bit-main">
+                <p className="mb-5 font-medium text-bit-main">
                   키움페이 영수증 출력 방법
                 </p>
                 <ol className="list-decimal pl-5 space-y-3">
-                  <li>키움페이 매니저 앱에 로그인합니다.</li>
+                  <li className="mb-5">키움페이 매니저 앱에 로그인합니다.</li>
                   <li>
-                    <span className="text-red-500 font-medium">매출관리</span>를
-                    선택합니다.
+                    <span className="text-red-500 font-medium mb-3">
+                      매출관리
+                    </span>
+                    를 선택합니다.
                     <img
                       src={Kiwoom1}
                       alt="키움페이 영수증 출력 방법 1단계"
-                      className="w-full h-auto object-contain mb-2"
+                      className="w-full mt-5 h-auto object-contain mb-2"
                     />
                   </li>
                   <li>
-                    <span className="text-red-500 font-medium">매출내역</span>을
-                    선택하고 원하는 기간을 설정합니다.
+                    <span className="text-red-500 font-medium mb-3">
+                      매출내역
+                    </span>
+                    을 선택하고 원하는 기간을 설정합니다.
                     <img
                       src={Kiwoom3}
                       alt="키움페이 영수증 출력 방법 1단계"
-                      className="w-full h-auto object-contain mb-2"
+                      className="w-full mt-5 h-auto object-contain mb-2"
                     />
                   </li>
                   <li>
-                    <span className="text-red-500 font-medium">
+                    <span className="text-red-500 mb-3 font-medium">
                       내보내기(↓)
                     </span>{" "}
                     버튼을 탭합니다.
                     <img
                       src={Kiwoom2}
                       alt="키움페이 영수증 출력 방법 2단계"
-                      className="w-full h-auto object-contain mb-2"
+                      className="w-full h-auto object-contain mt-5 mb-2"
                     />
                   </li>
                 </ol>
