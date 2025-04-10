@@ -82,37 +82,33 @@ class EdaService:
             customer_avg = df['매출'].sum() / df['고객 수'].sum()
             chart_data["basic_stats"]["customer_avg"] = float(customer_avg)
         
-        # 11. 날씨와 매출의 상관관계
+        # 날짜별 기온 및 날씨 기준 하루 평균 매출
         if all(col in df.columns for col in ['매출', '기온', '강수량', '습도']):
-            # 기온별 매출 분석 (5도 단위로 구간화)
-            df['기온_구간'] = (df['기온'] // 5) * 5
-            
-            # 평균 매출로 계산하고 최소 데이터 포인트 조건 적용
-            temp_sales = df.groupby('기온_구간')['매출'].agg(['mean', 'count']).reset_index()
-            temp_sales_filtered = temp_sales[temp_sales['count'] >= 5]  # 최소 5개 이상 데이터가 있는 구간만
-            
-            # temperature_sales에 평균 매출 저장
+            df['날짜'] = df['매출 일시'].dt.date
+            daily_df = df.groupby('날짜').agg({
+                '매출': 'sum',
+                '기온': 'mean',
+                '강수량': 'mean',
+                '습도': 'mean'
+            }).reset_index()
+
+            daily_df['기온_구간'] = (daily_df['기온'] // 5) * 5
+            temp_sales = daily_df.groupby('기온_구간')['매출'].agg(['mean', 'count']).reset_index()
+            temp_sales_filtered = temp_sales[temp_sales['count'] >= 5]
             chart_data["temperature_sales"] = {
-                f"{int(row['기온_구간'])}~{int(row['기온_구간'])+5}°C": float(row['mean']) 
+                f"{int(row['기온_구간'])}~{int(row['기온_구간']) + 5}°C": float(row['mean'])
                 for _, row in temp_sales_filtered.iterrows()
             }
-            
-            # 강수량을 더 세분화하여 구분
-            df['날씨_상세'] = pd.cut(
-                df['강수량'], 
-                bins=[0, 0.1, 5, 20, float('inf')], 
+
+            daily_df['날씨_상세'] = pd.cut(
+                daily_df['강수량'],
+                bins=[0, 0.1, 5, 20, float('inf')],
                 labels=['맑음', '이슬비', '보통비', '폭우']
             )
-            
-            # 세분화된 날씨별 평균 매출 계산
-            weather_detailed_sales = df.groupby('날씨_상세')['매출'].agg(['mean', 'count']).reset_index()
-            
-            # 최소 데이터 포인트 조건 적용
-            weather_filtered = weather_detailed_sales[weather_detailed_sales['count'] >= 3]  
-            
-            # weather_sales에 세분화된 평균 매출 저장
+            weather_sales = daily_df.groupby('날씨_상세')['매출'].agg(['mean', 'count']).reset_index()
+            weather_filtered = weather_sales[weather_sales['count'] >= 3]
             chart_data["weather_sales"] = {
-                str(row['날씨_상세']): float(row['mean']) 
+                str(row['날씨_상세']): float(row['mean'])
                 for _, row in weather_filtered.iterrows()
             }
         
