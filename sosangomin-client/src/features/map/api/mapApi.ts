@@ -370,24 +370,6 @@ export const displayGeoJsonPolygon = (
     });
   });
 
-  // 지도에 마우스 이벤트 추가 - 지도 영역으로 마우스가 이동했을 때 툴팁 제거
-  // window.kakao.maps.event.addListener(
-  //   map,
-  //   "mousemove",
-  //   function (mouseEvent: any) {
-  //     // 초기 마우스 체크 완료 표시
-  //     if (!initialMouseCheckDone) {
-  //       initialMouseCheckDone = true;
-  //       // 초기 상태에서는 툴팁을 표시하지 않음
-  //       customOverlay.setMap(null);
-  //     }
-
-  //     // 마우스가 폴리곤 위에 없는 경우에만 툴팁 제거
-  //     if (!currentHoveredPolygon) {
-  //       customOverlay.setMap(null);
-  //     }
-  //   }
-  // );
 
   // 지도 로드 완료 후 초기 상태 설정
   window.kakao.maps.event.addListener(map, "tilesloaded", function () {
@@ -476,6 +458,12 @@ export const displayrecommendPolygon = (
 
   // 생성된 폴리곤 저장 배열
   const polygons: any[] = [];
+  
+  // 폴리곤 생성 완료 플래그
+  let polygonsCreated = false;
+  
+  // 현재 마우스가 올라간 폴리곤 추적
+  let currentHoveredPolygon: any = null;
 
   // GeoJSON 데이터 처리
   geoJsonData.features.forEach((feature: any) => {
@@ -594,63 +582,75 @@ export const displayrecommendPolygon = (
       `;
     };
 
-    window.kakao.maps.event.addListener(
-      polygon,
-      "mouseover",
-      function (mouseEvent: any) {
-        polygon.setOptions({
-          fillOpacity: defaultStyle.fillOpacity + 0.1
-        });
-
-        // 상세 정보를 포함한 툴팁 (등급 정보 포함)
-        customOverlay.setContent(`
-          <div style="${tooltipStyle}">
-            <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-              ${simpleName} ${
-          grade ? `<span style="${getBadgeStyle(grade)}">${grade}</span>` : ""
-        }
-            </div>
-            <div>
-              <span style="color: #ff5733;">유동인구:</span> ${formatNumber(
-                floatingPopulation
-              )}/㎢<br/>
-              <span style="color: #3399ff;">직장인구:</span> ${formatNumber(
-                workplacePopulation
-              )}/㎢<br/>
-              <span style="color: #33cc33;">거주인구:</span> ${formatNumber(
-                residentPopulation
-              )}/㎢<br/>
-              <span style="color: #9966cc;">타겟연령 수:</span> ${(
-                targetAgeRatio * 100
-              ).toFixed(1)}명<br/>
-              <span style="color: #ff9900;">임대료:</span> ${formatNumber(
-                rent
-              )}원/평
-            </div>
-          </div>
-        `);
-
-        customOverlay.setPosition(mouseEvent.latLng);
-        customOverlay.setMap(map);
-      }
-    );
-
-    window.kakao.maps.event.addListener(
-      polygon,
-      "mousemove",
-      function (mouseEvent: any) {
-        customOverlay.setPosition(mouseEvent.latLng);
-      }
-    );
-
-    window.kakao.maps.event.addListener(polygon, "mouseout", function () {
+    // 이벤트 핸들러 함수들을 미리 정의
+    const handleMouseOver = function (mouseEvent: any) {
+      // 폴리곤 생성이 완료되지 않았으면 이벤트 무시
+      if (!polygonsCreated) return;
+      
+      currentHoveredPolygon = polygon;
+      
       polygon.setOptions({
-        fillOpacity: defaultStyle.fillOpacity // 원래 투명도로 복귀
+        fillOpacity: defaultStyle.fillOpacity + 0.1
       });
-      customOverlay.setMap(null);
-    });
 
-    window.kakao.maps.event.addListener(polygon, "click", function () {
+      // 상세 정보를 포함한 툴팁 (등급 정보 포함)
+      customOverlay.setContent(`
+        <div style="${tooltipStyle}">
+          <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+            ${simpleName} ${
+        grade ? `<span style="${getBadgeStyle(grade)}">${grade}</span>` : ""
+      }
+          </div>
+          <div>
+            <span style="color: #ff5733;">유동인구:</span> ${formatNumber(
+              floatingPopulation
+            )}/㎢<br/>
+            <span style="color: #3399ff;">직장인구:</span> ${formatNumber(
+              workplacePopulation
+            )}/㎢<br/>
+            <span style="color: #33cc33;">거주인구:</span> ${formatNumber(
+              residentPopulation
+            )}/㎢<br/>
+            <span style="color: #9966cc;">타겟연령 수:</span> ${(
+              targetAgeRatio * 100
+            ).toFixed(1)}명<br/>
+            <span style="color: #ff9900;">임대료:</span> ${formatNumber(
+              rent
+            )}원/평
+          </div>
+        </div>
+      `);
+
+      customOverlay.setPosition(mouseEvent.latLng);
+      customOverlay.setMap(map);
+    };
+
+    const handleMouseMove = function (mouseEvent: any) {
+      // 폴리곤 생성이 완료되지 않았으면 이벤트 무시
+      if (!polygonsCreated) return;
+      
+      if (currentHoveredPolygon === polygon) {
+        customOverlay.setPosition(mouseEvent.latLng);
+      }
+    };
+
+    const handleMouseOut = function () {
+      // 폴리곤 생성이 완료되지 않았으면 이벤트 무시
+      if (!polygonsCreated) return;
+      
+      if (currentHoveredPolygon === polygon) {
+        currentHoveredPolygon = null;
+        polygon.setOptions({
+          fillOpacity: defaultStyle.fillOpacity // 원래 투명도로 복귀
+        });
+        customOverlay.setMap(null);
+      }
+    };
+
+    const handleClick = function () {
+      // 폴리곤 생성이 완료되지 않았으면 이벤트 무시
+      if (!polygonsCreated) return;
+      
       if (options.onPolygonClick) {
         options.onPolygonClick(simpleName, polygonCenter);
       }
@@ -666,7 +666,21 @@ export const displayrecommendPolygon = (
           strokeWeight: defaultStyle.strokeWeight
         });
       }, 1500);
-    });
+    };
+
+    // 이벤트 리스너 등록
+    window.kakao.maps.event.addListener(polygon, "mouseover", handleMouseOver);
+    window.kakao.maps.event.addListener(polygon, "mousemove", handleMouseMove);
+    window.kakao.maps.event.addListener(polygon, "mouseout", handleMouseOut);
+    window.kakao.maps.event.addListener(polygon, "click", handleClick);
+  });
+
+  // 지도에 마우스 이벤트 추가 - 지도 영역으로 마우스가 이동했을 때 툴팁 제거
+  window.kakao.maps.event.addListener(map, "mousemove", function() {
+    // 마우스가 폴리곤 위에 없는 경우에만 툴팁 제거
+    if (!currentHoveredPolygon) {
+      customOverlay.setMap(null);
+    }
   });
 
   // polygonsRef에 생성된 폴리곤 저장
@@ -677,6 +691,15 @@ export const displayrecommendPolygon = (
   if (options.fitBounds && bounds.toString() !== "((-180, -90), (180, 90))") {
     map.setBounds(bounds);
   }
+  
+  // 모든 폴리곤 생성이 완료된 후 플래그 설정
+  // 약간의 지연을 두어 초기 마우스 이벤트 처리 방지
+  setTimeout(() => {
+    polygonsCreated = true;
+    
+    // 초기 상태에서 툴팁이 표시되지 않도록 강제로 제거
+    customOverlay.setMap(null);
+  }, 500);
 
   return polygons;
 };

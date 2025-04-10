@@ -151,10 +151,20 @@ const SalesTab: React.FC<SalesTabProps> = ({
   ];
   const minValue = Math.min(...allValues);
   const maxValue = Math.max(...allValues);
-  // 최소값에서 5를 뺀 후 올림
-  const yMin = Math.ceil(minValue - 5);
-  // 최대값에서 5를 더한 후 올림
-  const yMax = Math.ceil(maxValue + 5);
+
+  // 최소값과 최대값의 절댓값 계산
+  const absMin = Math.abs(minValue);
+  const absMax = Math.abs(maxValue);
+
+  // 더 큰 절댓값 찾기 (버퍼 2 추가)
+  const maxAbs = Math.max(absMin, absMax) + 2;
+
+  // 올림하여 깔끔한 값으로 설정
+  const roundedMaxAbs = Math.ceil(maxAbs);
+
+  // 대칭적인 범위 설정
+  const yMin = -roundedMaxAbs;
+  const yMax = roundedMaxAbs;
 
   const seoulDonutData = prepareDonutChartData("서울시");
   const districtDonutData = prepareDonutChartData("자치구");
@@ -217,9 +227,24 @@ const SalesTab: React.FC<SalesTabProps> = ({
               unit="%"
               customOptions={{
                 scales: {
+                  x: {
+                    offset: true, // 이 부분을 추가합니다
+                    grid: {
+                      display: false, // 여기서 y축 격자선을 제거합니다
+                      drawBorder: true,
+                      drawOnChartArea: false,
+                      drawTicks: true
+                    }
+                  },
                   y: {
                     min: yMin,
                     max: yMax,
+                    grid: {
+                      display: false, // 여기서 y축 격자선을 제거합니다
+                      drawBorder: true,
+                      drawOnChartArea: false,
+                      drawTicks: true
+                    },
                     ticks: {
                       callback: (value: any) => `${value}%` // Y축 라벨을 퍼센트 형식으로 표시
                     }

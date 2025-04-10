@@ -9,7 +9,7 @@ import {
   deleteBoardPost,
   verifyBoardPost
 } from "@/features/board/api/boardApi";
-
+import ReactMarkdown from "react-markdown";
 const PostDetail: React.FC = () => {
   const { boardId } = useParams<{ boardId: string }>();
   const navigate = useNavigate();
@@ -134,7 +134,33 @@ const PostDetail: React.FC = () => {
       </div>
     );
   }
-
+  // 마크다운 렌더링을 위한 스타일
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => (
+      <p className="my-2 text-base  text-comment" {...props} />
+    ),
+    ul: (props: any) => <ul className="list-disc pl-5 my-2" {...props} />,
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => <li className="my-1" {...props} />,
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    )
+  };
   return (
     <div className="max-w-4xl mx-auto w-full sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* 게시판 타이틀 */}
@@ -195,7 +221,9 @@ const PostDetail: React.FC = () => {
         {/* 게시글 내용 */}
         <div className="my-4 sm:my-5 lg:my-6">
           <div className="min-h-[150px] sm:min-h-[200px] lg:min-h-[250px] text-sm">
-            {post.content}
+            <ReactMarkdown components={markdownComponents}>
+              {post.content}
+            </ReactMarkdown>
           </div>
         </div>
 

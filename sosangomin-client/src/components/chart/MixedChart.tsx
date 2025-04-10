@@ -41,7 +41,6 @@ const MixedChart: React.FC<MixedChartProps> = ({
   yAxisLabel = "업소 수",
   legend = true,
   legendPosition = "top",
-  gridLines = true,
   beginAtZero = true,
   tooltips = true,
   animation = true,
@@ -52,7 +51,8 @@ const MixedChart: React.FC<MixedChartProps> = ({
   className = "",
   id = "mixed-chart",
   rightYAxisLabel = "비율 (%)",
-  leftMin = 0
+  leftMin = 0,
+  rightMin // 오른쪽 Y축 최소값 추가
 }) => {
   // 데이터셋에 yAxisID 추가
   const processedDatasets = datasets.map((dataset) => {
@@ -77,6 +77,37 @@ const MixedChart: React.FC<MixedChartProps> = ({
       yAxisID
     };
   });
+  const barDatasets = useMemo(() => {
+    return datasets.filter((dataset) => dataset.type === "bar");
+  }, [datasets]);
+
+  const leftYAxisRange = useMemo(() => {
+    const allBarValues = barDatasets.flatMap((dataset) => dataset.data);
+
+    if (allBarValues.length === 0) {
+      return { min: 0, max: 10 };
+    }
+
+    const maxValue = Math.max(...allBarValues);
+
+    let roundedMax = 10;
+
+    if (maxValue < 100) {
+      // 1의 자리에서 올림
+      roundedMax = Math.ceil(maxValue / 1) * 1;
+    } else if (maxValue < 1000) {
+      // 10의 자리에서 올림
+      roundedMax = Math.ceil(maxValue / 10) * 10;
+    } else {
+      // 100의 자리에서 올림
+      roundedMax = Math.ceil(maxValue / 100) * 100;
+    }
+
+    return {
+      min: 0,
+      max: roundedMax
+    };
+  }, [barDatasets]);
 
   // 선 그래프 데이터만 필터링
   const lineDatasets = useMemo(() => {
@@ -103,23 +134,29 @@ const MixedChart: React.FC<MixedChartProps> = ({
     // 데이터 범위
     const range = maxValue - minValue;
 
+    // 사용자 지정 최소값이 있으면 사용
+    const calculatedMin =
+      rightMin !== undefined
+        ? rightMin
+        : Math.max(0, Math.floor(minValue - range * 0.05));
+
     // 범위가 너무 작은 경우 (10% 미만)
     if (range < 10) {
       // 최소 범위를 확보
       const buffer = Math.max(5, 10 - range);
       return {
-        min: Math.max(0, Math.floor(minValue - buffer)),
+        min: calculatedMin,
         max: Math.ceil(maxValue + buffer)
       };
     } else {
       // 정상적인 경우: 최소값에서 -5%, 최대값에서 +5%
       const buffer = range * 0.05;
       return {
-        min: Math.max(0, Math.floor(minValue - buffer)),
+        min: calculatedMin,
         max: Math.ceil(maxValue + buffer)
       };
     }
-  }, [minValue, maxValue]);
+  }, [minValue, maxValue, rightMin]);
 
   const data = {
     labels,
@@ -196,13 +233,14 @@ const MixedChart: React.FC<MixedChartProps> = ({
         display: true,
         position: "left",
         beginAtZero,
-        min: leftMin,
+        min: leftMin, // ← 수정
+        max: leftYAxisRange.max, // ← 수정
         title: {
           display: !!yAxisLabel,
           text: yAxisLabel,
           font: { size: 12 }
         },
-        grid: { display: gridLines, drawOnChartArea: true },
+        grid: { display: false, drawOnChartArea: true },
         ticks: {
           font: { size: 12 },
           callback: function (this: Scale, tickValue: string | number) {
@@ -215,13 +253,13 @@ const MixedChart: React.FC<MixedChartProps> = ({
       },
       y1: {
         type: "linear",
-        display: true,
+        display: lineDatasets.length > 0, // 선 그래프가 있을 때만 표시
         position: "right",
         beginAtZero: false,
         min: yAxisRange.min, // 동적으로 계산된 최소값
         max: yAxisRange.max, // 동적으로 계산된 최대값
         title: {
-          display: !!rightYAxisLabel,
+          display: !!rightYAxisLabel && lineDatasets.length > 0,
           text: rightYAxisLabel,
           font: { size: 12 }
         },
