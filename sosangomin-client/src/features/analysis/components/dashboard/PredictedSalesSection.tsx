@@ -140,10 +140,10 @@ const PredictedSalesSection: React.FC<PredictedSalesSectionProps> = ({
 
   return (
     <div className="bg-basic-white p-6 rounded-lg shadow-[0_-5px_5px_rgba(0,0,0,0.1),0_10px_15px_rgba(0,0,0,0.1)] mb-6">
-      <h2 className="text-lg font-semibold mb-6 text-comment">
+      <h2 className="text-lg font-semibold mb-2 text-comment">
         30일 매출 예측
       </h2>
-      <p className="text-base text-comment mb-10">
+      <p className="text-sm text-comment-text mb-8">
         이전 매출 흐름을 바탕으로, 다음 30일 동안의 매출을 보여드려요.
       </p>
       <div className="mb-10" style={{ width: "100%", height: "350px" }}>

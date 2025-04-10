@@ -25,6 +25,7 @@ import html2canvas from "html2canvas";
 
 const AnalysisDashboard: React.FC = () => {
   const { analysisId } = useParams<{ analysisId?: string }>();
+  const [isExporting, setIsExporting] = React.useState(false);
 
   // Zustand에서 대표 매장 정보 가져오기
   const { representativeStore } = useStoreStore();
@@ -48,73 +49,74 @@ const AnalysisDashboard: React.FC = () => {
     const reportElement = document.getElementById("research-page");
     if (!reportElement) return;
 
+    setIsExporting(true); // 시작할 때 로딩
     reportElement.classList.add("pdf-export");
 
-    const canvas = await html2canvas(reportElement, {
-      scale: 2,
-      useCORS: true
-    });
+    try {
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true
+      });
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgWidth = pageWidth;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = pageWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-    // 여러 페이지일 경우 분할
-    if (imgHeight <= pageHeight) {
-      // 한 페이지에 들어가는 경우
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    } else {
-      // 여러 페이지에 걸쳐서 이미지 넣기
-      const canvasHeight = canvas.height;
-      const canvasWidth = canvas.width;
-      const pageCanvas = document.createElement("canvas");
-      const pageContext = pageCanvas.getContext("2d")!;
-      const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      } else {
+        const canvasHeight = canvas.height;
+        const canvasWidth = canvas.width;
+        const pageCanvas = document.createElement("canvas");
+        const pageContext = pageCanvas.getContext("2d")!;
+        const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
 
-      let renderedHeight = 0;
+        let renderedHeight = 0;
 
-      while (renderedHeight < canvasHeight) {
-        pageCanvas.width = canvasWidth;
-        pageCanvas.height = Math.min(
-          pageHeightPx,
-          canvasHeight - renderedHeight
-        );
-
-        pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
-        pageContext.drawImage(
-          canvas,
-          0,
-          renderedHeight,
-          canvasWidth,
-          pageCanvas.height,
-          0,
-          0,
-          canvasWidth,
-          pageCanvas.height
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png");
-        if (renderedHeight > 0) pdf.addPage();
-        pdf.addImage(
-          pageData,
-          "PNG",
-          0,
-          0,
-          imgWidth,
-          (pageCanvas.height * imgWidth) / canvasWidth
-        );
-
-        renderedHeight += pageHeightPx;
+        while (renderedHeight < canvasHeight) {
+          pageCanvas.width = canvasWidth;
+          pageCanvas.height = Math.min(
+            pageHeightPx,
+            canvasHeight - renderedHeight
+          );
+          pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
+          pageContext.drawImage(
+            canvas,
+            0,
+            renderedHeight,
+            canvasWidth,
+            pageCanvas.height,
+            0,
+            0,
+            canvasWidth,
+            pageCanvas.height
+          );
+          const pageData = pageCanvas.toDataURL("image/png");
+          if (renderedHeight > 0) pdf.addPage();
+          pdf.addImage(
+            pageData,
+            "PNG",
+            0,
+            0,
+            imgWidth,
+            (pageCanvas.height * imgWidth) / canvasWidth
+          );
+          renderedHeight += pageHeightPx;
+        }
       }
-    }
 
-    pdf.save(`보고서.pdf`);
-    reportElement.classList.remove("pdf-export");
+      pdf.save(`데이터 분석 보고서.pdf`);
+    } catch (error) {
+      console.error("PDF export error:", error);
+    } finally {
+      setIsExporting(false); // 끝나면 로딩 종료
+      reportElement.classList.remove("pdf-export");
+    }
   };
 
   // 원본 API 데이터를 저장하기 위한 상태
@@ -522,6 +524,11 @@ const AnalysisDashboard: React.FC = () => {
         {/* 계절별 매출 섹션 */}
         <SeasonalSalesSection data={data} />
       </div>
+      {isExporting && (
+        <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
+          <Loading />
+        </div>
+      )}
     </div>
   );
 };

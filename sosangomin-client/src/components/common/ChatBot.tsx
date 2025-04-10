@@ -319,7 +319,14 @@ const ChatBot: React.FC = () => {
                         handleSendMessage();
                       }
                     }}
-                    className="w-full p-3 outline-none text-gray-700 bg-transparent resize-none max-h-20 min-h-[45px]"
+                    className="w-full px-4 outline-none text-gray-700 bg-transparent resize-none max-h-22 min-h-[45px]"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingTop: "10px",
+                      paddingBottom: "10px",
+                      lineHeight: "25px" // 높이에 맞게 조정
+                    }}
                     placeholder="질문을 입력하세요..."
                     disabled={isLoading} // 로딩 중 입력 비활성화
                     rows={1}

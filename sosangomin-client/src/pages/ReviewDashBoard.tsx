@@ -49,6 +49,86 @@ const ReviewDashBoard: React.FC = () => {
     });
   }, [analysisList]);
 
+  const markdownComponents = {
+    h1: (props: any) => (
+      <h1 className="text-2xl font-bold my-4 text-bit-main" {...props} />
+    ),
+    h2: (props: any) => (
+      <h2
+        className="text-xl font-semibold my-3 mb-5 text-bit-main"
+        {...props}
+      />
+    ),
+    h3: (props: any) => (
+      <h3 className="text-lg font-medium my-2 text-bit-main" {...props} />
+    ),
+    p: (props: any) => {
+      // 단락 내부의 줄바꿈(\n) 처리를 위한 로직
+      if (props.children && typeof props.children === "string") {
+        // 줄바꿈을 <br /> 태그로 변환
+        const parts = props.children.split("\n");
+        if (parts.length > 1) {
+          return (
+            <p className="my-2 text-base text-comment">
+              {parts.map((part: any, i: any) => (
+                <React.Fragment key={i}>
+                  {part}
+                  {i < parts.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </p>
+          );
+        }
+      }
+      // 줄바꿈이 없는 일반 텍스트는 그대로 표시
+      return <p className="my-2 text-base text-comment" {...props} />;
+    },
+    ul: (props: any) => (
+      <ul className="list-disc ml-5 mb-5 pl-5 my-2" {...props} />
+    ),
+    ol: (props: any) => <ol className="list-decimal pl-5 my-2" {...props} />,
+    li: (props: any) => {
+      // 목록 항목 내부의 줄바꿈(\n) 처리
+      if (props.children && typeof props.children === "string") {
+        const parts = props.children.split("\n");
+        if (parts.length > 1) {
+          return (
+            <li className="my-1">
+              {parts.map((part: any, i: any) => (
+                <React.Fragment key={i}>
+                  {part}
+                  {i < parts.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </li>
+          );
+        }
+      }
+      return <li className="my-1" {...props} />;
+    },
+    blockquote: (props: any) => (
+      <blockquote
+        className="border-l-4 border-gray-300 pl-4 italic my-2"
+        {...props}
+      />
+    ),
+    // 줄바꿈 태그 처리 (마크다운에서 줄 끝에 공백 두 개로 삽입됨)
+    br: (props: any) => <br className="my-1" {...props} />,
+    // 코드 블록 스타일링
+    code: (props: any) => (
+      <code
+        className="bg-gray-100 px-1 py-0.5 rounded text-red-600 text-sm"
+        {...props}
+      />
+    ),
+    // 강조 스타일링
+    strong: (props: any) => (
+      <strong className="font-semibold text-gray-900" {...props} />
+    ),
+    // 이탤릭 스타일링
+    em: (props: any) => <em className="italic text-gray-800" {...props} />
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (selectedStore?.store_id) {
@@ -153,17 +233,6 @@ const ReviewDashBoard: React.FC = () => {
     }).format(koreaTime);
   };
 
-  // 오늘 날짜인지 확인하는 함수
-  const isToday = (dateString: string): boolean => {
-    const today = new Date();
-    const date = new Date(dateString);
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  };
-
   // 초기 로딩 또는 GET 요청 로딩 중에는 Loading 컴포넌트만 표시
   if (initialLoading || isGetLoading) {
     return (
@@ -233,13 +302,12 @@ const ReviewDashBoard: React.FC = () => {
             <select
               value={selectedAnalysisId || ""}
               onChange={handleAnalysisChange}
-              className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+              className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bit-main shadow-sm"
             >
               <option value="">분석 날짜 선택</option>
               {analysisList.map((item) => (
                 <option key={item.analysis_id} value={item.analysis_id}>
-                  {formatDateKorean(item.created_at)} 분석
-                  {isToday(item.created_at) && " (오늘)"}
+                  {formatDateKorean(item.created_at)}
                 </option>
               ))}
             </select>
@@ -433,78 +501,240 @@ const ReviewDashBoard: React.FC = () => {
             </div>
           </div>
 
-          {/* ✅ 인사이트 리포트 */}
+          {/* ✅ 인사이트 리포트 - 줄바꿈 처리 개선 */}
           <h2 className="text-lg font-bold text-comment mb-4">
             리뷰 분석 리포트
           </h2>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             {typeof analysisData.insights === "string" && (
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-1">
+              <div className="grid grid-cols-1 gap-6 mt-2">
                 {(() => {
                   const raw = analysisData.insights as string;
-                  const parts = raw.split(/##\s[1-3]\.\s/);
 
-                  if (parts.length < 4) {
-                    return (
-                      <div className="col-span-full text-red-500">
-                        분석 리포트 형식이 올바르지 않아요 🥲
-                      </div>
-                    );
-                  }
+                  // 파싱할 섹션 제목
+                  const sectionTitles = [
+                    "고객들이 가장 만족하는 점",
+                    "개선이 필요한 부분",
+                    "매장 운영에 도움이 될만한 구체적인 제안"
+                  ];
 
-                  const sections = [
+                  // 섹션 스타일
+                  const sectionStyles = [
                     {
-                      title: "1. 고객들이 가장 만족하는 점",
-                      content: parts[1],
-                      color: "text-green-700",
-                      bg: "bg-green-50"
+                      color: "text-emerald-700",
+                      bg: "bg-emerald-50",
+                      border: "border-emerald-200",
+                      icon: (
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                          />
+                        </svg>
+                      )
                     },
                     {
-                      title: "2. 개선이 필요한 부분",
-                      content: parts[2],
-                      color: "text-yellow-700",
-                      bg: "bg-yellow-50"
+                      color: "text-amber-700",
+                      bg: "bg-amber-50",
+                      border: "border-amber-200",
+                      icon: (
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                      )
                     },
                     {
-                      title: "3. 매장 운영에 도움이 될만한 구체적인 제안",
-                      content: parts[3],
                       color: "text-blue-700",
-                      bg: "bg-blue-50"
+                      bg: "bg-blue-50",
+                      border: "border-blue-200",
+                      icon: (
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                          />
+                        </svg>
+                      )
                     }
                   ];
 
-                  return sections.map((section, idx) => (
-                    <div
-                      key={idx}
-                      className={`${section.bg} p-4 rounded-lg shadow text-xs whitespace-pre-wrap break-keep`}
-                    >
-                      <h3
-                        className={`text-lg font-semibold mb-6 ${section.color}`}
-                      >
-                        {section.title}
-                      </h3>
-                      <ul className="list-disc pl-4 space-y-1">
-                        {section.content
-                          .split("\n")
-                          .filter(
-                            (line: string) =>
-                              line.trim() &&
-                              !line.trim().startsWith("###") &&
-                              !/^[0-9]+\./.test(line.trim()) &&
-                              ![
-                                "고객들이 가장 만족하는 점",
-                                "개선이 필요한 부분",
-                                "매장 운영에 도움이 될만한 구체적인 제안"
-                              ].includes(line.trim())
-                          )
-                          .map((line: string, i: number) => (
-                            <Markdown key={i}>
-                              {line.replace(/^[-*]\s?/, "").trim()}
+                  // 각 섹션의 내용 추출
+                  const sections = [];
+
+                  for (let i = 0; i < sectionTitles.length; i++) {
+                    const title = sectionTitles[i];
+
+                    try {
+                      // 글자 앞에 숫자가 있는 경우도 포함하여 패턴 매치
+                      const titlePattern = new RegExp(
+                        `(?:##\\s*)?(?:\\d+\\.?\\s*)?${title}`,
+                        "i"
+                      );
+                      const titleMatch = raw.match(titlePattern);
+
+                      // 매치가 있고 인덱스가 유효한 경우만 처리
+                      if (titleMatch && titleMatch.index !== undefined) {
+                        const startIndex = titleMatch.index;
+                        let endIndex;
+
+                        // 다음 섹션 찾기
+                        if (i < sectionTitles.length - 1) {
+                          const nextTitle = sectionTitles[i + 1];
+                          const nextTitlePattern = new RegExp(
+                            `(?:##\\s*)?(?:\\d+\\.?\\s*)?${nextTitle}`,
+                            "i"
+                          );
+                          const remainingText = raw.slice(startIndex);
+                          const nextTitleMatch =
+                            remainingText.match(nextTitlePattern);
+
+                          if (
+                            nextTitleMatch &&
+                            nextTitleMatch.index !== undefined
+                          ) {
+                            endIndex = startIndex + nextTitleMatch.index;
+                          } else {
+                            endIndex = raw.length;
+                          }
+                        } else {
+                          endIndex = raw.length;
+                        }
+
+                        // 섹션 제목과 내용 저장
+                        let content = raw.slice(startIndex, endIndex).trim();
+
+                        // 제목 줄 제거 (숫자와 함께)
+                        content = content.replace(titlePattern, "").trim();
+
+                        // '##' 마크다운 헤더 표시 제거
+                        content = content.replace(/^##\s+/m, "").trim();
+
+                        // 서브섹션 제목에서 숫자 제거
+                        content = content.replace(/###\s*\d+\.\s*/g, "### ");
+
+                        // 마크다운 줄바꿈 처리를 위한 변환
+                        // 1. 단일 줄바꿈은 <br>로 변환 (마크다운에서 줄바꿈 보존)
+                        // 2. 빈 줄 두 개 이상은 하나의 빈 줄로 통일
+                        content = content
+                          .replace(/\n(?!\n)/g, "  \n") // 단일 줄바꿈 뒤에 공백 두 개 추가 (마크다운 줄바꿈)
+                          .replace(/\n{3,}/g, "\n\n"); // 연속된 세 개 이상의 줄바꿈은 두 개로 통일
+
+                        sections.push({
+                          title: title,
+                          content: content,
+                          style: sectionStyles[i]
+                        });
+                      }
+                    } catch (error) {
+                      console.error(`섹션 파싱 중 오류 발생: ${title}`, error);
+                    }
+                  }
+
+                  if (sections.length === 0) {
+                    // 대체 방법: 전체 내용을 하나의 섹션으로 표시
+                    try {
+                      // 줄바꿈 처리
+                      let cleanedContent = raw
+                        .replace(/\n(?!\n)/g, "  \n") // 단일 줄바꿈 뒤에 공백 두 개 추가
+                        .replace(/\n{3,}/g, "\n\n"); // 연속된 세 개 이상의 줄바꿈은 두 개로 통일
+
+                      const fallbackSection = {
+                        title: "분석 인사이트",
+                        content: cleanedContent,
+                        style: sectionStyles[0]
+                      };
+
+                      return (
+                        <div
+                          className={`${fallbackSection.style.bg} p-6 rounded-lg shadow-sm border ${fallbackSection.style.border}`}
+                        >
+                          <h3
+                            className={`text-lg font-semibold mb-4 ${fallbackSection.style.color} flex items-center`}
+                          >
+                            {fallbackSection.style.icon}
+                            {fallbackSection.title}
+                          </h3>
+
+                          <div className="prose max-w-none">
+                            <Markdown components={markdownComponents}>
+                              {fallbackSection.content}
                             </Markdown>
-                          ))}
-                      </ul>
-                    </div>
-                  ));
+                          </div>
+                        </div>
+                      );
+                    } catch (error) {
+                      return (
+                        <div className="p-5 bg-red-50 text-red-600 rounded-lg border border-red-200 flex items-center">
+                          <svg
+                            className="w-6 h-6 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          분석 리포트를 표시할 수 없습니다
+                        </div>
+                      );
+                    }
+                  }
+
+                  return sections.map((section, idx) => {
+                    const style = section.style;
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`${style.bg} p-6 rounded-lg shadow-sm border ${style.border}`}
+                      >
+                        <h3
+                          className={`text-lg font-semibold mb-4 ${style.color} flex items-center`}
+                        >
+                          {style.icon}
+                          {section.title}
+                        </h3>
+
+                        <div className="prose prose-sm max-w-none">
+                          <Markdown components={markdownComponents}>
+                            {section.content}
+                          </Markdown>
+                        </div>
+                      </div>
+                    );
+                  });
                 })()}
               </div>
             )}

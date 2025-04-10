@@ -19,6 +19,9 @@ import useAnalysis from "@/features/analysis/hooks/useAnalysis";
 // 이미지 import
 import PosData1 from "@/assets/POS_data_1.webp";
 import PosData2 from "@/assets/POS_data_2.webp";
+import Kiwoom1 from "@/assets/kiwoom1.png";
+import Kiwoom2 from "@/assets/kiwoom2.png";
+import Kiwoom3 from "@/assets/kiwoom3.png";
 
 const MainContent: React.FC = () => {
   // Zustand 스토어에서 필요한 상태와 액션 가져오기
@@ -327,7 +330,7 @@ const MainContent: React.FC = () => {
                     <img
                       src={PosData1}
                       alt="토스포스 정산지 출력 방법 1단계"
-                      className="w-full h-auto object-contain"
+                      className="w-full h-auto object-contain mt-5"
                     />
                   </div>
                 </li>
@@ -341,7 +344,7 @@ const MainContent: React.FC = () => {
                     <img
                       src={PosData2}
                       alt="토스포스 정산지 출력 방법 2단계"
-                      className="w-full h-auto object-contain"
+                      className="w-full h-auto object-contain mt-5"
                     />
                   </div>
                 </li>
@@ -354,34 +357,50 @@ const MainContent: React.FC = () => {
           </div>
         );
 
-      case "키움페이":
+      case "키움":
       case "kiwoompay":
         return (
           <div className="space-y-6">
             <div>
               <div className="mb-4 text-lg">
-                <p className="mb-3 font-medium text-bit-main">
+                <p className="mb-5 font-medium text-bit-main">
                   키움페이 영수증 출력 방법
                 </p>
                 <ol className="list-decimal pl-5 space-y-3">
-                  <li>키움페이 매니저 앱에 로그인합니다.</li>
+                  <li className="mb-5">키움페이 매니저 앱에 로그인합니다.</li>
                   <li>
-                    메인 화면에서{" "}
-                    <span className="text-red-500 font-medium">매출관리</span>를
-                    선택합니다.
+                    <span className="text-red-500 font-medium mb-3">
+                      매출관리
+                    </span>
+                    를 선택합니다.
+                    <img
+                      src={Kiwoom1}
+                      alt="키움페이 영수증 출력 방법 1단계"
+                      className="w-full mt-5 h-auto object-contain mb-2"
+                    />
                   </li>
                   <li>
-                    <span className="text-red-500 font-medium">매출내역</span>을
-                    선택하고 원하는 기간을 설정합니다.
+                    <span className="text-red-500 font-medium mb-3">
+                      매출내역
+                    </span>
+                    을 선택하고 원하는 기간을 설정합니다.
+                    <img
+                      src={Kiwoom3}
+                      alt="키움페이 영수증 출력 방법 1단계"
+                      className="w-full mt-5 h-auto object-contain mb-2"
+                    />
                   </li>
                   <li>
-                    화면 우측 상단의{" "}
-                    <span className="text-red-500 font-medium">
+                    <span className="text-red-500 mb-3 font-medium">
                       내보내기(↓)
                     </span>{" "}
                     버튼을 탭합니다.
+                    <img
+                      src={Kiwoom2}
+                      alt="키움페이 영수증 출력 방법 2단계"
+                      className="w-full h-auto object-contain mt-5 mb-2"
+                    />
                   </li>
-                  <li>파일 형식(Excel, CSV)을 선택하고 저장합니다.</li>
                 </ol>
               </div>
 
@@ -419,11 +438,35 @@ const MainContent: React.FC = () => {
     if (!errorMsg) return null;
 
     return (
-      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-        {errorMsg}
+      <div className="mt-4 text-center p-4 bg-red-50 border border-red-200 rounded-md text-red-600 text-lg">
+        <p>파일 형식이 잘못되었거나, 분석 요청 중 오류가 발생했습니다.</p>
+        다시 진행해 주세요.
+        <p className="mt-5">
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center cursor:pointer text-sm font-medium text-blue-500 hover:text-blue-700"
+            aria-label="페이지 새로고침"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-10 w-20"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </button>
+        </p>
       </div>
     );
   };
+
   // 대표 매장이 없는 경우 로딩 화면 표시
   if (!representativeStore) {
     return (

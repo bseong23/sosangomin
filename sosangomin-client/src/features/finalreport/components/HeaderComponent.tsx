@@ -2,6 +2,7 @@ import React from "react";
 import { FinalReportDetail } from "../types/finalReport";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Loading from "@/components/common/Loading";
 
 interface HeaderComponentProps {
   data: FinalReportDetail;
@@ -14,77 +15,80 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   onCreateReport,
   isCreating = false // 기본값은 false
 }) => {
+  const [isExporting, setIsExporting] = React.useState(false);
+
   const handleExportPDF = async () => {
     const reportElement = document.getElementById("report-content");
     if (!reportElement) return;
 
+    setIsExporting(true); // 시작할 때 로딩
     reportElement.classList.add("pdf-export");
 
-    const canvas = await html2canvas(reportElement, {
-      scale: 2,
-      useCORS: true
-    });
+    try {
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true
+      });
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgWidth = pageWidth;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = pageWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-    // 여러 페이지일 경우 분할
-    if (imgHeight <= pageHeight) {
-      // 한 페이지에 들어가는 경우
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    } else {
-      // 여러 페이지에 걸쳐서 이미지 넣기
-      const canvasHeight = canvas.height;
-      const canvasWidth = canvas.width;
-      const pageCanvas = document.createElement("canvas");
-      const pageContext = pageCanvas.getContext("2d")!;
-      const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      } else {
+        const canvasHeight = canvas.height;
+        const canvasWidth = canvas.width;
+        const pageCanvas = document.createElement("canvas");
+        const pageContext = pageCanvas.getContext("2d")!;
+        const pageHeightPx = (pageHeight * canvasWidth) / pageWidth;
 
-      let renderedHeight = 0;
+        let renderedHeight = 0;
 
-      while (renderedHeight < canvasHeight) {
-        pageCanvas.width = canvasWidth;
-        pageCanvas.height = Math.min(
-          pageHeightPx,
-          canvasHeight - renderedHeight
-        );
-
-        pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
-        pageContext.drawImage(
-          canvas,
-          0,
-          renderedHeight,
-          canvasWidth,
-          pageCanvas.height,
-          0,
-          0,
-          canvasWidth,
-          pageCanvas.height
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png");
-        if (renderedHeight > 0) pdf.addPage();
-        pdf.addImage(
-          pageData,
-          "PNG",
-          0,
-          0,
-          imgWidth,
-          (pageCanvas.height * imgWidth) / canvasWidth
-        );
-
-        renderedHeight += pageHeightPx;
+        while (renderedHeight < canvasHeight) {
+          pageCanvas.width = canvasWidth;
+          pageCanvas.height = Math.min(
+            pageHeightPx,
+            canvasHeight - renderedHeight
+          );
+          pageContext.clearRect(0, 0, canvasWidth, pageCanvas.height);
+          pageContext.drawImage(
+            canvas,
+            0,
+            renderedHeight,
+            canvasWidth,
+            pageCanvas.height,
+            0,
+            0,
+            canvasWidth,
+            pageCanvas.height
+          );
+          const pageData = pageCanvas.toDataURL("image/png");
+          if (renderedHeight > 0) pdf.addPage();
+          pdf.addImage(
+            pageData,
+            "PNG",
+            0,
+            0,
+            imgWidth,
+            (pageCanvas.height * imgWidth) / canvasWidth
+          );
+          renderedHeight += pageHeightPx;
+        }
       }
-    }
 
-    pdf.save(`${data.store_name}_보고서.pdf`);
-    reportElement.classList.remove("pdf-export");
+      pdf.save(`${data.store_name}_보고서.pdf`);
+    } catch (error) {
+      console.error("PDF export error:", error);
+    } finally {
+      setIsExporting(false); // 끝나면 로딩 종료
+      reportElement.classList.remove("pdf-export");
+    }
   };
 
   return (
@@ -163,6 +167,11 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
           </button>
         </div>
       </div>
+      {isExporting && (
+        <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
+          <Loading />
+        </div>
+      )}
     </div>
   );
 };
