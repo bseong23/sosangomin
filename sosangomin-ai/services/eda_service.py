@@ -123,11 +123,15 @@ class EdaService:
                                             for k, v in cross_dict.items()}
         
         # 13. 월별 매출 추세
-        if '월' in df.columns and '매출' in df.columns:
-            month_order = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-            monthly_sales = df.groupby('월')['매출'].sum()
-            monthly_dict = {month: float(monthly_sales[month]) if month in monthly_sales else 0 for month in month_order}
-            chart_data["monthly_sales"] = monthly_dict
+        if '년' in df.columns and '월' in df.columns and '매출' in df.columns:
+            yearly_monthly_sales = df.groupby(['년', '월'])['매출'].sum()
+            
+            yearly_monthly_dict = {}
+            for (year, month), sales in yearly_monthly_sales.items():
+                key = f"{year}-{month}"
+                yearly_monthly_dict[key] = float(sales)
+            
+            chart_data["monthly_sales"] = yearly_monthly_dict
         
         # 14. 상품별 판매 비중
         if '상품 명칭' in df.columns and '수량' in df.columns:
