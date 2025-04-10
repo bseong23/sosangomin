@@ -88,7 +88,7 @@ class EdaService:
             daily_df = df.groupby('날짜').agg({
                 '매출': 'sum',
                 '기온': 'mean',
-                '강수량': 'mean',
+                '강수량': 'max',
                 '습도': 'mean'
             }).reset_index()
 
