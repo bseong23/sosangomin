@@ -19,21 +19,45 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
 
   // 시간대별 매출 데이터 (막대 그래프용)
   const timePeriodLabels = Object.keys(timePeriodSales);
-  const timePeriodValues = Object.values(timePeriodSales).map((value) =>
-    Number(value)
+  const timePeriodValues = Object.values(timePeriodSales).map(
+    (value) =>
+      // 만원 단위로 변환 (10000으로 나눔)
+      Number(value) / 10000
   );
-  const holidaySalesValues = Object.values(holidaySales).map((value) =>
-    Number(value)
+  const holidaySalesValues = Object.values(holidaySales).map(
+    (value) =>
+      // 만원 단위로 변환 (10000으로 나눔)
+      Number(value) / 10000
   );
 
-  // 두 차트의 Y축 최대값을 동일하게 맞추기 위한 계산
-  const maxValue = useMemo(() => {
-    const timeMax = Math.max(...Object.values(timePeriodSales).map(Number));
-    const holidayMax = Math.max(...Object.values(holidaySales).map(Number));
+  // 두 차트의 Y축 최소값과 최대값을 계산 (이미 만원 단위로 변환된 값 사용)
+  const { minValue, maxValue } = useMemo(() => {
+    // 시간대별 매출의 최소/최대값
+    const timeMin = Math.min(...timePeriodValues);
+    const timeMax = Math.max(...timePeriodValues);
+
+    // 평일/휴일 매출의 최소/최대값
+    const holidayMin = Math.min(...holidaySalesValues);
+    const holidayMax = Math.max(...holidaySalesValues);
+
+    // 두 데이터셋 중 더 작은 최소값과 더 큰 최대값 선택
+    const overallMin = Math.min(timeMin, holidayMin);
     const overallMax = Math.max(timeMax, holidayMax);
-    // 최대값의 약 20% 여유 공간을 추가하고 적절한 단위로 반올림
-    return Math.ceil((overallMax * 1.2) / 1000000) * 1000000;
-  }, [timePeriodSales, holidaySales]);
+
+    // 최소값은 가장 작은 값의 약 90%로 설정 (단, 0보다 작지 않게)
+    const calculatedMin = Math.max(
+      0,
+      Math.floor((overallMin * 0.9) / 100) * 100
+    );
+
+    // 최대값은 가장 큰 값의 약 10% 여유 공간을 추가
+    const calculatedMax = Math.ceil((overallMax * 1.1) / 100) * 100;
+
+    return {
+      minValue: calculatedMin,
+      maxValue: calculatedMax
+    };
+  }, [timePeriodValues, holidaySalesValues]);
 
   // 마크다운 렌더링을 위한 스타일
   const markdownComponents = {
@@ -67,14 +91,25 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
     responsive: true,
     scales: {
       y: {
-        beginAtZero: true,
-        min: 0,
-        max: maxValue,
+        beginAtZero: false, // 0부터 시작하지 않음
+        min: minValue, // 계산된 최소값 사용
+        max: maxValue, // 계산된 최대값 사용
         ticks: {
-          stepSize: 1000000,
+          // 스텝 사이즈 계산 (범위에 따라 적절히 조정)
+          stepSize: Math.ceil((maxValue - minValue) / 5 / 100) * 100,
           callback: function (value: number) {
-            return (value / 1000000).toLocaleString() + ",000,000";
+            // 단순히 숫자만 표시 (이미 만원 단위로 변환했으므로)
+            return value.toLocaleString();
           }
+        },
+        title: {
+          display: true,
+          text: "매출액",
+          font: {
+            size: 12,
+            weight: "normal"
+          },
+          padding: { top: 0, bottom: 10 }
         }
       }
     },
@@ -83,7 +118,20 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
         display: false
       },
       tooltip: {
-        enabled: true
+        enabled: true,
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.raw !== null) {
+              // 이미 만원 단위이므로 적절한 포맷 적용
+              label += context.raw.toLocaleString() + " 만원";
+            }
+            return label;
+          }
+        }
       }
     }
   };
@@ -99,6 +147,7 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
         <p className="text-sm text-comment-text mb-8">
           점심(11:00-15:00) | 저녁(17:00-21:00) | 기타(그 외 시간대)
         </p>
+        <p className="text-xs text-end text-comment-text">단위 : 만원</p>
 
         {/* 차트 컨테이너 - 고정 높이 */}
         <div className="h-70">
@@ -145,6 +194,7 @@ const DistributionSection: React.FC<DistributionSectionProps> = ({ data }) => {
         <p className="text-sm text-comment-text mb-8">
           평일(월~금) | 휴일(토,일,공휴일)
         </p>
+        <p className="text-xs text-end text-comment-text">단위 : 만원</p>
 
         {/* 차트 컨테이너 - 고정 높이, 첫 번째와 동일 */}
         <div className="h-70">

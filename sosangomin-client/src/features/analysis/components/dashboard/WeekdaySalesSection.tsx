@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import SalesRankingCard from "./SalesRankingCard";
 import { AnalysisResultData } from "../../types/analysis";
 import Markdown from "react-markdown";
@@ -34,18 +34,37 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
     Sunday: "일요일"
   };
 
-  // 정렬된 데이터 배열 생성
-  const sortedEntries = dayOrder
-    .filter((day) => weekdaySales[day] !== undefined)
-    .map((day) => ({
-      day: day,
-      koreanDay: koreanDays[day] || day,
-      value: weekdaySales[day]
-    }));
+  // 정렬된 데이터 배열 생성 - 만원 단위로 변환
+  const sortedEntries = useMemo(() => {
+    return dayOrder
+      .filter((day) => weekdaySales[day] !== undefined)
+      .map((day) => ({
+        day: day,
+        koreanDay: koreanDays[day] || day,
+        value: Number(weekdaySales[day]) / 10000 // 만원 단위로 변환
+      }));
+  }, [weekdaySales]);
 
   // 정렬된 데이터에서 라벨과 값 추출
   const weekdaySalesLabels = sortedEntries.map((entry) => entry.koreanDay);
   const weekdaySalesValues = sortedEntries.map((entry) => entry.value);
+
+  // 최대값과 최소값 계산 (여유 공간 5%로 조정)
+  const { minValue, maxValue } = useMemo(() => {
+    const min = Math.min(...weekdaySalesValues);
+    const max = Math.max(...weekdaySalesValues);
+
+    // 최소값의 약 95%로 설정 (단, 0보다 작지 않게)
+    const calculatedMin = Math.max(0, Math.floor((min * 0.95) / 100) * 100);
+
+    // 최대값의 약 5% 여유 공간을 추가
+    const calculatedMax = Math.ceil((max * 1.05) / 100) * 100;
+
+    return {
+      minValue: calculatedMin,
+      maxValue: calculatedMax
+    };
+  }, [weekdaySalesValues]);
 
   const markdownComponents = {
     h1: (props: any) => (
@@ -73,6 +92,58 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
       />
     )
   };
+
+  // 차트 옵션 설정
+  const chartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: false, // 0부터 시작하지 않음
+        min: minValue, // 계산된 최소값 적용
+        max: maxValue, // 계산된 최대값 적용
+        ticks: {
+          // 스텝 사이즈 계산 (범위에 따라 적절히 조정)
+          stepSize: Math.ceil((maxValue - minValue) / 5 / 100) * 100,
+          callback: function (value: number) {
+            // 단순히 숫자만 표시 (이미 만원 단위로 변환했으므로)
+            return value.toLocaleString();
+          }
+        },
+        title: {
+          display: true,
+          text: "매출액",
+          font: {
+            size: 12,
+            weight: "normal"
+          },
+          padding: { top: 0, bottom: 10 }
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.raw !== null) {
+              // 이미 만원 단위이므로 적절한 포맷 적용
+              label += context.raw.toLocaleString() + " 만원";
+            }
+            return label;
+          }
+        }
+      }
+    }
+  };
+
   const weekdaySalesDatasets = [
     {
       label: "요일별 매출",
@@ -86,13 +157,15 @@ const WeekdaySalesSection: React.FC<WeekdaySalesSectionProps> = ({ data }) => {
       <h2 className="text-lg font-semibold mb-4 text-comment">
         요일별 매출 현황
       </h2>
+      <p className="text-xs text-end text-comment-text">단위 : 만원</p>
       <div className="mb-10" style={{ width: "100%", height: "350px" }}>
         <SalesRankingCard
           title=""
           labels={weekdaySalesLabels}
           datasets={weekdaySalesDatasets}
           height={350}
-          unit="원"
+          unit="만원"
+          customOptions={chartOptions}
         />
       </div>
       <div className="mt-2 mb-2">

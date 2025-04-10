@@ -9,6 +9,7 @@ interface SalesRankingCardProps {
   horizontal?: boolean;
   comment?: string;
   unit?: string;
+  customOptions?: any; // 새로 추가한 props
 }
 
 const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
@@ -18,10 +19,11 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
   height = 250,
   horizontal = false,
   comment,
-  unit = "원"
+  unit = "원",
+  customOptions // 외부에서 전달된 customOptions
 }) => {
-  // 핵심 수정: 차트 옵션 커스터마이징
-  const customOptions = {
+  // 기본 차트 옵션
+  const defaultOptions = {
     scales: {
       x: {
         // 수직 막대 차트에서 x축 라벨 처리
@@ -82,9 +84,12 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
     }
   };
 
+  // 외부에서 받은 customOptions가 있으면 사용하고, 없으면 defaultOptions 사용
+  const finalOptions = customOptions || defaultOptions;
+
   // BarChart에 필요한 모든 props 전달
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
+    <div className="bg-white p-4 rounded-lg">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <div style={{ height: `${height}px` }}>
         <BarChart
@@ -94,7 +99,7 @@ const SalesRankingCard: React.FC<SalesRankingCardProps> = ({
           horizontal={horizontal}
           legend={false}
           unit={unit}
-          customOptions={customOptions}
+          customOptions={finalOptions}
         />
         {comment && <p className="text-sm text-gray-600 mt-2">{comment}</p>}
       </div>

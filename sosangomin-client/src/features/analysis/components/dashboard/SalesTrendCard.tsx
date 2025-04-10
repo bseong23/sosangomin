@@ -19,7 +19,7 @@ const SalesTrendCard: React.FC<SalesTrendCardProps> = ({
   comment
 }) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
+    <div className="bg-white p-4 rounded-lg">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       <div style={{ height: `${height}px` }}>
         <LineChart

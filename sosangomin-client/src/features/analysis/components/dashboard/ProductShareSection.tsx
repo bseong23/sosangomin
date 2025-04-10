@@ -93,13 +93,13 @@ const ProductShareSection: React.FC<ProductShareSectionProps> = ({ data }) => {
       <h2 className="text-lg font-semibold mb-6 text-comment">
         우리가게 효자 제품은?
       </h2>
-      <div className="flex flex-col md:flex-row items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-center">
         <div className="w-full md:w-2/5 mb-4 md:mb-0">
           <div className="w-full max-w-xs mx-auto">
             <PieChart chartData={productShareChartData} />
           </div>
         </div>
-        <div className="w-full md:w-3/5 md:pl-6 flex items-center">
+        <div className="w-full md:w-2/5 md:pl-6 flex items-center">
           <div className="space-y-2 w-full">
             {Object.entries(processedData).map(([product, share], idx) => (
               <div
