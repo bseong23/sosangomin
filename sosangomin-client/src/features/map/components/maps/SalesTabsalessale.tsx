@@ -98,7 +98,7 @@ const SalesTabsalessale: React.FC<SalesTabSalesCountProps> = ({
       <h3 className="text-lg font-semibold mb-4">
         {selectedAdminName} {selectedCategory} 매출 금액 상세
       </h3>
-      <div className="flex flex-wrap lg:flex-nowrap space-x-1 rounded-xl bg-blue-900/20 p-1 mb-4">
+      <div className="flex flex-wrap lg:flex-nowrap space-x-1 rounded-xl bg-blue-900/20 p-1 mb-10">
         {tabData.map((tab, index) => (
           <button
             key={index}

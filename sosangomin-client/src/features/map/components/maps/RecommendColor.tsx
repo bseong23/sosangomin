@@ -51,13 +51,13 @@ const RecommendColor: React.FC<ColorLegendProps> = ({
 
   return (
     <div
-      className={`absolute ${positionClasses[position]} bg-white p-3 rounded-md shadow-lg z-10  min-w-[200px]`}
+      className={`absolute ${positionClasses[position]} bg-white p-3 rounded-md shadow-lg z-10 min-w-[200px]`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-bold text-gray-700">{title}</h3>
         <div className="relative">
           <button
-            className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-700 focus:outline-none"
+            className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-700 focus:outline-none hover:bg-gray-300 transition-colors"
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
             aria-label="등급 설명"
@@ -67,25 +67,32 @@ const RecommendColor: React.FC<ColorLegendProps> = ({
 
           {showTooltip && (
             <div
-              className={`absolute ${tooltipPosition} bottom-0 w-64 bg-white p-3 rounded-md shadow-lg z-20 text-xs`}
+              className={`absolute ${tooltipPosition} bottom-0 w-72 bg-white p-4 rounded-md shadow-lg z-20 border border-gray-200`}
             >
-              <h4 className="font-bold mb-2 text-gray-800">등급 기준 설명</h4>
-              <ul className="space-y-2">
-                {legendItems.map((item, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="flex items-center mt-0.5">
-                      <div
-                        className="w-3 h-3 mr-1 rounded-sm flex-shrink-0"
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                    </div>
-                    <div>
-                      <span className="font-medium">{item.label}:</span>{" "}
-                      {item.description}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="bg-blue-50 p-3 rounded-md">
+                <h4 className="font-bold text-sm text-blue-800 mb-2">
+                  등급 기준 안내
+                </h4>
+                <p className="text-gray-700 leading-relaxed text-xs">
+                  각 행정동은{" "}
+                  <span className="font-semibold text-blue-700">
+                    인구, 매출, 임대료, 시설 접근성
+                  </span>{" "}
+                  등 다양한 지표를 종합적으로 분석한 점수를 기준으로 1등급부터
+                  5등급까지 나누었습니다.
+                </p>
+                <p className="text-gray-700 leading-relaxed text-xs mt-2">
+                  점수는{" "}
+                  <span className="font-semibold text-blue-700">
+                    우선순위로 선택한 요소
+                  </span>
+                  를 더 중요하게 반영하여 계산되며, 전체 점수 분포를 바탕으로{" "}
+                  <span className="font-semibold text-blue-700">
+                    상위 20%는 1등급, 하위 20%는 5등급
+                  </span>
+                  으로 구분됩니다.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -95,7 +102,7 @@ const RecommendColor: React.FC<ColorLegendProps> = ({
         {legendItems.map((item, index) => (
           <div key={index} className="flex items-center">
             <div
-              className="w-5 h-5 mr-2 rounded-sm"
+              className="w-5 h-5 mr-2 rounded-sm shadow-sm"
               style={{ backgroundColor: item.color }}
             ></div>
             <span className="text-xs text-gray-600">{item.label}</span>

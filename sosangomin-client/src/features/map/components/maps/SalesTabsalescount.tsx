@@ -98,7 +98,7 @@ const SalesTabSalesCount: React.FC<SalesTabSalesCountProps> = ({
         {selectedAdminName} {selectedCategory} 매출 건수 상세
       </h3>
       {/* 탭 버튼 - 4개 탭으로 변경 */}
-      <div className="flex flex-wrap lg:flex-nowrap space-x-1 rounded-xl bg-blue-900/20 p-1 mb-4">
+      <div className="flex flex-wrap lg:flex-nowrap space-x-1 rounded-xl bg-blue-900/20 p-1 mb-10">
         {tabData.map((tab, index) => (
           <button
             key={index}

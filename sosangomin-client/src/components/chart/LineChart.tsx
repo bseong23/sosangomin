@@ -100,7 +100,13 @@ const LineChart: React.FC<LineChartProps> = ({
     },
     scales: {
       x: {
-        grid: { color: "rgba(0, 0, 0, 0.05)" },
+        offset: true, // 👈 이 부분 추가,
+        grid: {
+          display: false,
+          drawBorder: false,
+          drawOnChartArea: false,
+          drawTicks: false
+        },
         ticks: {
           font: { size: 12 },
           maxRotation: 0,
@@ -113,7 +119,12 @@ const LineChart: React.FC<LineChartProps> = ({
         }
       },
       y: {
-        grid: { color: "rgba(0, 0, 0, 0.05)" },
+        grid: {
+          display: false,
+          drawBorder: false,
+          drawOnChartArea: false,
+          drawTicks: false
+        },
         ticks: {
           font: { size: 12 },
           callback: (value: number) =>
