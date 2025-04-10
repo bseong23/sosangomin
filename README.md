@@ -6,12 +6,14 @@
 
 ## 주요 화면
 
-![대시보드 화면](sosangomin-client/src/assets/README/main.png)
+![대시보드 화면](sosangomin-client/src/assets/README/data.png)
 _대시보드 화면 설명_
 ![리뷰 화면](sosangomin-client/src/assets/README/review.png)
 _리뷰 화면 설명_
 ![지도 화면](sosangomin-client/src/assets/README/map.png)
 _지도 화면 설명_
+![최종 보고서 화면](sosangomin-client/src/assets/README/result.png)
+_최종 보고서 화면 설명_
 
 ## 기술 스택
 
@@ -68,35 +70,42 @@ src/
 │   ├── chart/
 │   ├── common/
 │   ├── footer/
-│   ├── modal/
-│   ├── main/
-│   ├── sidebar/
 │   ├── header/
-│   └── layout/
+│   ├──layout/
+│   ├── modal/
+│   └── sidebar/
 ├── features/       # 기능별 컴포넌트
 │   ├── analysis/   # 데이터 분석 관련 컴포넌트
-│   ├── review/     # 리뷰 분석 관련 컴포넌트
-│   ├── map/        # 지도 및 상권 분석 컴포넌트
 │   ├── auth/       # 유저 관리
-│   └── board/      # 커뮤니티
-├── mock/           # 개발용 목업 데이터
+│   ├── board/      # 커뮤니티
+│   ├── competitor/     # 경쟁사 리뷰 분석 관련 컴포넌트
+│   ├── finalreport/     # 최종 보고서 관련 컴포넌트
+│   ├── main/     # 메인 페이지 관련 컴포넌트
+│   ├── map/        # 상권 분석 및 입지분석 컴포넌트
+│   ├── review/     # 리뷰 분석 관련 컴포넌트
+│   └── service/     # 서비스 소개 관련 컴포넌트
 ├── pages/          # 페이지 컴포넌트
 ├── store/          # Zustand 상태 관리
-│   ├── useAuthStore.ts
-│   ├── storeModalStore.ts
 │   ├── modalStore.ts
-│   └── mapStore.ts
+│   ├── storeModalStore.ts
+│   ├── storeStore.ts
+│   ├── useAnalysisStore.ts
+│   ├── useAuthStore.ts
+│   ├── useChatStore.ts
+│   ├── useCompetitorStore.ts
+│   └── useReviewStore.ts
 ├── styles/         # 전역 스타일 및 테마
 │   └── index.css/
 ├── types/          # TypeScript 타입 정의
 │   ├── chart.ts
-│   ├── chat.ts
+│   ├── chatbot.ts
 │   ├── common.ts
 │   ├── header.ts
 │   ├── layout.ts
-│   └── sidebar.ts
-├── utils/          # 유틸리티 함수
-│   └── curlocation.ts
+│   ├── sidebar.ts
+│   └── store.ts
+├── utils/
+│   └── curlocation.ts # url 관련 함수
 ├── App.tsx         # 앱 루트 컴포넌트
 ├── main.tsx        # 앱 진입점
 ├── vite-env.d.ts   # Vite 환경 타입 정의
@@ -120,8 +129,8 @@ src/
 ### 지도 기반 상권 분석
 
 - 지역별 데이터 시각화
-- 히트맵 표시
-- 위치 기반 추천
+- 행정동 별 인구 데이터를 통한 히트맵 표시
+- 선호 조건을 통한 입지 추천
 
 ### 보고서 생성
 
