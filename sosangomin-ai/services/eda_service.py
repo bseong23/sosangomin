@@ -238,6 +238,16 @@ class EdaService:
                         logger.info(f"전처리 전 열 목록: {df.columns.tolist()}")
                     except Exception as e:
                         raise ValueError(f"{pos_type}파일 {filename} 처리 중 오류 발생: {str(e)}")
+                    # 전처리 수행
+                    df = await autoanalysis_service.preprocess_data(df, pos_type)
+                    
+                    logger.info(f"전처리 완료: 행 수={df.shape[0]}, 열 수={df.shape[1]}")
+                    logger.info(f"전처리 후 열: {df.columns.tolist()}")
+                    logger.info(f"'매출' 열 존재 여부: {'매출' in df.columns}")
+                    df['source_id'] = source_id
+                    
+                    preprocessed_data.append(df)
+                    
                 else:
                     try:
                         logger.info(f'{pos_type} 데이터 다운로드')

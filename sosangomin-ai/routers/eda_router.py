@@ -55,7 +55,7 @@ async def perform_combined_analysis(request: CombinedAnalysisRequest):
         
         if recent_result:            
             source_ids_str = [str(sid) for sid in recent_result["source_ids"]]
-            
+            logger.info(f'EDA 30 ---------')
             await asyncio.sleep(30)
             
             return {
