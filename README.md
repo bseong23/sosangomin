@@ -6,7 +6,7 @@ POS기 데이터를 이용한 데이터 분석 결과와 인사이트 제공 및
 
 ## 주요 기능
 
-<img src="./image/example1.png/">
+<img src="./image/example1.png/" width="600">
 
 ### 데이터 분석
 - **데이터 자동 전처리**: 결측치 처리, 이상치 탐지, 데이터 타입 감지
@@ -27,7 +27,7 @@ POS기 데이터를 이용한 데이터 분석 결과와 인사이트 제공 및
     - **상품 세그멘테이션**: K-means 클러스터링을 이용한 상품 세분화
     - **실행 가능 인사이트**: 데이터에 기반한 구체적 비즈니스 제안
 
-<img src="./image/example2.png/">
+<img src="./image/example2.png/" width="600">
 
 ### 리뷰 분석
 - **자동 리뷰 수집**: 네이버 플레이스 리뷰 자동 크롤링
@@ -38,14 +38,14 @@ POS기 데이터를 이용한 데이터 분석 결과와 인사이트 제공 및
     - **비교 분석**: 내 매장 vs 경쟁사 리뷰 비교
     - **차별화 전략 제안**: 경쟁우위 요소 식별 및 개선 필요 영역 제안
 
-<img src="./image/example3.png/">
+<img src="./image/example3.png/" width="600">
 
 ### 상권 분석
 - **인구 통계 분석**: 지역별 인구 구성 및 유동인구 분석
 - **상권 정보**: 동네별 상권 특성 및 경쟁 밀도 분석
 - **입지 분석**: 최적 위치 제안 및 주변 시설 시너지 분석
 
-<img src="./image/example4.png/">
+<img src="./image/example4.png/" width="600">
 
 ### SWOT 종합 분석 보고서
 - **자동 SWOT 분석**: 모든 데이터를 종합한 SWOT 매트릭스 생성
@@ -112,11 +112,11 @@ POS기 데이터를 이용한 데이터 분석 결과와 인사이트 제공 및
 
 ## 아키텍처
 
-<img src="./image/architecture.png/">
+<img src="./image/architecture.png/" width="600">
 
 ## ERD
 
-<img src="./exec/2. DB_dump/mariadb-erd.png">
+<img src="./exec/2. DB_dump/mariadb-erd.png" width="600">
 
 ## 기술 스택
 
