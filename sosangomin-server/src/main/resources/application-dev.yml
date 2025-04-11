@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: sosangomin
+  config:
+    activate:
+      on-profile: dev
+    import: optional:file:env/dev.env[.properties]
+
+  datasource:
+    driver-class-name: ${DB_DRIVER_CLASS_NAME}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+
+  data:
+    redis:
+      host: ${REDIS_SERVER_IP}
+      port: 6379
+      timeout: 3000
+
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+    mongodb:
+      uri: ${MONGO_URI}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: profile_nickname, profile_image
+        provider:
+          kakao: # registration 이름과 일치해야 함
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id # 사용자 정보에서 ID 추출 필드
+
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: ${GOOGLE_EMAIL}
+    password: ${GOOGLE_PASSWORD}
+    smtp:
+      timeout: 5000
+    verification:
+      expiry-minutes: 5
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+encrypt:
+  secret-key: ${ENCRYPT_SECRET_KEY}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+frontend-url: ${FRONTEND_URL}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+fastapi:
+  base-url: ${FASTAPI_URL}

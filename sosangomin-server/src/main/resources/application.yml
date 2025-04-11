@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: sosangomin
+  profiles:
+    active: local
+
